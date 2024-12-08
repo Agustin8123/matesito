@@ -85,9 +85,10 @@ app.get('/tweets', (req, res) => {
     const query = 'SELECT * FROM tweets ORDER BY createdAt DESC';
     db.query(query, (err, results) => {
         if (err) {
-            res.status(500).json('Error al obtener los tweets');
+            console.error('Error al obtener los tweets:', err);
+            res.status(500).json({ error: 'Error al obtener los tweets' }); // Respuesta más clara
         } else {
-            res.status(200).json(results);
+            res.status(200).json(results.rows); // Devuelve solo los datos en la propiedad rows
         }
     });
 });
