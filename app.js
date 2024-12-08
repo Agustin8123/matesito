@@ -111,7 +111,7 @@ app.post('/getUserDetails', (req, res) => {
         }
 
         if (results.length > 0) {
-            const user = results[0]; // El primer usuario que coincida con el nombre de usuario
+            const user = results.rows[0]; // El primer usuario que coincida con el nombre de usuario
             // Devolver los detalles del usuario (puedes ajustar los campos que quieres devolver)
             res.status(200).json({
                 username: user.username,
