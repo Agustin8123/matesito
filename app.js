@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql2');
+const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
 require('dotenv').config();
 const app = express();
@@ -11,21 +11,19 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));  // Limitar los 
 
 
 // Conectar a la base de datos MySQL
-const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+const client = new Client({
+    host: 'dpg-ctaka0ogph6c73ephsng-a',
+    port: 5432,
+    user: 'root',  
+    password: 'BUkFrhcaMEnOI3cMszZijlrTFqcNbSoy',
+    database: 'matesito'
 });
 
+
 // Verificar conexión
-db.connect((err) => {
-    if (err) {
-        console.error('Error al conectar a la base de datos: ' + err.stack);
-        return;
-    }
-    console.log('Conectado a la base de datos MySQL');
-});
+client.connect()
+  .then(() => console.log('Conexión a la base de datos PostgreSQL exitosa'))
+  .catch(err => console.error('Error al conectar a la base de datos:', err));
 
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
