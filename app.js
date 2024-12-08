@@ -2,6 +2,7 @@ const express = require('express');
 const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
 require('dotenv').config();
+const cors = require('cors');
 const app = express();
 const port = 3000;
 
@@ -9,6 +10,9 @@ app.use(express.json()); // Para recibir datos JSON
 app.use(express.json({ limit: '10mb' }));  // Limitar el tamaño de los JSON a 10 MB
 app.use(express.urlencoded({ limit: '10mb', extended: true }));  // Limitar los datos de formulario
 
+app.use(cors({
+    origin: 'https://matesito.onrender.com' // O especifica la URL de tu frontend, por ejemplo: 'https://tupagina.com'
+}));
 
 // Conectar a la base de datos MySQL
 const client = new Client({
