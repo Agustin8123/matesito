@@ -9,7 +9,7 @@ app.use(express.json()); // Para recibir datos JSON
 app.use(express.json({ limit: '10MB' }));  // Limitar el tamaño de los JSON a 10 MB
 app.use(express.urlencoded({ limit: '10MB', extended: true }));  // Limitar los datos de formulario
 
-const client = new Client({
+const db = new Client({
     host: 'dpg-ctaka0ogph6c73ephsng-a.oregon-postgres.render.com', // Solo el host
     user: 'root', // Usuario
     password: 'BUkFrhcaMEnOI3cMszZijlrTFqcNbSoy', // Contraseña
@@ -20,7 +20,7 @@ const client = new Client({
 
 
 // Verificar conexión
-client.connect()
+db.connect()
   .then(() => console.log('Conexión a la base de datos PostgreSQL exitosa'))
   .catch(err => console.error('Error al conectar a la base de datos:', err));
 
