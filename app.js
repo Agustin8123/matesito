@@ -6,8 +6,6 @@ const app = express();
 const port = 3000;
 
 app.use(express.json()); // Para recibir datos JSON
-app.use(express.json({ limit: '10MB' }));  // Limitar el tamaño de los JSON a 10 MB
-app.use(express.urlencoded({ limit: '10MB', extended: true }));  // Limitar los datos de formulario
 
 const db = new Client({
     host: 'dpg-ctaka0ogph6c73ephsng-a.oregon-postgres.render.com', // Solo el host
@@ -43,6 +41,9 @@ app.post('/users', async (req, res) => {
 
 // Iniciar sesión con un usuario existente
 app.post('/login', (req, res) => {
+    
+    console.log('Solicitud de login recibida:', req.body);
+
     const { username, password } = req.body;
 
     const query = 'SELECT * FROM users WHERE username = $1';
