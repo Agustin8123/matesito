@@ -1,6 +1,6 @@
 const express = require('express');
 const mysql = require('mysql2');
-const bcrypt = require('bcrypt');
+const bcryptjs = require('bcryptjs');
 require('dotenv').config();
 const app = express();
 const port = 3000;
@@ -30,7 +30,7 @@ db.connect((err) => {
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
     const { username, password, image } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10); // Cifrar la contraseña
+    const hashedPassword = await bcryptjs.hash(password, 10); // Cifrar la contraseña
 
     const query = 'INSERT INTO users (username, password, image) VALUES (?, ?, ?)';
     db.query(query, [username, hashedPassword, image || 'default-avatar.png'], (err, result) => {
@@ -56,7 +56,7 @@ app.post('/login', (req, res) => {
 
         if (results.length > 0) {
             const user = results[0];
-            const isValidPassword = await bcrypt.compare(password, user.password);
+            const isValidPassword = await bcryptjs.compare(password, user.password);
 
             if (isValidPassword) {
                 res.status(200).json({ username: user.username });
