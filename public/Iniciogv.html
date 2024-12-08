@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matesito</title>
+    
+   
+    <style>
+        /* Estilos básicos para el cuerpo y el contenedor principal */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
+        }
+        
+        .header {
+    background-color: #800020; /* Color bordó */
+    color: white;
+    padding: 10px 20px;
+    text-align: left; /* Asegura que el texto esté alineado a la izquierda */
+    position: relative;
+    display: flex; /* Cambiar a flexbox */
+    align-items: center; /* Alinear verticalmente los elementos */
+}
+        
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #800020;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .tweet-box {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .tweet-box textarea {
+            width: 100%;
+            padding: -1px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            resize: none;
+            background-color: #ffffff;
+        }
+        .tweet-box button {
+            background-color: #ffffff; /* Color bordó */
+            color: #800020;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        .tweets {
+            list-style: none;
+            padding: 0;
+        }
+        .tweet {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 10px 0;
+            border-radius: 10px;
+        }
+        .tweet .username {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .username-box, .user-select-box {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .username-box input, .user-select-box input {
+            padding: 10px;
+            width: 80%;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .username-box button, .user-select-box button {
+            background-color: #800020; /* Color bordó */
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .user-list {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .user-item {
+            text-align: center;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .user-item .profile-pic {
+            width: 50px;
+            height: 50px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 5px;
+            position: relative;
+            color: #333;
+        }
+        .user-item.active .profile-pic {
+            border: 2px solid #800020; /* Color bordó */
+        }
+        .user-item .username {
+            display: block;
+        }
+
+        .preview-media {
+            width: 400px; /* Ancho predeterminado */
+            height: auto;
+            max-height: 800px; /* Altura máxima */
+            object-fit: cover; /* Ajustar imagen/video */
+            border-radius: 5px; /* Bordes redondeados */
+            margin-top: 10px; /* Espacio superior */
+        }
+
+        .header button {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .header button img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        
+        }
+        .initial-box {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+       .initial-box button {
+            background-color: #800020;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+
+        button {
+            background-color: #800020;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: #9b243f; 
+        }
+
+        /* Estilo de botón genérico */
+        .button {
+            background-color: #ffffff;
+            border: none;
+            color: #9b243f;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+/* Personalizar la etiqueta que actúa como botón */
+        .custom-file-upload {
+            cursor: pointer;
+        }
+
+/* Estilos para el input de tipo file */
+        #fileInput {
+            display: none;
+        }
+
+        .logo {
+            width: 50px; /* Ajusta el tamaño del logo */
+            height: auto;
+            margin-top: -2px;
+        }
+
+        .modal {
+            display: none; /* Por defecto, el modal está oculto */
+            position: fixed;
+            z-index: 1; /* Asegura que el modal esté encima de otros elementos */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4); /* Fondo translúcido */
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Encabezado con botón para seleccionar usuario -->
+
+    <div class="header">
+    <img src="matesito-logo.png" alt="Logo" class="logo">
+    <h1>atesito</h1>
+    <button onclick="showUserSelectOverlay()">Seleccionar Usuario</button>
+</div>
+
+<div class="overlay" id="AvisoOverlay">
+    <div class="initial-box">
+        <h1>Las opciones de subir archivos (ya sea la de elegir foto de perfil o publicar fotos o videos) bugean la pagina, asi que por ahora no las usen.</h1>
+        <button onclick="Acept()">Aceptar</button>
+    </div>
+</div>
+
+
+
+<div class="container" id="appContainer">
+    <div class="tweet-box">
+        <textarea id="tweetContent" rows="3" placeholder="¿Qué está pasando?"></textarea>
+
+        <button class="button" onclick="document.getElementById('tweetMedia').click();">
+            Seleccionar Imagen o Video
+        </button>
+        <input id="tweetMedia" type="file" accept="image/*, video/*" style="display:none;" />
+
+        <button onclick="postTweet()">Cebar</button>
+    </div>
+    <ul id="tweetList" class="tweets"></ul>
+</div>
+
+
+
+    <!-- Contenedor principal de la aplicación -->
+<div class="overlay" id="initialOverlay">
+    <div class="initial-box">
+        <button onclick="useExistingUser()">Usar Usuario Existente</button>
+        <button onclick="createNewUser()">Crear Nuevo Usuario</button>
+    </div>
+</div>
+
+<!-- Overlay de Usuario Existente -->
+<div class="overlay" id="usernameOverlay" style="display: none;">
+    <div class="username-box">
+        <input type="text" id="usernameInput" placeholder="Nombre de Usuario">
+        <input type="password" id="passwordInput" placeholder="Contraseña">
+        <button onclick="loginUser()">Ingresar</button>
+        <!-- Botón Volver -->
+        <button onclick="goBackToInitial()">Volver</button>
+    </div>
+</div>
+
+<!-- Overlay de Crear Usuario -->
+<div class="overlay" id="userSelectOverlay" style="display: none;">
+    <div class="user-select-box">
+        <input type="text" id="newUsernameInput" placeholder="Nuevo usuario">
+        <input type="password" id="newPasswordInput" placeholder="Contraseña">
+        
+<!-- Botón personalizado para seleccionar la imagen de perfil -->
+<label for="newProfileImage" class="custom-file-upload button">
+    Seleccionar imagen de perfil
+</label>
+<input id="newProfileImage" type="file" accept="image/*" style="display:none;" />
+
+        
+        <button onclick="addNewUser()">Crear</button>
+        <!-- Botón Volver -->
+        <button onclick="goBackToInitial()">Volver</button>
+    </div>
+</div>
+
+<script>
+    let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imágenes de perfil
+    let tweets = [];  // Usamos un arreglo para almacenar los tweets
+    let activeUser = '';  // Variable para el usuario activo
+
+    document.addEventListener("DOMContentLoaded", function() {
+    updateUserButton();  // Llama a la función para cargar la imagen por defecto cuando la página se haya cargado
+    document.getElementById('initialOverlay').style.display = 'none';
+    });
+
+window.onload = function() {
+    document.getElementById('initialOverlay').style.display = 'none';
+    document.getElementById('AvisoOverlay').style.display = 'flex';
+    document.getElementById('appContainer').style.display = 'none';
+    document.getElementById('usernameOverlay').style.display = 'none';  
+}
+
+function Acept() {
+    document.getElementById('initialOverlay').style.display = 'flex';
+    document.getElementById('AvisoOverlay').style.display = 'none';
+}
+
+function useExistingUser() {
+    document.getElementById('initialOverlay').style.display = 'none';
+    document.getElementById('usernameOverlay').style.display = 'flex';
+}
+
+function createNewUser() {
+    document.getElementById('initialOverlay').style.display = 'none';
+    document.getElementById('userSelectOverlay').style.display = 'flex';
+    document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
+}
+
+function loginUser() {
+    const username = document.getElementById('usernameInput').value.trim();
+    const password = document.getElementById('passwordInput').value.trim();
+
+    fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.username) {
+            setActiveUser(data.username); // Función para actualizar el usuario activo
+        } else {
+            alert('Error al iniciar sesión');
+        }
+    })
+    .catch(error => {
+        alert('Error de conexión');
+    });
+}
+
+function HideOverlays(){
+    document.getElementById('initialOverlay').style.display = 'none';
+    document.getElementById('userSelectOverlay').style.display = 'none';
+    document.getElementById('usernameOverlay').style.display = 'none'; 
+}
+
+function updateUserButton() {
+    const userButton = document.querySelector('.header button');
+    const userImage = users[activeUser] && users[activeUser].image ? users[activeUser].image : 'default-avatar.png'; // Ruta de una imagen predeterminada
+    userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
+
+    
+
+}
+
+function setActiveUser(username) {
+    // Enviar solicitud al servidor para obtener los detalles del usuario
+    fetch('http://localhost:3000/getUserDetails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const user = data; // Los datos del usuario devueltos por el servidor
+        const password = user.password;
+        if (user.password === password) {
+            activeUser = username;
+            hideUserSelectOverlay();
+            document.getElementById('appContainer').style.display = 'block';
+            updateUserButton();
+            HideOverlays();
+        } else {
+            alert("Contraseña incorrecta.");
+        }
+    })
+    .catch(error => {
+        alert("Error al obtener los detalles del usuario.");
+    });
+}
+
+
+function showUserSelectOverlay() {
+    document.getElementById('initialOverlay').style.display = 'flex';
+}
+
+function hideUserSelectOverlay() {
+    document.getElementById('userSelectOverlay').style.display = 'none';
+    document.querySelector('.header button').style.display = 'block'; // Mostrar el botón de selección de usuario nuevamente
+}
+
+function addNewUser() {
+    const usernameInput = document.getElementById('newUsernameInput');
+    const passwordInput = document.getElementById('newPasswordInput');
+    const profileImageInput = document.getElementById('newProfileImage');
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (username !== "" && password !== "") {
+        let profileImage = 'default-avatar.png'; // Imagen predeterminada
+        if (profileImageInput.files && profileImageInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                profileImage = e.target.result;
+                // Enviar los datos al servidor
+                createUserInDatabase(username, password, profileImage);
+            };
+            reader.readAsDataURL(profileImageInput.files[0]);
+        } else {
+            // Enviar los datos al servidor
+            createUserInDatabase(username, password, profileImage);
+        }
+
+        // Limpiar los campos después de intentar agregar el usuario
+        usernameInput.value = '';
+        passwordInput.value = '';
+        document.querySelector('.header button').style.display = 'block'; // Mostrar el botón de selección de usuario nuevamente
+    } else {
+        alert('Por favor, introduce un nombre o apodo y contraseña válidos.');
+    }
+}
+
+function createUserInDatabase(username, password, profileImage) {
+    // Crear un objeto con los datos del nuevo usuario
+    const userData = {
+        username: username,
+        password: password,
+        image: profileImage
+    };
+
+    // Hacer la solicitud POST al servidor
+    fetch('http://localhost:3000/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.id) {
+            // Si el usuario se crea correctamente, guarda al nuevo usuario como activo
+            setActiveUser(username);
+        } else {
+            alert('Hubo un problema al crear el usuario.');
+        }
+    })
+    .catch(error => {
+        console.error('Error al crear el usuario:', error);
+        alert('Hubo un error al crear el usuario.');
+    });
+}
+
+function postTweet() {
+    const tweetContent = document.getElementById('tweetContent').value;
+    const tweetMediaInput = document.getElementById('tweetMedia');
+
+    const tweetData = {
+        username: activeUser,
+        content: tweetContent,
+    };
+
+    if (tweetMediaInput.files && tweetMediaInput.files[0]) {
+        const file = tweetMediaInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            tweetData.media = e.target.result;
+            tweetData.mediaType = file.type;
+
+            fetch('http://localhost:3000/tweets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(tweetData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Agregar el tweet a la UI
+                addTweetToList(data.content, data.media, data.mediaType, activeUser);
+            });
+        };
+        reader.readAsDataURL(file);
+    } else {
+        fetch('http://localhost:3000/tweets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(tweetData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Agregar el tweet a la UI
+            addTweetToList(data.content, '', '', activeUser);
+        });
+    }
+}
+
+function goBackToInitial() {
+    document.getElementById('usernameOverlay').style.display = 'none';
+    document.getElementById('userSelectOverlay').style.display = 'none';
+
+    document.getElementById('initialOverlay').style.display = 'flex';
+}
+
+
+// Cargar los tweets desde la base de datos
+function loadTweets() {
+    fetch('http://localhost:3000/tweets')  // Solicita los tweets al servidor
+        .then(response => response.json())
+        .then(tweets => {
+            // Mostrar cada tweet en la página
+            tweets.forEach(tweet => {
+                addTweetToList(tweet.content, tweet.media, tweet.mediaType, tweet.username);
+            });
+        })
+        .catch(error => {
+            console.error('Error al cargar los tweets:', error);
+        });
+}
+
+// Agregar un tweet a la lista
+function addTweetToList(content, media, mediaType, username) {
+    const tweetList = document.getElementById('tweetList');
+    const newTweet = document.createElement('li');
+    newTweet.className = 'tweet';
+    let mediaHTML = '';
+    if (media) {
+        if (mediaType.startsWith('image/')) {
+            mediaHTML = `<div><img src="${media}" alt="Tweet Media" class="preview-media"></div>`;
+        } else if (mediaType.startsWith('video/')) {
+            mediaHTML = `<div><video controls class="preview-media"><source src="${media}" type="${mediaType}">Tu navegador no soporta la reproducción de video.</video></div>`;
+        }
+    }
+
+    newTweet.innerHTML = `
+        <span class="username">${username}:</span> ${content}
+        ${mediaHTML}
+    `;
+    tweetList.insertBefore(newTweet, tweetList.firstChild);
+}
+
+// Llamar a loadTweets al cargar la página
+window.onload = loadTweets;
+
+</script>
+</body>
+</html>
