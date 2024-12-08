@@ -78,8 +78,11 @@ app.post('/tweets', (req, res) => {
         return res.status(400).json('Faltan datos requeridos');
     }
 
-    const query = 'INSERT INTO tweets (username, content, media, mediaType) VALUES ($1, $2, $3, $4) RETURNING id';
-    db.query(query, [username, content, media, mediaType], (err, result) => {
+    // Suponiendo que 'content' es lo que se desea almacenar en 'tweet'
+    const tweet = content;
+
+    const query = 'INSERT INTO tweets (username, tweet, content, media, mediatype) VALUES ($1, $2, $3, $4, $5) RETURNING id';
+    db.query(query, [username, tweet, content, media, mediaType], (err, result) => {
         if (err) {
             console.error('Error en la consulta /tweets:', err);
             return res.status(500).json('Error al publicar el tweet');
@@ -89,7 +92,6 @@ app.post('/tweets', (req, res) => {
         }
     });
 });
-;
 
 // Obtener todos los tweets
 app.get('/tweets', (req, res) => {
