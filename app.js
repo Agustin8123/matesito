@@ -29,7 +29,7 @@ app.post('/users', async (req, res) => {
     const { username, password, image } = req.body;
     const hashedPassword = await bcryptjs.hash(password, 10); // Cifrar la contraseña
 
-    const query = 'INSERT INTO users (username, password, image) VALUES (?, ?, ?)';
+    const query = 'INSERT INTO users (username, password, image) VALUES ($1, $2, $3)';
     db.query(query, [username, hashedPassword, image || 'default-avatar.png'], (err, result) => {
         if (err) {
             console.error("Error al insertar usuario:", err);  // Log del error
@@ -45,7 +45,7 @@ app.post('/users', async (req, res) => {
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
-    const query = 'SELECT * FROM users WHERE username = ?';
+    const query = 'SELECT * FROM users WHERE username = $1';
     db.query(query, [username], async (err, results) => {
         if (err) {
             return res.status(500).json('Error al buscar el usuario');
@@ -70,7 +70,7 @@ app.post('/login', (req, res) => {
 app.post('/tweets', (req, res) => {
     const { username, content, media, mediaType } = req.body;
 
-    const query = 'INSERT INTO tweets (username, content, media, mediaType) VALUES (?, ?, ?, ?)';
+    const query = 'INSERT INTO tweets (username, content, media, mediaType) VALUES ($1, $2, $3, $4)';
     db.query(query, [username, content, media, mediaType], (err, result) => {
         if (err) {
             res.status(500).json('Error al publicar el tweet');
@@ -99,7 +99,7 @@ app.post('/getUserDetails', (req, res) => {
     const { username } = req.body; // Extrae el nombre de usuario desde la solicitud
 
     // Consulta a la base de datos para obtener el usuario
-    const query = 'SELECT * FROM users WHERE username = ?';
+    const query = 'SELECT * FROM users WHERE username = $1';
     db.query(query, [username], (err, results) => {
         if (err) {
             return res.status(500).json({ message: 'Error al obtener los detalles del usuario' });

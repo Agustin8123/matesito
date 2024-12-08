@@ -369,7 +369,7 @@ function loginUser() {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput').value.trim();
 
-    fetch('http:localhost:3000/login', {
+    fetch('https://matesito.onrender.com/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -404,7 +404,7 @@ function updateUserButton() {
 
 function setActiveUser(username) {
     // Enviar solicitud al servidor para obtener los detalles del usuario
-    fetch('http:localhost:3000/getUserDetails', {
+    fetch('https://matesito.onrender.com/getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username })
@@ -478,7 +478,7 @@ function createUserInDatabase(username, password, profileImage) {
     };
 
     // Hacer la solicitud POST al servidor
-    fetch('http:localhost:3000/users', {
+    fetch('https://matesito.onrender.com/users', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -516,7 +516,7 @@ function postTweet() {
             tweetData.media = e.target.result;
             tweetData.mediaType = file.type;
 
-            fetch('http:localhost:3000/tweets', {
+            fetch('https://matesito.onrender.com/tweets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(tweetData)
@@ -529,7 +529,7 @@ function postTweet() {
         };
         reader.readAsDataURL(file);
     } else {
-        fetch('http:localhost:3000/tweets', {
+        fetch('https://matesito.onrender.com/tweets', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(tweetData)
@@ -552,7 +552,7 @@ function goBackToInitial() {
 
 // Cargar los tweets desde la base de datos
 function loadTweets() {
-    fetch('http:localhost:3000/tweets')  // Solicita los tweets al servidor
+    fetch('https://matesito.onrender.com/tweets')  // Solicita los tweets al servidor
         .then(response => response.json())
         .then(tweets => {
             // Mostrar cada tweet en la página
