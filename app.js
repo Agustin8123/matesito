@@ -41,31 +41,34 @@ app.post('/users', async (req, res) => {
 
 // Iniciar sesión con un usuario existente
 app.post('/login', (req, res) => {
-    
-    console.log('Solicitud de login recibida:', req.body);
-
     const { username, password } = req.body;
 
     const query = 'SELECT * FROM users WHERE username = $1';
     db.query(query, [username], async (err, results) => {
         if (err) {
+            console.error('Error al buscar el usuario:', err);
             return res.status(500).json('Error al buscar el usuario');
         }
 
-        if (results.length > 0) {
-            const user = results[0];
+        console.log('Resultados de la consulta:', results);
+        if (results.rows && results.rows.length > 0) {
+            const user = results.rows[0];
             const isValidPassword = await bcryptjs.compare(password, user.password);
 
             if (isValidPassword) {
-                res.status(200).json({ username: user.username });
+                console.log('Login exitoso para usuario:', username);
+                return res.status(200).json({ username: user.username });
             } else {
-                res.status(401).json('Usuario o contraseña incorrectos');
+                console.log('Contraseña incorrecta para usuario:', username);
+                return res.status(401).json('Usuario o contraseña incorrectos');
             }
         } else {
-            res.status(404).json('Usuario no encontrado');
+            console.log('Usuario no encontrado:', username);
+            return res.status(404).json('Usuario no encontrado');
         }
     });
 });
+;
 
 // Crear un nuevo tweet
 app.post('/tweets', (req, res) => {
