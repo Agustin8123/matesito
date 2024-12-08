@@ -74,15 +74,22 @@ app.post('/login', (req, res) => {
 app.post('/tweets', (req, res) => {
     const { username, content, media, mediaType } = req.body;
 
-    const query = 'INSERT INTO tweets (username, content, media, mediaType) VALUES ($1, $2, $3, $4)';
+    if (!username || !content) {
+        return res.status(400).json('Faltan datos requeridos');
+    }
+
+    const query = 'INSERT INTO tweets (username, content, media, mediaType) VALUES ($1, $2, $3, $4) RETURNING id';
     db.query(query, [username, content, media, mediaType], (err, result) => {
         if (err) {
-            res.status(500).json('Error al publicar el tweet');
+            console.error('Error en la consulta /tweets:', err);
+            return res.status(500).json('Error al publicar el tweet');
         } else {
-            res.status(201).json({ id: result.insertId, content, media, mediaType });
+            const tweetId = result.rows[0].id;
+            res.status(201).json({ id: tweetId, content, media, mediaType });
         }
     });
 });
+;
 
 // Obtener todos los tweets
 app.get('/tweets', (req, res) => {
@@ -101,29 +108,27 @@ const path = require('path');
 
 // Ruta para obtener los detalles del usuario
 app.post('/getUserDetails', (req, res) => {
-    const { username } = req.body; // Extrae el nombre de usuario desde la solicitud
+    const { username } = req.body;
 
-    // Consulta a la base de datos para obtener el usuario
     const query = 'SELECT * FROM users WHERE username = $1';
     db.query(query, [username], (err, results) => {
         if (err) {
+            console.error('Error en la consulta /getUserDetails:', err);
             return res.status(500).json({ message: 'Error al obtener los detalles del usuario' });
         }
 
-        if (results.length > 0) {
-            const user = results.rows[0]; // El primer usuario que coincida con el nombre de usuario
-            // Devolver los detalles del usuario (puedes ajustar los campos que quieres devolver)
+        if (results.rows.length > 0) {
+            const user = results.rows[0];
             res.status(200).json({
                 username: user.username,
-                password: user.password, // Devolver la contraseña cifrada (para comparación)
-                image: user.image || 'default-avatar.png' // Si tiene una imagen de perfil, la devolvemos
+                image: user.image || 'default-avatar.png'
             });
         } else {
-            // Si no se encuentra el usuario
             res.status(404).json({ message: 'Usuario no encontrado' });
         }
     });
 });
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 
