@@ -485,12 +485,12 @@ function createUserInDatabase(username, password, profileImage) {
             // Si el usuario se crea correctamente, guarda al nuevo usuario como activo
             setActiveUser(username);
         } else {
-            alert('Hubo un problema al crear el usuario.');
+            setActiveUser(username);
         }
     })
     .catch(error => {
         console.error('Error al crear el usuario:', error);
-        alert('Ve al inicio de sesion e ingresa tus credenciales');
+        alert('Hubo un error al crear el usuario.');
     });
 }
 
