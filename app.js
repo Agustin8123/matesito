@@ -2,25 +2,20 @@ const express = require('express');
 const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
 require('dotenv').config();
-const cors = require('cors');
 const app = express();
 const port = 3000;
 
 app.use(express.json()); // Para recibir datos JSON
-app.use(express.json({ limit: '10mb' }));  // Limitar el tamaño de los JSON a 10 MB
-app.use(express.urlencoded({ limit: '10mb', extended: true }));  // Limitar los datos de formulario
+app.use(express.json({ limit: '10MB' }));  // Limitar el tamaño de los JSON a 10 MB
+app.use(express.urlencoded({ limit: '10MB', extended: true }));  // Limitar los datos de formulario
 
-app.use(cors({
-    origin: 'https://matesito.onrender.com' // O especifica la URL de tu frontend, por ejemplo: 'https://tupagina.com'
-}));
-
-// Conectar a la base de datos MySQL
 const client = new Client({
-    host: 'dpg-ctaka0ogph6c73ephsng-a',
-    port: 5432,
-    user: 'root',  
-    password: 'BUkFrhcaMEnOI3cMszZijlrTFqcNbSoy',
-    database: 'matesito'
+    host: 'dpg-ctaka0ogph6c73ephsng-a.oregon-postgres.render.com', // Solo el host
+    user: 'root', // Usuario
+    password: 'BUkFrhcaMEnOI3cMszZijlrTFqcNbSoy', // Contraseña
+    database: 'matesito', // Base de datos
+    port: 5432, // Puerto
+    ssl: { rejectUnauthorized: false } // Asegura conexión segura
 });
 
 
