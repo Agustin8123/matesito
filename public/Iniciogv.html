@@ -406,12 +406,14 @@ function setActiveUser(username) {
     })
     .then(response => response.json())
     .then(user => {
-        activeUser = username;
-        hideUserSelectOverlay();
-        document.getElementById('appContainer').style.display = 'block';
-        updateUserButton();
-        HideOverlays();
-    })
+    console.log(user); // Revisa los datos de usuario
+    activeUser = username;
+    hideUserSelectOverlay();
+    document.getElementById('appContainer').style.display = 'block';
+    updateUserButton();
+    HideOverlays();
+})
+
     .catch(error => {
         alert("Error al obtener los detalles del usuario.");
     });
@@ -464,7 +466,7 @@ function createUserInDatabase(username, password, profileImage) {
     const userData = {
         username: username,
         password: password,
-        image: profileImage
+        profileImage: profileImage
     };
 
     // Hacer la solicitud POST al servidor
