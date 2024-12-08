@@ -133,6 +133,7 @@ app.post('/getUserDetails', (req, res) => {
 });
 
 
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Iniciar el servidor

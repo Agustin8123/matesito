@@ -405,25 +405,23 @@ function setActiveUser(username) {
         body: JSON.stringify({ username })
     })
     .then(response => response.json())
-    .then(user => {
-        console.log('User details:', user); // Verifica que se reciba correctamente la respuesta
-        if (user.id) {
-            activeUser = user.username;  // Asegúrate de que activeUser esté correctamente actualizado
-            hideUserSelectOverlay();
-            document.getElementById('appContainer').style.display = 'block';
-            updateUserButton();
-            HideOverlays();
-        } else {
-            alert('Error al obtener los detalles del usuario.');
-        }
-    })
+    .then(data => {
+    console.log('Datos recibidos:', data);
+    if (data.id) {
+        activeUser = username;
+        hideUserSelectOverlay();
+        document.getElementById('appContainer').style.display = 'block';
+        updateUserButton();
+        HideOverlays();
+    } else {
+        alert("Usuario no encontrado.");
+    }
+})
+
     .catch(error => {
-        console.error('Error al obtener los detalles del usuario:', error);
         alert("Error al obtener los detalles del usuario.");
     });
 }
-
-
 
 function showUserSelectOverlay() {
     document.getElementById('initialOverlay').style.display = 'flex';
