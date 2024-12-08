@@ -122,6 +122,7 @@ app.post('/getUserDetails', (req, res) => {
         if (results.rows.length > 0) {
             const user = results.rows[0];
             res.status(200).json({
+                id: user.id,  // Agregado: devolver también el id
                 username: user.username,
                 image: user.image || 'default-avatar.png'
             });
