@@ -399,30 +399,24 @@ function updateUserButton() {
 }
 
 function setActiveUser(username) {
-    // Enviar solicitud al servidor para obtener los detalles del usuario
     fetch('https://matesito.onrender.com/getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username })
     })
     .then(response => response.json())
-    .then(data => {
-        const user = data; // Los datos del usuario devueltos por el servidor
-        const password = user.password;
-        if (user.password === password) {
-            activeUser = username;
-            hideUserSelectOverlay();
-            document.getElementById('appContainer').style.display = 'block';
-            updateUserButton();
-            HideOverlays();
-        } else {
-            alert("Contraseña incorrecta.");
-        }
+    .then(user => {
+        activeUser = username;
+        hideUserSelectOverlay();
+        document.getElementById('appContainer').style.display = 'block';
+        updateUserButton();
+        HideOverlays();
     })
     .catch(error => {
         alert("Error al obtener los detalles del usuario.");
     });
 }
+
 
 
 function showUserSelectOverlay() {
