@@ -487,13 +487,13 @@ function createNewUser() {
     document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
 }
 
-function saveSession(token, rememberMe) {
+function saveSession(username, rememberMe) {
     if (rememberMe) {
-        // Guardar la cookie del token por 1 día (86400 segundos)
-        document.cookie = `token=${token}; max-age=86400; path=/`; 
+        // Guardar la cookie para recordar el usuario por 1 día
+        document.cookie = `username=${username}; max-age=86400; path=/`; 
     } else {
         // Eliminar la cookie si no está marcada
-        document.cookie = `token=${token}; max-age=0; path=/`; 
+        document.cookie = `username=${username}; max-age=0; path=/`; 
     }
 }
 
@@ -501,7 +501,7 @@ function saveSession(token, rememberMe) {
 function loginUser() {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput').value.trim();
-    const rememberMe = document.getElementById('rememberMe').checked;
+    const rememberMe = document.getElementById('rememberMe').checked;  // Verificar si está marcada
 
     fetch('https://matesito.onrender.com/login', {
         method: 'POST',
@@ -510,9 +510,9 @@ function loginUser() {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.username && data.token) {
+        if (data.username) {
             setActiveUser(data.username); // Función para actualizar el usuario activo
-            saveSession(data.token, rememberMe); // Guardar sesión con el token
+            saveSession(data.username, rememberMe); // Guardar sesión si "Recordar mi sesión" está marcado
         } else {
             alert('Error al iniciar sesión');
         }
@@ -522,38 +522,22 @@ function loginUser() {
     });
 }
 
-// Función para obtener el valor de una cookie
 function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-// Verificar si el usuario tiene un token guardado en las cookies
+// Verificar si el usuario está guardado en las cookies
 function checkRememberedUser() {
-    const token = getCookie('token');
-    if (token) {
-        // Verificar token en el servidor para autenticación
-        fetch('https://matesito.onrender.com/verifyToken', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.username) {
-                // Iniciar sesión automáticamente si el token es válido
-                document.getElementById('usernameInput').value = data.username;
-                document.getElementById('rememberMe').checked = true;
-                setActiveUser(data.username); // Función para actualizar el usuario activo
-            }
-        })
-        .catch(error => {
-            console.log('Error al verificar token:', error);
-        });
+    const username = getCookie('username');
+    if (username) {
+        // Iniciar sesión automáticamente si la cookie existe
+        document.getElementById('usernameInput').value = username;
+        document.getElementById('rememberMe').checked = true;
+        loginUser(); // Intentar hacer login automáticamente
     }
 }
-
 
 function HideOverlays(){
     document.getElementById('initialOverlay').style.display = 'none';
