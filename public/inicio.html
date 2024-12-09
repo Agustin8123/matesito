@@ -487,13 +487,15 @@ function createNewUser() {
     document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
 }
 
-function saveSession(username, rememberMe) {
+function saveSession(username, password, rememberMe) {
     if (rememberMe) {
         // Guardar la cookie para recordar el usuario por 1 día
-        document.cookie = `username=${username}; max-age=86400; path=/`; 
+        document.cookie = `username=${username}; max-age=86400; path=/`;
+        document.cookie = `password=${password}; max-age=86400; path=/`; 
     } else {
         // Eliminar la cookie si no está marcada
         document.cookie = `username=${username}; max-age=0; path=/`; 
+        document.cookie = `password=${password}; max-age=0; path=/`;
     }
 }
 
@@ -531,9 +533,11 @@ function getCookie(name) {
 // Verificar si el usuario está guardado en las cookies
 function checkRememberedUser() {
     const username = getCookie('username');
+    const password = getCookie('password');
     if (username) {
         // Iniciar sesión automáticamente si la cookie existe
         document.getElementById('usernameInput').value = username;
+        document.getElementById('usernameInput').value = password;
         document.getElementById('rememberMe').checked = true;
         loginUser(); // Intentar hacer login automáticamente
     }
