@@ -487,15 +487,25 @@ function createNewUser() {
     document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
 }
 
+function encodePassword(password) {
+    return btoa(password); // Convierte a Base64
+}
+
+// Función para decodificar la contraseña de Base64
+function decodePassword(encodedPassword) {
+    return atob(encodedPassword);
+}
+
+// Guardar la sesión con cookies
 function saveSession(username, password, rememberMe) {
     if (rememberMe) {
-        // Guardar la cookie para recordar el usuario por 1 día
+        // Guardar usuario y contraseña en cookies con encriptación
         document.cookie = `username=${username}; max-age=86400; path=/`;
-        document.cookie = `password=${password}; max-age=86400; path=/`; 
+        document.cookie = `password=${encodePassword(password)}; max-age=86400; path=/`;
     } else {
-        // Eliminar la cookie si no está marcada
-        document.cookie = `username=${username}; max-age=0; path=/`; 
-        document.cookie = `password=${password}; max-age=0; path=/`;
+        // Eliminar cookies si no está marcada la opción "Recordar sesión"
+        document.cookie = `username=; max-age=0; path=/`;
+        document.cookie = `password=; max-age=0; path=/`;
     }
 }
 
@@ -503,7 +513,7 @@ function saveSession(username, password, rememberMe) {
 function loginUser() {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput').value.trim();
-    const rememberMe = document.getElementById('rememberMe').checked;  // Verificar si está marcada
+    const rememberMe = document.getElementById('rememberMe').checked;
 
     fetch('https://matesito.onrender.com/login', {
         method: 'POST',
@@ -514,7 +524,7 @@ function loginUser() {
     .then(data => {
         if (data.username) {
             setActiveUser(data.username); // Función para actualizar el usuario activo
-            saveSession(data, rememberMe); // Guardar sesión si "Recordar mi sesión" está marcado
+            saveSession(username, password, rememberMe); // Guardar sesión si "Recordar mi sesión" está marcado
         } else {
             alert('Error al iniciar sesión');
         }
@@ -524,6 +534,7 @@ function loginUser() {
     });
 }
 
+// Obtener cookies
 function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -533,15 +544,17 @@ function getCookie(name) {
 // Verificar si el usuario está guardado en las cookies
 function checkRememberedUser() {
     const username = getCookie('username');
-    const password = getCookie('password');
-    if (username) {
-        // Iniciar sesión automáticamente si la cookie existe
+    const encodedPassword = getCookie('password');
+    if (username && encodedPassword) {
+        // Completar los campos de inicio de sesión con valores decodificados
         document.getElementById('usernameInput').value = username;
-        document.getElementById('usernameInput').value = password;
+        document.getElementById('passwordInput').value = decodePassword(encodedPassword);
         document.getElementById('rememberMe').checked = true;
-        setActiveUser(); // Intentar hacer login automáticamente
     }
 }
+
+// Llamar a esta función al cargar la página
+document.addEventListener('DOMContentLoaded', checkRememberedUser);
 
 function HideOverlays(){
     document.getElementById('initialOverlay').style.display = 'none';
