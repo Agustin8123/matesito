@@ -343,8 +343,6 @@ window.onload = function() {
     document.getElementById('AvisoOverlay').style.display = 'flex';
     document.getElementById('appContainer').style.display = 'none';
     document.getElementById('usernameOverlay').style.display = 'none';  
-    loadTweets();
-    setInterval(getTweets, 20000); 
 }
 
 function Acept() {
@@ -583,7 +581,7 @@ function addTweetToList(content, media, mediaType, username) {
 }
 
 // Llamar a loadTweets al cargar la página
-window.onload = loadTweets;
+window.onload = setInterval(getTweets, 20000);
 
 </script>
 </body>
