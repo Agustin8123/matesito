@@ -78,18 +78,32 @@ app.post('/tweets', (req, res) => {
         return res.status(400).json('Faltan datos requeridos');
     }
 
-    // Suponiendo que 'content' es lo que se desea almacenar en 'tweet'
-    const tweet = content;
-
-    const query = 'INSERT INTO tweets (username, tweet, content, media, mediatype) VALUES ($1, $2, $3, $4, $5) RETURNING id';
-    db.query(query, [username, tweet, content, media, mediaType], (err, result) => {
+    // Verificar si el último tweet del usuario es igual al nuevo
+    const checkQuery = 'SELECT * FROM tweets WHERE username = $1 ORDER BY createdAt DESC LIMIT 1';
+    db.query(checkQuery, [username], (err, result) => {
         if (err) {
-            console.error('Error en la consulta /tweets:', err);
-            return res.status(500).json('Error al publicar el tweet');
-        } else {
-            const tweetId = result.rows[0].id;
-            res.status(201).json({ id: tweetId, content, media, mediaType });
+            console.error('Error al verificar tweet previo:', err);
+            return res.status(500).json('Error al verificar el tweet');
         }
+
+        const lastTweet = result.rows[0];
+
+        // Si el contenido del nuevo tweet es igual al último tweet, no permitir la publicación
+        if (lastTweet && lastTweet.content === content) {
+            return res.status(400).json('No puedes enviar el mismo tweet que el anterior.');
+        }
+
+        // Insertar el nuevo tweet
+        const query = 'INSERT INTO tweets (username, tweet, content, media, mediatype) VALUES ($1, $2, $3, $4, $5) RETURNING id';
+        db.query(query, [username, content, content, media, mediaType], (err, result) => {
+            if (err) {
+                console.error('Error al insertar el tweet:', err);
+                return res.status(500).json('Error al publicar el tweet');
+            } else {
+                const tweetId = result.rows[0].id;
+                res.status(201).json({ id: tweetId, content, media, mediaType });
+            }
+        });
     });
 });
 
