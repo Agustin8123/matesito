@@ -331,6 +331,25 @@
     cursor: not-allowed;
 }
 
+
+.rem-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 45px
+}
+
+/* Ajustamos el margen del checkbox para acercarlo al texto */
+.rem-container input[type="checkbox"] {
+    margin-right: -125px; /* Reducir el margen entre el checkbox y el texto */
+}
+
+/* Estilo para el texto */
+.rem-container label {
+    font-size: 15px; /* Ajusta el tamaño de fuente para que no quede muy grande */
+    margin-bottom: 6px;
+}
 </style>
 
 </head>
@@ -397,7 +416,7 @@
         <input type="password" id="passwordInput" placeholder="Contraseña">
         
         <!-- Casilla para recordar la sesión -->
-        <div class="terms-container">
+        <div class="rem-container">
             <input type="checkbox" id="rememberMe">
             <label for="rememberMe">
                 Recordar mi sesión
