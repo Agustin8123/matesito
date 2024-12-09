@@ -544,11 +544,14 @@ function goBackToInitial() {
 }
 
 
-// Cargar los tweets desde la base de datos
 function loadTweets() {
     fetch('https://matesito.onrender.com/tweets')  // Solicita los tweets al servidor
         .then(response => response.json())
         .then(tweets => {
+            // Limpiar la lista antes de agregar los nuevos tweets
+            const tweetList = document.getElementById('tweetList');
+            tweetList.innerHTML = '';  // Limpiar la lista existente
+
             // Mostrar cada tweet en la página
             tweets.forEach(tweet => {
                 addTweetToList(tweet.content, tweet.media, tweet.mediaType, tweet.username);
