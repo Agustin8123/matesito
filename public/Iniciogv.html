@@ -342,7 +342,9 @@ window.onload = function() {
     document.getElementById('initialOverlay').style.display = 'none';
     document.getElementById('AvisoOverlay').style.display = 'flex';
     document.getElementById('appContainer').style.display = 'none';
-    document.getElementById('usernameOverlay').style.display = 'none';  
+    document.getElementById('usernameOverlay').style.display = 'none';
+    getTweets();
+    setInterval(getTweets, 20000);  
 }
 
 function Acept() {
@@ -579,10 +581,6 @@ function addTweetToList(content, media, mediaType, username) {
     `;
     tweetList.insertBefore(newTweet, tweetList.firstChild);
 }
-
-// Llamar a loadTweets al cargar la página
-window.onload = loadTweets;
-
 </script>
 </body>
 </html>
