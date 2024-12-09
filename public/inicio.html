@@ -514,7 +514,7 @@ function loginUser() {
     .then(data => {
         if (data.username) {
             setActiveUser(data.username); // Función para actualizar el usuario activo
-            saveSession(data.username, rememberMe); // Guardar sesión si "Recordar mi sesión" está marcado
+            saveSession(data, rememberMe); // Guardar sesión si "Recordar mi sesión" está marcado
         } else {
             alert('Error al iniciar sesión');
         }
@@ -539,7 +539,7 @@ function checkRememberedUser() {
         document.getElementById('usernameInput').value = username;
         document.getElementById('usernameInput').value = password;
         document.getElementById('rememberMe').checked = true;
-        loginUser(); // Intentar hacer login automáticamente
+        setActiveUser(); // Intentar hacer login automáticamente
     }
 }
 
