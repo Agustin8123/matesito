@@ -389,7 +389,9 @@
     let tweets = [];  // Usamos un arreglo para almacenar los tweets
     let activeUser = '';  // Variable para el usuario activo
 
-    let mantenimiento = true;
+    let mantenimiento = false;
+
+    let lastTweetContent = "";
 
     document.addEventListener("DOMContentLoaded", function() {
     updateUserButton();  // Llama a la función para cargar la imagen por defecto cuando la página se haya cargado
@@ -559,6 +561,11 @@ function postTweet() {
     const tweetContent = document.getElementById('tweetContent').value;
     const tweetMediaInput = document.getElementById('tweetMedia');
 
+    if (tweetContent === lastTweetContent) {
+        alert("No puedes enviar el mismo tweet que el anterior.");
+        return;
+    }
+
     const tweetData = {
         username: activeUser,
         content: tweetContent,
@@ -571,6 +578,7 @@ function postTweet() {
             tweetData.media = e.target.result;
             tweetData.mediaType = file.type;
 
+            // Enviar el tweet
             fetch('https://matesito.onrender.com/tweets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -578,7 +586,8 @@ function postTweet() {
             })
             .then(response => response.json())
             .then(data => {
-                // Agregar el tweet a la UI
+                // Actualizar el último tweet y agregarlo a la UI
+                lastTweetContent = data.content;
                 addTweetToList(data.content, data.media, data.mediaType, activeUser);
             });
         };
@@ -591,7 +600,8 @@ function postTweet() {
         })
         .then(response => response.json())
         .then(data => {
-            // Agregar el tweet a la UI
+            // Actualizar el último tweet y agregarlo a la UI
+            lastTweetContent = data.content;
             addTweetToList(data.content, '', '', activeUser);
         });
     }
