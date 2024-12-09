@@ -1,9 +1,11 @@
 const express = require('express');
 const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const app = express();
 const port = 3000;
+const secretKey = '2spG4b2SbwuKNCT';
 
 app.use(express.json()); // Para recibir datos JSON
 
@@ -50,25 +52,42 @@ app.post('/login', (req, res) => {
             return res.status(500).json('Error al buscar el usuario');
         }
 
-        console.log('Resultados de la consulta:', results);
         if (results.rows && results.rows.length > 0) {
             const user = results.rows[0];
             const isValidPassword = await bcryptjs.compare(password, user.password);
 
             if (isValidPassword) {
+                // Generar un token JWT
+                const token = jwt.sign({ username: user.username, id: user.id }, secretKey, { expiresIn: '1d' }); // Expira en 1 día
                 console.log('Login exitoso para usuario:', username);
-                return res.status(200).json({ username: user.username });
+                
+                // Enviar el token como respuesta
+                return res.status(200).json({ username: user.username, token });
             } else {
-                console.log('Contraseña incorrecta para usuario:', username);
                 return res.status(401).json('Usuario o contraseña incorrectos');
             }
         } else {
-            console.log('Usuario no encontrado:', username);
             return res.status(404).json('Usuario no encontrado');
         }
     });
 });
-;
+
+app.post('/verifyToken', (req, res) => {
+    const { token } = req.body;
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token no proporcionado' });
+    }
+
+    jwt.verify(token, secretKey, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: 'Token inválido o expirado' });
+        }
+        
+        // Token válido
+        res.status(200).json({ username: decoded.username });
+    });
+});
 
 // Crear un nuevo tweet
 app.post('/tweets', (req, res) => {
