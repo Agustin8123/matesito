@@ -581,6 +581,8 @@ function addTweetToList(content, media, mediaType, username) {
 }
 
 // Llamar a loadTweets al cargar la página
+
+window.onload = loadTweets();
 window.onload = setInterval(loadTweets, 20000);
 
 </script>
