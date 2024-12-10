@@ -465,6 +465,7 @@
     let mantenimiento = false;
 
     let lastTweetContent = "";
+    const forbiddenWords = ['drogas', '⣿', 'merca'];
 
     document.addEventListener("DOMContentLoaded", function() {
     updateUserButton();  // Llama a la función para cargar la imagen por defecto cuando la página se haya cargado
@@ -690,9 +691,18 @@ function createUserInDatabase(username, password, profileImage) {
     });
 }
 
+function containsForbiddenWords(message) {
+        return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
+    }
+
 function postTweet() {
     const tweetContent = document.getElementById('tweetContent').value;
     const tweetMediaInput = document.getElementById('tweetMedia');
+
+    if (containsForbiddenWords(tweetContent)) {
+            alert("creemos que tu post infrige nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
+            return;
+        }
 
     if (tweetContent === lastTweetContent) {
         alert("No puedes enviar un post igual al anterior.");
