@@ -350,6 +350,34 @@
     font-size: 15px; /* Ajusta el tamaño de fuente para que no quede muy grande */
     margin-bottom: 6px;
 }
+.dropdown-menu {
+            display: none; /* Oculto por defecto */
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 150px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        /* Estilo de los elementos del menú */
+        .dropdown-menu a {
+            color: black;
+            padding: 10px 20px;
+            text-decoration: none;
+            display: block;
+        }
+
+        /* Cambia el color al pasar el mouse */
+        .dropdown-menu a:hover {
+            background-color: #ddd;
+        }
+
+        /* Estilo contenedor general para alinear */
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+
 </style>
 
 </head>
@@ -363,11 +391,9 @@
         </div>
     
         <div class="nav-buttons">
-            <label for="inicio" class="button">Inicio</label>
-            <input type="radio" id="inicio" name="nav" style="display:none;" onclick="location.href='Iniciogv.html'">
+           
     
-            <label for="versiones" class="button">Versiones</label>
-            <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='vers.html'">
+            
 
             <label for="Otros" class="button">Otros</label>
             <input type="radio" id="Otros" name="nav" style="display:none;" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">
@@ -375,7 +401,21 @@
     
     
         <div class="right-section">
-            <button onclick="showUserSelectOverlay()">Seleccionar Usuario</button>
+            <button onclick="toggleMenu">Seleccionar Usuario</button>
+
+            <div class="dropdown-menu" id="dropdownMenu">
+                <label for="inicio" class="button">Inicio</label>
+                <input type="radio" id="inicio" name="nav" style="display:none;" onclick="location.href='Iniciogv.html'">
+
+                <label for="versiones" class="button">Versiones</label>
+                <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='vers.html'">
+
+                <label for="Otros" class="button">Otros</label>
+                <input type="radio" id="Otros" name="nav" style="display:none;" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">
+
+                <label for="Cambiar usuario" class="button">Cambiar usuario</label>
+                <input type="radio" id="Cambiar usuario" name="nav" style="display:none;" onclick="showUserSelectOverlay">
+            </div>
         </div>
     </div>
 
@@ -498,6 +538,20 @@ function Acept() {
     document.getElementById('initialOverlay').style.display = 'flex';
     document.getElementById('AvisoOverlay').style.display = 'none';
 }
+
+function toggleMenu() {
+            const menu = document.getElementById('dropdownMenu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Ocultar el menú si se hace clic fuera de él
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('dropdownMenu');
+            const button = document.querySelector('.dropdown-button');
+            if (!menu.contains(event.target) && !button.contains(event.target)) {
+                menu.style.display = 'none';
+            }
+        });
 
 function useExistingUser() {
     document.getElementById('initialOverlay').style.display = 'none';
