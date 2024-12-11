@@ -48,14 +48,6 @@ function HelpAlert() {
     alert('Si requieres ayuda con cualquier cosa, contactate con nuestro correo de soporte "matesito.soporte@gmail.com"');
 }
 
-        // Ocultar el menú si se hace clic fuera de él
-        document.addEventListener('click', function(event) {
-            const menu = document.getElementById('dropdownMenu');
-            const button = document.querySelector('.dropdown-button');
-            if (!menu.contains(event.target) && !button.contains(event.target)) {
-                menu.style.display = 'none';
-            }
-        });
 
     function toggleSubMenu() {
         const subMenu = document.getElementById('subMenu');
