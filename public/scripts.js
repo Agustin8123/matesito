@@ -258,33 +258,56 @@ function containsForbiddenWords(message) {
         return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
     }
 
-function postTweet() {
-    const tweetContent = document.getElementById('tweetContent').value;
-    const tweetMediaInput = document.getElementById('tweetMedia');
-
-    if (containsForbiddenWords(tweetContent)) {
-            alert("creemos que tu post infrige nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
+    function postTweet() {
+        const tweetContent = document.getElementById('tweetContent').value;
+        const tweetMediaInput = document.getElementById('tweetMedia');
+    
+        if (containsForbiddenWords(tweetContent)) {
+                alert("creemos que tu post infrige nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
+                return;
+        }
+    
+        if (tweetContent === lastTweetContent) {
+            alert("No puedes enviar un post igual al anterior.");
             return;
         }
-
-    if (tweetContent === lastTweetContent) {
-        alert("No puedes enviar un post igual al anterior.");
-        return;
-    }
-
-    const tweetData = {
-        username: activeUser,
-        content: tweetContent,
-    };
-
-    if (tweetMediaInput.files && tweetMediaInput.files[0]) {
-        const file = tweetMediaInput.files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            tweetData.media = e.target.result;
-            tweetData.mediaType = file.type;
-
-            // Enviar el tweet
+    
+        const tweetData = {
+            username: activeUser,
+            content: tweetContent,
+        };
+    
+        if (tweetMediaInput.files && tweetMediaInput.files[0]) {
+            const file = tweetMediaInput.files[0];
+            const formData = new FormData();
+            formData.append("media", file);
+    
+            fetch('https://api.cloudinary.com/v1_1/your-cloud-name/upload', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                tweetData.media = data.secure_url;  // URL del archivo subido
+                tweetData.mediaType = file.type;
+    
+                // Enviar el tweet al servidor
+                fetch('https://matesito.onrender.com/tweets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(tweetData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Actualizar el último tweet y agregarlo a la UI
+                    lastTweetContent = data.content;
+                    addTweetToList(data.content, data.media, data.mediaType, activeUser);
+                });
+            })
+            .catch(error => {
+                console.error('Error al subir el archivo:', error);
+            });
+        } else {
             fetch('https://matesito.onrender.com/tweets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -292,26 +315,12 @@ function postTweet() {
             })
             .then(response => response.json())
             .then(data => {
-                // Actualizar el último tweet y agregarlo a la UI
                 lastTweetContent = data.content;
-                addTweetToList(data.content, data.media, data.mediaType, activeUser);
+                addTweetToList(data.content, '', '', activeUser);
             });
-        };
-        reader.readAsDataURL(file);
-    } else {
-        fetch('https://matesito.onrender.com/tweets', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(tweetData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Actualizar el último tweet y agregarlo a la UI
-            lastTweetContent = data.content;
-            addTweetToList(data.content, '', '', activeUser);
-        });
+        }
     }
-}
+    
 
 function goBackToInitial() {
     document.getElementById('usernameOverlay').style.display = 'none';

@@ -55,16 +55,20 @@
     <div class="tweet-box">
         <textarea id="tweetContent" rows="3" placeholder="¿Qué estás pensando?"></textarea>
 
-        <button class="button" onclick="return false;">
-            Seleccionar Imagen o Video (proximamente)
+        <!-- Botón para seleccionar un archivo -->
+        <button class="button" onclick="document.getElementById('tweetMedia').click();">
+            Seleccionar Imagen o Video
         </button>
-        <input id="tweetMedia" type="file" accept="image/*, video/*" style="display:none;" />
-        
 
+        <!-- Input para cargar archivos, oculto pero accesible mediante el botón -->
+        <input id="tweetMedia" type="file" accept="image/*, video/*" style="display:none;" onchange="handleFileSelect(event)" />
+        
+        <!-- Botón para enviar el tweet -->
         <button onclick="postTweet()">Cebar</button>
     </div>
     <ul id="tweetList" class="tweets"></ul>
 </div>
+
 
     <!-- Contenedor principal de la aplicación -->
 <div class="overlay" id="initialOverlay">
