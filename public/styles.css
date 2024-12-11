@@ -291,23 +291,24 @@
 }
 
 .terms-container {
-    position: left;
     display: flex;
+    flex-direction: column; /* Coloca los elementos en columna */
+    align-items: center;    /* Centra horizontalmente */
+    justify-content: center; /* Centra verticalmente si es necesario */
+    gap: 5px;               /* Espacio entre el checkbox y el texto */
     margin-top: 10px;
     margin-bottom: 2px;
-    align-items: center;
 }
 
-/* Ajustamos el margen del checkbox para acercarlo al texto */
 .terms-container input[type="checkbox"] {
-    margin-right: -260px; /* Reducir el margen entre el checkbox y el texto */
-
+    margin: 0; /* Elimina márgenes adicionales */
 }
 
-/* Estilo para el texto */
 .terms-container label {
-    font-size: 15px; /* Ajusta el tamaño de fuente para que no quede muy grande */
+    font-size: 15px; /* Ajusta el tamaño del texto */
+    text-align: center; /* Asegura que el texto esté centrado */
 }
+
 
 /* Estilo para los enlaces */
 .terms-container a {
