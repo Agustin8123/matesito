@@ -4,6 +4,8 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
 
     let mantenimiento = false;
 
+    let selectedFile = null;
+
     let lastTweetContent = "";
     const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'merca', 'falopa', 'estupefaciente', 'sustancia', 'cocaína', 'kok4', 'c0ca', 'cocaína', 'nieve', 'marihuana', 'weed', 'hierba', 'porro', 'mota', 'cannabis', '4:20', 'maría', 'maryjane', 'hachís', 'thc', 'éxtasis', 'éxt4sis', 'xtc', 'mdma', 'éxtasis', 'lsd', 'ácido', 'trips', 'lsd', 'pornografía', 'porno', 'p0rn', 'p0rn0', 'xxx', 'material explícito', 'sexo', 's3xo', 'segso', 'prostitución', 'scort', 'trabajadora sexual', 'prostitut@', 'pr0stituc1on', 'prostituta', 'puta', 'pene', 'p3ne', 'pen3', 'genitales', 'vagina', 'vag1n4', 'pechos', 'senos', 'tetas', 't3t@s', 'd.r.o.g.a', 'dro@g@', 'DrOgA', 'dRoJA'];
 
@@ -250,13 +252,22 @@ function containsForbiddenWords(message) {
         return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
     }
 
+    function handleFileSelect(event) {
+        selectedFile = event.target.files[0]; // Guardar el archivo seleccionado
+        if (selectedFile) {
+            console.log("Archivo seleccionado:", selectedFile.name);
+        } else {
+            console.log("No se seleccionó ningún archivo");
+        }
+    }
+    
+    // Función para enviar el tweet
     function postTweet() {
         const tweetContent = document.getElementById('tweetContent').value;
-        const tweetMediaInput = document.getElementById('tweetMedia');
     
         if (containsForbiddenWords(tweetContent)) {
-                alert("creemos que tu post infrige nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
-                return;
+            alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
+            return;
         }
     
         if (tweetContent === lastTweetContent) {
@@ -269,10 +280,11 @@ function containsForbiddenWords(message) {
             content: tweetContent,
         };
     
-        if (tweetMediaInput.files && tweetMediaInput.files[0]) {
-            const file = tweetMediaInput.files[0];
+        if (selectedFile) {
+            // Subir el archivo a Cloudinary
             const formData = new FormData();
-            formData.append("media", file);
+            formData.append("file", selectedFile);
+            formData.append("upload_preset", "ml_default"); // Asegúrate de que el preset coincida con el configurado en tu cuenta
     
             fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
                 method: 'POST',
@@ -280,35 +292,38 @@ function containsForbiddenWords(message) {
             })
             .then(response => response.json())
             .then(data => {
-                tweetData.media = data.secure_url;  // URL del archivo subido
-                tweetData.mediaType = file.type;
+                tweetData.media = data.secure_url; // URL del archivo subido
+                tweetData.mediaType = selectedFile.type;
     
                 // Enviar el tweet al servidor
-                fetch('https://matesito.onrender.com/tweets', {
+                return fetch('https://matesito.onrender.com/tweets', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(tweetData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Actualizar el último tweet y agregarlo a la UI
-                    lastTweetContent = data.content;
-                    addTweetToList(data.content, data.media, data.mediaType, activeUser);
+                    body: JSON.stringify(tweetData),
                 });
             })
+            .then(response => response.json())
+            .then(data => {
+                lastTweetContent = data.content;
+                addTweetToList(data.content, data.media, data.mediaType, activeUser);
+            })
             .catch(error => {
-                console.error('Error al subir el archivo:', error);
+                console.error('Error al subir el archivo o enviar el tweet:', error);
             });
         } else {
+            // Enviar el tweet sin archivo adjunto
             fetch('https://matesito.onrender.com/tweets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(tweetData)
+                body: JSON.stringify(tweetData),
             })
             .then(response => response.json())
             .then(data => {
                 lastTweetContent = data.content;
                 addTweetToList(data.content, '', '', activeUser);
+            })
+            .catch(error => {
+                console.error('Error al enviar el tweet:', error);
             });
         }
     }
