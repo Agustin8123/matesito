@@ -1,6 +1,7 @@
 const express = require('express');
 const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
+const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 const app = express();
 const port = 3000;
@@ -15,6 +16,13 @@ const db = new Client({
     port: 5432, // Puerto
     ssl: { rejectUnauthorized: false } // Asegura conexión segura
 });
+
+cloudinary.config({
+  cloud_name: 'dtzl420mq',
+  api_key: '848481859678637',
+  api_secret: 'fBw0FjD4odakPW5_KY4alUAvV2c',
+});
+
 
 
 // Verificar conexión
@@ -78,7 +86,6 @@ app.post('/tweets', (req, res) => {
         return res.status(400).json('Faltan datos requeridos');
     }
 
-    // Verificar si el último tweet del usuario es igual al nuevo
     const checkQuery = 'SELECT * FROM tweets WHERE username = $1 ORDER BY createdAt DESC LIMIT 1';
     db.query(checkQuery, [username], (err, result) => {
         if (err) {
@@ -88,22 +95,43 @@ app.post('/tweets', (req, res) => {
 
         const lastTweet = result.rows[0];
 
-        // Si el contenido del nuevo tweet es igual al último tweet, no permitir la publicación
+        // Verificar si el contenido del nuevo tweet es igual al último tweet
         if (lastTweet && lastTweet.content === content) {
             return res.status(400).json('No puedes enviar el mismo tweet que el anterior.');
         }
 
-        // Insertar el nuevo tweet
-        const query = 'INSERT INTO tweets (username, tweet, content, media, mediatype) VALUES ($1, $2, $3, $4, $5) RETURNING id';
-        db.query(query, [username, content, content, media, mediaType], (err, result) => {
-            if (err) {
-                console.error('Error al insertar el tweet:', err);
-                return res.status(500).json('Error al publicar el tweet');
-            } else {
+        // Subir archivo a Cloudinary si hay media
+        let mediaUrl = '';
+        if (media) {
+            cloudinary.uploader.upload(media, (error, result) => {
+                if (error) {
+                    return res.status(500).json('Error al subir el archivo.');
+                }
+                mediaUrl = result.secure_url;
+
+                // Insertar el tweet en la base de datos con la URL de la imagen
+                const query = 'INSERT INTO tweets (username, tweet, content, media, mediatype) VALUES ($1, $2, $3, $4, $5) RETURNING id';
+                db.query(query, [username, content, content, mediaUrl, mediaType], (err, result) => {
+                    if (err) {
+                        console.error('Error al insertar el tweet:', err);
+                        return res.status(500).json('Error al publicar el tweet');
+                    }
+                    const tweetId = result.rows[0].id;
+                    res.status(201).json({ id: tweetId, content, media: mediaUrl, mediaType });
+                });
+            });
+        } else {
+            // Si no hay medios, solo se guarda el tweet
+            const query = 'INSERT INTO tweets (username, tweet, content) VALUES ($1, $2, $3) RETURNING id';
+            db.query(query, [username, content, content], (err, result) => {
+                if (err) {
+                    console.error('Error al insertar el tweet:', err);
+                    return res.status(500).json('Error al publicar el tweet');
+                }
                 const tweetId = result.rows[0].id;
-                res.status(201).json({ id: tweetId, content, media, mediaType });
-            }
-        });
+                res.status(201).json({ id: tweetId, content, media: null, mediaType: null });
+            });
+        }
     });
 });
 
