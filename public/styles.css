@@ -291,39 +291,33 @@
 }
 
 .terms-container {
+    position: left;
     display: flex;
-    align-items: center;
-    justify-content: flex-start; /* Asegura que el contenido esté al inicio */
-    gap: 10px; /* Espacio entre el checkbox y el texto */
     margin-top: 10px;
     margin-bottom: 2px;
-    position: relative; /* Base para una posición absoluta si es necesario */
+    align-items: center;
 }
 
-/* Reseteamos márgenes y forzamos la alineación */
+/* Ajustamos el margen del checkbox para acercarlo al texto */
 .terms-container input[type="checkbox"] {
-    margin: 0;
-    position: absolute; /* Lo posicionamos manualmente */
-    left: 0; /* Aseguramos que esté alineado a la izquierda del contenedor */
-    accent-color: #9b243f; /* Cambia el color del checkbox (opcional) */
+    margin-right: -260px; /* Reducir el margen entre el checkbox y el texto */
+
 }
 
-/* Aseguramos que el texto esté correctamente alineado */
+/* Estilo para el texto */
 .terms-container label {
-    font-size: 15px;
-    margin-left: 30px; /* Ajusta este valor para dar espacio al checkbox */
+    font-size: 15px; /* Ajusta el tamaño de fuente para que no quede muy grande */
 }
 
 /* Estilo para los enlaces */
 .terms-container a {
-    color: #9b243f;
+    color: #9b243f; /* Color para los enlaces */
     text-decoration: none;
 }
 
 .terms-container a:hover {
-    text-decoration: underline;
+    text-decoration: underline; /* Subrayado cuando el enlace es hover */
 }
-
 
 /* Estilo para el botón de crear */
 #createUserButton:disabled {
