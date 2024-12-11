@@ -282,7 +282,7 @@ function containsForbiddenWords(message) {
             const formData = new FormData();
             formData.append("media", file);
     
-            fetch('https://api.cloudinary.com/v1_1/your-cloud-name/upload', {
+            fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
                 method: 'POST',
                 body: formData,
             })
