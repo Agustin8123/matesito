@@ -352,11 +352,12 @@
 }
 .dropdown-menu {
             display: none; /* Oculto por defecto */
-            position: absolute;
-            background-color: #f1f1f1;
-            min-width: 150px;
+            position: relative;
+            background-color: #00000011;
+            min-width: 160px;
             box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
             z-index: 1;
+            margin-right: 95px;
         }
 
         /* Estilo de los elementos del menú */
@@ -390,18 +391,8 @@
             <h1>atesito</h1>
         </div>
     
-        <div class="nav-buttons">
-           
-    
-            
-
-            <label for="Otros" class="button">Otros</label>
-            <input type="radio" id="Otros" name="nav" style="display:none;" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">
-        </div>
-    
-    
         <div class="right-section">
-            <button onclick="toggleMenu">Seleccionar Usuario</button>
+            <button onclick="toggleMenu()">Seleccionar Usuario</button>
 
             <div class="dropdown-menu" id="dropdownMenu">
                 <label for="inicio" class="button">Inicio</label>
@@ -414,7 +405,7 @@
                 <input type="radio" id="Otros" name="nav" style="display:none;" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">
 
                 <label for="Cambiar usuario" class="button">Cambiar usuario</label>
-                <input type="radio" id="Cambiar usuario" name="nav" style="display:none;" onclick="showUserSelectOverlay">
+                <input type="radio" id="Cambiar usuario" name="nav" style="display:none;" onclick="showUserSelectOverlay()">
             </div>
         </div>
     </div>
