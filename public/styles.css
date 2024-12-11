@@ -1,0 +1,443 @@
+ body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
+        }
+        
+        .header {
+            background-color: #800020; /* Fondo bordó */
+            color: white;
+            padding: 10px 20px;
+            display: flex; /* Usa Flexbox */
+            align-items: center; /* Alinea verticalmente */
+            justify-content: space-between; /* Separa los elementos */
+            width: 100%; /* Asegura que ocupe todo el ancho */
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #800020;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .tweet-box {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .tweet-box textarea {
+            width: 100%;
+            padding: -1px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            resize: none;
+            background-color: #ffffff;
+        }
+        .tweet-box button {
+            background-color: #ffffff; /* Color bordó */
+            color: #800020;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        .tweets {
+            list-style: none;
+            padding: 0;
+        }
+        .tweet {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 10px 0;
+            border-radius: 10px;
+        }
+        .tweet .username {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .username-box, .user-select-box {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .username-box input, .user-select-box input {
+            padding: 10px;
+            width: 80%;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .username-box button, .user-select-box button {
+            background-color: #800020; /* Color bordó */
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .user-list {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .user-item {
+            text-align: center;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .user-item .profile-pic {
+            width: 50px;
+            height: 50px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 5px;
+            position: relative;
+            color: #333;
+        }
+        .user-item.active .profile-pic {
+            border: 2px solid #800020; /* Color bordó */
+        }
+        .user-item .username {
+            display: block;
+        }
+
+        .preview-media {
+            width: 400px; /* Ancho predeterminado */
+            height: auto;
+            max-height: 800px; /* Altura máxima */
+            object-fit: cover; /* Ajustar imagen/video */
+            border-radius: 5px; /* Bordes redondeados */
+            margin-top: 10px; /* Espacio superior */
+        }
+
+        .header button {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .header button img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        
+        }
+
+        .initial-box {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+       .initial-box button {
+            background-color: #800020;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+
+        button {
+            background-color: #800020;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: #9b243f; 
+        }
+
+        /* Estilo de botón genérico */
+        .button {
+            background-color: #ffffff;
+            border: none;
+            color: #9b243f;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 4px;
+        }
+
+        /* Personalizar la etiqueta que actúa como botón */
+        .custom-file-upload {
+            cursor: pointer;
+        }
+
+        /* Estilos para el input de tipo file */
+        #fileInput {
+            display: none;
+        }
+
+        .logo {
+            width: 50px; /* Ajusta el tamaño del logo */
+            height: auto;
+            margin-top: -2px;
+        }
+
+        .modal {
+            display: none; /* Por defecto, el modal está oculto */
+            position: fixed;
+            z-index: 1; /* Asegura que el modal esté encima de otros elementos */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4); /* Fondo translúcido */
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .left-section {
+    display: flex; /* Agrupa el logo y el título */
+    align-items: center;
+    gap: 0px; /* Espaciado entre logo y texto */
+}
+
+.right-section button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: -35px;
+}
+
+.right-section button:hover {
+    text-decoration: underline;
+}
+
+.terms-container {
+    position: left;
+    display: flex;
+    margin-top: 10px;
+    margin-bottom: 2px;
+    align-items: center;
+}
+
+/* Ajustamos el margen del checkbox para acercarlo al texto */
+.terms-container input[type="checkbox"] {
+    margin-right: -260px; /* Reducir el margen entre el checkbox y el texto */
+
+}
+
+/* Estilo para el texto */
+.terms-container label {
+    font-size: 15px; /* Ajusta el tamaño de fuente para que no quede muy grande */
+}
+
+/* Estilo para los enlaces */
+.terms-container a {
+    color: #9b243f; /* Color para los enlaces */
+    text-decoration: none;
+}
+
+.terms-container a:hover {
+    text-decoration: underline; /* Subrayado cuando el enlace es hover */
+}
+
+/* Estilo para el botón de crear */
+#createUserButton:disabled {
+    background-color: #ccc; /* Botón gris cuando está deshabilitado */
+    cursor: not-allowed;
+}
+
+
+.rem-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 45px
+}
+
+/* Ajustamos el margen del checkbox para acercarlo al texto */
+.rem-container input[type="checkbox"] {
+    margin-right: -125px; /* Reducir el margen entre el checkbox y el texto */
+}
+
+/* Estilo para el texto */
+.rem-container label {
+    font-size: 15px; /* Ajusta el tamaño de fuente para que no quede muy grande */
+    margin-bottom: 6px;
+}
+.dropdown-menu {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    background-color: #333;
+    width: 130px;
+    height: auto;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    margin-left: -180px;
+    margin-top: 30px;
+    border-radius: 8px; 
+    padding: 10px;
+        }
+
+        /* Estilo de los elementos del menú */
+        .dropdown-menu a {
+            color: black;
+            padding: 10px 10px;
+            text-decoration: none;
+            display: block;
+        }
+
+        /* Cambia el color al pasar el mouse */
+        .dropdown-menu a:hover {
+            background-color: #ddd;
+        }
+
+        /* Estilo contenedor general para alinear */
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+    
+        .boton {
+            background-color: #3f3f3f;
+            border: none;
+            color: #d2d2d2;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 4px;
+            width: 90px;
+        }
+
+        .botonV {
+            background-color: #3f3f3f;
+            border: none;
+            color: #d2d2d2;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 4px;
+            width: 90px;
+            margin-top: 5px;
+        }
+
+.nav-buttons {
+            display: flex; /* Alinea los botones horizontalmente */
+            gap: 15px; /* Espaciado entre botones */
+            flex-grow: 1; /* Asegura que ocupe el espacio disponible */
+            justify-content: right; 
+            margin-left: -160px; /* Ajuste para mover los botones un poco a la izquierda */
+        }
+
+        .nav-buttons button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+
+        .nav-buttons button:hover {
+            text-decoration: underline; /* Subrayado al pasar el mouse */
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .content {
+            margin: 20px auto;
+            max-width: 760px;
+            padding: 20px;
+            background-color: #262424;
+            color: #fffbfb;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .version-box {
+            background-color: rgba(255, 255, 255, 0.388);
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 94.5%; /* Aumenta el ancho del contenedor */
+            max-width: 800px; /* Limita el ancho máximo */
+        }
+
+        .version-box h2 {
+            margin-top: 0;
+        }
+
+        .version-box p {
+            font-size: 38px;
+        }
