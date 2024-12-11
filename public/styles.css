@@ -256,6 +256,27 @@
     gap: 0px; /* Espaciado entre logo y texto */
 }
 
+.nav-buttons {
+    display: flex; /* Alinea los botones horizontalmente */
+    gap: 15px; /* Espaciado entre botones */
+    flex-grow: 1; /* Asegura que ocupe el espacio disponible */
+    justify-content: center; /* Centra los botones en el medio */
+    margin-left: -160px; /* Ajuste para mover los botones un poco a la izquierda */
+}
+
+.nav-buttons button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.nav-buttons button:hover {
+    text-decoration: underline; /* Subrayado al pasar el mouse */
+}
+
 .right-section button {
     background-color: transparent;
     border: none;
@@ -356,6 +377,7 @@
             display: inline-block;
         }
     
+        /* Estilo de botón genérico */
         .boton {
             background-color: #3f3f3f;
             border: none;
@@ -387,57 +409,4 @@
             margin-bottom: 4px;
             width: 90px;
             margin-top: 5px;
-        }
-
-.nav-buttons {
-            display: flex; /* Alinea los botones horizontalmente */
-            gap: 15px; /* Espaciado entre botones */
-            flex-grow: 1; /* Asegura que ocupe el espacio disponible */
-            justify-content: right; 
-            margin-left: -160px; /* Ajuste para mover los botones un poco a la izquierda */
-        }
-
-        .nav-buttons button {
-            background-color: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 5px 10px;
-        }
-
-        .nav-buttons button:hover {
-            text-decoration: underline; /* Subrayado al pasar el mouse */
-        }
-
-        h1 {
-            margin: 0;
-        }
-
-        .content {
-            margin: 20px auto;
-            max-width: 760px;
-            padding: 20px;
-            background-color: #262424;
-            color: #fffbfb;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .version-box {
-            background-color: rgba(255, 255, 255, 0.388);
-            padding: 20px;
-            margin: 15px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 94.5%; /* Aumenta el ancho del contenedor */
-            max-width: 800px; /* Limita el ancho máximo */
-        }
-
-        .version-box h2 {
-            margin-top: 0;
-        }
-
-        .version-box p {
-            font-size: 38px;
         }
