@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matesito</title>
-    
-   
-    <style>
+      
+<style>
         /* Estilos básicos para el cuerpo y el contenedor principal */
         body {
             font-family: Arial, sans-serif;
@@ -304,12 +303,12 @@
     display: flex;
     align-items: center;
     margin-top: 10px;
-    margin-bottom: 0px;
+    margin-bottom: 2px;
 }
 
 /* Ajustamos el margen del checkbox para acercarlo al texto */
 .terms-container input[type="checkbox"] {
-    margin-right: -160px; /* Reducir el margen entre el checkbox y el texto */
+    margin-right: -260px; /* Reducir el margen entre el checkbox y el texto */
 }
 
 /* Estilo para el texto */
@@ -408,7 +407,7 @@
                 <input type="radio" id="Otros" name="nav" style="display:none;" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">
 
                 <label for="Cambiar usuario" class="button">Usuario</label>
-                <input type="radio" id="Cambiar usuario" name="nav" style="display:none;" onclick="showUserSelectOverlay()">
+                <input type="radio" id="Cambiar usuario" name="nav" style="display:none;" onclick="showUserSelectOverlay(); toggleMenu();">
             </div>
         </div>
     </div>
@@ -480,7 +479,8 @@
         <div class="terms-container">
             <input type="checkbox" id="acceptTermsCheckbox">
             <label for="acceptTermsCheckbox">
-                Entiendo que al usar mi cuenta de Matesito estoy aceptando los <a href="Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf" target="_blank">términos y condiciones y las políticas de privacidad</a>.
+                Entiendo que al usar mi cuenta de Matesito<br> estoy aceptando 
+                los <a href="Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf" target="_blank">términos y condiciones <br> y las políticas de privacidad</a>.
             </label>
         </div>
 
