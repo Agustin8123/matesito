@@ -300,6 +300,7 @@
 }
 
 .terms-container {
+    position: left;
     display: flex;
     margin-top: 10px;
     margin-bottom: 2px;
@@ -309,7 +310,7 @@
 /* Ajustamos el margen del checkbox para acercarlo al texto */
 .terms-container input[type="checkbox"] {
     margin-right: -260px; /* Reducir el margen entre el checkbox y el texto */
-    align-items: center;
+
 }
 
 /* Estilo para el texto */
@@ -353,14 +354,17 @@
     margin-bottom: 6px;
 }
 .dropdown-menu {
-            display: none; /* Oculto por defecto */
-            position: absolute;
-            background-color: #00000011;
-            min-width: 10px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-            margin-left: -180px;
-            margin-top: 30px;
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    background-color: #333;
+    width: 130px;
+    height: auto;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    margin-left: -180px;
+    margin-top: 30px;
+    border-radius: 8px; 
+    padding: 10px;
         }
 
         /* Estilo de los elementos del menú */
@@ -381,7 +385,40 @@
             position: relative;
             display: inline-block;
         }
+    
+        /* Estilo de botón genérico */
+        .boton {
+            background-color: #3f3f3f;
+            border: none;
+            color: #d2d2d2;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 4px;
+            width: 90px;
+        }
 
+        .botonV {
+            background-color: #3f3f3f;
+            border: none;
+            color: #d2d2d2;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 4px;
+            width: 90px;
+            margin-top: 5px;
+        }
 </style>
 
 </head>
@@ -390,25 +427,35 @@
 
     <div class="header">
         <div class="left-section">
-            <img src="matesito-logo.png" alt="Logo" class="logo">
-            <h1>atesito</h1>
+            <label onclick="location.href='Iniciogv.html'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
+                <img src="matesito-logo.png" alt="Logo" class="logo">
+                <h1>atesito</h1>
+            </label>
         </div>
     
         <div class="right-section">
             <button onclick="toggleMenu()">Seleccionar Usuario</button>
 
             <div class="dropdown-menu" id="dropdownMenu">
-                <label for="inicio" class="button">Inicio</label>
-                <input type="radio" id="inicio" name="nav" style="display:none;" onclick="location.href='Iniciogv.html'">
-
-                <label for="versiones" class="button">Versiones</label>
-                <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='vers.html'">
-
-                <label for="Otros" class="button">Otros</label>
-                <input type="radio" id="Otros" name="nav" style="display:none;" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">
-
-                <label for="Cambiar usuario" class="button">Usuario</label>
+                <label for="Cambiar usuario" class="boton">Usuario</label>
                 <input type="radio" id="Cambiar usuario" name="nav" style="display:none;" onclick="showUserSelectOverlay(); toggleMenu();">
+                
+                <label for="Otros" class="boton" onclick="toggleSubMenu()">Otros</label>
+                <div class="dropdown-menu" id="subMenu" style="display: none; position: absolute; left: 171px; margin-top: -82px;">
+                    <label for="Politicas" class="boton">Políticas</label>
+                    <input type="radio" id="Politicas" name="nav" style="display:none;" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">
+
+                    <label for="versiones" class="boton">Versiones</label>
+                    <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='vers.html'">
+            
+                    <label for="Ayuda" class="boton">Ayuda</label>
+                    <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="HelpAlert()">
+
+                    <label for="Volver" class="botonV">Volver</label>
+                    <input type="radio" id="Volver" name="nav" style="display:none;" onclick="toggleSubMenu()">
+                </div>
+                <label for="Cerrar" class="botonV">Cerrar</label>
+                <input type="radio" id="Cerrar" name="nav" style="display:none;" onclick="toggleMenu()">
             </div>
         </div>
     </div>
@@ -538,6 +585,10 @@ function toggleMenu() {
             menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
         }
 
+function HelpAlert() {
+    alert('Si requieres ayuda con cualquier cosa, contactate con nuestro correo de soporte "matesito.soporte@gmail.com"');
+}
+
         // Ocultar el menú si se hace clic fuera de él
         document.addEventListener('click', function(event) {
             const menu = document.getElementById('dropdownMenu');
@@ -546,6 +597,11 @@ function toggleMenu() {
                 menu.style.display = 'none';
             }
         });
+
+    function toggleSubMenu() {
+        const subMenu = document.getElementById('subMenu');
+        subMenu.style.display = subMenu.style.display === 'block' ? 'none' : 'block';
+    }
 
 function useExistingUser() {
     document.getElementById('initialOverlay').style.display = 'none';
