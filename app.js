@@ -1,7 +1,6 @@
 const express = require('express');
 const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
-const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 const app = express();
 const port = 3000;
@@ -16,14 +15,6 @@ const db = new Client({
     port: 5432, // Puerto
     ssl: { rejectUnauthorized: false } // Asegura conexión segura
 });
-
-cloudinary.config({
-  cloud_name: 'dtzl420mq',
-  api_key: '848481859678637',
-  api_secret: 'fBw0FjD4odakPW5_KY4alUAvV2c',
-});
-
-
 
 // Verificar conexión
 db.connect()
@@ -48,35 +39,41 @@ app.post('/users', async (req, res) => {
 
 
 // Iniciar sesión con un usuario existente
-app.post('/login', (req, res) => {
-    const { username, password } = req.body;
+app.post('/tweets', (req, res) => {
+    const { username, content, media, mediaType } = req.body;
 
-    const query = 'SELECT * FROM users WHERE username = $1';
-    db.query(query, [username], async (err, results) => {
+    if (!username || !content) {
+        return res.status(400).json('Faltan datos requeridos');
+    }
+
+    const checkQuery = 'SELECT * FROM tweets WHERE username = $1 ORDER BY createdAt DESC LIMIT 1';
+    db.query(checkQuery, [username], (err, result) => {
         if (err) {
-            console.error('Error al buscar el usuario:', err);
-            return res.status(500).json('Error al buscar el usuario');
+            console.error('Error al verificar tweet previo:', err);
+            return res.status(500).json('Error al verificar el tweet');
         }
 
-        console.log('Resultados de la consulta:', results);
-        if (results.rows && results.rows.length > 0) {
-            const user = results.rows[0];
-            const isValidPassword = await bcryptjs.compare(password, user.password);
+        const lastTweet = result.rows[0];
+        if (lastTweet && lastTweet.content === content) {
+            return res.status(400).json('No puedes enviar el mismo tweet que el anterior.');
+        }
 
-            if (isValidPassword) {
-                console.log('Login exitoso para usuario:', username);
-                return res.status(200).json({ username: user.username });
-            } else {
-                console.log('Contraseña incorrecta para usuario:', username);
-                return res.status(401).json('Usuario o contraseña incorrectos');
+        const query = `
+            INSERT INTO tweets (username, tweet, content, media, mediatype) 
+            VALUES ($1, $2, $3, $4, $5) 
+            RETURNING id`;
+        const params = [username, content, content, media || null, mediaType || null];
+
+        db.query(query, params, (err, result) => {
+            if (err) {
+                console.error('Error al insertar el tweet:', err);
+                return res.status(500).json('Error al publicar el tweet');
             }
-        } else {
-            console.log('Usuario no encontrado:', username);
-            return res.status(404).json('Usuario no encontrado');
-        }
+            const tweetId = result.rows[0].id;
+            res.status(201).json({ id: tweetId, content, media, mediaType });
+        });
     });
 });
-;
 
 // Crear un nuevo tweet
 app.post('/tweets', (req, res) => {
