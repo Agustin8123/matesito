@@ -95,7 +95,7 @@ function loginUser() {
     const password = document.getElementById('passwordInput').value.trim();
     const rememberMe = document.getElementById('rememberMe').checked;
 
-    fetch('https://matesito.onrender.com/login', {
+    fetch('https://https://matesitotest.onrender.com/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -144,34 +144,49 @@ function HideOverlays(){
 
 function updateUserButton() {
     const userButton = document.querySelector('.header button');
-    const userImage = users[activeUser] && users[activeUser].image ? users[activeUser].image : 'default-avatar.png'; // Ruta de una imagen predeterminada
+
+    // Usar la imagen del usuario activo, o una predeterminada si no existe
+    const userImage = users[activeUser] && users[activeUser].profileImage
+        ? users[activeUser].profileImage
+        : 'default-avatar.png'; // Imagen predeterminada
+    
+    // Configurar el botón con la imagen y el nombre del usuario
     userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
 }
 
+
 function setActiveUser(username) {
-    fetch('https://matesito.onrender.com/getUserDetails', {
+    fetch('https://matesitotest.onrender.com/getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username })
+        body: JSON.stringify({ username }),
     })
     .then(response => response.json())
     .then(data => {
-    console.log('Datos recibidos:', data);
-    if (data.id) {
-        activeUser = username;
-        hideUserSelectOverlay();
-        document.getElementById('appContainer').style.display = 'block';
-        updateUserButton();
-        HideOverlays();
-    } else {
-        alert("Usuario no encontrado.");
-    }
-})
-
+        console.log('Datos recibidos:', data);
+        if (data.id) {
+            // Guardar detalles del usuario activo
+            activeUser = username;
+            if (!users[username]) {
+                users[username] = {}; // Asegurarse de que el usuario exista en la estructura
+            }
+            users[username].profileImage = data.profileImage || 'default-avatar.png'; // Guardar la URL de la imagen
+            
+            // Actualizar la UI
+            hideUserSelectOverlay();
+            document.getElementById('appContainer').style.display = 'block';
+            updateUserButton();
+            HideOverlays();
+        } else {
+            alert("Usuario no encontrado.");
+        }
+    })
     .catch(error => {
+        console.error("Error al obtener los detalles del usuario:", error);
         alert("Error al obtener los detalles del usuario.");
     });
 }
+
 
 function showUserSelectOverlay() {
     document.getElementById('initialOverlay').style.display = 'flex';
@@ -183,63 +198,71 @@ function hideUserSelectOverlay() {
 }
 
 function addNewUser() {
-
     const usernameInput = document.getElementById('newUsernameInput');
     const passwordInput = document.getElementById('newPasswordInput');
     const profileImageInput = document.getElementById('newProfileImage');
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
 
-    if (username !== "" && password !== "") {
-        let profileImage = 'default-avatar.png'; // Imagen predeterminada
-        if (profileImageInput.files && profileImageInput.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                profileImage = e.target.result;
-                // Enviar los datos al servidor
-                createUserInDatabase(username, password, profileImage);
-            };
-            reader.readAsDataURL(profileImageInput.files[0]);
-        } else {
-            // Enviar los datos al servidor
-            createUserInDatabase(username, password, profileImage);
-        }
-
-        // Limpiar los campos después de intentar agregar el usuario
-        usernameInput.value = '';
-        passwordInput.value = '';
-        document.querySelector('.header button').style.display = 'block'; // Mostrar el botón de selección de usuario nuevamente
-    } else {
+    if (!username || !password) {
         alert('Por favor, introduce un nombre o apodo y contraseña válidos.');
+        return;
     }
+
+    if (!document.getElementById('acceptTermsCheckbox').checked) {
+        alert('Debes aceptar los términos y condiciones para continuar.');
+        return;
+    }
+
+    let profileImageURL = 'default-avatar.png'; // Imagen predeterminada
+
+    if (profileImageInput.files && profileImageInput.files[0]) {
+        const formData = new FormData();
+        formData.append('file', profileImageInput.files[0]);
+        formData.append('upload_preset', 'matesito'); // Cambia esto por tu preset en Cloudinary
+
+        fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            profileImageURL = data.secure_url; // URL de la imagen subida
+            createUserInDatabase(username, password, profileImageURL);
+        })
+        .catch(error => {
+            console.error('Error al subir la imagen:', error);
+            alert('No se pudo subir la imagen de perfil. Inténtalo de nuevo.');
+        });
+    } else {
+        createUserInDatabase(username, password, profileImageURL);
+    }
+
+    usernameInput.value = '';
+    passwordInput.value = '';
+    profileImageInput.value = ''; // Deseleccionar el archivo
 }
 
-function createUserInDatabase(username, password, profileImage) {
-    // Crear un objeto con los datos del nuevo usuario
+function createUserInDatabase(username, password, profileImageURL) {
     const userData = {
-        username: username,
-        password: password,
-        profileImage: profileImage
+        username,
+        password,
+        profileImage: profileImageURL,
     };
 
-    // Hacer la solicitud POST al servidor
-    fetch('https://matesito.onrender.com/users', {
+    fetch('https://matesitotest.onrender.com/users', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(userData),
     })
     .then(response => response.json())
     .then(data => {
         if (data.id) {
-            // Si el usuario se crea correctamente, guarda al nuevo usuario como activo
-            setActiveUser(username);
+            setActiveUser(username); // Establecer al nuevo usuario como activo
         } else {
-            document.getElementById('initialOverlay').style.display = 'none';
-            document.getElementById('userSelectOverlay').style.display = 'none';
-            document.getElementById('usernameOverlay').style.display = 'flex';
-            alert('Ya puedes iniciar sesión.'); 
+            alert('Ya puedes iniciar sesión.');
         }
     })
     .catch(error => {
@@ -296,7 +319,7 @@ function containsForbiddenWords(message) {
                 tweetData.mediaType = selectedFile.type;
     
                 // Enviar el tweet al servidor
-                return fetch('https://matesito.onrender.com/tweets', {
+                return fetch('https://matesitotest.onrender.com/tweets', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(tweetData),
@@ -308,14 +331,17 @@ function containsForbiddenWords(message) {
                 addTweetToList(data.content, data.media, data.mediaType, activeUser);
 
                 tweetMedia.value = ''; // Limpia el campo de archivo
-                selectedFile = null; 
+                selectedFile = null;
+                
+                alert('Tu post se ha enviado corractamente');
             })
             .catch(error => {
-                console.error('Error al subir el archivo o enviar el tweet:', error);
+                console.error('Error al subir el archivo o enviar el post:', error);
+                alert('Error al subir el archivo o enviar el post');
             });
         } else {
             // Enviar el tweet sin archivo adjunto
-            fetch('https://matesito.onrender.com/tweets', {
+            fetch('https://matesitotest.onrender.com/tweets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(tweetData),
@@ -324,9 +350,12 @@ function containsForbiddenWords(message) {
             .then(data => {
                 lastTweetContent = data.content;
                 addTweetToList(data.content, '', '', activeUser);
+
+                alert('Tu post se ha enviado corractamente');
             })
             .catch(error => {
-                console.error('Error al enviar el tweet:', error);
+                console.error('Error al enviar el post:', error);
+                alert('Error al subir el archivo o enviar el post');
             });
         }
     }
@@ -341,7 +370,7 @@ function goBackToInitial() {
 
 
 function loadTweets() {
-    fetch('https://matesito.onrender.com/tweets') // Solicita los tweets al servidor
+    fetch('https://matesitotest.onrender.com/tweets') // Solicita los tweets al servidor
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los tweets: ${response.status}`);
