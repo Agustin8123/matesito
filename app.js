@@ -39,6 +39,37 @@ app.post('/users', async (req, res) => {
 
 
 // Iniciar sesión con un usuario existente
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    const query = 'SELECT * FROM users WHERE username = $1';
+    db.query(query, [username], async (err, results) => {
+        if (err) {
+            console.error('Error al buscar el usuario:', err);
+            return res.status(500).json('Error al buscar el usuario');
+        }
+
+        console.log('Resultados de la consulta:', results);
+        if (results.rows && results.rows.length > 0) {
+            const user = results.rows[0];
+            const isValidPassword = await bcryptjs.compare(password, user.password);
+
+            if (isValidPassword) {
+                console.log('Login exitoso para usuario:', username);
+                return res.status(200).json({ username: user.username });
+            } else {
+                console.log('Contraseña incorrecta para usuario:', username);
+                return res.status(401).json('Usuario o contraseña incorrectos');
+            }
+        } else {
+            console.log('Usuario no encontrado:', username);
+            return res.status(404).json('Usuario no encontrado');
+        }
+    });
+});
+;
+
+// Crear un nuevo tweet
 app.post('/tweets', (req, res) => {
     const { username, content, media, mediaType } = req.body;
 
@@ -72,63 +103,6 @@ app.post('/tweets', (req, res) => {
             const tweetId = result.rows[0].id;
             res.status(201).json({ id: tweetId, content, media, mediaType });
         });
-    });
-});
-
-// Crear un nuevo tweet
-app.post('/tweets', (req, res) => {
-    const { username, content, media, mediaType } = req.body;
-
-    if (!username || !content) {
-        return res.status(400).json('Faltan datos requeridos');
-    }
-
-    const checkQuery = 'SELECT * FROM tweets WHERE username = $1 ORDER BY createdAt DESC LIMIT 1';
-    db.query(checkQuery, [username], (err, result) => {
-        if (err) {
-            console.error('Error al verificar tweet previo:', err);
-            return res.status(500).json('Error al verificar el tweet');
-        }
-
-        const lastTweet = result.rows[0];
-
-        // Verificar si el contenido del nuevo tweet es igual al último tweet
-        if (lastTweet && lastTweet.content === content) {
-            return res.status(400).json('No puedes enviar el mismo tweet que el anterior.');
-        }
-
-        // Subir archivo a Cloudinary si hay media
-        let mediaUrl = '';
-        if (media) {
-            cloudinary.uploader.upload(media, (error, result) => {
-                if (error) {
-                    return res.status(500).json('Error al subir el archivo.');
-                }
-                mediaUrl = result.secure_url;
-
-                // Insertar el tweet en la base de datos con la URL de la imagen
-                const query = 'INSERT INTO tweets (username, tweet, content, media, mediatype) VALUES ($1, $2, $3, $4, $5) RETURNING id';
-                db.query(query, [username, content, content, mediaUrl, mediaType], (err, result) => {
-                    if (err) {
-                        console.error('Error al insertar el tweet:', err);
-                        return res.status(500).json('Error al publicar el tweet');
-                    }
-                    const tweetId = result.rows[0].id;
-                    res.status(201).json({ id: tweetId, content, media: mediaUrl, mediaType });
-                });
-            });
-        } else {
-            // Si no hay medios, solo se guarda el tweet
-            const query = 'INSERT INTO tweets (username, tweet, content) VALUES ($1, $2, $3) RETURNING id';
-            db.query(query, [username, content, content], (err, result) => {
-                if (err) {
-                    console.error('Error al insertar el tweet:', err);
-                    return res.status(500).json('Error al publicar el tweet');
-                }
-                const tweetId = result.rows[0].id;
-                res.status(201).json({ id: tweetId, content, media: null, mediaType: null });
-            });
-        }
     });
 });
 
