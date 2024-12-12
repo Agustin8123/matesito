@@ -108,14 +108,25 @@ app.post('/tweets', (req, res) => {
 
 // Obtener todos los tweets
 app.get('/tweets', (req, res) => {
-    const query = 'SELECT * FROM tweets ORDER BY createdAt DESC';
+    const query = 'SELECT id, username, content, media, mediatype, createdAt FROM tweets ORDER BY createdAt DESC';
+    
     db.query(query, (err, results) => {
         if (err) {
             console.error('Error al obtener los tweets:', err);
-            res.status(500).json({ error: 'Error al obtener los tweets' }); // Respuesta más clara
-        } else {
-            res.status(200).json(results.rows); // Devuelve solo los datos en la propiedad rows
+            return res.status(500).json({ error: 'Error al obtener los tweets' });
         }
+        
+        // Mapea los datos para asegurar consistencia en la respuesta
+        const tweets = results.rows.map(tweet => ({
+            id: tweet.id,
+            username: tweet.username,
+            content: tweet.content,
+            media: tweet.media || null,      // Devuelve null si no hay media
+            mediaType: tweet.mediatype || null,
+            createdAt: tweet.createdat,      // Fecha de creación
+        }));
+
+        res.status(200).json(tweets); // Devuelve los tweets procesados
     });
 });
 
