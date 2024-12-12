@@ -338,16 +338,25 @@ function goBackToInitial() {
 
 
 function loadTweets() {
-    fetch('https://matesito.onrender.com/tweets')  // Solicita los tweets al servidor
-        .then(response => response.json())
+    fetch('https://matesito.onrender.com/tweets') // Solicita los tweets al servidor
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error al cargar los tweets: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(tweets => {
-            // Limpiar la lista antes de agregar los nuevos tweets
             const tweetList = document.getElementById('tweetList');
-            tweetList.innerHTML = '';  // Limpiar la lista existente
+            tweetList.innerHTML = ''; // Limpiar la lista existente
 
-            // Mostrar cada tweet en la página
+            // Validar y mostrar cada tweet en la página
             tweets.forEach(tweet => {
-                addTweetToList(tweet.content, tweet.media, tweet.mediaType, tweet.username);
+                const { content, media, mediaType, username } = tweet;
+                if (content && username) { // Validar campos requeridos
+                    addTweetToList(content, media, mediaType, username);
+                } else {
+                    console.warn('Tweet inválido omitido:', tweet);
+                }
             });
         })
         .catch(error => {
@@ -355,17 +364,26 @@ function loadTweets() {
         });
 }
 
+
 // Agregar un tweet a la lista
 function addTweetToList(content, media, mediaType, username) {
     const tweetList = document.getElementById('tweetList');
     const newTweet = document.createElement('li');
     newTweet.className = 'tweet';
+
     let mediaHTML = '';
-    if (media) {
+    if (media && mediaType) {
         if (mediaType.startsWith('image/')) {
-            mediaHTML = `<div><img src="${media}" alt="Tweet Media" class="preview-media"></div>`;
+            mediaHTML = `<div><img src="${media}" alt="Imagen subida por ${username}" class="preview-media"></div>`;
         } else if (mediaType.startsWith('video/')) {
-            mediaHTML = `<div><video controls class="preview-media"><source src="${media}" type="${mediaType}">Tu navegador no soporta la reproducción de video.</video></div>`;
+            mediaHTML = `<div>
+                            <video controls class="preview-media">
+                                <source src="${media}" type="${mediaType}">
+                                Tu navegador no soporta la reproducción de video.
+                            </video>
+                         </div>`;
+        } else {
+            console.warn('Tipo de medio no soportado:', mediaType);
         }
     }
 
@@ -375,6 +393,7 @@ function addTweetToList(content, media, mediaType, username) {
     `;
     tweetList.insertBefore(newTweet, tweetList.firstChild);
 }
+
 
 // Llamar a loadTweets al cargar la página
 window.onload = verMant(mantenimiento);
