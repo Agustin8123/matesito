@@ -284,7 +284,7 @@ function containsForbiddenWords(message) {
             // Subir el archivo a Cloudinary
             const formData = new FormData();
             formData.append("file", selectedFile);
-            formData.append("upload_preset", "matesito"); // Asegúrate de que el preset coincida con el configurado en tu cuenta
+            formData.append("upload_preset", "ml_default"); // Asegúrate de que el preset coincida con el configurado en tu cuenta
     
             fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
                 method: 'POST',
