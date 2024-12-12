@@ -306,6 +306,9 @@ function containsForbiddenWords(message) {
             .then(data => {
                 lastTweetContent = data.content;
                 addTweetToList(data.content, data.media, data.mediaType, activeUser);
+
+                fileInput.value = ''; // Limpia el campo de archivo
+                selectedFile = null; 
             })
             .catch(error => {
                 console.error('Error al subir el archivo o enviar el tweet:', error);
