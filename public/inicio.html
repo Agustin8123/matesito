@@ -102,14 +102,12 @@
     <div class="user-select-box">
         <input type="text" id="newUsernameInput" placeholder="Nuevo usuario">
         <input type="password" id="newPasswordInput" placeholder="Contraseña">
-        
-        <!-- Botón personalizado para seleccionar la imagen de perfil -->
-        <label for="newProfileImage" class="custom-file-upload button" onclick="return false;">
+
+        <label for="newProfileImage" class="custom-file-upload button">
             Seleccionar imagen de perfil
         </label>
         <input id="newProfileImage" type="file" accept="image/*" style="display:none;">
-        
-        <!-- Contenedor para la casilla de verificación y el texto -->
+
         <div class="terms-container">
             <input type="checkbox" id="acceptTermsCheckbox">
             <label for="acceptTermsCheckbox">
@@ -117,11 +115,10 @@
             </label>
         </div>
 
-        <button id="createUserButton" onclick="addNewUser()" disabled>Crear</button> <!-- Botón deshabilitado por defecto -->
-        <!-- Botón Volver -->
-        <button onclick="goBackToInitial()">Volver</button>
+        <button onclick="addNewUser()">Crear Usuario</button>
     </div>
 </div>
+
 <script src="scripts.js"></script>
 </body>
 </html>
