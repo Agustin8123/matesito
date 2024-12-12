@@ -95,7 +95,7 @@ function loginUser() {
     const password = document.getElementById('passwordInput').value.trim();
     const rememberMe = document.getElementById('rememberMe').checked;
 
-    fetch('https://https://matesitotest.onrender.com/login', {
+    fetch('https://matesitotest.onrender.com/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
