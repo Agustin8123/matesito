@@ -307,7 +307,7 @@ function containsForbiddenWords(message) {
                 lastTweetContent = data.content;
                 addTweetToList(data.content, data.media, data.mediaType, activeUser);
 
-                fileInput.value = ''; // Limpia el campo de archivo
+                tweetMedia.value = ''; // Limpia el campo de archivo
                 selectedFile = null; 
             })
             .catch(error => {
