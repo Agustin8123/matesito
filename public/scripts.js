@@ -262,7 +262,7 @@ function createUserInDatabase(username, password, profileImageURL) {
         if (data.id) {
             setActiveUser(username); // Establecer al nuevo usuario como activo
         } else {
-            alert('Ya puedes iniciar sesión.');
+            alert('error al crear el usuario');
         }
     })
     .catch(error => {

@@ -26,16 +26,18 @@ app.post('/users', async (req, res) => {
     const { username, password, profileImage } = req.body;
     const hashedPassword = await bcryptjs.hash(password, 10); // Cifrar la contraseña
 
-    const query = 'INSERT INTO users (username, password, image) VALUES ($1, $2, $3)';
+    const query = 'INSERT INTO users (username, password, image) VALUES ($1, $2, $3) RETURNING id'; // Usamos RETURNING id para obtener el id insertado
     db.query(query, [username, hashedPassword, profileImage || 'default-avatar.png'], (err, result) => {
         if (err) {
             console.error("Error al insertar usuario:", err);  // Log del error
             res.status(500).json({ error: 'Error al crear el usuario' });  // Responder como JSON
         } else {
-            res.status(201).json({ id: result.insertId, username });  // Responder con datos en formato JSON
+            const userId = result.rows[0].id; // Obtener el id desde result.rows[0].id
+            res.status(201).json({ id: userId, username });  // Devolver el id y el username
         }
     });
 });
+
 
 
 // Iniciar sesión con un usuario existente
