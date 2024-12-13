@@ -23,11 +23,11 @@ db.connect()
 
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
-    const { username, password, image } = req.body;
+    const { username, password, profileImage } = req.body;
     const hashedPassword = await bcryptjs.hash(password, 10); // Cifrar la contraseña
 
     const query = 'INSERT INTO users (username, password, image) VALUES ($1, $2, $3)';
-    db.query(query, [username, hashedPassword, image || 'default-avatar.png'], (err, result) => {
+    db.query(query, [username, hashedPassword, profileImage || 'default-avatar.png'], (err, result) => {
         if (err) {
             console.error("Error al insertar usuario:", err);  // Log del error
             res.status(500).json({ error: 'Error al crear el usuario' });  // Responder como JSON
