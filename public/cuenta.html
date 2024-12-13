@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matesito</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Encabezado con botón para seleccionar usuario -->
+    <div class="header">
+        <div class="left-section">
+            <label onclick="location.href='Iniciogv.html'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
+                <img src="matesito-logo.png" alt="Logo" class="logo">
+                <h1>atesito</h1>
+            </label>
+        </div>
+    </div>
+
+<div class="overlay" id="AvisoOverlay">
+    <div class="initial-box">
+        <h1>Es nesesario que confirmes tu cuenta para continuar.</h1>
+        <button onclick="Acept()">Aceptar</button>
+    </div>
+</div>
+
+<div class="container" id="appContainer">
+    <div class="user-settings">
+        <h2>Configuración de Usuario</h2>
+    
+        <!-- Cambiar nombre de usuario -->
+        <div class="settings-item">
+            <label for="newUsername">Nombre de Usuario</label>
+            <input type="text" id="newUsername" placeholder="Nuevo nombre de usuario">
+            <button onclick="updateUsername()">Guardar</button>
+        </div>
+    
+        <!-- Cambiar imagen de perfil -->
+        <div class="settings-item">
+            <label for="profileImage">Imagen de Perfil</label>
+            <input type="file" id="profileImage" accept="image/*">
+            <button onclick="updateProfileImage()">Subir</button>
+        </div>
+    
+        <!-- Cambiar contraseña -->
+        <div class="settings-item">
+            <label for="newPassword">Nueva Contraseña</label>
+            <input type="password" id="newPassword" placeholder="Nueva contraseña">
+            <button onclick="updatePassword()">Cambiar Contraseña</button>
+        </div>
+    </div>    
+</div>
+
+<div class="overlay" id="usernameOverlay" style="display: none;">
+    <div class="username-box">
+        <input type="text" id="usernameInput" placeholder="Nombre de Usuario">
+        <input type="password" id="passwordInput" placeholder="Contraseña">
+
+        <button onclick="loginUser()">Ingresar</button>
+        <button onclick="location.href='inicio.html'">Volver</button>
+    </div>
+</div>
+
+<script src="scripts c.js"></script>
+</body>
+</html>

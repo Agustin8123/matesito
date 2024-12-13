@@ -37,7 +37,7 @@ function verMant(valor) {
 }
 
 function Acept() {
-    document.getElementById('initialOverlay').style.display = 'flex';
+    document.getElementById('usernameOverlay').style.display = 'flex';
     document.getElementById('AvisoOverlay').style.display = 'none';
 }
 
@@ -54,6 +54,11 @@ function HelpAlert() {
     function toggleSubMenu() {
         const subMenu = document.getElementById('subMenu');
         subMenu.style.display = subMenu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function toggleSubMenu2() {
+        const subMenu2 = document.getElementById('subMenu2');
+        subMenu2.style.display = subMenu2.style.display === 'block' ? 'none' : 'block';
     }
 
 function useExistingUser() {

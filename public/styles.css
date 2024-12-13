@@ -411,3 +411,45 @@
             width: 90px;
             margin-top: 5px;
         }
+
+/* para la configuracion de cuentas*/
+
+.user-settings {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    background: #333;
+    border: 1px solid #333;
+    border-radius: 8px;
+}
+
+.settings-item {
+    margin-bottom: 15px;
+}
+
+.settings-item label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.settings-item input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.settings-item button {
+    padding: 10px 15px;
+    background: #3f3f3f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.settings-item button:hover {
+    background: #3f3f3f;
+}
