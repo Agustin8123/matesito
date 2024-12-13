@@ -388,9 +388,9 @@ function loadTweets() {
 
             // Validar y mostrar cada tweet en la página
             tweets.forEach(tweet => {
-                const { content, media, mediaType, username } = tweet;
+                const { content, media, mediaType, username, profilePicture } = tweet;
                 if (content && username) { // Validar campos requeridos
-                    addTweetToList(content, media, mediaType, username);
+                    addTweetToList(content, media, mediaType, username, profilePicture);
                 } else {
                     console.warn('Tweet inválido omitido:', tweet);
                 }
@@ -403,11 +403,17 @@ function loadTweets() {
 
 
 // Agregar un tweet a la lista
-function addTweetToList(content, media, mediaType, username) {
+function addTweetToList(content, media, mediaType, username, profilePicture) {
     const tweetList = document.getElementById('tweetList');
     const newTweet = document.createElement('li');
     newTweet.className = 'tweet';
 
+    // Imagen del perfil
+    const profilePicHTML = profilePicture
+        ? `<img src="${profilePicture}" alt="Foto de perfil de ${username}" class="profile-picture">`
+        : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
+
+    // Media del tweet (imagen/video)
     let mediaHTML = '';
     if (media && mediaType) {
         if (mediaType.startsWith('image/')) {
@@ -424,13 +430,19 @@ function addTweetToList(content, media, mediaType, username) {
         }
     }
 
+    // HTML del tweet
     newTweet.innerHTML = `
-        <span class="username">${username}:</span> ${content}
+        <div class="tweet-header">
+            ${profilePicHTML}
+            <span class="username">${username}:</span>
+        </div>
+        <div class="tweet-content">
+            ${content}
+        </div>
         ${mediaHTML}
     `;
     tweetList.insertBefore(newTweet, tweetList.firstChild);
 }
-
 
 // Llamar a loadTweets al cargar la página
 window.onload = verMant(mantenimiento);
