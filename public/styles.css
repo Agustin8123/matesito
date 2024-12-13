@@ -412,6 +412,26 @@
             margin-top: 5px;
         }
 
+
+        .profile-picture {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .tweet-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .username {
+            font-weight: bold;
+        }
+        
+
 /* para la configuracion de cuentas*/
 
 .user-settings {

@@ -110,7 +110,14 @@ app.post('/tweets', (req, res) => {
 
 // Obtener todos los tweets
 app.get('/tweets', (req, res) => {
-    const query = 'SELECT id, username, content, media, mediatype, createdAt FROM tweets ORDER BY createdAt DESC';
+    const query = `
+        SELECT 
+            t.id, t.username, t.content, t.media, t.mediatype, t.createdAt,
+            u.image
+        FROM tweets t
+        JOIN users u ON t.username = u.username
+        ORDER BY t.createdAt DESC
+    `;
     
     db.query(query, (err, results) => {
         if (err) {
@@ -118,19 +125,20 @@ app.get('/tweets', (req, res) => {
             return res.status(500).json({ error: 'Error al obtener los tweets' });
         }
         
-        // Mapea los datos para asegurar consistencia en la respuesta
         const tweets = results.rows.map(tweet => ({
             id: tweet.id,
             username: tweet.username,
             content: tweet.content,
-            media: tweet.media || null,      // Devuelve null si no hay media
+            media: tweet.media || null,
             mediaType: tweet.mediatype || null,
-            createdAt: tweet.createdat,      // Fecha de creación
+            createdAt: tweet.createdat,
+            profilePicture: tweet.image || null, // Devuelve null si no hay imagen
         }));
 
-        res.status(200).json(tweets); // Devuelve los tweets procesados
+        res.status(200).json(tweets);
     });
 });
+
 
 const path = require('path');
 
