@@ -148,7 +148,7 @@ app.post('/getUserDetails', (req, res) => {
             res.status(200).json({
                 id: user.id,  // Agregado: devolver también el id
                 username: user.username,
-                image: user.image || 'default-avatar.png'
+                profileImage: user.image || 'default-avatar.png'
             });
         } else {
             res.status(404).json({ message: 'Usuario no encontrado' });
