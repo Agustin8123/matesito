@@ -90,28 +90,36 @@ function updateUsername() {
 
 
 function updatePassword() {
+    const currentPassword = document.getElementById('currentPassword').value.trim();
     const newPassword = document.getElementById('newPassword').value.trim();
-    if (!newPassword) {
-        alert('La contraseña no puede estar vacía.');
+
+    if (!currentPassword || !newPassword) {
+        alert('Ambos campos de contraseña deben estar completos.');
         return;
     }
 
     fetch('https://matesitotest.onrender.com/updatePassword', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: activeUser, password: newPassword }),
+        body: JSON.stringify({ 
+            username: activeUser, 
+            currentPassword, 
+            newPassword 
+        }),
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Contraseña actualizada.');
+            alert('Contraseña actualizada con éxito.');
+            document.getElementById('currentPassword').value = '';
             document.getElementById('newPassword').value = '';
         } else {
-            alert('Error al actualizar la contraseña.');
+            alert(data.message || 'Error al actualizar la contraseña.');
         }
     })
     .catch(error => console.error('Error al actualizar la contraseña:', error));
 }
+
 
 function updateProfileImage() {
     const profileImageInput = document.getElementById('profileImage');
