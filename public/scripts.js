@@ -147,6 +147,8 @@ function updateUserButton() {
 
     // Usar la imagen del usuario activo, o una predeterminada si no existe
     const userImage = users[activeUser] && users[activeUser].profileImage
+        ? users[activeUser].profileImage
+        : 'default-avatar.png'; // Imagen predeterminada
     
     // Configurar el botón con la imagen y el nombre del usuario
     userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
@@ -168,7 +170,7 @@ function setActiveUser(username) {
             if (!users[username]) {
                 users[username] = {}; // Asegurarse de que el usuario exista en la estructura
             }
-            users[username].profileImage = data.profileImage || 'default-avatar.png'; // Guardar la URL de la imagen
+            users[activeUser].profileImage = data.profileImage || 'default-avatar.png'; // Guardar la URL de la imagen
             
             // Actualizar la UI
             hideUserSelectOverlay();
