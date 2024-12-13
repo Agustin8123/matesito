@@ -10,7 +10,6 @@ function Acept() {
 function loginUser() {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput').value.trim();
-    const rememberMe = document.getElementById('rememberMe').checked;
 
     fetch('https://matesitotest.onrender.com/login', {
         method: 'POST',
