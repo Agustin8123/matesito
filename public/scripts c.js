@@ -60,7 +60,7 @@ function setActiveUser(username) {
 }
 
 function hideUserSelectOverlay() {
-    document.getElementById('userSelectOverlay').style.display = 'none';
+    document.getElementById('usernameOverlay').style.display = 'none';
 }
 
 function updateUsername() {
