@@ -73,20 +73,21 @@ function updateUsername() {
     fetch('https://matesitotest.onrender.com/updateUsername', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ oldUsername: activeUser, newUsername }),
+        body: JSON.stringify({ currentUsername: activeUser, newUsername }), // Cambié 'oldUsername' por 'currentUsername'
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             alert('Nombre de usuario actualizado.');
-            activeUser = newUsername;
+            activeUser = newUsername; // Actualiza la variable global con el nuevo nombre
             document.getElementById('newUsername').value = '';
         } else {
-            alert('Error al actualizar el nombre de usuario.');
+            alert(data.message || 'Error al actualizar el nombre de usuario.');
         }
     })
     .catch(error => console.error('Error al actualizar el nombre:', error));
 }
+
 
 function updatePassword() {
     const newPassword = document.getElementById('newPassword').value.trim();
