@@ -147,8 +147,7 @@ function updateUserButton() {
 
     // Usar la imagen del usuario activo, o una predeterminada si no existe
     const userImage = users[activeUser] && users[activeUser].profileImage
-        ? users[activeUser].profileImage
-        : 'default-avatar.png'; // Imagen predeterminada
+
     
     // Configurar el botón con la imagen y el nombre del usuario
     userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
