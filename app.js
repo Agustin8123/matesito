@@ -158,6 +158,93 @@ app.post('/getUserDetails', (req, res) => {
     });
 });
 
+app.put('/updateProfileImage', (req, res) => {
+    const { username, profileImage } = req.body;
+
+    if (!username || !profileImage) {
+        return res.status(400).json({ error: 'Datos incompletos' });
+    }
+
+    const query = 'UPDATE users SET image = $1 WHERE username = $2';
+    db.query(query, [profileImage, username], (err, result) => {
+        if (err) {
+            console.error('Error al actualizar la imagen de perfil:', err);
+            return res.status(500).json({ error: 'Error al actualizar la imagen de perfil' });
+        }
+
+        if (result.rowCount > 0) {
+            res.status(200).json({ success: true, message: 'Imagen de perfil actualizada con éxito' });
+        } else {
+            res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+    });
+});
+
+// Ruta para actualizar el nombre de usuario
+app.put('/updateUsername', (req, res) => {
+    const { currentUsername, newUsername } = req.body;
+
+    if (!currentUsername || !newUsername) {
+        return res.status(400).json({ error: 'Datos incompletos' });
+    }
+
+    const query = 'UPDATE users SET username = $1 WHERE username = $2';
+    db.query(query, [newUsername, currentUsername], (err, result) => {
+        if (err) {
+            console.error('Error al actualizar el nombre de usuario:', err);
+            return res.status(500).json({ error: 'Error al actualizar el nombre de usuario' });
+        }
+
+        if (result.rowCount > 0) {
+            res.status(200).json({ success: true, message: 'Nombre de usuario actualizado con éxito' });
+        } else {
+            res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+    });
+});
+
+// Ruta para actualizar la contraseña
+app.put('/updatePassword', async (req, res) => {
+    const { username, currentPassword, newPassword } = req.body;
+
+    if (!username || !currentPassword || !newPassword) {
+        return res.status(400).json({ error: 'Datos incompletos' });
+    }
+
+    const query = 'SELECT password FROM users WHERE username = $1';
+    db.query(query, [username], async (err, results) => {
+        if (err) {
+            console.error('Error al buscar la contraseña actual:', err);
+            return res.status(500).json({ error: 'Error al verificar la contraseña actual' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        const user = results.rows[0];
+        const isValidPassword = await bcryptjs.compare(currentPassword, user.password);
+
+        if (!isValidPassword) {
+            return res.status(401).json({ error: 'La contraseña actual es incorrecta' });
+        }
+
+        const hashedPassword = await bcryptjs.hash(newPassword, 10);
+        const updateQuery = 'UPDATE users SET password = $1 WHERE username = $2';
+        db.query(updateQuery, [hashedPassword, username], (err, result) => {
+            if (err) {
+                console.error('Error al actualizar la contraseña:', err);
+                return res.status(500).json({ error: 'Error al actualizar la contraseña' });
+            }
+
+            if (result.rowCount > 0) {
+                res.status(200).json({ success: true, message: 'Contraseña actualizada con éxito' });
+            } else {
+                res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+            }
+        });
+    });
+});
 
 
 app.use(express.static(path.join(__dirname, 'public')));
