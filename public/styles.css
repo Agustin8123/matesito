@@ -430,7 +430,57 @@
         .username {
             font-weight: bold;
         }
+
+        #togglePasswordButton {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: -65px;
+            transform: translateY(40%);
+        }
         
+        #togglePasswordButton img {
+            width: 65px; /* Ajusta el tamaño de la imagen del ojo */
+            height: auto; /* Ajusta el tamaño de la imagen del ojo */
+        }
+        
+        #togglePasswordBoton {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: -45px;
+            transform: translateY(40%);
+        }
+        
+        #togglePasswordBoton img {
+            width: 65px; /* Ajusta el tamaño de la imagen del ojo */
+            height: auto; /* Ajusta el tamaño de la imagen del ojo */
+        }
+
+        #toggleBotonPassword {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: -45px;
+            transform: translateY(40%);
+        }
+        
+        #toggleBotonPassword img {
+            width: 65px; /* Ajusta el tamaño de la imagen del ojo */
+            height: auto; /* Ajusta el tamaño de la imagen del ojo */
+        }
 
 /* para la configuracion de cuentas*/
 

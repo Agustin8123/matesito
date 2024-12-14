@@ -37,7 +37,7 @@ function verMant(valor) {
 }
 
 function Acept() {
-    document.getElementById('usernameOverlay').style.display = 'flex';
+    document.getElementById('initialOverlay').style.display = 'flex';
     document.getElementById('AvisoOverlay').style.display = 'none';
 }
 
@@ -59,6 +59,32 @@ function HelpAlert() {
     function toggleSubMenu2() {
         const subMenu2 = document.getElementById('subMenu2');
         subMenu2.style.display = subMenu2.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function togglePassword() {
+        const passwordInput = document.getElementById('newPasswordInput');
+        const toggleButton = document.getElementById('togglePasswordButton');
+    
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
+        } else {
+            passwordInput.type = "password";
+            toggleButton.innerHTML = '<img src="eyeClose.png" alt="Ver Contraseña">';
+        }
+    }
+    
+    function togglePassword1() {
+        const passwordInput = document.getElementById('passwordInput');
+        const toggleButton = document.getElementById('togglePasswordBoton');
+    
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
+        } else {
+            passwordInput.type = "password";
+            toggleButton.innerHTML = '<img src="eyeClose.png" alt="Ver Contraseña">';
+        }
     }
 
 function useExistingUser() {
@@ -372,7 +398,6 @@ function goBackToInitial() {
 
     document.getElementById('initialOverlay').style.display = 'flex';
 }
-
 
 function loadTweets() {
     fetch('https://matesitotest.onrender.com/tweets') // Solicita los tweets al servidor
