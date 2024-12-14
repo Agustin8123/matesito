@@ -88,6 +88,44 @@ function updateUsername() {
     .catch(error => console.error('Error al actualizar el nombre:', error));
 }
 
+function togglePassword() {
+    const passwordInput = document.getElementById('currentPassword');
+    const toggleButton = document.getElementById('togglePasswordButton');
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
+    } else {
+        passwordInput.type = "password";
+        toggleButton.innerHTML = '<img src="eyeClose.png" alt="Ver Contraseña">';
+    }
+}
+
+function togglePassword1() {
+    const passwordInput = document.getElementById('newPassword');
+    const toggleButton = document.getElementById('togglePasswordBoton');
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
+    } else {
+        passwordInput.type = "password";
+        toggleButton.innerHTML = '<img src="eyeClose.png" alt="Ver Contraseña">';
+    }
+}
+
+function togglePassword2() {
+    const passwordInput = document.getElementById('passwordInput1');
+    const toggleButton = document.getElementById('toggleBotonPassword');
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
+    } else {
+        passwordInput.type = "password";
+        toggleButton.innerHTML = '<img src="eyeClose.png" alt="Ver Contraseña">';
+    }
+}
 
 function updatePassword() {
     const currentPassword = document.getElementById('currentPassword').value.trim();

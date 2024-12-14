@@ -44,13 +44,24 @@
     
         <!-- Cambiar contraseña -->
         <div class="settings-item">
+            
             <label for="currentPassword">Contraseña actual</label>
             <input type="password" id="currentPassword" placeholder="Contraseña actual">
+          
+            <button type="button" id="togglePasswordButton" style="margin-top: -150px; transform: translateY(-60%); margin-left: 520px;" onclick="togglePassword()">
+                <img src="eyeClose.png" alt="Ver/Ocultar Contraseña">
+            </button>
 
-            
             <label for="newPassword">Nueva Contraseña</label>
             <input type="password" id="newPassword" placeholder="Nueva contraseña">
+
+            <button type="button" id="togglePasswordBoton" style="margin-top: -150px; transform: translateY(-60%); margin-left: 520px;" onclick="togglePassword1()">
+                <img src="eyeClose.png" alt="Ver/Ocultar Contraseña">
+            </button>
+
             <button onclick="updatePassword()">Cambiar Contraseña</button>
+
+            
         </div>
     </div>    
 </div>
@@ -58,7 +69,10 @@
 <div class="overlay" id="usernameOverlay" style="display: none;">
     <div class="username-box">
         <input type="text" id="usernameInput" placeholder="Nombre de Usuario">
-        <input type="password" id="passwordInput" placeholder="Contraseña">
+        <input type="password" id="passwordInput1" placeholder="Contraseña">
+        <button type="button" id="toggleBotonPassword" onclick="togglePassword2()">
+            <img src="eyeClose.png" alt="Ver/Ocultar Contraseña">
+        </button>
 
         <button onclick="loginUser()">Ingresar</button>
         <button onclick="location.href='inicio.html'">Volver</button>

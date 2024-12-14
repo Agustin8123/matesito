@@ -92,6 +92,10 @@
     <div class="username-box">
         <input type="text" id="usernameInput" placeholder="Nombre de Usuario">
         <input type="password" id="passwordInput" placeholder="Contraseña">
+
+        <button type="button" id="togglePasswordBoton" onclick="togglePassword1()">
+            <img src="eyeClose.png" alt="Ver/Ocultar Contraseña">
+        </button>
         
         <!-- Casilla para recordar la sesión -->
         <div class="rem-container">
@@ -112,6 +116,10 @@
         <input type="text" id="newUsernameInput" placeholder="Nuevo usuario">
         <input type="password" id="newPasswordInput" placeholder="Contraseña">
         
+        <button type="button" id="togglePasswordButton" onclick="togglePassword()">
+            <img src="eyeClose.png" alt="Ver/Ocultar Contraseña">
+        </button>
+
         <label for="newProfileImage" class="custom-file-upload button">
             Seleccionar imagen de perfil
         </label>
