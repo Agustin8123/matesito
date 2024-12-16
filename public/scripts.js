@@ -318,6 +318,7 @@ function containsForbiddenWords(message) {
     // Función para enviar el tweet
     function postTweet() {
         const tweetContent = document.getElementById('tweetContent').value;
+        const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
     
         if (containsForbiddenWords(tweetContent)) {
             alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
@@ -332,13 +333,13 @@ function containsForbiddenWords(message) {
         const tweetData = {
             username: activeUser,
             content: tweetContent,
+            sensitive: isSensitive ? 1 : 0, // Marcar contenido sensible como 1
         };
     
         if (selectedFile) {
-            // Subir el archivo a Cloudinary
             const formData = new FormData();
             formData.append("file", selectedFile);
-            formData.append("upload_preset", "matesito"); // Asegúrate de que el preset coincida con el configurado en tu cuenta
+            formData.append("upload_preset", "matesito");
     
             fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
                 method: 'POST',
@@ -346,10 +347,9 @@ function containsForbiddenWords(message) {
             })
             .then(response => response.json())
             .then(data => {
-                tweetData.media = data.secure_url; // URL del archivo subido
+                tweetData.media = data.secure_url;
                 tweetData.mediaType = selectedFile.type;
     
-                // Enviar el tweet al servidor
                 return fetch('https://matesitotest.onrender.com/tweets', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -360,18 +360,15 @@ function containsForbiddenWords(message) {
             .then(data => {
                 lastTweetContent = data.content;
                 addTweetToList(data.content, data.media, data.mediaType, activeUser);
-
-                tweetMedia.value = ''; // Limpia el campo de archivo
+                document.getElementById('tweetMedia').value = '';
                 selectedFile = null;
-                
-                alert('Tu post se ha enviado corractamente');
+                alert('Tu post se ha enviado correctamente');
             })
             .catch(error => {
                 console.error('Error al subir el archivo o enviar el post:', error);
                 alert('Error al subir el archivo o enviar el post');
             });
         } else {
-            // Enviar el tweet sin archivo adjunto
             fetch('https://matesitotest.onrender.com/tweets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -381,16 +378,14 @@ function containsForbiddenWords(message) {
             .then(data => {
                 lastTweetContent = data.content;
                 addTweetToList(data.content, '', '', activeUser);
-
-                alert('Tu post se ha enviado corractamente');
+                alert('Tu post se ha enviado correctamente');
             })
             .catch(error => {
                 console.error('Error al enviar el post:', error);
-                alert('Error al subir el archivo o enviar el post');
+                alert('Error al enviar el post');
             });
         }
-    }
-    
+    }    
 
 function goBackToInitial() {
     document.getElementById('usernameOverlay').style.display = 'none';
@@ -399,8 +394,28 @@ function goBackToInitial() {
     document.getElementById('initialOverlay').style.display = 'flex';
 }
 
+let showSensitiveContent = false; // Configuración del usuario (por defecto, mostrar contenido sensible)
+
+// Función para alternar la configuración de contenido sensible
+function toggleSensitiveContent() {
+    showSensitiveContent = !showSensitiveContent; // Cambia el estado
+
+    const toggleButton = document.getElementById('toggleButton');
+    const sensitiveContent = document.getElementById('sensitiveContent');
+
+    // Actualiza el texto del botón y la visibilidad del contenido
+    if (showSensitiveContent) {
+        toggleButton.textContent = 'Ocultar contenido sensible';
+        sensitiveContent.style.display = 'block';
+    } else {
+        toggleButton.textContent = 'Mostrar contenido sensible';
+        sensitiveContent.style.display = 'none';
+        loadTweets();
+    }
+}
+
 function loadTweets() {
-    fetch('https://matesitotest.onrender.com/tweets') // Solicita los tweets al servidor
+    fetch('https://matesitotest.onrender.com/tweets')
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los tweets: ${response.status}`);
@@ -409,12 +424,15 @@ function loadTweets() {
         })
         .then(tweets => {
             const tweetList = document.getElementById('tweetList');
-            tweetList.innerHTML = ''; // Limpiar la lista existente
+            tweetList.innerHTML = '';
 
-            // Validar y mostrar cada tweet en la página
             tweets.forEach(tweet => {
-                const { content, media, mediaType, username, profilePicture } = tweet;
-                if (content && username) { // Validar campos requeridos
+                const { content, media, mediaType, username, profilePicture, sensitive } = tweet;
+
+                // Filtrar contenido sensible
+                if (!showSensitiveContent && sensitive) return;
+
+                if (content && username) {
                     addTweetToList(content, media, mediaType, username, profilePicture);
                 } else {
                     console.warn('Tweet inválido omitido:', tweet);
