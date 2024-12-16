@@ -73,8 +73,9 @@ app.post('/login', (req, res) => {
 
 // Crear un nuevo tweet
 app.post('/tweets', (req, res) => {
-    const { username, content, media, mediaType } = req.body;
+    const { username, content, media, mediaType, sensitive } = req.body;
 
+    // Verifica si el usuario y el contenido están presentes
     if (!username || !content) {
         return res.status(400).json('Faltan datos requeridos');
     }
@@ -92,10 +93,10 @@ app.post('/tweets', (req, res) => {
         }
 
         const query = `
-            INSERT INTO tweets (username, tweet, content, media, mediatype) 
-            VALUES ($1, $2, $3, $4, $5) 
+            INSERT INTO tweets (username, tweet, content, media, mediatype, sensitive) 
+            VALUES ($1, $2, $3, $4, $5, $6) 
             RETURNING id`;
-        const params = [username, content, content, media || null, mediaType || null];
+        const params = [username, content, content, media || null, mediaType || null, sensitive || false];
 
         db.query(query, params, (err, result) => {
             if (err) {
@@ -107,6 +108,7 @@ app.post('/tweets', (req, res) => {
         });
     });
 });
+
 
 // Obtener todos los tweets
 app.get('/tweets', (req, res) => {
