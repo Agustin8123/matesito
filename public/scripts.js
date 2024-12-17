@@ -401,18 +401,14 @@ function toggleSensitiveContent() {
     showSensitiveContent = !showSensitiveContent; // Cambia el estado
 
     const toggleButton = document.getElementById('toggleButton');
-    const sensitiveContent = document.getElementById('sensitiveContent');
+    toggleButton.textContent = showSensitiveContent 
+        ? 'Ocultar contenido sensible' 
+        : 'Mostrar contenido sensible';
 
-    // Actualiza el texto del botón y la visibilidad del contenido
-    if (showSensitiveContent) {
-        toggleButton.textContent = 'Ocultar contenido sensible';
-        sensitiveContent.style.display = 'block';
-    } else {
-        toggleButton.textContent = 'Mostrar contenido sensible';
-        sensitiveContent.style.display = 'none';
-        loadTweets();
-    }
+    // Recargar los tweets según la configuración
+    loadTweets();
 }
+
 
 function loadTweets() {
     fetch('https://matesitotest.onrender.com/tweets')
@@ -428,16 +424,20 @@ function loadTweets() {
 
             tweets.forEach(tweet => {
                 const { content, media, mediaType, username, profilePicture, sensitive } = tweet;
-
-                // Filtrar contenido sensible
-                if (!showSensitiveContent && sensitive) return;
-
+            
+                // Asegúrate de que el filtro funcione
+                if (!showSensitiveContent && sensitive) {
+                    console.log(`Tweet oculto por contenido sensible: ${content}`);
+                    return;
+                }
+            
                 if (content && username) {
                     addTweetToList(content, media, mediaType, username, profilePicture);
                 } else {
                     console.warn('Tweet inválido omitido:', tweet);
                 }
             });
+            
         })
         .catch(error => {
             console.error('Error al cargar los tweets:', error);
@@ -446,7 +446,7 @@ function loadTweets() {
 
 
 // Agregar un tweet a la lista
-function addTweetToList(content, media, mediaType, username, profilePicture) {
+function addTweetToList(content, media, mediaType, username, profilePicture, sensitive = false) {
     const tweetList = document.getElementById('tweetList');
     const newTweet = document.createElement('li');
     newTweet.className = 'tweet';
@@ -473,19 +473,27 @@ function addTweetToList(content, media, mediaType, username, profilePicture) {
         }
     }
 
+    // Contenido sensible
+    let contentHTML = sensitive
+        ? `<div class="sensitive-content">
+                <p>⚠ Este contenido ha sido marcado como sensible</p>
+                <button onclick="this.parentElement.style.display='none'; this.nextElementSibling.style.display='block';">Mostrar contenido</button>
+                <div style="display:none;">${content}</div>
+           </div>`
+        : `<div class="tweet-content">${content}</div>`;
+
     // HTML del tweet
     newTweet.innerHTML = `
         <div class="tweet-header">
             ${profilePicHTML}
             <span class="username">${username}:</span>
         </div>
-        <div class="tweet-content">
-            ${content}
-        </div>
+        ${contentHTML}
         ${mediaHTML}
     `;
     tweetList.insertBefore(newTweet, tweetList.firstChild);
 }
+
 
 // Llamar a loadTweets al cargar la página
 window.onload = verMant(mantenimiento);
