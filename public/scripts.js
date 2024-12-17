@@ -394,7 +394,7 @@ function goBackToInitial() {
     document.getElementById('initialOverlay').style.display = 'flex';
 }
 
-let showSensitiveContent = false; // Configuración del usuario (por defecto, mostrar contenido sensible)
+let showSensitiveContent = true; // Configuración del usuario (por defecto, mostrar contenido sensible)
 
 // Función para alternar la configuración de contenido sensible
 function toggleSensitiveContent() {
@@ -409,6 +409,7 @@ function toggleSensitiveContent() {
 
     // Recargar los tweets con el filtro actualizado
     loadTweets();
+    console.log(showSensitiveContent);
 }
 
 
