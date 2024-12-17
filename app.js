@@ -116,11 +116,12 @@ app.post('/tweets', (req, res) => {
 app.get('/tweets', (req, res) => {
     const query = `
         SELECT 
-            t.id, t.username, t.content, t.media, t.mediatype, t.createdAt,
-            u.image
+        t.id, t.username, t.content, t.media, t.mediatype, t.createdAt, t.sensitive,
+        u.image
         FROM tweets t
         JOIN users u ON t.username = u.username
         ORDER BY t.createdAt DESC
+
     `;
     
     db.query(query, (err, results) => {
