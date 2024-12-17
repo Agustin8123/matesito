@@ -398,16 +398,19 @@ let showSensitiveContent = false; // Configuración del usuario (por defecto, mo
 
 // Función para alternar la configuración de contenido sensible
 function toggleSensitiveContent() {
-    showSensitiveContent = !showSensitiveContent; // Cambia el estado
+    showSensitiveContent = !showSensitiveContent;
 
     const toggleButton = document.getElementById('toggleButton');
-    toggleButton.textContent = showSensitiveContent 
-        ? 'Ocultar contenido sensible' 
+
+    // Actualiza el texto del botón
+    toggleButton.textContent = showSensitiveContent
+        ? 'Ocultar contenido sensible'
         : 'Mostrar contenido sensible';
 
-    // Recargar los tweets según la configuración
+    // Recargar los tweets con el filtro actualizado
     loadTweets();
 }
+
 
 
 function loadTweets() {
@@ -425,11 +428,8 @@ function loadTweets() {
             tweets.forEach(tweet => {
                 const { content, media, mediaType, username, profilePicture, sensitive } = tweet;
             
-                // Asegúrate de que el filtro funcione
-                if (!showSensitiveContent && sensitive) {
-                    console.log(`Tweet oculto por contenido sensible: ${content}`);
-                    return;
-                }
+                // Filtrar contenido sensible correctamente
+                if (!showSensitiveContent && sensitive === true) return;
             
                 if (content && username) {
                     addTweetToList(content, media, mediaType, username, profilePicture);
@@ -437,6 +437,7 @@ function loadTweets() {
                     console.warn('Tweet inválido omitido:', tweet);
                 }
             });
+            
             
         })
         .catch(error => {

@@ -136,7 +136,8 @@ app.get('/tweets', (req, res) => {
             media: tweet.media || null,
             mediaType: tweet.mediatype || null,
             createdAt: tweet.createdat,
-            profilePicture: tweet.image || null, // Devuelve null si no hay imagen
+            profilePicture: tweet.image || null,
+            sensitive: !!tweet.sensitive // Asegúrate de que sea un booleano
         }));
 
         res.status(200).json(tweets);
