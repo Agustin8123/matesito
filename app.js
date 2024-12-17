@@ -92,11 +92,13 @@ app.post('/tweets', (req, res) => {
             return res.status(400).json('No puedes enviar el mismo tweet que el anterior.');
         }
 
+        const isSensitive = !!sensitive; // Convierte cualquier valor "truthy" en true, y "falsy" en false
         const query = `
             INSERT INTO tweets (username, tweet, content, media, mediatype, sensitive) 
             VALUES ($1, $2, $3, $4, $5, $6) 
             RETURNING id`;
-        const params = [username, content, content, media || null, mediaType || null, sensitive || false];
+        const params = [username, content, content, media || null, mediaType || null, isSensitive];
+        
 
         db.query(query, params, (err, result) => {
             if (err) {
