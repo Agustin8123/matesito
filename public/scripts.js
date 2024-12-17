@@ -2,7 +2,7 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
     let tweets = [];  // Usamos un arreglo para almacenar los tweets
     let activeUser = '';  // Variable para el usuario activo
 
-    let mantenimiento = false;
+    let mantenimiento = true;
 
     let selectedFile = null;
 
