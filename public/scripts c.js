@@ -11,7 +11,7 @@ function loginUser() {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput1').value.trim();
 
-    fetch('https://matesitotest.onrender.com/login', {
+    fetch('https://matesito.onrender.com/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -30,7 +30,7 @@ function loginUser() {
 }
 
 function setActiveUser(username) {
-    fetch('https://matesitotest.onrender.com/getUserDetails', {
+    fetch('https://matesito.onrender.com/getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -70,7 +70,7 @@ function updateUsername() {
         return;
     }
 
-    fetch('https://matesitotest.onrender.com/updateUsername', {
+    fetch('https://matesito.onrender.com/updateUsername', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentUsername: activeUser, newUsername }), // Cambié 'oldUsername' por 'currentUsername'
@@ -136,7 +136,7 @@ function updatePassword() {
         return;
     }
 
-    fetch('https://matesitotest.onrender.com/updatePassword', {
+    fetch('https://matesito.onrender.com/updatePassword', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -188,7 +188,7 @@ function updateProfileImage() {
 }
 
 function updateProfileImageInDatabase(newProfileImageURL) {
-    fetch('https://matesitotest.onrender.com/updateProfileImage', {
+    fetch('https://matesito.onrender.com/updateProfileImage', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

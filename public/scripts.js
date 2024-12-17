@@ -126,7 +126,7 @@ function loginUser() {
     const password = document.getElementById('passwordInput').value.trim();
     const rememberMe = document.getElementById('rememberMe').checked;
 
-    fetch('https://matesitotest.onrender.com/login', {
+    fetch('https://matesito.onrender.com/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -187,7 +187,7 @@ function updateUserButton() {
 
 
 function setActiveUser(username) {
-    fetch('https://matesitotest.onrender.com/getUserDetails', {
+    fetch('https://matesito.onrender.com/getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -281,7 +281,7 @@ function createUserInDatabase(username, password, profileImageURL) {
         profileImage: profileImageURL,
     };
 
-    fetch('https://matesitotest.onrender.com/users', {
+    fetch('https://matesito.onrender.com/users', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -350,7 +350,7 @@ function containsForbiddenWords(message) {
                 tweetData.media = data.secure_url;
                 tweetData.mediaType = selectedFile.type;
     
-                return fetch('https://matesitotest.onrender.com/tweets', {
+                return fetch('https://matesito.onrender.com/tweets', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(tweetData),
@@ -369,7 +369,7 @@ function containsForbiddenWords(message) {
                 alert('Error al subir el archivo o enviar el post');
             });
         } else {
-            fetch('https://matesitotest.onrender.com/tweets', {
+            fetch('https://matesito.onrender.com/tweets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(tweetData),
@@ -419,7 +419,7 @@ function toggleSensitiveContent() {
 
 function loadTweets() {
     console.log("cargando posts");
-    fetch('https://matesitotest.onrender.com/tweets')
+    fetch('https://matesito.onrender.com/tweets')
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los tweets: ${response.status}`);
