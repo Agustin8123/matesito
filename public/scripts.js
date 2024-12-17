@@ -385,6 +385,9 @@ function containsForbiddenWords(message) {
                 alert('Error al enviar el post');
             });
         }
+
+    loadTweets();
+
     }    
 
 function goBackToInitial() {

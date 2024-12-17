@@ -200,6 +200,14 @@
             margin-bottom: 4px;
         }
 
+        .contenedorBotones {
+            display: flex;
+            justify-content: center; /* Centra horizontalmente */
+            align-items: center;    /* Centra verticalmente */
+            gap: 10px;              /* Espaciado entre botones */
+            margin: 20px 0;         /* Margen superior e inferior */
+        }
+
         /* Personalizar la etiqueta que actúa como botón */
         .custom-file-upload {
             cursor: pointer;
