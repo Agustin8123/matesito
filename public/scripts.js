@@ -415,6 +415,7 @@ function toggleSensitiveContent() {
 
 
 function loadTweets() {
+    console.log("cargando posts");
     fetch('https://matesitotest.onrender.com/tweets')
         .then(response => {
             if (!response.ok) {
