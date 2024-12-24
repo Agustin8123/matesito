@@ -397,7 +397,7 @@ function goBackToInitial() {
     document.getElementById('initialOverlay').style.display = 'flex';
 }
 
-let showSensitiveContent = true; // Configuración del usuario (por defecto, mostrar contenido sensible)
+let showSensitiveContent = false;
 
 // Función para alternar la configuración de contenido sensible
 function toggleSensitiveContent() {
