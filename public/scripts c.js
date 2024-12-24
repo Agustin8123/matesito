@@ -3,6 +3,7 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
 
 function Acept() {
     document.getElementById('usernameOverlay').style.display = 'flex';
+    document.getElementById('appContainer').style.display = 'flex';
     document.getElementById('AvisoOverlay').style.display = 'none';
 }
 

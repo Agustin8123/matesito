@@ -493,12 +493,15 @@
 /* para la configuracion de cuentas*/
 
 .user-settings {
-    padding: 20px;
+    padding: 0;
     max-width: 600px;
     margin: 0 auto;
     background: #333;
-    border: 1px solid #333;
-    border-radius: 8px;
+    border-top: 40px solid #333;
+    border-right: 40px solid #333;
+    border-bottom: 40px solid #333;
+    border-left: 23px solid #333; /* Elimina el borde izquierdo */
+    border-radius:8px;
 }
 
 .settings-item {
