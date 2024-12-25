@@ -512,13 +512,13 @@ function addTweetToList(content, media, mediaType, username, profilePicture, sen
     console.log("mediaHTML generado:", mediaHTML); // Ver el HTML generado
 
     // Contenido sensible
-    let contentHTML = sensitive
-        ? `<div class="sensitive-content">
-                <p>⚠ Este contenido ha sido marcado como sensible</p>
-                <button onclick="this.parentElement.style.display='none'; this.nextElementSibling.style.display='block';">Mostrar contenido</button>
-                <div style="display:none;">${content}</div>
-           </div>`
-        : `<div class="tweet-content">${content}</div>`;
+    let contentHTML = sensitive === true
+    ? `<div class="sensitive-content">
+            <p>⚠ Este contenido ha sido marcado como sensible</p>
+            <button onclick="this.parentElement.style.display='none'; this.nextElementSibling.style.display='block';">Mostrar contenido</button>
+            <div style="display:none;">${content}</div>
+       </div>`
+    : `<div class="tweet-content">${content}</div>`;
 
     // HTML del tweet
     newTweet.innerHTML = `
