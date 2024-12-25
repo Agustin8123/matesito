@@ -341,7 +341,9 @@ function containsForbiddenWords(message) {
 }
 
 async function delay() {
+    
     await new Promise(resolve => setTimeout(resolve, 20));
+    console.log("esperado");
 }
 
 function postTweet() {
