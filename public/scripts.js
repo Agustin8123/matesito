@@ -516,9 +516,13 @@ function addTweetToList(content, media, mediaType, username, profilePicture, sen
     ? `<div class="sensitive-content">
             <p>⚠ Este contenido ha sido marcado como sensible</p>
             <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Mostrar contenido</button>
-            <div class="hidden-content" style="display:none;">${content}</div>
+            <div class="hidden-content" style="display:none;">
+                ${content}
+                ${mediaHTML} <!-- Ahora mediaHTML también está contenido en el div sensible -->
+            </div>
        </div>`
-    : `<div class="tweet-content">${content}</div>`;
+    : `<div class="tweet-content">${content}${mediaHTML}</div>`; // Si no es sensible, mostrar contenido y medios normalmente
+
 
 
 
@@ -529,7 +533,6 @@ function addTweetToList(content, media, mediaType, username, profilePicture, sen
             <span class="username">${username}:</span>
         </div>
         ${contentHTML}
-        ${mediaHTML}
     `;
 
     console.log("Tweet HTML generado:", newTweet.innerHTML); // Ver el HTML completo del tweet
