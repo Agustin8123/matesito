@@ -340,12 +340,6 @@ function containsForbiddenWords(message) {
     }
 }
 
-async function delay() {
-    
-    await new Promise(resolve => setTimeout(resolve, 20));
-    console.log("esperado");
-}
-
 function postTweet() {
     const tweetContent = document.getElementById('tweetContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
@@ -389,11 +383,11 @@ function postTweet() {
         .then(response => response.json())
         .then(data => {
             lastTweetContent = data.content;
-            delay();
             addTweetToList(data.content, data.media, data.mediaType, activeUser);
             document.getElementById('tweetMedia').value = '';
             selectedFile = null;
             alert('Tu post se ha enviado correctamente');
+            loadTweets();
         })
         .catch(error => {
             console.error('Error al subir el archivo o enviar el post:', error);
@@ -408,9 +402,9 @@ function postTweet() {
         .then(response => response.json())
         .then(data => {
             lastTweetContent = data.content;
-            delay();
             addTweetToList(data.content, null, null, activeUser);
             alert('Tu post se ha enviado correctamente');
+            loadTweets();
         })
         .catch(error => {
             console.error('Error al enviar el post:', error);
