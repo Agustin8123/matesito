@@ -126,18 +126,11 @@
         .preview-media {
             width: 400px; /* Ancho predeterminado */
             height: auto;
+            min-height: 40px;
             max-height: 800px; /* Altura máxima */
             border-radius: 5px; /* Bordes redondeados */
             margin-top: 10px; /* Espacio superior */
         }
-        
-        .preview-media audio {
-            width: 100%; /* Asegura que el audio ocupe todo el contenedor */
-            height: auto; /* Altura ajustable */
-            border-radius: 5px; /* Bordes redondeados */
-        }
-        
-        
 
         .header button {
             position: absolute;
