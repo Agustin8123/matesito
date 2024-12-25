@@ -473,7 +473,7 @@ function loadTweets() {
 
 
 // Agregar un tweet a la lista
-function addTweetToList(content, media, mediaType, username, profilePicture, sensitive = false) {
+function addTweetToList(content, media, mediaType, username, profilePicture, sensitive) {
     const tweetList = document.getElementById('tweetList');
     const newTweet = document.createElement('li');
     newTweet.className = 'tweet';
