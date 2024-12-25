@@ -485,20 +485,27 @@ function addTweetToList(content, media, mediaType, username, profilePicture, sen
 
     // Media del tweet (imagen/video)
     let mediaHTML = '';
-    if (media && mediaType) {
-        if (mediaType.startsWith('image/')) {
-            mediaHTML = `<div><img src="${media}" alt="Imagen subida por ${username}" class="preview-media"></div>`;
-        } else if (mediaType.startsWith('video/')) {
-            mediaHTML = `<div>
-                            <video controls class="preview-media">
-                                <source src="${media}" type="${mediaType}">
-                                Tu navegador no soporta la reproducción de video.
-                            </video>
-                         </div>`;
-        } else {
-            console.warn('Tipo de medio no soportado:', mediaType);
-        }
+if (media && mediaType) {
+    if (mediaType.startsWith('image/')) {
+        mediaHTML = `<div><img src="${media}" alt="Imagen subida por ${username}" class="preview-media"></div>`;
+    } else if (mediaType.startsWith('video/')) {
+        mediaHTML = `<div>
+                        <video controls class="preview-media">
+                            <source src="${media}" type="${mediaType}">
+                            Tu navegador no soporta la reproducción de video.
+                        </video>
+                     </div>`;
+    } else if (mediaType.startsWith('audio/')) {
+        mediaHTML = `<div>
+                        <audio controls class="preview-media">
+                            <source src="${media}" type="${mediaType}">
+                            Tu navegador no soporta la reproducción de audio.
+                        </audio>
+                     </div>`;
+    } else {
+        console.warn('Tipo de medio no soportado:', mediaType);
     }
+}
 
     // Contenido sensible
     let contentHTML = sensitive
