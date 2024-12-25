@@ -354,61 +354,62 @@ function postTweet() {
         return;
     }
 
-    const tweetData = {
-        username: activeUser,
-        content: tweetContent,
-        sensitive: isSensitive ? 1 : 0,
-    };
+    // Asegúrate de que 'mediaType' contenga el tipo correcto para los audios
+const tweetData = {
+    username: activeUser,
+    content: tweetContent,
+    sensitive: isSensitive ? 1 : 0, // Marcar contenido sensible como 1
+};
 
-    if (selectedFile) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("upload_preset", "matesito");
+if (selectedFile && selectedFile.type.startsWith('audio/')) { // Verifica si el archivo es un audio
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("upload_preset", "matesito");
 
-        fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            tweetData.media = data.secure_url;
-            tweetData.mediaType = selectedFile.type;
+    fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        tweetData.media = data.secure_url; // URL del audio
+        tweetData.mediaType = selectedFile.type;
 
-            return fetch('https://matesito.onrender.com/tweets', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(tweetData),
-            });
-        })
-        .then(response => response.json())
-        .then(data => {
-            lastTweetContent = data.content;
-            addTweetToList(data.content, data.media, data.mediaType, activeUser);
-            document.getElementById('tweetMedia').value = '';
-            selectedFile = null;
-            alert('Tu post se ha enviado correctamente');
-        })
-        .catch(error => {
-            console.error('Error al subir el archivo o enviar el post:', error);
-            alert('Error al subir el archivo o enviar el post');
-        });
-    } else {
-        fetch('https://matesito.onrender.com/tweets', {
+        // Guardar en el backend
+        return fetch('https://matesitotest.onrender.com/tweets', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(tweetData),
-        })
-        .then(response => response.json())
-        .then(data => {
-            lastTweetContent = data.content;
-            addTweetToList(data.content, null, null, activeUser);
-            alert('Tu post se ha enviado correctamente');
-        })
-        .catch(error => {
-            console.error('Error al enviar el post:', error);
-            alert('Error al enviar el post');
         });
-    }
+    })
+    .then(response => response.json())
+    .then(data => {
+        lastTweetContent = data.content;
+        addTweetToList(data.content, data.media, data.mediaType, activeUser);
+        alert('Tu post se ha enviado correctamente');
+    })
+    .catch(error => {
+        console.error('Error al subir el archivo o enviar el post:', error);
+        alert('Error al subir el archivo o enviar el post');
+    });
+} else {
+    // Si no es un archivo de audio, proceder normalmente
+    fetch('https://matesitotest.onrender.com/tweets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tweetData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        lastTweetContent = data.content;
+        addTweetToList(data.content, '', '', activeUser);
+        alert('Tu post se ha enviado correctamente');
+    })
+    .catch(error => {
+        console.error('Error al enviar el post:', error);
+        alert('Error al enviar el post');
+    });
+}
 }
 
 function goBackToInitial() {
