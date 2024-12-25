@@ -340,6 +340,10 @@ function containsForbiddenWords(message) {
     }
 }
 
+async function delay() {
+    await new Promise(resolve => setTimeout(resolve, 20));
+}
+
 function postTweet() {
     const tweetContent = document.getElementById('tweetContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
@@ -383,6 +387,7 @@ function postTweet() {
         .then(response => response.json())
         .then(data => {
             lastTweetContent = data.content;
+            delay();
             addTweetToList(data.content, data.media, data.mediaType, activeUser);
             document.getElementById('tweetMedia').value = '';
             selectedFile = null;
@@ -401,6 +406,7 @@ function postTweet() {
         .then(response => response.json())
         .then(data => {
             lastTweetContent = data.content;
+            delay();
             addTweetToList(data.content, null, null, activeUser);
             alert('Tu post se ha enviado correctamente');
         })
@@ -518,7 +524,7 @@ function addTweetToList(content, media, mediaType, username, profilePicture, sen
             <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Mostrar contenido</button>
             <div class="hidden-content" style="display:none;">
                 ${content}
-                ${mediaHTML} <!-- Ahora mediaHTML también está contenido en el div sensible -->
+                ${mediaHTML}
             </div>
        </div>`
     : `<div class="tweet-content">${content}${mediaHTML}</div>`; // Si no es sensible, mostrar contenido y medios normalmente
