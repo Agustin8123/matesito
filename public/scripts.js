@@ -483,29 +483,29 @@ function addTweetToList(content, media, mediaType, username, profilePicture, sen
         ? `<img src="${profilePicture}" alt="Foto de perfil de ${username}" class="profile-picture">`
         : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
 
-    // Media del tweet (imagen/video)
+    // Media del tweet (imagen/video/audio)
     let mediaHTML = '';
-if (media && mediaType) {
-    if (mediaType.startsWith('image/')) {
-        mediaHTML = `<div><img src="${media}" alt="Imagen subida por ${username}" class="preview-media"></div>`;
-    } else if (mediaType.startsWith('video/')) {
-        mediaHTML = `<div>
-                        <video controls class="preview-media">
-                            <source src="${media}" type="${mediaType}">
-                            Tu navegador no soporta la reproducción de video.
-                        </video>
-                     </div>`;
-    } else if (mediaType.startsWith('audio/')) {
-        mediaHTML = `<div>
-                        <audio controls class="preview-media">
-                            <source src="${media}" type="${mediaType}">
-                            Tu navegador no soporta la reproducción de audio.
-                        </audio>
-                     </div>`;
-    } else {
-        console.warn('Tipo de medio no soportado:', mediaType);
+    if (media && mediaType) {
+        if (mediaType.startsWith('image/')) {
+            mediaHTML = `<div><img src="${media}" alt="Imagen subida por ${username}" class="preview-media"></div>`;
+        } else if (mediaType.startsWith('video/')) {
+            mediaHTML = `<div>
+                            <video controls class="preview-media">
+                                <source src="${media}" type="${mediaType}">
+                                Tu navegador no soporta la reproducción de video.
+                            </video>
+                         </div>`;
+        } else if (mediaType.startsWith('audio/')) {
+            mediaHTML = `<div>
+                            <audio controls class="preview-media">
+                                <source src="${media}" type="${mediaType}">
+                                Tu navegador no soporta la reproducción de audio.
+                            </audio>
+                         </div>`;
+        } else {
+            console.warn('Tipo de medio no soportado:', mediaType);
+        }
     }
-}
 
     // Contenido sensible
     let contentHTML = sensitive
@@ -527,7 +527,6 @@ if (media && mediaType) {
     `;
     tweetList.insertBefore(newTweet, tweetList.firstChild);
 }
-
 
 // Llamar a loadTweets al cargar la página
 window.onload = verMant(mantenimiento);
