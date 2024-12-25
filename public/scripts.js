@@ -473,7 +473,6 @@ function loadTweets() {
 
 
 // Agregar un tweet a la lista
-// Agregar un tweet a la lista
 function addTweetToList(content, media, mediaType, username, profilePicture, sensitive = false) {
     const tweetList = document.getElementById('tweetList');
     const newTweet = document.createElement('li');
@@ -510,6 +509,8 @@ function addTweetToList(content, media, mediaType, username, profilePicture, sen
         }
     }
 
+    console.log("mediaHTML generado:", mediaHTML); // Ver el HTML generado
+
     // Contenido sensible
     let contentHTML = sensitive
         ? `<div class="sensitive-content">
@@ -528,9 +529,11 @@ function addTweetToList(content, media, mediaType, username, profilePicture, sen
         ${contentHTML}
         ${mediaHTML}
     `;
+
+    console.log("Tweet HTML generado:", newTweet.innerHTML); // Ver el HTML completo del tweet
+
     tweetList.insertBefore(newTweet, tweetList.firstChild);
 }
-
 
 // Llamar a loadTweets al cargar la página
 window.onload = verMant(mantenimiento);
