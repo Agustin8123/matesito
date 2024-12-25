@@ -73,9 +73,9 @@
 
         <!-- Botón para seleccionar un archivo -->
         <button class="button" onclick="document.getElementById('tweetMedia').click();">
-            Seleccionar Imagen o Video
+            Seleccionar archivo
         </button>
-        <input id="tweetMedia" type="file" accept="image/*, video/*" style="display:none;" onchange="handleFileSelect(event)">
+        <input id="tweetMedia" type="file" accept="image/*, video/*, audio/*" style="display:none;" onchange="handleFileSelect(event)">
         
         <!-- Botón para enviar el tweet -->
         <button class="button" onclick="postTweet()">Cebar (publicar)</button>
