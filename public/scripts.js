@@ -458,7 +458,7 @@ function loadTweets() {
                 if (!showSensitiveContent && sensitive === true) return;
             
                 if (content && username) {
-                    addTweetToList(content, media, mediaType, username, profilePicture);
+                    addTweetToList(content, media, mediaType, username, profilePicture, sensitive);
                 } else {
                     console.warn('Tweet inválido omitido:', tweet);
                 }
