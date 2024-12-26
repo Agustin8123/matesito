@@ -1,12 +1,12 @@
 let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imágenes de perfil
-    let tweets = [];  // Usamos un arreglo para almacenar los tweets
+    let posts = [];  // Usamos un arreglo para almacenar los posts
     let activeUser = '';  // Variable para el usuario activo
 
     let mantenimiento = false;
 
     let selectedFile = null;
 
-    let lastTweetContent = "";
+    let lastpostContent = "";
     const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'merca', 'falopa', 'cocaína', 'kok4', 'c0ca', 'cocaína', 'marihuana', 'weed', 'hierba', 'porro', 'mota', 'cannabis', '4:20', 'maría', '420', 'hachís', 'thc', 'éxtasis', 'éxt4sis', 'xtc', 'mdma', 'éxtasis', 'lsd', 'ácido', 'trips', 'lsd', 'pornografía', 'd.r.o.g.a', 'dro@g@', 'DrOgA', 'dRoJA'];
 
     document.addEventListener("DOMContentLoaded", function() {
@@ -340,23 +340,23 @@ function containsForbiddenWords(message) {
     }
 }
 
-function postTweet() {
-    const tweetContent = document.getElementById('tweetContent').value;
+function postpost() {
+    const postContent = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
 
-    if (containsForbiddenWords(tweetContent)) {
+    if (containsForbiddenWords(postContent)) {
         alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
         return;
     }
 
-    if (tweetContent === lastTweetContent) {
+    if (postContent === lastpostContent) {
         alert("No puedes enviar un post igual al anterior.");
         return;
     }
 
-    const tweetData = {
+    const postData = {
         username: activeUser,
-        content: tweetContent,
+        content: postContent,
         sensitive: isSensitive ? 1 : 0,
     };
 
@@ -371,40 +371,40 @@ function postTweet() {
         })
         .then(response => response.json())
         .then(data => {
-            tweetData.media = data.secure_url;
-            tweetData.mediaType = selectedFile.type;
+            postData.media = data.secure_url;
+            postData.mediaType = selectedFile.type;
 
-            return fetch('https://matesito.onrender.com/tweets', {
+            return fetch('https://matesito.onrender.com/posts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(tweetData),
+                body: JSON.stringify(postData),
             });
         })
         .then(response => response.json())
         .then(data => {
-            lastTweetContent = data.content;
-            addTweetToList(data.content, data.media, data.mediaType, activeUser);
-            document.getElementById('tweetMedia').value = '';
+            lastpostContent = data.content;
+            addpostToList(data.content, data.media, data.mediaType, activeUser);
+            document.getElementById('postMedia').value = '';
             selectedFile = null;
             alert('Tu post se ha enviado correctamente');
-            loadTweets();
+            loadposts();
         })
         .catch(error => {
             console.error('Error al subir el archivo o enviar el post:', error);
             alert('Error al subir el archivo o enviar el post');
         });
     } else {
-        fetch('https://matesito.onrender.com/tweets', {
+        fetch('https://matesito.onrender.com/posts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(tweetData),
+            body: JSON.stringify(postData),
         })
         .then(response => response.json())
         .then(data => {
-            lastTweetContent = data.content;
-            addTweetToList(data.content, null, null, activeUser);
+            lastpostContent = data.content;
+            addpostToList(data.content, null, null, activeUser);
             alert('Tu post se ha enviado correctamente');
-            loadTweets();
+            loadposts();
         })
         .catch(error => {
             console.error('Error al enviar el post:', error);
@@ -433,59 +433,59 @@ function toggleSensitiveContent() {
         ? 'Ocultar contenido sensible'
         : 'Mostrar contenido sensible';
 
-    // Recargar los tweets con el filtro actualizado
-    loadTweets();
+    // Recargar los posts con el filtro actualizado
+    loadposts();
     console.log(showSensitiveContent);
 }
 
 
 
-function loadTweets() {
+function loadposts() {
     console.log("cargando posts");
-    fetch('https://matesito.onrender.com/tweets')
+    fetch('https://matesito.onrender.com/posts')
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Error al cargar los tweets: ${response.status}`);
+                throw new Error(`Error al cargar los posts: ${response.status}`);
             }
             return response.json();
         })
-        .then(tweets => {
-            const tweetList = document.getElementById('tweetList');
-            tweetList.innerHTML = '';
+        .then(posts => {
+            const postList = document.getElementById('postList');
+            postList.innerHTML = '';
 
-            tweets.forEach(tweet => {
-                const { content, media, mediaType, username, profilePicture, sensitive } = tweet;
+            posts.forEach(post => {
+                const { content, media, mediaType, username, profilePicture, sensitive } = post;
             
                 // Filtrar contenido sensible correctamente
                 if (!showSensitiveContent && sensitive === true) return;
             
                 if (content && username) {
-                    addTweetToList(content, media, mediaType, username, profilePicture, sensitive);
+                    addpostToList(content, media, mediaType, username, profilePicture, sensitive);
                 } else {
-                    console.warn('Tweet inválido omitido:', tweet);
+                    console.warn('post inválido omitido:', post);
                 }
             });
             
             
         })
         .catch(error => {
-            console.error('Error al cargar los tweets:', error);
+            console.error('Error al cargar los posts:', error);
         });
 }
 
 
-// Agregar un tweet a la lista
-function addTweetToList(content, media, mediaType, username, profilePicture, sensitive) {
-    const tweetList = document.getElementById('tweetList');
-    const newTweet = document.createElement('li');
-    newTweet.className = 'tweet';
+// Agregar un post a la lista
+function addpostToList(content, media, mediaType, username, profilePicture, sensitive) {
+    const postList = document.getElementById('postList');
+    const newpost = document.createElement('li');
+    newpost.className = 'post';
 
     // Imagen del perfil
     const profilePicHTML = profilePicture
         ? `<img src="${profilePicture}" alt="Foto de perfil de ${username}" class="profile-picture">`
         : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
 
-    // Media del tweet (imagen/video/audio)
+    // Media del post (imagen/video/audio)
     let mediaHTML = '';
     if (media && mediaType) {
         console.log("Media URL:", media); // Mostrar la URL del archivo de audio
@@ -523,26 +523,26 @@ function addTweetToList(content, media, mediaType, username, profilePicture, sen
                 ${mediaHTML}
             </div>
        </div>`
-    : `<div class="tweet-content">${content}${mediaHTML}</div>`; // Si no es sensible, mostrar contenido y medios normalmente
+    : `<div class="post-content">${content}${mediaHTML}</div>`; // Si no es sensible, mostrar contenido y medios normalmente
 
 
 
 
-    // HTML del tweet
-    newTweet.innerHTML = `
-        <div class="tweet-header">
+    // HTML del post
+    newpost.innerHTML = `
+        <div class="post-header">
             ${profilePicHTML}
             <span class="username">${username}:</span>
         </div>
         ${contentHTML}
     `;
 
-    console.log("Tweet HTML generado:", newTweet.innerHTML); // Ver el HTML completo del tweet
+    console.log("post HTML generado:", newpost.innerHTML); // Ver el HTML completo del post
 
-    tweetList.insertBefore(newTweet, tweetList.firstChild);
+    postList.insertBefore(newpost, postList.firstChild);
 }
 
-// Llamar a loadTweets al cargar la página
+// Llamar a loadposts al cargar la página
 window.onload = verMant(mantenimiento);
 window.onload = checkRememberedUser();
-window.onload = loadTweets();
+window.onload = loadposts();
