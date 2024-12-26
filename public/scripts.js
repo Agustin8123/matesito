@@ -358,6 +358,7 @@ function postpost() {
         username: activeUser,
         content: postContent,
         sensitive: isSensitive ? 1 : 0,
+        createdAt: new Date().toISOString(), // Hora en formato UTC
     };
 
     if (selectedFile) {
@@ -413,6 +414,7 @@ function postpost() {
     }
 }
 
+
 function goBackToInitial() {
     document.getElementById('usernameOverlay').style.display = 'none';
     document.getElementById('userSelectOverlay').style.display = 'none';
@@ -441,7 +443,7 @@ function toggleSensitiveContent() {
 
 
 function loadposts() {
-    console.log("cargando posts");
+    console.log("Cargando posts...");
     fetch('https://matesito.onrender.com/posts')
         .then(response => {
             if (!response.ok) {
@@ -454,19 +456,17 @@ function loadposts() {
             postList.innerHTML = '';
 
             posts.forEach(post => {
-                const { content, media, mediaType, username, profilePicture, sensitive } = post;
-            
+                const { content, media, mediaType, username, profilePicture, sensitive, createdAt } = post;
+
                 // Filtrar contenido sensible correctamente
                 if (!showSensitiveContent && sensitive === true) return;
-            
+
                 if (content && username) {
-                    addpostToList(content, media, mediaType, username, profilePicture, sensitive);
+                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt);
                 } else {
-                    console.warn('post inválido omitido:', post);
+                    console.warn('Post inválido omitido:', post);
                 }
             });
-            
-            
         })
         .catch(error => {
             console.error('Error al cargar los posts:', error);
@@ -474,11 +474,15 @@ function loadposts() {
 }
 
 
+
 // Agregar un post a la lista
-function addpostToList(content, media, mediaType, username, profilePicture, sensitive) {
+function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt) {
     const postList = document.getElementById('postList');
     const newpost = document.createElement('li');
     newpost.className = 'post';
+
+    // Convertir fecha a hora local
+    const localTime = createdAt ? new Date(createdAt).toLocaleString() : '';
 
     // Imagen del perfil
     const profilePicHTML = profilePicture
@@ -488,8 +492,6 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     // Media del post (imagen/video/audio)
     let mediaHTML = '';
     if (media && mediaType) {
-        console.log("Media URL:", media); // Mostrar la URL del archivo de audio
-
         if (mediaType.startsWith('image/')) {
             mediaHTML = `<div><img src="${media}" alt="Imagen subida por ${username}" class="preview-media"></div>`;
         } else if (mediaType.startsWith('video/')) {
@@ -506,27 +508,20 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
                                 Tu navegador no soporta la reproducción de audio.
                             </audio>
                          </div>`;
-        } else {
-            console.warn('Tipo de medio no soportado:', mediaType);
         }
     }
 
-    console.log("mediaHTML generado:", mediaHTML); // Ver el HTML generado
-
     // Contenido sensible
     let contentHTML = sensitive === true
-    ? `<div class="sensitive-content">
-            <p>⚠ Este contenido ha sido marcado como sensible</p>
-            <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Mostrar contenido</button>
-            <div class="hidden-content" style="display:none;">
-                ${content}
-                ${mediaHTML}
-            </div>
-       </div>`
-    : `<div class="post-content">${content}${mediaHTML}</div>`; // Si no es sensible, mostrar contenido y medios normalmente
-
-
-
+        ? `<div class="sensitive-content">
+                <p>⚠ Este contenido ha sido marcado como sensible</p>
+                <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Mostrar contenido</button>
+                <div class="hidden-content" style="display:none;">
+                    ${content}
+                    ${mediaHTML}
+                </div>
+           </div>`
+        : `<div class="post-content">${content}${mediaHTML}</div>`;
 
     // HTML del post
     newpost.innerHTML = `
@@ -535,12 +530,14 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             <span class="username">${username}:</span>
         </div>
         ${contentHTML}
+        <div class="post-footer">
+            <span class="post-time">${localTime}</span>
+        </div>
     `;
-
-    console.log("post HTML generado:", newpost.innerHTML); // Ver el HTML completo del post
 
     postList.insertBefore(newpost, postList.firstChild);
 }
+
 
 // Llamar a loadposts al cargar la página
 window.onload = verMant(mantenimiento);

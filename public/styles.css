@@ -490,6 +490,24 @@
             height: auto; /* Ajusta el tamaño de la imagen del ojo */
         }
 
+        .post {
+            position: relative;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        
+        .post-footer {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+            
+
 /* para la configuracion de cuentas*/
 
 .user-settings {
