@@ -455,8 +455,8 @@ function loadposts(loadAll = false) {
             const postList = document.getElementById('postList');
             const loadAllPostsButton = document.getElementById('loadAllPostsButton');
 
-            // Limitar posts si no se cargan todos
-            const postsToRender = loadAll ? posts : posts.slice(-12);
+            // Obtener los últimos 12 posts si no se cargan todos
+            const postsToRender = loadAll ? posts : posts.slice(-12).reverse();
 
             // Limpiar la lista y renderizar los posts seleccionados
             postList.innerHTML = '';
@@ -482,6 +482,7 @@ function loadposts(loadAll = false) {
             console.error('Error al cargar los posts:', error);
         });
 }
+
 
 
 
