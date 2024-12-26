@@ -507,7 +507,22 @@
             color: #ffffff;
         }
             
-
+        #loadAllPostsButton {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #9b2424;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        #loadAllPostsButton:hover {
+            background-color: #ad2828;
+        }
+        
 /* para la configuracion de cuentas*/
 
 .user-settings {

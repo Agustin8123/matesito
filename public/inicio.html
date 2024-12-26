@@ -54,33 +54,34 @@
         </div>
     </div>
 
-<div class="container" id="appContainer">
-    <div class="post-box">
-        <textarea id="postContent" rows="3" placeholder="¿Qué estás pensando?"></textarea>
-
-        <!-- Checkbox para marcar contenido sensible -->
-        <label>
-            <input type="checkbox" id="sensitiveContentCheckbox" style="margin-top: 15px;">
-            ¿Es contenido sensible?
-        </label>
-
-        <!-- Botón para seleccionar un archivo -->
-        <button class="button" onclick="document.getElementById('postMedia').click();">
-            Seleccionar archivo
-        </button>
-        <input id="postMedia" type="file" accept="image/*, video/*, audio/*" style="display:none;" onchange="handleFileSelect(event)">
-        
-        <!-- Botón para enviar el post -->
-        <button class="button" onclick="postpost()">Cebar (publicar)</button>
-    </div>
-    <div class="contenedorBotones">
-        <button id="toggleButton" class="button" onclick="toggleSensitiveContent()">Mostrar contenido sensible</button>
-        <button id="Loadpostsbutton" class="button" onclick="loadposts()">Cargar posts</button>
-    </div>
+    <div class="container" id="appContainer">
+        <div class="post-box">
+            <textarea id="postContent" rows="3" placeholder="¿Qué estás pensando?"></textarea>
     
-
-    <ul id="postList" class="posts"></ul>
-</div>
+            <!-- Checkbox para marcar contenido sensible -->
+            <label>
+                <input type="checkbox" id="sensitiveContentCheckbox" style="margin-top: 15px;">
+                ¿Es contenido sensible?
+            </label>
+    
+            <!-- Botón para seleccionar un archivo -->
+            <button class="button" onclick="document.getElementById('postMedia').click();">
+                Seleccionar archivo
+            </button>
+            <input id="postMedia" type="file" accept="image/*, video/*, audio/*" style="display:none;" onchange="handleFileSelect(event)">
+            
+            <!-- Botón para enviar el post -->
+            <button class="button" onclick="postpost()">Cebar (publicar)</button>
+        </div>
+    
+        <div class="contenedorBotones">
+            <button id="toggleButton" class="button" onclick="toggleSensitiveContent()">Mostrar contenido sensible</button>
+        </div>
+    
+        <button id="loadAllPostsButton" class="button" style="margin: 10px auto; display: block;" onclick="loadposts(true)">Cargar todos los posts</button>
+    
+        <ul id="postList" class="posts"></ul>
+    </div>
 
 <div class="overlay" id="AvisoOverlay">
     <div class="initial-box">

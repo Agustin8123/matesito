@@ -442,7 +442,7 @@ function toggleSensitiveContent() {
 
 
 
-function loadposts() {
+function loadposts(loadAll = false) {
     console.log("Cargando posts...");
     fetch('https://matesito.onrender.com/posts')
         .then(response => {
@@ -453,9 +453,14 @@ function loadposts() {
         })
         .then(posts => {
             const postList = document.getElementById('postList');
-            postList.innerHTML = '';
+            const loadAllPostsButton = document.getElementById('loadAllPostsButton');
 
-            posts.forEach(post => {
+            // Limitar posts si no se cargan todos
+            const postsToRender = loadAll ? posts : posts.slice(-12);
+
+            // Limpiar la lista y renderizar los posts seleccionados
+            postList.innerHTML = '';
+            postsToRender.forEach(post => {
                 const { content, media, mediaType, username, profilePicture, sensitive, createdAt } = post;
 
                 // Filtrar contenido sensible correctamente
@@ -467,6 +472,11 @@ function loadposts() {
                     console.warn('Post inválido omitido:', post);
                 }
             });
+
+            // Ocultar el botón si se han cargado todos los posts
+            if (loadAll) {
+                loadAllPostsButton.style.display = 'none';
+            }
         })
         .catch(error => {
             console.error('Error al cargar los posts:', error);
