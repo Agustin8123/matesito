@@ -456,10 +456,10 @@ function loadposts(loadAll = false) {
             const loadAllPostsButton = document.getElementById('loadAllPostsButton');
 
             // Invertir el array para que los más recientes estén primero
-            const reversedPosts = posts.reverse();
+            const reversedPosts = posts;
 
             // Determinar cuántos posts renderizar
-            const postsToRender = loadAll ? reversedPosts : reversedPosts.slice(0, 12);
+            const postsToRender = loadAll ? reversedPosts : reversedPosts.slice(0, -12);
 
             // Limpiar la lista y renderizar los posts seleccionados
             postList.innerHTML = '';
