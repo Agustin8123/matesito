@@ -25,12 +25,12 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
-        .tweet-box {
+        .post-box {
             display: flex;
             flex-direction: column;
             margin-bottom: 15px;
         }
-        .tweet-box textarea {
+        .post-box textarea {
             width: 100%;
             padding: -1px;
             border: 1px solid #333;
@@ -38,7 +38,7 @@
             resize: none;
             background-color: #ffffff;
         }
-        .tweet-box button {
+        .post-box button {
             background-color: #ffffff; /* Color bordó */
             color: #800020;
             border: none;
@@ -47,16 +47,16 @@
             cursor: pointer;
             margin-top: 15px;
         }
-        .tweets {
+        .posts {
             list-style: none;
             padding: 0;
         }
-        .tweet {
+        .post {
             border-bottom: 1px solid #e0e0e0;
             padding: 10px 0;
             border-radius: 10px;
         }
-        .tweet .username {
+        .post .username {
             font-weight: bold;
             margin-right: 5px;
         }
@@ -429,7 +429,7 @@
             object-fit: cover;
         }
         
-        .tweet-header {
+        .post-header {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
