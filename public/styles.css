@@ -502,6 +502,7 @@
         .post-footer {
             position: absolute;
             bottom: 5px;
+            top: 5px;
             right: 10px;
             font-size: 12px;
             color: #ffffff;
