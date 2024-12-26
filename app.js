@@ -76,8 +76,8 @@ app.post('/login', (req, res) => {
 });
 ;
 
-// Crear un nuevo tweet
-app.post('/tweets', (req, res) => {
+// Crear un nuevo post
+app.post('/posts', (req, res) => {
     const { username, content, media, mediaType, sensitive } = req.body;
 
     // Verifica si el usuario y el contenido están presentes
@@ -85,21 +85,21 @@ app.post('/tweets', (req, res) => {
         return res.status(400).json('Faltan datos requeridos');
     }
 
-    const checkQuery = 'SELECT * FROM tweets WHERE username = $1 ORDER BY createdAt DESC LIMIT 1';
+    const checkQuery = 'SELECT * FROM posts WHERE username = $1 ORDER BY createdAt DESC LIMIT 1';
     db.query(checkQuery, [username], (err, result) => {
         if (err) {
-            console.error('Error al verificar tweet previo:', err);
-            return res.status(500).json('Error al verificar el tweet');
+            console.error('Error al verificar post previo:', err);
+            return res.status(500).json('Error al verificar el post');
         }
 
-        const lastTweet = result.rows[0];
-        if (lastTweet && lastTweet.content === content) {
-            return res.status(400).json('No puedes enviar el mismo tweet que el anterior.');
+        const lastpost = result.rows[0];
+        if (lastpost && lastpost.content === content) {
+            return res.status(400).json('No puedes enviar el mismo post que el anterior.');
         }
 
         const isSensitive = !!sensitive; // Convierte cualquier valor "truthy" en true, y "falsy" en false
         const query = `
-            INSERT INTO tweets (username, tweet, content, media, mediatype, sensitive) 
+            INSERT INTO posts (username, post, content, media, mediatype, sensitive) 
             VALUES ($1, $2, $3, $4, $5, $6) 
             RETURNING id`;
         const params = [username, content, content, media || null, mediaType || null, isSensitive];
@@ -107,23 +107,23 @@ app.post('/tweets', (req, res) => {
 
         db.query(query, params, (err, result) => {
             if (err) {
-                console.error('Error al insertar el tweet:', err);
-                return res.status(500).json('Error al publicar el tweet');
+                console.error('Error al insertar el post:', err);
+                return res.status(500).json('Error al publicar el post');
             }
-            const tweetId = result.rows[0].id;
-            res.status(201).json({ id: tweetId, content, media, mediaType });
+            const postId = result.rows[0].id;
+            res.status(201).json({ id: postId, content, media, mediaType });
         });
     });
 });
 
 
-// Obtener todos los tweets
-app.get('/tweets', (req, res) => {
+// Obtener todos los posts
+app.get('/posts', (req, res) => {
     const query = `
         SELECT 
         t.id, t.username, t.content, t.media, t.mediatype, t.createdAt, t.sensitive,
         u.image
-        FROM tweets t
+        FROM posts t
         JOIN users u ON t.username = u.username
         ORDER BY t.createdAt DESC
 
@@ -131,22 +131,22 @@ app.get('/tweets', (req, res) => {
     
     db.query(query, (err, results) => {
         if (err) {
-            console.error('Error al obtener los tweets:', err);
-            return res.status(500).json({ error: 'Error al obtener los tweets' });
+            console.error('Error al obtener los posts:', err);
+            return res.status(500).json({ error: 'Error al obtener los posts' });
         }
         
-        const tweets = results.rows.map(tweet => ({
-            id: tweet.id,
-            username: tweet.username,
-            content: tweet.content,
-            media: tweet.media || null,
-            mediaType: tweet.mediatype || null,
-            createdAt: tweet.createdat,
-            profilePicture: tweet.image || null,
-            sensitive: !!tweet.sensitive // Asegúrate de que sea un booleano
+        const posts = results.rows.map(post => ({
+            id: post.id,
+            username: post.username,
+            content: post.content,
+            media: post.media || null,
+            mediaType: post.mediatype || null,
+            createdAt: post.createdat,
+            profilePicture: post.image || null,
+            sensitive: !!post.sensitive // Asegúrate de que sea un booleano
         }));
 
-        res.status(200).json(tweets);
+        res.status(200).json(posts);
     });
 });
 
