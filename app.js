@@ -265,6 +265,9 @@ app.put('/updatePassword', async (req, res) => {
     });
 });
 
+// Crear el servidor
+
+
 // Iniciar Socket.IO en el servidor
 const io = socketIo(server);
 
@@ -289,6 +292,10 @@ setInterval(() => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Iniciar el servidor
+app.listen(port, () => {
+    console.log(`Servidor corriendo en http://localhost:${port}`);
+});
+
 const server = app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
 });
