@@ -494,9 +494,9 @@
             position: relative;
             padding: 10px;
             margin-bottom: 15px;
-            border: 1px solid #ddd;
+            border: 1px solid #dddddd2b;
             border-radius: 5px;
-            background-color: #fff;
+            background-color: #dddddd2b;
         }
         
         .post-footer {
