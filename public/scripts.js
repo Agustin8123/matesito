@@ -455,8 +455,11 @@ function loadposts(loadAll = false) {
             const postList = document.getElementById('postList');
             const loadAllPostsButton = document.getElementById('loadAllPostsButton');
 
-            // Limitar posts si no se cargan todos
-            const postsToRender = loadAll ? posts : posts.slice(12);
+            // Invertir el array para que los más recientes estén primero
+            const reversedPosts = posts.reverse();
+
+            // Determinar cuántos posts renderizar
+            const postsToRender = loadAll ? reversedPosts : reversedPosts.slice(0, 12);
 
             // Limpiar la lista y renderizar los posts seleccionados
             postList.innerHTML = '';
@@ -473,15 +476,15 @@ function loadposts(loadAll = false) {
                 }
             });
 
-            // Ocultar el botón si se han cargado todos los posts
-            if (loadAll) {
-                loadAllPostsButton.style.display = 'none';
-            }
+            // Mostrar el botón solo si no se cargaron todos los posts
+            loadAllPostsButton.style.display = loadAll ? 'none' : 'block';
         })
         .catch(error => {
             console.error('Error al cargar los posts:', error);
         });
 }
+
+
 
 
 
