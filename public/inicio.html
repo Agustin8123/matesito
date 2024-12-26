@@ -62,8 +62,8 @@
 </div>
 
 <div class="container" id="appContainer">
-    <div class="tweet-box">
-        <textarea id="tweetContent" rows="3" placeholder="¿Qué estás pensando?"></textarea>
+    <div class="post-box">
+        <textarea id="postContent" rows="3" placeholder="¿Qué estás pensando?"></textarea>
 
         <!-- Checkbox para marcar contenido sensible -->
         <label>
@@ -72,21 +72,21 @@
         </label>
 
         <!-- Botón para seleccionar un archivo -->
-        <button class="button" onclick="document.getElementById('tweetMedia').click();">
+        <button class="button" onclick="document.getElementById('postMedia').click();">
             Seleccionar archivo
         </button>
-        <input id="tweetMedia" type="file" accept="image/*, video/*, audio/*" style="display:none;" onchange="handleFileSelect(event)">
+        <input id="postMedia" type="file" accept="image/*, video/*, audio/*" style="display:none;" onchange="handleFileSelect(event)">
         
-        <!-- Botón para enviar el tweet -->
-        <button class="button" onclick="postTweet()">Cebar (publicar)</button>
+        <!-- Botón para enviar el post -->
+        <button class="button" onclick="postpost()">Cebar (publicar)</button>
     </div>
     <div class="contenedorBotones">
         <button id="toggleButton" class="button" onclick="toggleSensitiveContent()">Mostrar contenido sensible</button>
-        <button id="Loadpostsbutton" class="button" onclick="loadTweets()">Cargar posts</button>
+        <button id="Loadpostsbutton" class="button" onclick="loadposts()">Cargar posts</button>
     </div>
     
 
-    <ul id="tweetList" class="tweets"></ul>
+    <ul id="postList" class="posts"></ul>
 </div>
 
 
@@ -154,7 +154,7 @@
     const socket = io();
 
     socket.on('reloadPosts', () => {
-        loadTweets();
+        loadposts();
     });
   </script>
 </body>
