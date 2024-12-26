@@ -5,6 +5,7 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
     let mantenimiento = false;
 
     let selectedFile = null;
+    let loadAll = false;
 
     let lastpostContent = "";
     const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'merca', 'falopa', 'cocaína', 'kok4', 'c0ca', 'cocaína', 'marihuana', 'weed', 'hierba', 'porro', 'mota', 'cannabis', '4:20', 'maría', '420', 'hachís', 'thc', 'éxtasis', 'éxt4sis', 'xtc', 'mdma', 'éxtasis', 'lsd', 'ácido', 'trips', 'lsd', 'pornografía', 'd.r.o.g.a', 'dro@g@', 'DrOgA', 'dRoJA'];
@@ -440,9 +441,18 @@ function toggleSensitiveContent() {
     console.log(showSensitiveContent);
 }
 
+function togglePostLoad() {
+    loadAll = !loadAll; // Alternar estado
+    const button = document.getElementById('loadAllPostsButton');
+    
+    // Cambiar texto del botón basado en el estado
+    button.textContent = loadAll ? 'Mostrar solo los últimos 12 posts' : 'Cargar todos los posts';
 
+    // Llamar a la función de carga con el nuevo estado
+    loadposts(loadAll);
+}
 
-function loadposts(loadAll = false) {
+function loadposts(loadAll) {
     console.log("Cargando posts...");
     fetch('https://matesito.onrender.com/posts')
         .then(response => {
