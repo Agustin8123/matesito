@@ -546,4 +546,3 @@ function addTweetToList(content, media, mediaType, username, profilePicture, sen
 window.onload = verMant(mantenimiento);
 window.onload = checkRememberedUser();
 window.onload = loadTweets();
-window.onload = setInterval(loadTweets, 20000);

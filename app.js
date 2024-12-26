@@ -1,6 +1,11 @@
 const express = require('express');
+
 const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
+
+const http = require('http');
+const socketIo = require('socket.io');
+
 require('dotenv').config();
 const app = express();
 const port = 3000;
@@ -260,6 +265,32 @@ app.put('/updatePassword', async (req, res) => {
     });
 });
 
+// Crear el servidor
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Servidor funcionando');
+});
+
+// Iniciar Socket.IO en el servidor
+const io = socketIo(server);
+
+// Cuando un cliente se conecta
+io.on('connection', (socket) => {
+  console.log('Un cliente se ha conectado');
+  
+  // Aquí podrías hacer otras configuraciones, como emitir un mensaje de bienvenida
+
+  // Cuando un cliente se desconecta
+  socket.on('disconnect', () => {
+    console.log('Un cliente se ha desconectado');
+  });
+});
+
+// Función que envía el mensaje a todos los clientes cada 20 segundos
+setInterval(() => {
+  console.log('Enviando solicitud para recargar posts a todos los clientes');
+  io.emit('reloadPosts'); // Emite el evento 'reloadPosts' a todos los clientes conectados
+}, 20000); // 20000 ms = 20 segundo
 
 app.use(express.static(path.join(__dirname, 'public')));
 

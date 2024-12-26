@@ -149,5 +149,13 @@
     </div>
 </div>
 <script src="scripts.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    socket.on('reloadPosts', () => {
+        loadTweets();
+    });
+  </script>
 </body>
 </html>
