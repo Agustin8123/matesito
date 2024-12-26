@@ -513,14 +513,14 @@
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
-            background-color: #9b2424;
-            color: white;
+            background-color: #ffffff;
+            color: #9b2424;
             border: none;
             border-radius: 5px;
         }
         
         #loadAllPostsButton:hover {
-            background-color: #ad2828;
+            background-color: #e4dada;
         }
         
 /* para la configuracion de cuentas*/
