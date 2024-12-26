@@ -99,10 +99,10 @@ app.post('/posts', (req, res) => {
 
         const isSensitive = !!sensitive; // Convierte cualquier valor "truthy" en true, y "falsy" en false
         const query = `
-            INSERT INTO posts (username, post, content, media, mediatype, sensitive) 
-            VALUES ($1, $2, $3, $4, $5, $6) 
-            RETURNING id`;
-        const params = [username, content, content, media || null, mediaType || null, isSensitive];
+    INSERT INTO posts (username, post, content, media, mediatype, sensitive, createdAt) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7) 
+    RETURNING id`;
+const params = [username, content, content, media || null, mediaType || null, isSensitive, new Date().toISOString()];
         
 
         db.query(query, params, (err, result) => {
