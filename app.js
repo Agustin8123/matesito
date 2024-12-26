@@ -266,9 +266,8 @@ app.put('/updatePassword', async (req, res) => {
 });
 
 // Crear el servidor
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Servidor funcionando');
+const server = app.listen(port, () => {
+    console.log(`Servidor corriendo en http://localhost:${port}`);
 });
 
 // Iniciar Socket.IO en el servidor
