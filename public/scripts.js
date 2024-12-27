@@ -391,6 +391,7 @@ function containsForbiddenWords(message) {
                 addpostToList(data.content, data.media, data.mediaType, activeUser);
                 document.getElementById('postMedia').value = '';
                 selectedFile = null;
+                document.getElementById('loading').style.display = 'none';
                 alert('Tu post se ha enviado correctamente');
                 loadposts();
             })
@@ -398,10 +399,7 @@ function containsForbiddenWords(message) {
                 console.error('Error al subir el archivo o enviar el post:', error);
                 alert('Error al subir el archivo o enviar el post');
             })
-            .finally(() => {
-                // Ocultar el símbolo de carga
-                document.getElementById('loading').style.display = 'none';
-            });
+
         } else {
             fetch('https://matesito.onrender.com/posts', {
                 method: 'POST',
