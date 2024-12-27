@@ -307,6 +307,40 @@ function containsForbiddenWords(message) {
         return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
     }
 
+    function handleFileSelect(event) {
+        selectedFile = event.target.files[0]; // Guardar el archivo seleccionado
+        if (selectedFile) {
+            const fileType = selectedFile.type;
+            const fileSize = selectedFile.size;
+    
+            // Validar tipo de archivo
+            const validFileTypes = ['image', 'audio', 'video'];
+            const fileCategory = fileType.split('/')[0];
+    
+            if (!validFileTypes.includes(fileCategory)) {
+                alert("Por favor, selecciona un archivo de tipo imagen, audio o video.");
+                selectedFile = null;
+                event.target.value = ''; // Restablecer la selección
+                return;
+            }
+    
+            // Validar tamaño de archivo
+            if (
+                (fileCategory === 'image' || fileCategory === 'audio') && fileSize > 6 * 1024 * 1024 ||
+                fileCategory === 'video' && fileSize > 10 * 1024 * 1024
+            ) {
+                alert("El archivo seleccionado excede el tamaño máximo permitido.");
+                selectedFile = null;
+                event.target.value = ''; // Restablecer la selección
+                return;
+            }
+    
+            console.log("Archivo válido seleccionado:", selectedFile.name);
+        } else {
+            console.log("No se seleccionó ningún archivo");
+        }
+    }
+
     function postpost() {
         const postContent = document.getElementById('postContent').value;
         const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
