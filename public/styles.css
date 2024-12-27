@@ -6,6 +6,7 @@
             color: #ffffff;
         }
         
+        
         .header {
             background-color: #800020; /* Fondo bordó */
             color: white;
@@ -524,6 +525,27 @@
             background-color: #e4dada;
         }
         
+    /* Estilo para el loader */
+    .loader {
+        border: 5px solid #333; 
+        border-top: 5px solid #ffffff; 
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        position: fixed;
+        top: 7%; /* Ajusta este valor para moverlo más arriba */
+        left: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra alrededor del loader */
+        animation: spin 1s linear infinite; /* Animación de giro y caída */
+    }
+    
+    /* Animación del giro */
+    @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    
 /* para la configuracion de cuentas*/
 
 .user-settings {

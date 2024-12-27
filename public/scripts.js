@@ -307,114 +307,90 @@ function containsForbiddenWords(message) {
         return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
     }
 
-    function handleFileSelect(event) {
-    selectedFile = event.target.files[0]; // Guardar el archivo seleccionado
-    if (selectedFile) {
-        const fileType = selectedFile.type;
-        const fileSize = selectedFile.size;
-
-        // Validar tipo de archivo
-        const validFileTypes = ['image', 'audio', 'video'];
-        const fileCategory = fileType.split('/')[0];
-
-        if (!validFileTypes.includes(fileCategory)) {
-            alert("Por favor, selecciona un archivo de tipo imagen, audio o video.");
-            selectedFile = null;
-            event.target.value = ''; // Restablecer la selección
+    function postpost() {
+        const postContent = document.getElementById('postContent').value;
+        const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
+    
+        if (containsForbiddenWords(postContent)) {
+            alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
             return;
         }
-
-        // Validar tamaño de archivo
-        if (
-            (fileCategory === 'image' || fileCategory === 'audio') && fileSize > 6 * 1024 * 1024 ||
-            fileCategory === 'video' && fileSize > 10 * 1024 * 1024
-        ) {
-            alert("El archivo seleccionado excede el tamaño máximo permitido.");
-            selectedFile = null;
-            event.target.value = ''; // Restablecer la selección
+    
+        if (postContent === lastpostContent) {
+            alert("No puedes enviar un post igual al anterior.");
             return;
         }
-
-        console.log("Archivo válido seleccionado:", selectedFile.name);
-    } else {
-        console.log("No se seleccionó ningún archivo");
-    }
-}
-
-function postpost() {
-    const postContent = document.getElementById('postContent').value;
-    const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
-
-    if (containsForbiddenWords(postContent)) {
-        alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
-        return;
-    }
-
-    if (postContent === lastpostContent) {
-        alert("No puedes enviar un post igual al anterior.");
-        return;
-    }
-
-    const postData = {
-        username: activeUser,
-        content: postContent,
-        sensitive: isSensitive ? 1 : 0,
-        createdAt: new Date().toISOString(), // Hora en formato UTC
-    };
-
-    if (selectedFile) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("upload_preset", "matesito");
-
-        fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            postData.media = data.secure_url;
-            postData.mediaType = selectedFile.type;
-
-            return fetch('https://matesito.onrender.com/posts', {
+    
+        const postData = {
+            username: activeUser,
+            content: postContent,
+            sensitive: isSensitive ? 1 : 0,
+            createdAt: new Date().toISOString(), // Hora en formato UTC
+        };
+    
+        // Mostrar el símbolo de carga
+        document.getElementById('loading').style.display = 'block';
+    
+        if (selectedFile) {
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            formData.append("upload_preset", "matesito");
+    
+            fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                postData.media = data.secure_url;
+                postData.mediaType = selectedFile.type;
+    
+                return fetch('https://matesito.onrender.com/posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(postData),
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                lastpostContent = data.content;
+                addpostToList(data.content, data.media, data.mediaType, activeUser);
+                document.getElementById('postMedia').value = '';
+                selectedFile = null;
+                alert('Tu post se ha enviado correctamente');
+                loadposts();
+            })
+            .catch(error => {
+                console.error('Error al subir el archivo o enviar el post:', error);
+                alert('Error al subir el archivo o enviar el post');
+            })
+            .finally(() => {
+                // Ocultar el símbolo de carga
+                document.getElementById('loading').style.display = 'none';
+            });
+        } else {
+            fetch('https://matesito.onrender.com/posts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(postData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                lastpostContent = data.content;
+                addpostToList(data.content, null, null, activeUser);
+                alert('Tu post se ha enviado correctamente');
+                loadposts();
+            })
+            .catch(error => {
+                console.error('Error al enviar el post:', error);
+                alert('Error al enviar el post');
+            })
+            .finally(() => {
+                // Ocultar el símbolo de carga
+                document.getElementById('loading').style.display = 'none';
             });
-        })
-        .then(response => response.json())
-        .then(data => {
-            lastpostContent = data.content;
-            addpostToList(data.content, data.media, data.mediaType, activeUser);
-            document.getElementById('postMedia').value = '';
-            selectedFile = null;
-            alert('Tu post se ha enviado correctamente');
-            loadposts();
-        })
-        .catch(error => {
-            console.error('Error al subir el archivo o enviar el post:', error);
-            alert('Error al subir el archivo o enviar el post');
-        });
-    } else {
-        fetch('https://matesito.onrender.com/posts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(postData),
-        })
-        .then(response => response.json())
-        .then(data => {
-            lastpostContent = data.content;
-            addpostToList(data.content, null, null, activeUser);
-            alert('Tu post se ha enviado correctamente');
-            loadposts();
-        })
-        .catch(error => {
-            console.error('Error al enviar el post:', error);
-            alert('Error al enviar el post');
-        });
-    }
-}
-
+        }
+    }    
 
 function goBackToInitial() {
     document.getElementById('usernameOverlay').style.display = 'none';
