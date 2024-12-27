@@ -99,12 +99,11 @@ app.post('/posts', (req, res) => {
 
         const isSensitive = !!sensitive; // Convierte cualquier valor "truthy" en true, y "falsy" en false
         const query = `
-    INSERT INTO posts (username, post, content, media, mediatype, sensitive, createdAt) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7) 
-    RETURNING id`;
-const params = [username, content, content, media || null, mediaType || null, isSensitive, new Date().toISOString()];
-        
+        INSERT INTO posts (username, content, media, mediatype, sensitive, createdAt) 
+        VALUES ($1, $2, $3, $4, $5, $6) 
+        RETURNING id`;
 
+        const params = [username, content, media || null, mediaType || null, isSensitive, new Date().toISOString()];
         db.query(query, params, (err, result) => {
             if (err) {
                 console.error('Error al insertar el post:', err);
@@ -115,7 +114,6 @@ const params = [username, content, content, media || null, mediaType || null, is
         });
     });
 });
-
 
 // Obtener todos los posts
 app.get('/posts', (req, res) => {
