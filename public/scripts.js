@@ -770,7 +770,7 @@ function loadFollowedUsers() {
 
                     userElement.innerHTML = `
                         <div class="boton">
-                            ${profilePicHTML}
+                            <img src="${user.profilePicture}"/>
                             <span class="username" onclick="toggleUserProfileBox(event, '${username}', ${userId})">${username}:</span>
                          </div>
                         <div class="user-profile-box" id="userProfileBox_${username}" style="display:none;">
