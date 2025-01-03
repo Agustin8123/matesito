@@ -771,7 +771,7 @@ function loadFollowedUsers() {
                     .then(data => {
                         const isFollowing = data.isFollowing; // Obtiene si el usuario activo sigue a este usuario
 
-                        // HTML del usuario seguido con el menú de perfil y "Dejar de seguir"
+                        // HTML del usuario seguido con el menú de perfil y "Dcejar de seguir"
                         userElement.innerHTML = `
                             <div class="user-header">
                                 ${profilePicHTML}
