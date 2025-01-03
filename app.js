@@ -426,7 +426,6 @@ app.post('/followUser', (req, res) => {
     });
 });
 
-
 app.get('/followedUsers/:followerId', (req, res) => {
     const { followerId } = req.params;
 
@@ -451,6 +450,37 @@ app.get('/followedUsers/:followerId', (req, res) => {
     });
 });
 
+app.post('/unfollowUser', (req, res) => {
+    const { followerId, followedId } = req.body;
+
+    if (!followerId || !followedId) {
+        return res.status(400).json({ message: 'Datos incompletos' });
+    }
+
+    // Verificamos si la relación de seguir existe
+    const checkQuery = 'SELECT * FROM seguir WHERE follower_id = $1 AND followed_id = $2';
+    db.query(checkQuery, [followerId, followedId], (err, result) => {
+        if (err) {
+            console.error('Error al verificar si sigues a este usuario:', err);
+            return res.status(500).json({ message: 'Error al verificar si sigues a este usuario' });
+        }
+
+        if (result.rows.length === 0) {
+            return res.status(400).json({ message: 'No sigues a este usuario' });
+        }
+
+        // Eliminamos la relación de seguimiento de la base de datos
+        const deleteQuery = 'DELETE FROM seguir WHERE follower_id = $1 AND followed_id = $2';
+        db.query(deleteQuery, [followerId, followedId], (err) => {
+            if (err) {
+                console.error('Error al dejar de seguir al usuario:', err);
+                return res.status(500).json({ message: 'Error al dejar de seguir al usuario' });
+            }
+
+            res.status(200).json({ message: 'Has dejado de seguir a este usuario' });
+        });
+    });
+});
 
 // Crear un chat privado
 app.post('/createPrivateChat', (req, res) => {
