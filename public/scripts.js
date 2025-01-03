@@ -747,7 +747,7 @@ function followUser(userId) {
 
 
 function loadFollowedUsers() {
-    const followerId = users[activeUser].id; // ID del usuario activo
+    const followerId = users[activeUser]?.id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/followedUsers/${followerId}`)
         .then(response => response.json())
