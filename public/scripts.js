@@ -599,10 +599,10 @@ function loadposts(loadAll) {
 }
 
 // Agregar un post a la lista
-function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId) {
+function addPostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, followerId) {
     const postList = document.getElementById('postList');
-    const newpost = document.createElement('li');
-    newpost.className = 'post';
+    const newPost = document.createElement('li');
+    newPost.className = 'post';
 
     // Convertir fecha a hora local
     const localTime = createdAt ? new Date(createdAt).toLocaleString() : '';
@@ -646,8 +646,11 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
            </div>`
         : `<div class="post-content">${content}${mediaHTML}</div>`;
 
+    // Verificamos si el usuario activo sigue a este usuario
+    const isFollowing = userId === followerId; // Este es un ejemplo; aquí debes verificar si el `followerId` sigue al `userId` desde tu backend
+
     // HTML del post
-    newpost.innerHTML = `
+    newPost.innerHTML = `
         <div class="post-header">
             ${profilePicHTML}
             <span class="username" onclick="toggleUserProfileBox(event, '${username}', ${userId})">${username}:</span>
@@ -658,13 +661,14 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         </div>
         <div class="user-profile-box" id="userProfileBox_${username}" style="display:none;">
             <button onclick="viewProfile('${username}')">Ver perfil</button>
-            <button onclick="followUser(${userId})">Seguir</button>
+            <button onclick="toggleFollowUser(${followerId}, ${userId}, ${isFollowing})">
+                ${isFollowing ? 'Dejar de seguir' : 'Seguir'}
+            </button>
         </div>
     `;
 
-    postList.insertBefore(newpost, postList.firstChild);
+    postList.insertBefore(newPost, postList.firstChild);
 }
-
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
 function toggleUserProfileBox(event, username) {
@@ -713,31 +717,95 @@ function viewProfile(username) {
         });
 }
 
+function loadFollowedUsers() {
+    const followerId = users[activeUser]?.id; // ID del usuario activo
 
-// Función para seguir al usuario
-function followUser(userId) {
-    const followerId = users[activeUser].id; // El ID del usuario que está siguiendo
+    fetch(`https://matesitotest.onrender.com/followedUsers/${followerId}`)
+        .then(response => response.json())
+        .then(users => {
+            const container = document.getElementById('usersContainer');
+            container.innerHTML = ''; // Limpiamos el contenedor
+
+            if (users.length === 0) {
+                // Si no hay usuarios seguidos, mostramos un mensaje
+                const noUsersMessage = document.createElement('p');
+                noUsersMessage.textContent = 'No sigues a ningún usuario';
+                noUsersMessage.style.textAlign = 'center';
+                noUsersMessage.style.color = 'gray';
+                container.appendChild(noUsersMessage);
+            } else {
+                // Renderizamos los usuarios seguidos
+                users.forEach(user => {
+                    const userElement = document.createElement('li');
+                    userElement.className = 'user';
+
+                    // Imagen del perfil
+                    const profilePicHTML = user.profilePicture
+                        ? `<img src="${user.profilePicture}" alt="Foto de perfil de ${user.username}" class="profile-picture">`
+                        : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
+
+                    // Determinamos si el usuario activo ya sigue a este usuario
+                    const isFollowing = user.followers.includes(followerId); // Verificamos si el usuario está siendo seguido
+
+                    // HTML del usuario seguido con el menú de perfil y "Dejar de seguir"
+                    userElement.innerHTML = `
+                        <div class="user-header">
+                            ${profilePicHTML}
+                            <span class="username">${user.username}</span>
+                        </div>
+                        <div class="user-profile-box" id="userProfileBox_${user.username}" style="display:none;">
+                            <button onclick="viewProfile('${user.username}')">Ver perfil</button>
+                            <button onclick="toggleFollowUser(${user.id}, ${isFollowing})">
+                                ${isFollowing ? 'Dejar de seguir' : 'Seguir'}
+                            </button>
+                        </div>
+                    `;
+
+                    // Agregamos el contenedor del usuario
+                    container.appendChild(userElement);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar los usuarios seguidos:', error);
+            alert('Error al cargar los usuarios seguidos');
+        });
+}
+
+function toggleFollowUser(userId, isFollowing) {
+    const followerId = users[activeUser].id; // El ID del usuario activo
 
     if (!followerId) {
         alert('Error: Usuario activo no encontrado');
         return;
     }
 
+    if (isFollowing) {
+        // Si el usuario ya sigue al otro, llamamos a unfollowUser
+        unfollowUser(followerId, userId);
+    } else {
+        // Si el usuario no sigue al otro, llamamos a followUser
+        followUser(followerId, userId);
+    }
+}
+
+function followUser(followerId, followedId) {
     fetch('https://matesitotest.onrender.com/followUser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ followerId, followedId: userId })
+        body: JSON.stringify({ followerId, followedId })
     })
-    .then(response => {
-        return response.json().then(data => {
-            if (!response.ok) {
-                throw new Error(data.message || 'Error desconocido');
-            }
-            return data;
-        });
-    })
+    .then(response => response.json())
     .then(data => {
-        alert(data.message); // Mensaje del backend
+        if (data.message === 'Ahora sigues a este usuario') {
+            alert('Ahora sigues a este usuario');
+            // Cambiar el texto y el comportamiento del botón a "Dejar de seguir"
+            const button = document.querySelector(`#userProfileBox_${followedId} button`);
+            button.textContent = 'Dejar de seguir';
+            button.onclick = function() { toggleFollowUser(followedId, true); }; // Ahora puede dejar de seguir
+        } else {
+            alert(data.message);
+        }
     })
     .catch(error => {
         console.error('Error al seguir al usuario:', error);
@@ -745,6 +813,29 @@ function followUser(userId) {
     });
 }
 
+function unfollowUser(followerId, followedId) {
+    fetch('https://matesitotest.onrender.com/unfollowUser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ followerId, followedId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === 'Has dejado de seguir a este usuario') {
+            alert('Has dejado de seguir a este usuario');
+            // Cambiar el texto y el comportamiento del botón a "Seguir"
+            const button = document.querySelector(`#userProfileBox_${followedId} button`);
+            button.textContent = 'Seguir';
+            button.onclick = function() { toggleFollowUser(followedId, false); }; // Ahora puede seguir
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error al dejar de seguir:', error);
+        alert('Error al dejar de seguir al usuario');
+    });
+}
 
 function loadFollowedUsers() {
     const followerId = users[activeUser]?.id; // ID del usuario activo
@@ -765,20 +856,31 @@ function loadFollowedUsers() {
             } else {
                 // Renderizamos los usuarios seguidos
                 users.forEach(user => {
-                    const userElement = document.createElement('div');
-                    userElement.classList.add('user');
+                    const userElement = document.createElement('li');
+                    userElement.className = 'user';
 
+                    // Imagen del perfil
+                    const profilePicHTML = user.profilePicture
+                        ? `<img src="${user.profilePicture}" alt="Foto de perfil de ${user.username}" class="profile-picture">`
+                        : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
+
+                    // Determinamos si el usuario activo ya sigue a este usuario
+                    const isFollowing = user.followers.includes(followerId); // Verificamos si el usuario está siendo seguido
+
+                    // HTML del usuario seguido con el menú de perfil y "Dejar de seguir"
                     userElement.innerHTML = `
-                        <div class="boton">
-                            <img src="${user.profilePicture}"/>
-                            <span class="username" onclick="toggleUserProfileBox(event, '${user.username}', ${user.userId})">${user.username}:</span>
-                         </div>
-                        <div class="user-profile-box" id="userProfileBox_${user.username}" style="display:none;">
-                            <button onclick="viewProfile('${user.username}')">Ver perfil</button>
-                            <button onclick="followUser(${user.userId})">Seguir</button>
+                        <div class="user-header">
+                            ${profilePicHTML}
+                            <span class="username">${user.username}</span>
+                        </div>
+                        <div class="user-profile-box" id="userProfileBox_${user.id}" style="display:none;">
+                            <button onclick="toggleFollowUser(${user.id}, ${isFollowing})">
+                                ${isFollowing ? 'Dejar de seguir' : 'Seguir'}
+                            </button>
                         </div>
                     `;
 
+                    // Agregamos el contenedor del usuario
                     container.appendChild(userElement);
                 });
             }
