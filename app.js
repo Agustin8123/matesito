@@ -435,7 +435,7 @@ app.get('/followedUsers/:followerId', (req, res) => {
     }
 
     const query = `
-        SELECT u.id, u.name, u.email
+        SELECT u.id, u.username
         FROM users u
         INNER JOIN seguir s ON u.id = s.followed_id
         WHERE s.follower_id = $1
