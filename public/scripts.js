@@ -599,7 +599,7 @@ function loadposts(loadAll) {
 }
 
 // Agregar un post a la lista
-function addPostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, followerId) {
+function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, followerId) {
     const postList = document.getElementById('postList');
     const newPost = document.createElement('li');
     newPost.className = 'post';
