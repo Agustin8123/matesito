@@ -482,6 +482,30 @@ app.post('/unfollowUser', (req, res) => {
     });
 });
 
+// Endpoint para verificar si un usuario sigue a otro
+app.post('/isFollowing', (req, res) => {
+    const { followerId, followedId } = req.body;
+
+    if (!followerId || !followedId) {
+        return res.status(400).json({ message: 'Datos incompletos' });
+    }
+
+    // Verificar si existe una relación de seguimiento entre los dos usuarios
+    const checkQuery = 'SELECT * FROM seguir WHERE follower_id = $1 AND followed_id = $2';
+    db.query(checkQuery, [followerId, followedId], (err, result) => {
+        if (err) {
+            console.error('Error al verificar el seguimiento:', err);
+            return res.status(500).json({ message: 'Error al verificar el seguimiento' });
+        }
+
+        // Si el resultado tiene filas, significa que el usuario sigue al otro
+        const isFollowing = result.rows.length > 0;
+
+        res.status(200).json({ isFollowing });
+    });
+});
+
+
 // Crear un chat privado
 app.post('/createPrivateChat', (req, res) => {
     const { user1Id, user2Id } = req.body;

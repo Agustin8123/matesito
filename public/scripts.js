@@ -646,29 +646,45 @@ function addPostToList(content, media, mediaType, username, profilePicture, sens
            </div>`
         : `<div class="post-content">${content}${mediaHTML}</div>`;
 
-    // Verificamos si el usuario activo sigue a este usuario
-    const isFollowing = userId === followerId; // Este es un ejemplo; aquí debes verificar si el `followerId` sigue al `userId` desde tu backend
+    const followerId = users[activeUser]?.id;
+    // Verificar si el usuario activo sigue a este usuario
+    fetch('https://matesitotest.onrender.com/isFollowing', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ followerId, followedId: userId }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        const isFollowing = data.isFollowing;
 
-    // HTML del post
-    newPost.innerHTML = `
-        <div class="post-header">
-            ${profilePicHTML}
-            <span class="username" onclick="toggleUserProfileBox(event, '${username}', ${userId})">${username}:</span>
-        </div>
-        ${contentHTML}
-        <div class="post-footer">
-            <span class="post-time">${localTime}</span>
-        </div>
-        <div class="user-profile-box" id="userProfileBox_${username}" style="display:none;">
-            <button onclick="viewProfile('${username}')">Ver perfil</button>
-            <button onclick="toggleFollowUser(${followerId}, ${userId}, ${isFollowing})">
-                ${isFollowing ? 'Dejar de seguir' : 'Seguir'}
-            </button>
-        </div>
-    `;
+        // HTML del post
+        newPost.innerHTML = `
+            <div class="post-header">
+                ${profilePicHTML}
+                <span class="username" onclick="toggleUserProfileBox(event, '${username}', ${userId})">${username}:</span>
+            </div>
+            ${contentHTML}
+            <div class="post-footer">
+                <span class="post-time">${localTime}</span>
+            </div>
+            <div class="user-profile-box" id="userProfileBox_${username}" style="display:none;">
+                <button onclick="viewProfile('${username}')">Ver perfil</button>
+                <button onclick="toggleFollowUser(${followerId}, ${userId}, ${isFollowing})">
+                    ${isFollowing ? 'Dejar de seguir' : 'Seguir'}
+                </button>
+            </div>
+        `;
 
-    postList.insertBefore(newPost, postList.firstChild);
+        postList.insertBefore(newPost, postList.firstChild);
+    })
+    .catch(error => {
+        console.error('Error al verificar el seguimiento:', error);
+        alert('Error al verificar el seguimiento');
+    });
 }
+
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
 function toggleUserProfileBox(event, username) {
@@ -744,25 +760,39 @@ function loadFollowedUsers() {
                         ? `<img src="${user.profilePicture}" alt="Foto de perfil de ${user.username}" class="profile-picture">`
                         : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
 
-                    // Determinamos si el usuario activo ya sigue a este usuario
-                    const isFollowing = user.followers.includes(followerId); // Verificamos si el usuario está siendo seguido
+                    // Verificamos si el usuario activo sigue a este usuario
+                    fetch('https://matesitotest.onrender.com/isFollowing', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ followerId, followedId: user.id }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const isFollowing = data.isFollowing; // Obtiene si el usuario activo sigue a este usuario
 
-                    // HTML del usuario seguido con el menú de perfil y "Dejar de seguir"
-                    userElement.innerHTML = `
-                        <div class="user-header">
-                            ${profilePicHTML}
-                            <span class="username">${user.username}</span>
-                        </div>
-                        <div class="user-profile-box" id="userProfileBox_${user.username}" style="display:none;">
-                            <button onclick="viewProfile('${user.username}')">Ver perfil</button>
-                            <button onclick="toggleFollowUser(${user.id}, ${isFollowing})">
-                                ${isFollowing ? 'Dejar de seguir' : 'Seguir'}
-                            </button>
-                        </div>
-                    `;
+                        // HTML del usuario seguido con el menú de perfil y "Dejar de seguir"
+                        userElement.innerHTML = `
+                            <div class="user-header">
+                                ${profilePicHTML}
+                                <span class="username">${user.username}</span>
+                            </div>
+                            <div class="user-profile-box" id="userProfileBox_${user.username}" style="display:none;">
+                                <button onclick="viewProfile('${user.username}')">Ver perfil</button>
+                                <button onclick="toggleFollowUser(${followerId}, ${user.id}, ${isFollowing})">
+                                    ${isFollowing ? 'Dejar de seguir' : 'Seguir'}
+                                </button>
+                            </div>
+                        `;
 
-                    // Agregamos el contenedor del usuario
-                    container.appendChild(userElement);
+                        // Agregamos el contenedor del usuario
+                        container.appendChild(userElement);
+                    })
+                    .catch(error => {
+                        console.error('Error al verificar el seguimiento:', error);
+                        alert('Error al verificar el seguimiento');
+                    });
                 });
             }
         })
