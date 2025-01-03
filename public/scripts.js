@@ -37,31 +37,6 @@ function verMant(valor) {
     }
 }
 
-function Acept() {
-    document.getElementById('initialOverlay').style.display = 'flex';
-    document.getElementById('AvisoOverlay').style.display = 'none';
-}
-
-function toggleMenu() {
-            const menu = document.getElementById('dropdownMenu');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-        }
-
-function HelpAlert() {
-    alert('Si requieres ayuda con cualquier cosa, contactate con nuestro correo de soporte "matesito.soporte@gmail.com"');
-}
-
-
-    function toggleSubMenu() {
-        const subMenu = document.getElementById('subMenu');
-        subMenu.style.display = subMenu.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function toggleSubMenu2() {
-        const subMenu2 = document.getElementById('subMenu2');
-        subMenu2.style.display = subMenu2.style.display === 'block' ? 'none' : 'block';
-    }
-
     function togglePassword() {
         const passwordInput = document.getElementById('newPasswordInput');
         const toggleButton = document.getElementById('togglePasswordButton');
@@ -127,7 +102,7 @@ function loginUser() {
     const password = document.getElementById('passwordInput').value.trim();
     const rememberMe = document.getElementById('rememberMe').checked;
 
-    fetch('https://matesito.onrender.com/login', {
+    fetch('https://matesitotest.onrender.com/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -175,7 +150,7 @@ function HideOverlays(){
 }
 
 function updateUserButton() {
-    const userButton = document.querySelector('.header button');
+    const userButton = document.querySelector('#userButton');
 
     // Usar la imagen del usuario activo, o una predeterminada si no existe
     const userImage = users[activeUser] && users[activeUser].profileImage
@@ -188,7 +163,7 @@ function updateUserButton() {
 
 
 function setActiveUser(username) {
-    fetch('https://matesito.onrender.com/getUserDetails', {
+    fetch('https://matesitotest.onrender.com/getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -202,8 +177,13 @@ function setActiveUser(username) {
             if (!users[username]) {
                 users[username] = {}; // Asegurarse de que el usuario exista en la estructura
             }
-            users[username].profileImage = data.profileImage || 'default-avatar.png'; // Guardar la URL de la imagen
-            
+
+            // Guardar el ID del usuario
+            users[username].id = data.id;
+
+            // Guardar la imagen de perfil (o usar una por defecto)
+            users[username].profileImage = data.profileImage || 'default-avatar.png'; 
+
             // Actualizar la UI
             hideUserSelectOverlay();
             document.getElementById('appContainer').style.display = 'block';
@@ -218,6 +198,7 @@ function setActiveUser(username) {
         alert("Error al obtener los detalles del usuario.");
     });
 }
+
 
 
 function showUserSelectOverlay() {
@@ -282,7 +263,7 @@ function createUserInDatabase(username, password, profileImageURL) {
         profileImage: profileImageURL,
     };
 
-    fetch('https://matesito.onrender.com/users', {
+    fetch('https://matesitotest.onrender.com/users', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -302,6 +283,124 @@ function createUserInDatabase(username, password, profileImageURL) {
         alert('Hubo un error al crear el usuario.');
     });
 }
+
+// Esta función carga los foros y los muestra en la página
+function loadForos() {
+    fetch('/foros')
+        .then(response => response.json())
+        .then(foros => {
+            const container = document.getElementById('forosContainer');
+            container.innerHTML = ''; // Limpiamos el contenedor antes de renderizar
+
+            if (foros.length === 0) {
+                // Si no hay foros, mostramos un mensaje
+                const noForosMessage = document.createElement('p');
+                noForosMessage.textContent = 'No hay nada aquí';
+                noForosMessage.style.textAlign = 'center'; // Opcional, para centrar el texto
+                noForosMessage.style.color = 'gray'; // Opcional, para estilizar el texto
+                container.appendChild(noForosMessage);
+            } else {
+                // Si hay foros, los iteramos y renderizamos
+                foros.forEach(foro => {
+                    const foroElement = document.createElement('div');
+                    foroElement.classList.add('foro'); // Agregar una clase para estilizar
+
+                    // Creamos la estructura del foro (nombre, descripción y botón para unirse)
+                    foroElement.innerHTML = `
+                        <h2>${foro.name}</h2>
+                        <p>${foro.description}</p>
+                        <button id="joinForumButton_${foro.id}" onclick="joinForum(${foro.id})">Unirse al Foro</button>
+                    `;
+
+                    // Agregamos el foro al contenedor
+                    container.appendChild(foroElement);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar los foros:', error);
+            
+            const container = document.getElementById('forosContainer');
+            container.innerHTML = ''; // Limpiamos el contenedor antes de renderizar
+
+            // Mostramos un mensaje indicando que no hay foros (por error)
+            const noForosMessage = document.createElement('p');
+            noForosMessage.textContent = 'No hay nada aquí';
+            noForosMessage.style.textAlign = 'center'; // Opcional, para centrar el texto
+            noForosMessage.style.color = 'gray'; // Opcional, para estilizar el texto
+            container.appendChild(noForosMessage);
+            alert("Error al cargar los foros")
+        });
+}
+
+function joinForum(forumId) {
+    // Asegúrate de que 'users.id' esté correctamente definido en tu aplicación
+    const data = {
+        userId: users.id, // ID del usuario activo
+        forumId: forumId  // ID del foro que se pasa como parámetro
+    };
+
+    fetch('https://matesitotest.onrender.com/joinForum', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message); // Muestra un mensaje de éxito
+            const button = document.getElementById(`joinForumButton_${forumId}`);
+            button.disabled = true; // Deshabilita el botón para evitar unirse múltiples veces
+            button.innerText = 'Unido al Foro'; // Cambia el texto del botón
+        } else {
+            alert('Error al unirse al foro');
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('Error al procesar la solicitud');
+    });
+}
+
+function loadUserForums() {
+    const userId = users.id;
+
+    fetch(`https://matesitotest.onrender.com/userForums/${userId}`)
+        .then(response => response.json())
+        .then(forums => {
+            const container = document.getElementById('forosContainer2'); // Contenedor para los foros unidos
+            container.innerHTML = ''; // Limpiamos el contenedor
+
+            if (forums.length === 0) {
+                // Si no hay foros, mostramos un mensaje
+                const noForumsMessage = document.createElement('p');
+                noForumsMessage.textContent = 'No hay foros a los que estés unido';
+                noForumsMessage.style.textAlign = 'center';
+                noForumsMessage.style.color = 'gray';
+                container.appendChild(noForumsMessage);
+            } else {
+                // Renderizamos los foros
+                forums.forEach(forum => {
+                    const forumElement = document.createElement('div');
+                    forumElement.classList.add('foro');
+
+                    forumElement.innerHTML = `
+                        <h2>${forum.name}</h2>
+                        <p>${forum.description}</p>
+                    `;
+
+                    container.appendChild(forumElement);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar los foros del usuario:', error);
+            alert('Error al cargar los foros del usuario');
+        });
+}
+
 
 function containsForbiddenWords(message) {
         return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
@@ -379,7 +478,7 @@ function containsForbiddenWords(message) {
                 postData.media = data.secure_url;
                 postData.mediaType = selectedFile.type;
     
-                return fetch('https://matesito.onrender.com/posts', {
+                return fetch('https://matesitotest.onrender.com/posts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(postData),
@@ -401,7 +500,7 @@ function containsForbiddenWords(message) {
             })
 
         } else {
-            fetch('https://matesito.onrender.com/posts', {
+            fetch('https://matesitotest.onrender.com/posts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(postData),
@@ -460,9 +559,11 @@ function togglePostLoad() {
     loadposts(loadAll);
 }
 
+// Función para cargar los posts
+// Función para cargar los posts
 function loadposts(loadAll) {
     console.log("Cargando posts...");
-    fetch('https://matesito.onrender.com/posts')
+    fetch('https://matesitotest.onrender.com/posts')
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los posts: ${response.status}`);
@@ -480,13 +581,13 @@ function loadposts(loadAll) {
             // Limpiar la lista y renderizar los posts seleccionados
             postList.innerHTML = '';
             postsToRender.forEach(post => {
-                const { content, media, mediaType, username, profilePicture, sensitive, createdAt } = post;
+                const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId } = post;
 
                 // Filtrar contenido sensible correctamente
                 if (!showSensitiveContent && sensitive === true) return;
 
                 if (content && username) {
-                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt);
+                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId);
                 } else {
                     console.warn('Post inválido omitido:', post);
                 }
@@ -497,12 +598,8 @@ function loadposts(loadAll) {
         });
 }
 
-
-
-
-
 // Agregar un post a la lista
-function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt) {
+function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId) {
     const postList = document.getElementById('postList');
     const newpost = document.createElement('li');
     newpost.className = 'post';
@@ -553,17 +650,126 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     newpost.innerHTML = `
         <div class="post-header">
             ${profilePicHTML}
-            <span class="username">${username}:</span>
+            <span class="username" onclick="toggleUserProfileBox(event, '${username}', ${userId})">${username}:</span>
         </div>
         ${contentHTML}
         <div class="post-footer">
             <span class="post-time">${localTime}</span>
+        </div>
+        <div class="user-profile-box" id="userProfileBox_${username}" style="display:none;">
+            <button onclick="viewProfile('${username}')">Ver perfil</button>
+            <button onclick="followUser(${userId})">Seguir</button>
         </div>
     `;
 
     postList.insertBefore(newpost, postList.firstChild);
 }
 
+
+// Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
+function toggleUserProfileBox(event, username) {
+    const profileBox = document.getElementById(`userProfileBox_${username}`);
+    const isVisible = profileBox.style.display === 'block';
+
+    // Ocultar todos los cuadros de perfil
+    const allProfileBoxes = document.querySelectorAll('.user-profile-box');
+    allProfileBoxes.forEach(box => box.style.display = 'none');
+
+    // Si el cuadro estaba oculto, mostrarlo
+    if (!isVisible) {
+        profileBox.style.display = 'block';
+    }
+}
+
+// Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
+function viewProfile(username) {
+    // Limpiar los posts actuales
+    const postList = document.getElementById('postList');
+    postList.innerHTML = '';
+
+    // Mostrar el contenedor de posts (si estaba oculto)
+    document.getElementById('appContainer').style.display = 'block';
+
+    // Cargar los posts del usuario
+    fetch(`https://matesitotest.onrender.com/posts/user/${username}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error al cargar los posts del usuario ${username}`);
+            }
+            return response.json();
+        })
+        .then(posts => {
+            posts.forEach(post => {
+                const { content, media, mediaType, username, profilePicture, sensitive, createdAt } = post;
+                // Filtrar contenido sensible
+                if (!showSensitiveContent && sensitive === true) return;
+                if (content && username) {
+                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt);
+                }
+            });
+        })
+        .catch(error => {
+            console.error("Error al cargar los posts del usuario:", error);
+        });
+}
+
+
+// Función para seguir al usuario
+function followUser(userId) {
+    const followerId = users[activeUser].id;  // El ID del usuario que está siguiendo
+
+    fetch('https://matesitotest.onrender.com/followUser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ followerId, followedId: userId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.message);
+        alert(data.message); // Mensaje de éxito
+    })
+    .catch(error => {
+        console.error('Error al seguir al usuario:', error);
+        alert('Error al seguir al usuario');
+    });
+}
+
+function loadFollowedUsers() {
+    const followerId = users.id; // ID del usuario activo
+
+    fetch(`https://matesitotest.onrender.com/followedUsers/${followerId}`)
+        .then(response => response.json())
+        .then(users => {
+            const container = document.getElementById('usersContainer');
+            container.innerHTML = ''; // Limpiamos el contenedor
+
+            if (users.length === 0) {
+                // Si no hay usuarios seguidos, mostramos un mensaje
+                const noUsersMessage = document.createElement('p');
+                noUsersMessage.textContent = 'No sigues a ningún usuario';
+                noUsersMessage.style.textAlign = 'center';
+                noUsersMessage.style.color = 'gray';
+                container.appendChild(noUsersMessage);
+            } else {
+                // Renderizamos los usuarios seguidos
+                users.forEach(user => {
+                    const userElement = document.createElement('div');
+                    userElement.classList.add('user');
+
+                    userElement.innerHTML = `
+                        <h3>${user.name}</h3>
+                        <p>${user.email}</p>
+                    `;
+
+                    container.appendChild(userElement);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar los usuarios seguidos:', error);
+            alert('Error al cargar los usuarios seguidos');
+        });
+}
 
 // Llamar a loadposts al cargar la página
 window.onload = verMant(mantenimiento);
