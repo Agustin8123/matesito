@@ -789,18 +789,19 @@ function loadFollowedUsers() {
                     userElement.classList.add('user');
 
                     const Id = user.id;
+                    const username = user.username;
 
                     userElement.innerHTML = `
-                    <label for="${user.username}" class="boton">${user.username}</label>
-                        <input type="radio" id="${user.username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
+                    <label for="${username}" class="boton">${user.username}</label>
+                        <input type="radio" id="${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
                         <div id="${Id}" class="dropdown-menu" style="left: 188px; margin-top: -156px;">
-                            <label for="${user.username}${Id}" class="boton">Ver perfil</label>
-                                <input type="radio" id="${user.username}${Id}" name="nav" style="display:none;" onclick="viewProfile(${user.username})">
-                            <label for="${Id}${user.username}${Id}" class="boton">Dejar de seguir</label>
-                                <input type="radio" id="${Id}${user.username}${Id}" name="nav" style="display:none;" onclick="unfollowUser(${followerId}, ${Id})">
+                            <label for="${username}${Id}" class="boton">Ver perfil</label>
+                                <input type="radio" id="${username}${Id}" name="nav" style="display:none;" onclick="viewProfile('${username}')">
+                            <label for="${Id}${username}${Id}" class="boton">Dejar de seguir</label>
+                                <input type="radio" id="${Id}${username}${Id}" name="nav" style="display:none;" onclick="unfollowUser(${followerId}, ${Id})">
 
-                            <label for="${Id}${user.username}" class="botonV">Volver</label>
-                                <input type="radio" id="${Id}${user.username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
+                            <label for="${Id}${username}" class="botonV">Volver</label>
+                                <input type="radio" id="${Id}${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
                         </div>
                     `;
 
@@ -810,7 +811,7 @@ function loadFollowedUsers() {
         })
         .catch(error => {
             console.error('Error al cargar los usuarios seguidos:', error);
-            alert('Error al cargar los usuarios seguidos ');
+            alert('Error al cargar los usuarios seguidos');
         });
 }
 
