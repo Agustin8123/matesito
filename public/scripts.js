@@ -769,7 +769,14 @@ function loadFollowedUsers() {
                     userElement.classList.add('user');
 
                     userElement.innerHTML = `
-                        <h3>${user.username}</h3>
+                        <div class="boton">
+                            ${profilePicHTML}
+                            <span class="username" onclick="toggleUserProfileBox(event, '${username}', ${userId})">${username}:</span>
+                         </div>
+                        <div class="user-profile-box" id="userProfileBox_${username}" style="display:none;">
+                            <button onclick="viewProfile('${username}')">Ver perfil</button>
+                            <button onclick="followUser(${userId})">Seguir</button>
+                        </div>
                     `;
 
                     container.appendChild(userElement);
