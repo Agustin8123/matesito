@@ -866,60 +866,6 @@ function unfollowUser(followerId, followedId) {
     });
 }
 
-function loadFollowedUsers() {
-    const followerId = users[activeUser]?.id; // ID del usuario activo
-
-    fetch(`https://matesitotest.onrender.com/followedUsers/${followerId}`)
-        .then(response => response.json())
-        .then(users => {
-            const container = document.getElementById('usersContainer');
-            container.innerHTML = ''; // Limpiamos el contenedor
-
-            if (users.length === 0) {
-                // Si no hay usuarios seguidos, mostramos un mensaje
-                const noUsersMessage = document.createElement('p');
-                noUsersMessage.textContent = 'No sigues a ningún usuario';
-                noUsersMessage.style.textAlign = 'center';
-                noUsersMessage.style.color = 'gray';
-                container.appendChild(noUsersMessage);
-            } else {
-                // Renderizamos los usuarios seguidos
-                users.forEach(user => {
-                    const userElement = document.createElement('li');
-                    userElement.className = 'user';
-
-                    // Imagen del perfil
-                    const profilePicHTML = user.profilePicture
-                        ? `<img src="${user.profilePicture}" alt="Foto de perfil de ${user.username}" class="profile-picture">`
-                        : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
-
-                    // Determinamos si el usuario activo ya sigue a este usuario
-                    const isFollowing = user.followers.includes(followerId); // Verificamos si el usuario está siendo seguido
-
-                    // HTML del usuario seguido con el menú de perfil y "Dejar de seguir"
-                    userElement.innerHTML = `
-                        <div class="user-header">
-                            ${profilePicHTML}
-                            <span class="username">${user.username}</span>
-                        </div>
-                        <div class="user-profile-box" id="userProfileBox_${user.id}" style="display:none;">
-                            <button onclick="toggleFollowUser(${user.id}, ${isFollowing})">
-                                ${isFollowing ? 'Dejar de seguir' : 'Seguir'}
-                            </button>
-                        </div>
-                    `;
-
-                    // Agregamos el contenedor del usuario
-                    container.appendChild(userElement);
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar los usuarios seguidos:', error);
-            alert('Error al cargar los usuarios seguidos');
-        });
-}
-
 // Llamar a loadposts al cargar la página
 window.onload = verMant(mantenimiento);
 window.onload = checkRememberedUser();
