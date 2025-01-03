@@ -646,7 +646,6 @@ function addPostToList(content, media, mediaType, username, profilePicture, sens
            </div>`
         : `<div class="post-content">${content}${mediaHTML}</div>`;
 
-    const followerId = users[activeUser]?.id;
     // Verificar si el usuario activo sigue a este usuario
     fetch('https://matesitotest.onrender.com/isFollowing', {
         method: 'POST',
