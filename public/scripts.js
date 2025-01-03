@@ -796,7 +796,7 @@ function loadFollowedUsers() {
                         <input type="radio" id="${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
                         <div id="${Id}" class="dropdown-menu" style="left: 188px; margin-top: -156px;">
                             <label for="${username}${Id}" class="boton">Ver perfil</label>
-                                <input type="radio" id="${username}${Id}" name="nav" style="display:none;" onclick="viewProfile(${username})">
+                                <input type="radio" id="${username}${Id}" name="nav" style="display:none;" onclick="viewProfile(${user.username})">
                             <label for="${Id}${username}${Id}" class="boton">Dejar de seguir</label>
                                 <input type="radio" id="${Id}${username}${Id}" name="nav" style="display:none;" onclick="unfollowUser(${followerId}, ${Id})">
 
