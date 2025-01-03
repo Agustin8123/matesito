@@ -745,6 +745,25 @@ function followUser(userId) {
     });
 }
 
+function unfollowUser(followerId, followedId) {
+    fetch('https://matesitotest.onrender.com/unfollowUser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ followerId, followedId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === 'Has dejado de seguir a este usuario') {
+            alert('Has dejado de seguir a este usuario');
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error al dejar de seguir:', error);
+        alert('Error al dejar de seguir al usuario');
+    });
+}
 
 function loadFollowedUsers() {
     const followerId = users[activeUser]?.id; // ID del usuario activo
@@ -768,8 +787,21 @@ function loadFollowedUsers() {
                     const userElement = document.createElement('div');
                     userElement.classList.add('user');
 
+                    const Id = user.id;
+                    const username = user.username;
+
                     userElement.innerHTML = `
-                        <h3 class="boton">${user.username}</h3>
+                    <label for="${username}" class="boton">${user.username}</label>
+                        <input type="radio" id="${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(Id)">
+                        <div id="${Id}" class="dropdown-menu" style="left: 188px; margin-top: -156px;">
+                            <label for="${username}${Id}" class="boton">Ver perfil</label>
+                                <input type="radio" id="${username}${Id}" name="nav" style="display:none;" onclick="viewProfile(username)">
+                            <label for="${Id}${username}${Id}" class="boton">Dejar de seguir</label>
+                                <input type="radio" id="${Id}${username}${Id}" name="nav" style="display:none;" onclick="unfollowUser(followerId, Id)">
+
+                            <label for="${Id}${username}" class="botonV">Volver</label>
+                                <input type="radio" id="${Id}${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(Id)">
+                        </div>
                     `;
 
                     container.appendChild(userElement);

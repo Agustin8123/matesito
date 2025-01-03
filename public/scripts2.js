@@ -14,6 +14,15 @@ function hideMenus(...menuIds) {
     });
 }
 
+function deactivateAllDivs() {
+    const container = document.getElementById('usersContainer');
+    const inputs = container.querySelectorAll(':scope > input, :scope > button, :scope > textarea, :scope > select');
+
+    inputs.forEach(input => {
+        input.disabled = !input.disabled;
+    });
+}
+
 // Menú desplegable principal
 function toggleMenu() {
     hideMenus('SearchMenu', 'rightMenu', 'forumSubMenu', 'userSubMenu');
@@ -69,6 +78,11 @@ function toggleSubMenu() {
 
 function toggleSubMenu2() {
     toggleVisibility('subMenu2');
+}
+
+function toggle_UserMenu(user) {
+    toggleVisibility(user);
+    deactivateAllDivs();
 }
 
 // Overlay inicial
