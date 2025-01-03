@@ -8,7 +8,7 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
     let loadAll = false;
 
     let lastpostContent = "";
-    const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'merca', 'falopa', 'cocaína', 'kok4', 'c0ca', 'cocaína', 'marihuana', 'weed', 'hierba', 'porro', 'mota', 'cannabis', '4:20', 'maría', '420', 'hachís', 'thc', 'éxtasis', 'éxt4sis', 'xtc', 'mdma', 'éxtasis', 'lsd', 'ácido', 'trips', 'lsd', 'pornografía', 'd.r.o.g.a', 'dro@g@', 'DrOgA', 'dRoJA'];
+    const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'merca', 'falopa', 'cocaína', 'kok4', 'c0ca', 'cocaína', 'marihuana', 'weed', 'hierba', 'porro', 'mota', 'cannabis', '4:20', 'maría', '420', 'hachís', 'thc', 'éxtasis', 'éxt4sis', 'xtc', 'mdma', 'éxtasis', 'lsd', 'ácido', 'trips', 'lsd', 'd.r.o.g.a', 'dro@g@', 'DrOgA', 'dRoJA'];
 
     document.addEventListener("DOMContentLoaded", function() {
     updateUserButton();  // Llama a la función para cargar la imagen por defecto cuando la página se haya cargado
@@ -769,9 +769,7 @@ function loadFollowedUsers() {
                     userElement.classList.add('user');
 
                     userElement.innerHTML = `
-                        <h3>${user.name}</h3>
-                        <p>${user.email}</p>
-                        <h3>${user.username}</h3>
+                        <h3 class="boton">${user.username}</h3>
                     `;
 
                     container.appendChild(userElement);
