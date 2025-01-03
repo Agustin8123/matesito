@@ -40,7 +40,7 @@ function verMant(valor) {
     function togglePassword() {
         const passwordInput = document.getElementById('newPasswordInput');
         const toggleButton = document.getElementById('togglePasswordButton');
-    
+
         if (passwordInput.type === "password") {
             passwordInput.type = "text";
             toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
@@ -49,11 +49,11 @@ function verMant(valor) {
             toggleButton.innerHTML = '<img src="eyeClose.png" alt="Ver Contraseña">';
         }
     }
-    
+
     function togglePassword1() {
         const passwordInput = document.getElementById('passwordInput');
         const toggleButton = document.getElementById('togglePasswordBoton');
-    
+
         if (passwordInput.type === "password") {
             passwordInput.type = "text";
             toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
@@ -156,7 +156,7 @@ function updateUserButton() {
     const userImage = users[activeUser] && users[activeUser].profileImage
         ? users[activeUser].profileImage
         : 'default-avatar.png'; // Imagen predeterminada
-    
+
     // Configurar el botón con la imagen y el nombre del usuario
     userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
 }
@@ -319,7 +319,7 @@ function loadForos() {
         })
         .catch(error => {
             console.error('Error al cargar los foros:', error);
-            
+
             const container = document.getElementById('forosContainer');
             container.innerHTML = ''; // Limpiamos el contenedor antes de renderizar
 
@@ -411,18 +411,18 @@ function containsForbiddenWords(message) {
         if (selectedFile) {
             const fileType = selectedFile.type;
             const fileSize = selectedFile.size;
-    
+
             // Validar tipo de archivo
             const validFileTypes = ['image', 'audio', 'video'];
             const fileCategory = fileType.split('/')[0];
-    
+
             if (!validFileTypes.includes(fileCategory)) {
                 alert("Por favor, selecciona un archivo de tipo imagen, audio o video.");
                 selectedFile = null;
                 event.target.value = ''; // Restablecer la selección
                 return;
             }
-    
+
             // Validar tamaño de archivo
             if (
                 (fileCategory === 'image' || fileCategory === 'audio') && fileSize > 6 * 1024 * 1024 ||
@@ -433,7 +433,7 @@ function containsForbiddenWords(message) {
                 event.target.value = ''; // Restablecer la selección
                 return;
             }
-    
+
             console.log("Archivo válido seleccionado:", selectedFile.name);
         } else {
             console.log("No se seleccionó ningún archivo");
@@ -443,32 +443,32 @@ function containsForbiddenWords(message) {
     function postpost() {
         const postContent = document.getElementById('postContent').value;
         const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
-    
+
         if (containsForbiddenWords(postContent)) {
             alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
             return;
         }
-    
+
         if (postContent === lastpostContent) {
             alert("No puedes enviar un post igual al anterior.");
             return;
         }
-    
+
         const postData = {
             username: activeUser,
             content: postContent,
             sensitive: isSensitive ? 1 : 0,
             createdAt: new Date().toISOString(), // Hora en formato UTC
         };
-    
+
         // Mostrar el símbolo de carga
         document.getElementById('loading').style.display = 'block';
-    
+
         if (selectedFile) {
             const formData = new FormData();
             formData.append("file", selectedFile);
             formData.append("upload_preset", "matesito");
-    
+
             fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
                 method: 'POST',
                 body: formData,
@@ -477,7 +477,7 @@ function containsForbiddenWords(message) {
             .then(data => {
                 postData.media = data.secure_url;
                 postData.mediaType = selectedFile.type;
-    
+
                 return fetch('https://matesitotest.onrender.com/posts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -551,7 +551,7 @@ function toggleSensitiveContent() {
 function togglePostLoad() {
     loadAll = !loadAll; // Alternar estado
     const button = document.getElementById('loadAllPostsButton');
-    
+
     // Cambiar texto del botón basado en el estado
     button.textContent = loadAll ? 'Mostrar solo los últimos 12 posts' : 'Cargar todos los posts';
 
@@ -599,10 +599,10 @@ function loadposts(loadAll) {
 }
 
 // Agregar un post a la lista
-function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, followerId) {
+function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId) {
     const postList = document.getElementById('postList');
-    const newPost = document.createElement('li');
-    newPost.className = 'post';
+    const newpost = document.createElement('li');
+    newpost.className = 'post';
 
     // Convertir fecha a hora local
     const localTime = createdAt ? new Date(createdAt).toLocaleString() : '';
@@ -646,42 +646,23 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
            </div>`
         : `<div class="post-content">${content}${mediaHTML}</div>`;
 
-    // Verificar si el usuario activo sigue a este usuario
-    fetch('https://matesitotest.onrender.com/isFollowing', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ followerId, followedId: userId }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        const isFollowing = data.isFollowing;
+    // HTML del post
+    newpost.innerHTML = `
+        <div class="post-header">
+            ${profilePicHTML}
+            <span class="username" onclick="toggleUserProfileBox(event, '${username}', ${userId})">${username}:</span>
+        </div>
+        ${contentHTML}
+        <div class="post-footer">
+            <span class="post-time">${localTime}</span>
+        </div>
+        <div class="user-profile-box" id="userProfileBox_${username}" style="display:none;">
+            <button onclick="viewProfile('${username}')">Ver perfil</button>
+            <button onclick="followUser(${userId})">Seguir</button>
+        </div>
+    `;
 
-        // HTML del post
-        newPost.innerHTML = `
-            <div class="post-header">
-                ${profilePicHTML}
-                <span class="username" onclick="toggleUserProfileBox(event, '${username}', ${userId})">${username}:</span>
-            </div>
-            ${contentHTML}
-            <div class="post-footer">
-                <span class="post-time">${localTime}</span>
-            </div>
-            <div class="user-profile-box" id="userProfileBox_${username}" style="display:none;">
-                <button onclick="viewProfile('${username}')">Ver perfil</button>
-                <button onclick="toggleFollowUser(${followerId}, ${userId}, ${isFollowing})">
-                    ${isFollowing ? 'Dejar de seguir' : 'Seguir'}
-                </button>
-            </div>
-        `;
-
-        postList.insertBefore(newPost, postList.firstChild);
-    })
-    .catch(error => {
-        console.error('Error al verificar el seguimiento:', error);
-        alert('Error al verificar el seguimiento');
-    });
+    postList.insertBefore(newpost, postList.firstChild);
 }
 
 
@@ -732,6 +713,39 @@ function viewProfile(username) {
         });
 }
 
+
+// Función para seguir al usuario
+function followUser(userId) {
+    const followerId = users[activeUser].id; // El ID del usuario que está siguiendo
+
+    if (!followerId) {
+        alert('Error: Usuario activo no encontrado');
+        return;
+    }
+
+    fetch('https://matesitotest.onrender.com/followUser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ followerId, followedId: userId })
+    })
+    .then(response => {
+        return response.json().then(data => {
+            if (!response.ok) {
+                throw new Error(data.message || 'Error desconocido');
+            }
+            return data;
+        });
+    })
+    .then(data => {
+        alert(data.message); // Mensaje del backend
+    })
+    .catch(error => {
+        console.error('Error al seguir al usuario:', error);
+        alert(error.message || 'Error al seguir al usuario');
+    });
+}
+
+
 function loadFollowedUsers() {
     const followerId = users[activeUser]?.id; // ID del usuario activo
 
@@ -751,47 +765,16 @@ function loadFollowedUsers() {
             } else {
                 // Renderizamos los usuarios seguidos
                 users.forEach(user => {
-                    const userElement = document.createElement('li');
-                    userElement.className = 'user';
+                    const userElement = document.createElement('div');
+                    userElement.classList.add('user');
 
-                    // Imagen del perfil
-                    const profilePicHTML = user.profilePicture
-                        ? `<img src="${user.profilePicture}" alt="Foto de perfil de ${user.username}" class="profile-picture">`
-                        : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
+                    userElement.innerHTML = `
+                        <h3>${user.name}</h3>
+                        <p>${user.email}</p>
+                        <h3>${user.username}</h3>
+                    `;
 
-                    // Verificamos si el usuario activo sigue a este usuario
-                    fetch('https://matesitotest.onrender.com/isFollowing', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ followerId, followedId: user.id }),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        const isFollowing = data.isFollowing; // Obtiene si el usuario activo sigue a este usuario
-
-                        // HTML del usuario seguido con el menú de perfil y "Dcejar de seguir"
-                        userElement.innerHTML = `
-                            <div class="user-header">
-                                ${profilePicHTML}
-                                <span class="username">${user.username}</span>
-                            </div>
-                            <div class="user-profile-box" id="userProfileBox_${user.username}" style="display:none;">
-                                <button onclick="viewProfile('${user.username}')">Ver perfil</button>
-                                <button onclick="toggleFollowUser(${followerId}, ${user.id}, ${isFollowing})">
-                                    ${isFollowing ? 'Dejar de seguir' : 'Seguir'}
-                                </button>
-                            </div>
-                        `;
-
-                        // Agregamos el contenedor del usuario
-                        container.appendChild(userElement);
-                    })
-                    .catch(error => {
-                        console.error('Error al verificar el seguimiento:', error);
-                        alert('Error al verificar el seguimiento');
-                    });
+                    container.appendChild(userElement);
                 });
             }
         })
@@ -799,71 +782,6 @@ function loadFollowedUsers() {
             console.error('Error al cargar los usuarios seguidos:', error);
             alert('Error al cargar los usuarios seguidos');
         });
-}
-
-function toggleFollowUser(userId, isFollowing) {
-    const followerId = users[activeUser].id; // El ID del usuario activo
-
-    if (!followerId) {
-        alert('Error: Usuario activo no encontrado');
-        return;
-    }
-
-    if (isFollowing) {
-        // Si el usuario ya sigue al otro, llamamos a unfollowUser
-        unfollowUser(followerId, userId);
-    } else {
-        // Si el usuario no sigue al otro, llamamos a followUser
-        followUser(followerId, userId);
-    }
-}
-
-function followUser(followerId, followedId) {
-    fetch('https://matesitotest.onrender.com/followUser', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ followerId, followedId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message === 'Ahora sigues a este usuario') {
-            alert('Ahora sigues a este usuario');
-            // Cambiar el texto y el comportamiento del botón a "Dejar de seguir"
-            const button = document.querySelector(`#userProfileBox_${followedId} button`);
-            button.textContent = 'Dejar de seguir';
-            button.onclick = function() { toggleFollowUser(followedId, true); }; // Ahora puede dejar de seguir
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error al seguir al usuario:', error);
-        alert(error.message || 'Error al seguir al usuario');
-    });
-}
-
-function unfollowUser(followerId, followedId) {
-    fetch('https://matesitotest.onrender.com/unfollowUser', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ followerId, followedId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message === 'Has dejado de seguir a este usuario') {
-            alert('Has dejado de seguir a este usuario');
-            // Cambiar el texto y el comportamiento del botón a "Seguir"
-            const button = document.querySelector(`#userProfileBox_${followedId} button`);
-            button.textContent = 'Seguir';
-            button.onclick = function() { toggleFollowUser(followedId, false); }; // Ahora puede seguir
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error al dejar de seguir:', error);
-        alert('Error al dejar de seguir al usuario');
-    });
 }
 
 // Llamar a loadposts al cargar la página
