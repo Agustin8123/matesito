@@ -400,31 +400,32 @@ app.post('/followUser', (req, res) => {
     const { followerId, followedId } = req.body;
 
     if (!followerId || !followedId) {
-        return res.status(400).json('Datos incompletos');
+        return res.status(400).json({ message: 'Datos incompletos' });
     }
 
     const checkQuery = 'SELECT * FROM seguir WHERE follower_id = $1 AND followed_id = $2';
     db.query(checkQuery, [followerId, followedId], (err, result) => {
         if (err) {
             console.error('Error al verificar si ya sigues a este usuario:', err);
-            return res.status(500).json('Error al verificar si ya sigues a este usuario');
+            return res.status(500).json({ message: 'Error al verificar si ya sigues a este usuario' });
         }
 
         if (result.rows.length > 0) {
-            return res.status(400).json('Ya sigues a este usuario');
+            return res.status(400).json({ message: 'Ya sigues a este usuario' });
         }
 
         const insertQuery = 'INSERT INTO seguir (follower_id, followed_id, forum_id, created_at) VALUES ($1, $2, NULL, $3)';
         db.query(insertQuery, [followerId, followedId, new Date().toISOString()], (err) => {
             if (err) {
                 console.error('Error al seguir al usuario:', err);
-                return res.status(500).json('Error al seguir al usuario');
+                return res.status(500).json({ message: 'Error al seguir al usuario' });
             }
 
             res.status(201).json({ message: 'Ahora sigues a este usuario' });
         });
     });
 });
+
 
 app.get('/followedUsers/:followerId', (req, res) => {
     const { followerId } = req.params;

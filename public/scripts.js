@@ -336,7 +336,7 @@ function loadForos() {
 function joinForum(forumId) {
     // Asegúrate de que 'users.id' esté correctamente definido en tu aplicación
     const data = {
-        userId: users.id, // ID del usuario activo
+        userId: users[activeUser].id, // ID del usuario activo
         forumId: forumId  // ID del foro que se pasa como parámetro
     };
 
@@ -365,7 +365,7 @@ function joinForum(forumId) {
 }
 
 function loadUserForums() {
-    const userId = users.id;
+    const userId = users[activeUser].id;
 
     fetch(`https://matesitotest.onrender.com/userForums/${userId}`)
         .then(response => response.json())
@@ -716,26 +716,38 @@ function viewProfile(username) {
 
 // Función para seguir al usuario
 function followUser(userId) {
-    const followerId = users[activeUser].id;  // El ID del usuario que está siguiendo
+    const followerId = users[activeUser].id; // El ID del usuario que está siguiendo
+
+    if (!followerId) {
+        alert('Error: Usuario activo no encontrado');
+        return;
+    }
 
     fetch('https://matesitotest.onrender.com/followUser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ followerId, followedId: userId })
     })
-    .then(response => response.json())
+    .then(response => {
+        return response.json().then(data => {
+            if (!response.ok) {
+                throw new Error(data.message || 'Error desconocido');
+            }
+            return data;
+        });
+    })
     .then(data => {
-        console.log(data.message);
-        alert(data.message); // Mensaje de éxito
+        alert(data.message); // Mensaje del backend
     })
     .catch(error => {
         console.error('Error al seguir al usuario:', error);
-        alert('Error al seguir al usuario');
+        alert(error.message || 'Error al seguir al usuario');
     });
 }
 
+
 function loadFollowedUsers() {
-    const followerId = users.id; // ID del usuario activo
+    const followerId = users[activeUser].id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/followedUsers/${followerId}`)
         .then(response => response.json())
