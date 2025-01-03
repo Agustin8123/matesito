@@ -435,7 +435,7 @@ app.get('/followedUsers/:followerId', (req, res) => {
     }
 
     const query = `
-        SELECT u.id, u.username
+        SELECT u.id, u.username, u.image AS profilePicture
         FROM users u
         INNER JOIN seguir s ON u.id = s.followed_id
         WHERE s.follower_id = $1
@@ -450,6 +450,7 @@ app.get('/followedUsers/:followerId', (req, res) => {
         res.status(200).json(result.rows);
     });
 });
+
 
 // Crear un chat privado
 app.post('/createPrivateChat', (req, res) => {
