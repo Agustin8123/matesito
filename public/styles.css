@@ -67,10 +67,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
-            justify-content: center;
-            align-items: center;
+            align-items: center; /* Alineación vertical */
+            justify-content: center; /* Alineación horizontal */
+            z-index: 1000;
         }
         .username-box, .user-select-box {
             background-color: #333;
@@ -265,6 +266,12 @@
     gap: 0px; /* Espaciado entre logo y texto */
 }
 
+.mid-section {
+
+    align-items:center;
+
+}
+
 .nav-buttons {
     display: flex; /* Alinea los botones horizontalmente */
     gap: 15px; /* Espaciado entre botones */
@@ -354,6 +361,7 @@
     font-size: 15px; /* Ajusta el tamaño de fuente para que no quede muy grande */
     margin-bottom: 6px;
 }
+
 .dropdown-menu {
     display: none; /* Oculto por defecto */
     position: absolute;
@@ -546,6 +554,137 @@
         100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
     
+    .search-menu {
+        display: none; /* Oculto por defecto */
+        position: absolute;
+        background-color: #333;
+        width: 15opx;
+        height: auto;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        margin-left: -180px;
+        margin-top: 30px;
+        border-radius: 8px; 
+        padding: 10px;
+    }
+
+            /* Estilo de los elementos del menú */
+            .search-menu a {
+                color: black;
+                padding: 10px 10px;
+                text-decoration: none;
+                display: block;
+            }
+    
+            /* Cambia el color al pasar el mouse */
+            .search-menu a:hover {
+                background-color: #ddd;
+            }
+    
+            /* Estilo contenedor general para alinear */
+            .search-container {
+                position: relative;
+                display: inline-block;
+            }
+
+            .icone.lupa {
+                display: inline-block;  /* Hacemos que se comporte como un elemento en línea */
+                width: 12px;  /* Tamaño más pequeño */
+                height: 12px;  /* Tamaño más pequeño */
+                border: 2px solid black;  /* Borde más delgado */
+                border-radius: 50%;  /* Asegura que sea redondo */
+                position: relative;
+                vertical-align: middle;  /* Alineación vertical centrada */
+            }
+            
+            .icone.lupa:after {
+                position: absolute;
+                width: 70%;  /* Aún más pequeño, proporcional al tamaño reducido */
+                height: 2px;  /* Más delgado para el mango */
+                background-color: black;
+                display: block;
+                content: "";
+                top: 50%;
+                left: 50%;
+                transform: rotate(45deg);
+                transform-origin: -2px 9px;
+            }
+
+            
+            
+            /* Caja principal */
+            .forum-box {
+                background-color: #333;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                width: 300px;
+                max-width: 90%;
+            }
+            
+            /* Campos de entrada */
+            .forum-box input,
+            .forum-box textarea {
+                padding: 10px;
+                width: 80%;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                background-color: #fff;
+                color: #333;
+                font-size: 14px;
+                resize: none; /* Evita redimensionar el textarea */
+            }
+            
+            /* Botones */
+            .forum-box button {
+                background-color: #800020; /* Color bordó */
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 10px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background 0.3s ease;
+            }
+            
+            .forum-box button:hover {
+                background-color: #a00025; /* Color bordó más claro */
+            }
+
+            .foro {
+                background-color: #333;
+                color: white;
+                padding: 20px;
+                margin-bottom: 15px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .foro h2 {
+                font-size: 24px;
+                margin: 0;
+            }
+            
+            .foro p {
+                margin: 10px 0;
+                font-size: 16px;
+            }
+            
+            .foro button {
+                background-color: #800020; /* Color bordó */
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 10px;
+                cursor: pointer;
+            }
+            
+            .foro button:hover {
+                background-color: #a10033; /* Color más claro al pasar el mouse */
+            }
+
 /* para la configuracion de cuentas*/
 
 .user-settings {

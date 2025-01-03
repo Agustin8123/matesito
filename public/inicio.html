@@ -18,8 +18,70 @@
             </label>
         </div>
     
+        <div class="mid-section">
+            <label class="button" style=" margin-left: -655px; " onclick="toggleRightMenu()">Menu</label>
+
+            <div class="dropdown-menu"  id="rightMenu" style="left: 360px; margin-top: 5px;">
+                <label for="General" class="boton">General</label>
+                <input type="radio" id="General" name="nav" style="display:none;" onclick="loadposts()">
+
+                <label for="Foros" class="boton">Foros</label>
+                    <input type="radio" id="Foros" name="nav" style="display:none;" onclick="toggleForumMenu()"> 
+                <div id="forumSubMenu" class="dropdown-menu" style="left: 188px; margin-top: -82px;">
+
+                    <label for="Crearforo" class="boton">Crear Foro</label>
+                        <input type="radio" id="Crearforo" name="nav" style="display:none;" onclick="createForumMenu()">
+
+                    <!--ver foros seguidos-->
+                    <label for="forosseguidos" class="boton">Foros Seguidos</label>
+                        <input type="radio" id="forosseguidos" name="nav" style="display:none;" onclick="exploreForumMenu2()">
+                        <div id="exploreforumMenu2" class="dropdown-menu" style="left: 188px; margin-top: -99px;">
+                            <label for="Volver5" class="botonV">Volver</label>
+                                <input type="radio" id="Volver5" name="nav" style="display:none;" onclick="exploreForumMenu2()">
+
+                            <div id="forosContainer2">
+                                <!-- Los foros se renderizarán aquí -->
+                            </div>
+                        </div>
+
+                    <!--explorar foros-->
+                    <label for="explorarforos" class="boton">Explorar Foros</label>
+                        <input type="radio" id="explorarforos" name="nav" style="display:none;" onclick="exploreForumMenu()">
+                        <div id="exploreforumMenu" class="dropdown-menu" style="left: 188px; margin-top: -156px;">
+                            <label for="Volver4" class="botonV">Volver</label>
+                                <input type="radio" id="Volver4" name="nav" style="display:none;" onclick="exploreForumMenu()">
+
+                            <div id="forosContainer">
+                                <!-- Los foros se renderizarán aquí -->
+                            </div>
+                        </div>    
+                    <label for="Volver3" class="botonV">Volver</label>
+                        <input type="radio" id="Volver3" name="nav" style="display:none;" onclick="toggleForumMenu()">
+                </div>
+ 
+                <label for="Seguidos" class="boton">Usuarios Seguidos</label>
+                    <input type="radio" id="Seguidos" name="nav" style="display:none;" onclick="toggleUserMenu()"> 
+                <div id="userSubMenu" class="dropdown-menu" style=" left: 188px; margin-top: -124px;">
+                <label for="Volver2" class="botonV">Volver</label>
+                    <input type="radio" id="Volver2" name="nav" style="display:none;" onclick="toggleUserMenu()">
+                    <div id="usersContainer">
+                        <!-- Los foros se renderizarán aquí -->
+                    </div>
+                </div>
+
+                <label for="Cerrar1" class="botonV">Cerrar</label>
+                <input type="radio" id="Cerrar1" name="nav" style="display:none;" onclick="toggleRightMenu()">
+            </div>
+
+            <label for="search" class="icone lupa" style="margin-left: 30px; margin-bottom: 5px; "></label>
+                <input type="radio" id="search" name="nav" style="display:none;" onclick="toggleSearch()">
+            <div id="SearchMenu" class="search-menu" style="display: none; left: 340px; margin-top: 5px;">
+                <input type="text" id="searchInput" placeholder="Buscar..." oninput="searchPosts()"></input>     
+            </div>
+        </div>
+        
         <div class="right-section">
-            <button onclick="toggleMenu()">Seleccionar Usuario</button>
+            <button id="userButton" onclick="toggleMenu()">Seleccionar Usuario</button>
 
             <div class="dropdown-menu" id="dropdownMenu">
                 <label for="Cambiar usuario" class="boton" onclick="toggleSubMenu2()">Usuario</label>
@@ -124,6 +186,20 @@
     </div>
 </div>
 
+<div class="overlay" id="createForumOverlay" style="display: none;">
+    <div class="forum-box">
+        <!-- Campo para el nombre del foro -->
+        <input type="text" id="forumName" placeholder="Nombre del Foro">
+        
+        <!-- Campo para la descripción del foro -->
+        <textarea id="forumDescription" placeholder="Descripción del Foro"></textarea>
+        
+        <!-- Botones -->
+        <button onclick="createForum()">Crear Foro</button>
+        <button onclick="createForumMenu()">Volver</button>
+    </div>
+</div>
+
 <div class="overlay" id="userSelectOverlay" style="display: none;">
     <div class="user-select-box">
         <input type="text" id="newUsernameInput" placeholder="Nuevo usuario">
@@ -151,6 +227,7 @@
     </div>
 </div>
 <script src="scripts.js"></script>
+<script src="scripts2.js"></script>
 <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
