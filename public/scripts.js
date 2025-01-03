@@ -810,7 +810,7 @@ function loadFollowedUsers() {
         })
         .catch(error => {
             console.error('Error al cargar los usuarios seguidos:', error);
-            alert('Error al cargar los usuarios seguidos');
+            alert('Error al cargar los usuarios seguidos ');
         });
 }
 
