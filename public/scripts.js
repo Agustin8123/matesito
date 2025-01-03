@@ -769,8 +769,7 @@ function loadFollowedUsers() {
                     userElement.classList.add('user');
 
                     userElement.innerHTML = `
-                        <h3>${user.name}</h3>
-                        <p>${user.email}</p>
+                        <h3>${user.username}</h3>
                     `;
 
                     container.appendChild(userElement);
