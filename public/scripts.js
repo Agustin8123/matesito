@@ -689,6 +689,7 @@ function viewProfile(username) {
 
     // Mostrar el contenedor de posts (si estaba oculto)
     document.getElementById('appContainer').style.display = 'block';
+    console.log("cargando posts de ", username)
 
     // Cargar los posts del usuario
     fetch(`https://matesitotest.onrender.com/posts/user/${username}`)
