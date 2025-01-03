@@ -771,11 +771,11 @@ function loadFollowedUsers() {
                     userElement.innerHTML = `
                         <div class="boton">
                             <img src="${user.profilePicture}"/>
-                            <span class="username" onclick="toggleUserProfileBox(event, '${username}', ${userId})">${username}:</span>
+                            <span class="username" onclick="toggleUserProfileBox(event, '${user.username}', ${user.userId})">${user.username}:</span>
                          </div>
-                        <div class="user-profile-box" id="userProfileBox_${username}" style="display:none;">
-                            <button onclick="viewProfile('${username}')">Ver perfil</button>
-                            <button onclick="followUser(${userId})">Seguir</button>
+                        <div class="user-profile-box" id="userProfileBox_${user.username}" style="display:none;">
+                            <button onclick="viewProfile('${user.username}')">Ver perfil</button>
+                            <button onclick="followUser(${user.userId})">Seguir</button>
                         </div>
                     `;
 
