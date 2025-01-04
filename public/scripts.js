@@ -946,7 +946,7 @@ function loadFollowedUsers() {
 function searchMotor() {
     const query = document.getElementById('searchInput').value;
 
-    if (query.length < 3) {  // Para evitar búsquedas demasiado cortas
+    if (query.length < 1 ) {  // Para evitar búsquedas demasiado cortas
         return;
     }
 
@@ -974,8 +974,9 @@ function searchMotor() {
             data.usuarios.forEach(user => {
                 const userElement = document.createElement('div');
                 userElement.innerHTML = `
-                    <p><strong>Usuario:</strong> ${user.username}</p>
-                    <img src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username}" />
+                    <p><strong>Usuario:</strong><img  src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username} class="profile-picture""/>
+                    <p>${user.username}</p>
+                    
                 `;
                 searchContainer.appendChild(userElement);
             });
