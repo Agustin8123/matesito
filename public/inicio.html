@@ -19,7 +19,7 @@
         </div>
     
         <div class="mid-section">
-            <label class="button" style=" margin-left: -655px; " onclick="toggleRightMenu()">Menu</label>
+            <label class="button" style=" margin-left: -655px; position: fixed;" onclick="toggleRightMenu()">Menu</label>
 
             <div class="dropdown-menu"  id="rightMenu" style="left: 360px; margin-top: 5px;">
                 <label for="General" class="boton">General</label>
@@ -65,7 +65,7 @@
                 <label for="Volver2" class="botonV">Volver</label>
                     <input type="radio" id="Volver2" name="nav" style="display:none;" onclick="toggleUserMenu()">
                     <div id="usersContainer">
-                        <!-- Los foros se renderizarán aquí -->
+                        <!-- Los foros se renderizarán        aquí -->
                     </div>
                 </div>
 
@@ -73,7 +73,7 @@
                 <input type="radio" id="Cerrar1" name="nav" style="display:none;" onclick="toggleRightMenu()">
             </div>
 
-            <label for="search" class="icone lupa" style="margin-left: 30px; margin-bottom: 5px; "></label>
+            <label for="search" class="icone lupa" style="margin-left: 30px; margin-bottom: 5px; position: fixed;"></label>
                 <input type="radio" id="search" name="nav" style="display:none;" onclick="toggleSearch()">
             <div id="SearchMenu" class="search-menu" style="display: none; left: 340px; margin-top: 5px;">
                 <input type="text" id="searchInput" placeholder="Buscar..." oninput="searchPosts()"></input>     
