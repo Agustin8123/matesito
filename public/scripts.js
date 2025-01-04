@@ -945,15 +945,17 @@ function loadFollowedUsers() {
 
 function searchMotor() {
     const query = document.getElementById('searchInput').value;
+    const searchContainer = document.getElementById('searchconteiner');
 
-    if (query.length < 1) { // Para evitar búsquedas demasiado cortas
-        return;
+    // Si el campo está vacío, limpiar y salir
+    if (query.trim().length < 1) { 
+        searchContainer.innerHTML = ''; // Limpiar resultados
+        return; // Detener la ejecución
     }
 
     fetch(`/search?query=${query}`)
         .then(response => response.json())
         .then(data => {
-            const searchContainer = document.getElementById('searchconteiner');
             searchContainer.innerHTML = ''; // Limpiar resultados previos
 
             if (data.foros.length === 0 && data.usuarios.length === 0) {
