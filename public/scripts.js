@@ -974,7 +974,7 @@ function searchMotor() {
             data.usuarios.forEach(user => {
                 const userElement = document.createElement('div');
                 userElement.innerHTML = `
-                    <p><strong>Usuario:</strong><img  src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username} class="profile-picture""/>
+                    <p><strong>Usuario:</strong><img  src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username}" class="profile-picture"/>
                     <p>${user.username}</p>
                     
                 `;
