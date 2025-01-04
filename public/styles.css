@@ -267,9 +267,10 @@
 }
 
 .mid-section {
-
-    align-items:center;
-
+    position: fixed;        /* Fija el elemento en la pantalla */
+    left: 150px;               /* Lo coloca en la esquina derecha */
+    top: 60;                 /* Lo coloca en la parte superior de la pantalla */
+    z-index: 1000;
 }
 
 .nav-buttons {
