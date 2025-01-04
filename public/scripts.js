@@ -404,17 +404,14 @@ function joinForum(forumId) {
     .then(response => response.json())
     .then(data => {
         if (data.message) {
-            alert(data.message); // Muestra un mensaje de éxito
-            const button = document.getElementById(`joinForumButton_${forumId}`);
-            button.disabled = true; // Deshabilita el botón para evitar unirse múltiples veces
-            button.innerText = 'Unido al Foro'; // Cambia el texto del botón
+            alert(data.message); // Muestra el mensaje recibido desde el backend
         } else {
-            alert('Error al unirse al foro');
+            alert('Error desconocido al procesar la solicitud'); // Mensaje por defecto si no hay mensaje
         }
     })
     .catch((error) => {
         console.error('Error:', error);
-        alert('Error al procesar la solicitud');
+        alert('Error al procesar la solicitud'); // Mensaje de error general
     });
 }
 
