@@ -345,31 +345,32 @@ app.post('/joinForum', (req, res) => {
     const { userId, forumId } = req.body;
 
     if (!userId || !forumId) {
-        return res.status(400).json('Datos incompletos');
+        return res.status(400).json({ message: 'Datos incompletos' }); // Mensaje claro
     }
 
     const checkQuery = 'SELECT * FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = false';
     db.query(checkQuery, [userId, forumId], (err, result) => {
         if (err) {
             console.error('Error al verificar la participación en el foro:', err);
-            return res.status(500).json('Error al verificar la participación');
+            return res.status(500).json({ message: 'Error al verificar la participación' }); // Mensaje de error
         }
 
         if (result.rows.length > 0) {
-            return res.status(400).json('Ya estás participando en este foro');
+            return res.status(400).json({ message: 'Ya estás participando en este foro' }); // Mensaje de advertencia
         }
 
         const insertQuery = 'INSERT INTO participantes (user_id, forum_or_group_id, is_group, joined_at) VALUES ($1, $2, false, $3)';
         db.query(insertQuery, [userId, forumId, new Date().toISOString()], (err) => {
             if (err) {
                 console.error('Error al unirse al foro:', err);
-                return res.status(500).json('Error al unirse al foro');
+                return res.status(500).json({ message: 'Error al unirse al foro' }); // Mensaje de error
             }
 
-            res.status(201).json({ message: 'Unido al foro con éxito' });
+            res.status(201).json({ message: 'Unido al foro con éxito' }); // Mensaje de éxito
         });
     });
 });
+
 
 app.get('/userForums/:userId', (req, res) => {
     const { userId } = req.params;
