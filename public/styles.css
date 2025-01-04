@@ -453,12 +453,11 @@
 
         .SearchContainer.forum-item {
             cursor: pointer; /* Cambiar el cursor a pointer */
-            transition: all 0.3s ease; /* Animación suave */
+            transition: all 0.2s ease; /* Animación suave */
         }
         
         .SearchContainer.forum-item:hover {
             text-decoration: underline; /* Subrayar al pasar el mouse */
-            color: #007BFF; /* Cambiar el color opcionalmente */
         }
         
 
