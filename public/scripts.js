@@ -689,19 +689,13 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 }
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
-function toggleUserProfileBox(event, username) {
-    const profileBox = document.getElementById(`userProfileBox_${username}`);
-    const isVisible = profileBox.style.display === 'block';
-
-    // Ocultar todos los cuadros de perfil
-    const allProfileBoxes = document.querySelectorAll('.user-profile-box');
-    allProfileBoxes.forEach(box => box.style.display = 'none');
-
-    // Si el cuadro estaba oculto, mostrarlo
-    if (!isVisible) {
-        profileBox.style.display = 'block';
+function toggleUserProfileBox(uniqueId) {
+    const userProfileBox = document.getElementById(uniqueId);
+    if (userProfileBox) {
+        userProfileBox.style.display = userProfileBox.style.display === 'none' ? 'block' : 'none';
     }
 }
+
 
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
