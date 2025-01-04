@@ -665,7 +665,6 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     postList.insertBefore(newpost, postList.firstChild);
 }
 
-
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
 function toggleUserProfileBox(event, username) {
     const profileBox = document.getElementById(`userProfileBox_${username}`);
