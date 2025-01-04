@@ -793,9 +793,6 @@ function toggleUserProfileBox(uniqueId) {
     }
 }
 
-
-
-
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
 function viewProfile(username, loadAll) {
     // Obtener referencias a los contenedores
@@ -945,6 +942,50 @@ function loadFollowedUsers() {
             alert('Error al cargar los usuarios seguidos');
         });
 }
+
+function searchMotor() {
+    const query = document.getElementById('searchInput').value;
+
+    if (query.length < 3) {  // Para evitar búsquedas demasiado cortas
+        return;
+    }
+
+    fetch(`/search?query=${query}`)
+        .then(response => response.json())
+        .then(data => {
+            const searchContainer = document.getElementById('searchconteiner');
+            searchContainer.innerHTML = '';  // Limpiar resultados previos
+
+            if (data.foros.length === 0 && data.usuarios.length === 0) {
+                searchContainer.innerHTML = '<p>No se encontraron resultados.</p>';
+            }
+
+            // Mostrar foros
+            data.foros.forEach(foro => {
+                const foroElement = document.createElement('div');
+                foroElement.innerHTML = `
+                    <p><strong>Foro:</strong> ${foro.name}</p>
+                    <p>${foro.description}</p>
+                `;
+                searchContainer.appendChild(foroElement);
+            });
+
+            // Mostrar usuarios
+            data.usuarios.forEach(user => {
+                const userElement = document.createElement('div');
+                userElement.innerHTML = `
+                    <p><strong>Usuario:</strong> ${user.username}</p>
+                    <img src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username}" />
+                `;
+                searchContainer.appendChild(userElement);
+            });
+        })
+        .catch(error => {
+            console.error('Error al buscar:', error);
+            alert('Error al procesar la búsqueda');
+        });
+}
+
 
 // Llamar a loadposts al cargar la página
 window.onload = verMant(mantenimiento);
