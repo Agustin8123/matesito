@@ -444,6 +444,11 @@
             margin-top: 5px;
         }
 
+        .SearchContainer {
+            display: flex; /* Usa flexbox para alinear horizontalmente la imagen y el texto */
+            max-width: 300px; /* Establece un máximo para el ancho del contenedor */
+            word-wrap: break-word; /* Permite que las palabras largas se corten */
+        }
 
         .profile-picture {
             width: 40px;
