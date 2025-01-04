@@ -285,50 +285,45 @@ function createUserInDatabase(username, password, profileImageURL) {
 }
 
 function createForum() {
-    // Función para enviar el formulario y crear el foro
-    document.getElementById('createForumForm').addEventListener('submit', function(event) {
-        event.preventDefault();  // Evitar el envío tradicional del formulario
+    const forumName = document.getElementById('forumName').value;
+    const forumDescription = document.getElementById('forumDescription').value;
+    const ownerId = users[activeUser].id;
 
-        const forumName = document.getElementById('forumName').value;
-        const forumDescription = document.getElementById('forumDescription').value;
-        const ownerId = document.getElementById('ownerId').value;
+    // Validación simple
+    if (!forumName || !forumDescription || !ownerId) {
+        alert("Por favor, completa todos los campos.");
+        return;
+    }
 
-        // Validación simple
-        if (!forumName || !forumDescription || !ownerId) {
-            alert("Por favor, completa todos los campos.");
-            return;
+    // Crear el objeto de datos a enviar
+    const forumData = {
+        name: forumName,
+        description: forumDescription,
+        ownerId: parseInt(ownerId),  // Asegurarse de que el ID sea un número
+    };
+
+    // Enviar la solicitud al backend
+    fetch('https://matesitotest.onrender.com/foros', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(forumData),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al crear el foro');
         }
-
-        // Crear el objeto de datos a enviar
-        const forumData = {
-            name: forumName,
-            description: forumDescription,
-            ownerId: parseInt(ownerId),  // Asegurarse de que el ID sea un número
-        };
-
-        // Enviar la solicitud al backend
-        fetch('https://matesitotest.onrender.com/foros', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(forumData),
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error al crear el foro');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Mostrar un mensaje de éxito
-            document.getElementById('responseMessage').textContent = `Foro creado exitosamente: ${data.name}`;
-            document.getElementById('createForumForm').reset();  // Limpiar el formulario
-        })
-        .catch(error => {
-            // Mostrar un mensaje de error
-            document.getElementById('responseMessage').textContent = `Error: ${error.message}`;
-        });
+        return response.json();
+    })
+    .then(data => {
+        // Mostrar un mensaje de éxito y cerrar el overlay
+        alert(`Foro creado exitosamente: ${data.name}`);
+        createForumMenu();  // Cerrar el overlay
+    })
+    .catch(error => {
+        // Mostrar un mensaje de error
+        alert(`Error: ${error.message}`);
     });
 }
 
