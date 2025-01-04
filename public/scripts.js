@@ -462,7 +462,7 @@ function loadUserForums() {
                 container.appendChild(noForumsMessage);
             } else {
                 // Renderizamos los foros
-                forums.forEach(forum => {
+                forums.forEach(foro => {
                     const forumElement = document.createElement('div');
                     forumElement.classList.add('user');
 
