@@ -98,6 +98,11 @@ function toggle_UserMenu(user) {
     deactivateAllDivs();
 }
 
+function toggle_ForumMenu(forum) {
+    toggleVisibility1(forum);
+    deactivateAllDivs();
+}
+
 // Overlay inicial
 function Acept() {
     document.getElementById('initialOverlay').style.display = 'flex';

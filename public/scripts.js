@@ -350,9 +350,21 @@ function loadForos() {
 
                     // Creamos la estructura del foro (nombre, descripción y botón para unirse)
                     foroElement.innerHTML = `
+                    <label for="${foro.name}" class="boton">
                         <h2>${foro.name}</h2>
                         <p>${foro.description}</p>
-                        <button id="joinForumButton_${foro.id}" onclick="joinForum(${foro.id})">Unirse al Foro</button>
+                    </label>
+                    <input type="radio" id="${foro.name}" name="nav" style="display:none;" onclick="toggle_ForumMenu(${foro.name})">
+                        <div id="${foro.name}" class="dropdown-menu" style=" position: fixed; left: 367px; top: 66px;">
+                            <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
+                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="viewForum('${foro.id}')">
+
+                            <label for="${foro.id}${foro.name}${foro.id}" class="boton">Seguir Foro</label>
+                                <input type="radio" id="${foro.id}${foro.name}${foro.id}" name="nav" style="display:none;" onclick="joinForum(${foro.id})">
+
+                            <label for="${foro.id}" class="botonV">Volver</label>
+                                <input type="radio" id="${foro.id}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
+                        </div>
                     `;
 
                     // Agregamos el foro al contenedor
