@@ -533,27 +533,15 @@ function goBackToInitial() {
 let showSensitiveContent = false;
 
 function buttonsState() {
+    // Obtener referencias a los contenedores directamente dentro de la función
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
 
     if (profileList.style.display === 'block') {
-        if (loadAll= true) {
-            const username = document.getElementById('currentProfileUsername').value; // Asegúrate de tener un input oculto para almacenar el username actual
-            viewProfile(username, loadAll);
-        } else {
-            const username = document.getElementById('currentProfileUsername').value; // Asegúrate de tener un input oculto para almacenar el username actual
-            viewProfile(username);
-        }
-        
-    } else {
-        if (postList.style.display === 'block') {
-            if (loadAll == true) {
-                loadposts(loadAll); togglePosts();
-            }
-            else {
-                loadposts(); togglePosts();
-            }
-        }  
+        const username = document.getElementById('currentProfileUsername').value; // Obtener el username actual
+        viewProfile(username, loadAll); // Llamar a viewProfile con el estado de loadAll
+    } else if (postList.style.display === 'block') {
+        loadposts(loadAll); // Llamar a loadposts con el estado de loadAll
     }
 }
 
@@ -568,6 +556,7 @@ function toggleSensitiveContent() {
         ? 'Ocultar contenido sensible'
         : 'Mostrar contenido sensible';
 
+    // Llamar a buttonsState para recargar los posts según el estado actual
     buttonsState();
 
     console.log(showSensitiveContent);
@@ -580,8 +569,10 @@ function togglePostLoad() {
     // Cambiar texto del botón basado en el estado
     button.textContent = loadAll ? 'Mostrar solo los últimos 12 posts' : 'Cargar todos los posts';
 
+    // Llamar a buttonsState para recargar los posts según el estado actual
     buttonsState();
 }
+
 
 // Función para cargar los posts
 // Función para cargar los posts
