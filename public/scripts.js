@@ -793,7 +793,7 @@ function loadFollowedUsers() {
                     userElement.innerHTML = `
                     <label for="${username}" class="boton">${user.username}</label>
                         <input type="radio" id="${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
-                        <div id="${Id}" class="dropdown-menu" style="grid-template-rows: auto auto; position: relative;">
+                        <div id="${Id}" class="dropdown-menu" style="left: 188px; position: relative;">
                             <label for="${username}${Id}" class="boton">Ver perfil</label>
                                 <input type="radio" id="${username}${Id}" name="nav" style="display:none;" onclick="viewProfile('${username}')">
                             <label for="${Id}${username}${Id}" class="boton">Dejar de seguir</label>
