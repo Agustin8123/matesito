@@ -543,8 +543,20 @@ function toggleSensitiveContent() {
         ? 'Ocultar contenido sensible'
         : 'Mostrar contenido sensible';
 
-    // Recargar los posts con el filtro actualizado
-    loadposts();viewProfile();
+    // Verificar qué lista está activa y recargar los posts
+    const profileList = document.getElementById('profileList');
+    const postList = document.getElementById('postList');
+
+    if (profileList.style.display === 'block') {
+        // Si está visible la lista de perfil
+        const username = document.getElementById('currentProfileUsername').value; // Asegúrate de tener un input oculto para almacenar el username actual
+        viewProfile(username);
+    } else {
+        if (postList.style.display === 'block') {
+            loadposts();
+        }  
+    }
+
     console.log(showSensitiveContent);
 }
 
@@ -692,8 +704,20 @@ function viewProfile(username) {
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
 
+    // Guardar el username actual en un input oculto
+    let currentProfileUsername = document.getElementById('currentProfileUsername');
+    if (!currentProfileUsername) {
+        currentProfileUsername = document.createElement('input');
+        currentProfileUsername.type = 'hidden';
+        currentProfileUsername.id = 'currentProfileUsername';
+        document.body.appendChild(currentProfileUsername);
+    }
+    currentProfileUsername.value = username;
+
+    // Limpiar el contenido de la lista de perfil
     profileList.innerHTML = '';
 
+    // Mostrar el contenedor de perfil y ocultar el de publicaciones
     profileList.style.display = 'block';
     postList.style.display = 'none';
 
