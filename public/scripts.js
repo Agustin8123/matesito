@@ -562,6 +562,15 @@ function togglePostLoad() {
 // Función para cargar los posts
 // Función para cargar los posts
 function loadposts(loadAll) {
+
+    const profileList = document.getElementById('profileList');
+    const postList = document.getElementById('postList');
+
+    profileList.innerHTML = '';
+
+    profileList.style.display = 'none';
+    postList.style.display = 'block';
+
     console.log("Cargando posts...");
     fetch('https://matesitotest.onrender.com/posts')
         .then(response => {
@@ -572,7 +581,6 @@ function loadposts(loadAll) {
         })
         .then(posts => {
             const postList = document.getElementById('postList');
-            // Invertir el array para que los más recientes estén primero
             const reversedPosts = posts;
 
             // Determinar cuántos posts renderizar
@@ -587,7 +595,7 @@ function loadposts(loadAll) {
                 if (!showSensitiveContent && sensitive === true) return;
 
                 if (content && username) {
-                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId);
+                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postList);
                 } else {
                     console.warn('Post inválido omitido:', post);
                 }
@@ -599,8 +607,14 @@ function loadposts(loadAll) {
 }
 
 // Agregar un post a la lista
-function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId) {
-    const postList = document.getElementById('postList');
+function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, listId) {
+    // Seleccionar la lista donde se insertará el post usando listId
+    const postList = document.getElementById(listId);
+    if (!postList) {
+        console.error(`No se encontró el contenedor con id "${listId}".`);
+        return;
+    }
+
     const newpost = document.createElement('li');
     newpost.className = 'post';
 
@@ -680,15 +694,21 @@ function toggleUserProfileBox(event, username) {
     }
 }
 
+
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
 function viewProfile(username) {
-    // Limpiar los posts actuales
+    // Obtener referencias a los contenedores
+    const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
-    postList.innerHTML = '';
 
-    // Mostrar el contenedor de posts (si estaba oculto)
-    document.getElementById('appContainer').style.display = 'block';
-    console.log("cargando posts de ", username)
+    // Limpiar el contenido de la lista de perfil
+    profileList.innerHTML = '';
+
+    // Mostrar el contenedor de perfil y ocultar el de publicaciones
+    profileList.style.display = 'block';
+    postList.style.display = 'none';
+
+    console.log("Cargando posts de", username);
 
     // Cargar los posts del usuario
     fetch(`https://matesitotest.onrender.com/posts/user/${username}`)
@@ -700,11 +720,11 @@ function viewProfile(username) {
         })
         .then(posts => {
             posts.forEach(post => {
-                const { content, media, mediaType, username, profilePicture, sensitive, createdAt } = post;
-                // Filtrar contenido sensible
+                const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId } = post;
+                // Filtrar contenido sensible si es necesario
                 if (!showSensitiveContent && sensitive === true) return;
                 if (content && username) {
-                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt);
+                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, 'profileList');
                 }
             });
         })
@@ -712,7 +732,6 @@ function viewProfile(username) {
             console.error("Error al cargar los posts del usuario:", error);
         });
 }
-
 
 // Función para seguir al usuario
 function followUser(userId) {
