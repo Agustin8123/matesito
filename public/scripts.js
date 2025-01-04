@@ -969,6 +969,10 @@ function searchMotor() {
                 foroElement.innerHTML = `
                     <p><strong>Foro:</strong> ${foro.name}</p>
                 `;
+                // Agregar manejador de clic para el foro
+                foroElement.addEventListener('click', () => {
+                    viewForum(foro.id); // Llamar a la función con el ID del foro
+                });
                 searchContainer.appendChild(foroElement);
             });
 
@@ -982,6 +986,10 @@ function searchMotor() {
                         <span class="username">${user.username}</span>
                     </div>
                 `;
+                // Agregar manejador de clic para el usuario
+                userElement.addEventListener('click', () => {
+                    viewProfile(user.username); // Llamar a la función con el nombre de usuario
+                });
                 searchContainer.appendChild(userElement);
             });
         })
