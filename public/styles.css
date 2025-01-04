@@ -447,6 +447,7 @@
         .SearchContainer {
             display: flex;
             width: 130px;
+            max-width: 130px;
             height: auto;
             word-wrap: break-word;
         }
