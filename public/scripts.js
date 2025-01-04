@@ -964,8 +964,7 @@ function searchMotor() {
             data.foros.forEach(foro => {
                 const foroElement = document.createElement('div');
                 foroElement.innerHTML = `
-                    <p><strong>Foro:</strong> ${foro.name}</p>
-                    <p>${foro.description}</p>
+                    <p><strong>Foro:</strong>${foro.name}</p>
                 `;
                 searchContainer.appendChild(foroElement);
             });
@@ -975,7 +974,7 @@ function searchMotor() {
                 const userElement = document.createElement('div');
                 userElement.innerHTML = `
                     <p><strong>Usuario:</strong><img  src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username}" class="profile-picture"/>
-                    <p>${user.username}</p>
+                    ${user.username}</p>
                     
                 `;
                 searchContainer.appendChild(userElement);
