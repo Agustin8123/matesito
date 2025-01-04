@@ -371,6 +371,36 @@ app.post('/joinForum', (req, res) => {
     });
 });
 
+app.post('/leaveForum', (req, res) => {
+    const { userId, forumId } = req.body;
+
+    if (!userId || !forumId) {
+        return res.status(400).json({ message: 'Datos incompletos' }); // Mensaje claro
+    }
+
+    const checkQuery = 'SELECT * FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = false';
+    db.query(checkQuery, [userId, forumId], (err, result) => {
+        if (err) {
+            console.error('Error al verificar la participación en el foro:', err);
+            return res.status(500).json({ message: 'Error al verificar la participación' }); // Mensaje de error
+        }
+
+        if (result.rows.length === 0) {
+            return res.status(400).json({ message: 'No estás participando en este foro' }); // Mensaje de advertencia
+        }
+
+        const deleteQuery = 'DELETE FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = false';
+        db.query(deleteQuery, [userId, forumId], (err) => {
+            if (err) {
+                console.error('Error al desunirse del foro:', err);
+                return res.status(500).json({ message: 'Error al desunirse del foro' }); // Mensaje de error
+            }
+
+            res.status(200).json({ message: 'Desunido del foro con éxito' }); // Mensaje de éxito
+        });
+    });
+});
+
 
 app.get('/userForums/:userId', (req, res) => {
     const { userId } = req.params;

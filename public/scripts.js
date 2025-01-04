@@ -353,12 +353,12 @@ function loadForos() {
                     <label for="${foro.id}${foro.name}" class="boton">${foro.name}</label>
                     <input type="radio" id="${foro.id}${foro.name}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
                         <div id="${foro.name}" class="dropdown-menu" style=" position: fixed; left: 367px; top: 66px;">
-                        <h2>${foro.name}</h2>
-                        <p>${foro.description}</p>
+                        <h2 style="margin-top: -5px;">${foro.name}</h2>
+                        <p style="margin-top: -10px;">${foro.description}</p>
                             <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
                                 <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="viewForum('${foro.id}')">
 
-                            <label for="${foro.id}${foro.name}${foro.id}" class="boton">Seguir Foro</label>
+                            <label for="${foro.id}${foro.name}${foro.id}" class="boton">Seguir foro</label>
                                 <input type="radio" id="${foro.id}${foro.name}${foro.id}" name="nav" style="display:none;" onclick="joinForum(${foro.id})">
 
                             <label for="${foro.id}" class="botonV">Volver</label>
@@ -415,6 +415,35 @@ function joinForum(forumId) {
     });
 }
 
+function leaveForum(forumId) {
+    // Asegúrate de que 'users.id' esté correctamente definido en tu aplicación
+    const data = {
+        userId: users[activeUser].id, // ID del usuario activo
+        forumId: forumId  // ID del foro que se pasa como parámetro
+    };
+
+    fetch('https://matesitotest.onrender.com/leaveForum', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message); // Muestra el mensaje recibido desde el backend
+        } else {
+            alert('Error desconocido al procesar la solicitud'); // Mensaje por defecto si no hay mensaje
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('Error al procesar la solicitud'); // Mensaje de error general
+    });
+}
+
+
 function loadUserForums() {
     const userId = users[activeUser].id;
 
@@ -435,11 +464,23 @@ function loadUserForums() {
                 // Renderizamos los foros
                 forums.forEach(forum => {
                     const forumElement = document.createElement('div');
-                    forumElement.classList.add('foro');
+                    forumElement.classList.add('user');
 
                     forumElement.innerHTML = `
-                        <h2>${forum.name}</h2>
-                        <p>${forum.description}</p>
+                        <label for="${foro.id}${foro.name}" class="boton">${foro.name}</label>
+                    <input type="radio" id="${foro.id}${foro.name}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
+                        <div id="${foro.name}" class="dropdown-menu" style=" position: fixed; left: 367px; top: 66px;">
+                        <h2 style="margin-top: -5px;">${foro.name}</h2>
+                        <p style="margin-top: -10px;">${foro.description}</p>
+                            <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
+                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="viewForum('${foro.id}')">
+
+                            <label for="${foro.id}${foro.name}${foro.id}" class="boton">Dejar de seguir foro</label>
+                                <input type="radio" id="${foro.id}${foro.name}${foro.id}" name="nav" style="display:none;" onclick="leaveForum(${foro.id})">
+
+                            <label for="${foro.id}" class="botonV">Volver</label>
+                                <input type="radio" id="${foro.id}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
+                        </div>
                     `;
 
                     container.appendChild(forumElement);
