@@ -320,7 +320,7 @@ app.post('/foros', (req, res) => {
 
 app.get('/foros', (req, res) => {
     const query = `
-        SELECT id, name, description FROM forums ORDER BY name;
+        SELECT id, name, description FROM foros ORDER BY name;
     `;
 
     db.query(query, (err, results) => {
