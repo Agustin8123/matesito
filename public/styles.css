@@ -460,7 +460,6 @@
             text-align: center; /* Asegura que el texto esté centrado */
             width: 100px; /* Ajusta el ancho para mantener coherencia */
             margin: 5px auto; /* Espaciado alrededor de cada usuario */
-            margin-top: 5px;
         }
         
         .profile-picture {
