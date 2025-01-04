@@ -492,7 +492,7 @@ function containsForbiddenWords(message) {
                 selectedFile = null;
                 document.getElementById('loading').style.display = 'none';
                 alert('Tu post se ha enviado correctamente');
-                loadposts();
+                loadposts();togglePosts();
             })
             .catch(error => {
                 console.error('Error al subir el archivo o enviar el post:', error);
@@ -510,7 +510,7 @@ function containsForbiddenWords(message) {
                 lastpostContent = data.content;
                 addpostToList(data.content, null, null, activeUser);
                 alert('Tu post se ha enviado correctamente');
-                loadposts();
+                loadposts();togglePosts();
             })
             .catch(error => {
                 console.error('Error al enviar el post:', error);
@@ -544,7 +544,7 @@ function toggleSensitiveContent() {
         : 'Mostrar contenido sensible';
 
     // Recargar los posts con el filtro actualizado
-    loadposts();
+    loadposts();viewProfile();
     console.log(showSensitiveContent);
 }
 
@@ -562,12 +562,6 @@ function togglePostLoad() {
 // Función para cargar los posts
 // Función para cargar los posts
 function loadposts(loadAll) {
-
-    const profileList = document.getElementById('profileList');
-    const postList = document.getElementById('postList');
-
-    profileList.style.display = 'none';
-    postList.style.display = 'block';
 
     console.log("Cargando posts...");
     fetch('https://matesitotest.onrender.com/posts')
