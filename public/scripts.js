@@ -217,6 +217,12 @@ function addNewUser() {
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
 
+    // Validar longitud del nombre de usuario
+    if (username.length > 25) {
+        alert('El nombre de usuario no puede tener más de 30 caracteres.');
+        return;
+    }
+
     if (!username || !password) {
         alert('Por favor, introduce un nombre o apodo y contraseña válidos.');
         return;
@@ -256,6 +262,7 @@ function addNewUser() {
     profileImageInput.value = ''; // Deseleccionar el archivo
 }
 
+
 function createUserInDatabase(username, password, profileImageURL) {
     const userData = {
         username,
@@ -285,9 +292,15 @@ function createUserInDatabase(username, password, profileImageURL) {
 }
 
 function createForum() {
-    const forumName = document.getElementById('forumName').value;
-    const forumDescription = document.getElementById('forumDescription').value;
+    const forumName = document.getElementById('forumName').value.trim();
+    const forumDescription = document.getElementById('forumDescription').value.trim();
     const ownerId = users[activeUser].id;
+
+    // Validar longitud del nombre del foro
+    if (forumName.length > 30) {
+        alert('El nombre del foro no puede tener más de 30 caracteres.');
+        return;
+    }
 
     // Validación simple
     if (!forumName || !forumDescription || !ownerId) {
@@ -326,6 +339,7 @@ function createForum() {
         alert(`Error: ${error.message}`);
     });
 }
+
 
 // Esta función carga los foros y los muestra en la página
 function loadForos() {
@@ -706,7 +720,6 @@ function loadposts(loadAll) {
 
 // Agregar un post a la lista
 function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, listId) {
-    // Seleccionar la lista donde se insertará el post usando listId
     const postList = document.getElementById(listId);
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
@@ -715,6 +728,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 
     const newpost = document.createElement('li');
     newpost.className = 'post';
+    newpost.style.cursor = 'pointer'; // Cambiar cursor a pointer
 
     // Convertir fecha a hora local
     const localTime = createdAt ? new Date(createdAt).toLocaleString() : '';
@@ -777,8 +791,24 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         </div>
     `;
 
+    // Agregar eventos para mover el post al hacer clic
+    newpost.addEventListener('click', () => {
+        const unicPostList = document.getElementById('unicPostList');
+        const postList = document.getElementById('postList');
+        const profileList = document.getElementById('profileList');
+
+        if (unicPostList) {
+            unicPostList.innerHTML = ''; // Limpiar la lista única
+            unicPostList.appendChild(newpost); // Mover el post a la lista única
+        }
+
+        if (postList) postList.style.display = 'none'; // Desactivar lista postList
+        if (profileList) profileList.style.display = 'none'; // Desactivar lista profileList
+    });
+
     postList.insertBefore(newpost, postList.firstChild);
 }
+
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
 function toggleUserProfileBox(uniqueId) {
