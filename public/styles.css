@@ -57,8 +57,8 @@
             padding: 10px 0;
             border-radius: 10px;
         }
-        .post {
-            font-weight: bold;
+        .post-content {
+            font-weight: normal;
             margin-right: 5px;
         }
 
