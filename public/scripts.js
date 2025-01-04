@@ -532,6 +532,28 @@ function goBackToInitial() {
 
 let showSensitiveContent = false;
 
+function buttonsState(profileList, postList) {
+    if (profileList.style.display === 'block') {
+        if (loadAll= true) {
+            const username = document.getElementById('currentProfileUsername').value; // Asegúrate de tener un input oculto para almacenar el username actual
+            viewProfile(username, loadAll);
+        } else {
+            const username = document.getElementById('currentProfileUsername').value; // Asegúrate de tener un input oculto para almacenar el username actual
+            viewProfile(username);
+        }
+        
+    } else {
+        if (postList.style.display === 'block') {
+            if (loadAll == true) {
+                loadposts(loadAll);
+            }
+            else {
+                loadposts();
+            }
+        }  
+    }
+}
+
 // Función para alternar la configuración de contenido sensible
 function toggleSensitiveContent() {
     showSensitiveContent = !showSensitiveContent;
@@ -547,15 +569,7 @@ function toggleSensitiveContent() {
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
 
-    if (profileList.style.display === 'block') {
-        // Si está visible la lista de perfil
-        const username = document.getElementById('currentProfileUsername').value; // Asegúrate de tener un input oculto para almacenar el username actual
-        viewProfile(username);
-    } else {
-        if (postList.style.display === 'block') {
-            loadposts();
-        }  
-    }
+    buttonsState(profileList, postList);
 
     console.log(showSensitiveContent);
 }
@@ -567,8 +581,11 @@ function togglePostLoad() {
     // Cambiar texto del botón basado en el estado
     button.textContent = loadAll ? 'Mostrar solo los últimos 12 posts' : 'Cargar todos los posts';
 
-    // Llamar a la función de carga con el nuevo estado
-    loadposts(loadAll);
+    // Determinar qué lista está activa y recargar los posts correspondientes
+    const profileList = document.getElementById('profileList');
+    const postList = document.getElementById('postList');
+
+    buttonsState(profileList, postList);
 }
 
 // Función para cargar los posts
@@ -699,7 +716,7 @@ function toggleUserProfileBox(event, username) {
 
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
-function viewProfile(username) {
+function viewProfile(username, loadAll) {
     // Obtener referencias a los contenedores
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
@@ -732,7 +749,9 @@ function viewProfile(username) {
             return response.json();
         })
         .then(posts => {
-            posts.forEach(post => {
+            const postsToRender = loadAll ? posts : posts.slice(0, 12);
+
+            postsToRender.forEach(post => {
                 const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId } = post;
                 // Filtrar contenido sensible si es necesario
                 if (!showSensitiveContent && sensitive === true) return;
