@@ -532,7 +532,10 @@ function goBackToInitial() {
 
 let showSensitiveContent = false;
 
-function buttonsState(profileList, postList) {
+function buttonsState() {
+    const profileList = document.getElementById('profileList');
+    const postList = document.getElementById('postList');
+
     if (profileList.style.display === 'block') {
         if (loadAll= true) {
             const username = document.getElementById('currentProfileUsername').value; // Asegúrate de tener un input oculto para almacenar el username actual
@@ -545,10 +548,10 @@ function buttonsState(profileList, postList) {
     } else {
         if (postList.style.display === 'block') {
             if (loadAll == true) {
-                loadposts(loadAll);
+                loadposts(loadAll); togglePosts();
             }
             else {
-                loadposts();
+                loadposts(); togglePosts();
             }
         }  
     }
@@ -565,11 +568,7 @@ function toggleSensitiveContent() {
         ? 'Ocultar contenido sensible'
         : 'Mostrar contenido sensible';
 
-    // Verificar qué lista está activa y recargar los posts
-    const profileList = document.getElementById('profileList');
-    const postList = document.getElementById('postList');
-
-    buttonsState(profileList, postList);
+    buttonsState();
 
     console.log(showSensitiveContent);
 }
@@ -581,11 +580,7 @@ function togglePostLoad() {
     // Cambiar texto del botón basado en el estado
     button.textContent = loadAll ? 'Mostrar solo los últimos 12 posts' : 'Cargar todos los posts';
 
-    // Determinar qué lista está activa y recargar los posts correspondientes
-    const profileList = document.getElementById('profileList');
-    const postList = document.getElementById('postList');
-
-    buttonsState(profileList, postList);
+    buttonsState();
 }
 
 // Función para cargar los posts
