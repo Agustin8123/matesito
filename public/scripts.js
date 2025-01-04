@@ -728,7 +728,6 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 
     const newpost = document.createElement('li');
     newpost.className = 'post';
-    newpost.style.cursor = 'pointer'; // Cambiar cursor a pointer
 
     // Convertir fecha a hora local
     const localTime = createdAt ? new Date(createdAt).toLocaleString() : '';
@@ -742,17 +741,17 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     let mediaHTML = '';
     if (media && mediaType) {
         if (mediaType.startsWith('image/')) {
-            mediaHTML = `<div><img src="${media}" alt="Imagen subida por ${username}" class="preview-media"></div>`;
+            mediaHTML = `<div><img src="${media}" alt="Imagen subida por ${username}" class="preview-media clickable"></div>`;
         } else if (mediaType.startsWith('video/')) {
             mediaHTML = `<div>
-                            <video controls class="preview-media">
+                            <video controls class="preview-media clickable">
                                 <source src="${media}" type="${mediaType}">
                                 Tu navegador no soporta la reproducción de video.
                             </video>
                          </div>`;
         } else if (mediaType.startsWith('audio/')) {
             mediaHTML = `<div>
-                            <audio controls class="preview-media">
+                            <audio controls class="preview-media clickable">
                                 <source src="${media}" type="${mediaType}">
                                 Tu navegador no soporta la reproducción de audio.
                             </audio>
@@ -765,12 +764,12 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         ? `<div class="sensitive-content">
                 <p>⚠ Este contenido ha sido marcado como sensible</p>
                 <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Mostrar contenido</button>
-                <div class="hidden-content" style="display:none;">
+                <div class="hidden-content clickable" style="display:none;">
                     ${content}
                     ${mediaHTML}
                 </div>
            </div>`
-        : `<div class="post-content">${content}${mediaHTML}</div>`;
+        : `<div class="post-content clickable">${content}${mediaHTML}</div>`;
 
     // Crear un id único para la caja de usuario
     const uniqueId = `userProfileBox_${userId}_${Math.random().toString(36).substr(2, 9)}`;
@@ -791,23 +790,27 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         </div>
     `;
 
-    // Agregar eventos para mover el post al hacer clic
-    newpost.addEventListener('click', () => {
-        const unicPostList = document.getElementById('unicPostList');
-        const postList = document.getElementById('postList');
-        const profileList = document.getElementById('profileList');
+    // Añadir eventos de clic solo a los elementos interactivos
+    newpost.querySelectorAll('.clickable').forEach(element => {
+        element.style.cursor = 'pointer'; // Cambiar cursor al pasar por encima
+        element.addEventListener('click', () => {
+            const unicPostList = document.getElementById('unicPostList');
+            const postList = document.getElementById('postList');
+            const profileList = document.getElementById('profileList');
 
-        if (unicPostList) {
-            unicPostList.innerHTML = ''; // Limpiar la lista única
-            unicPostList.appendChild(newpost); // Mover el post a la lista única
-        }
+            if (unicPostList) {
+                unicPostList.innerHTML = ''; // Limpiar la lista única
+                unicPostList.appendChild(newpost); // Mover el post a la lista única
+            }
 
-        if (postList) postList.style.display = 'none'; // Desactivar lista postList
-        if (profileList) profileList.style.display = 'none'; // Desactivar lista profileList
+            if (postList) postList.style.display = 'none'; // Desactivar lista postList
+            if (profileList) profileList.style.display = 'none'; // Desactivar lista profileList
+        });
     });
 
     postList.insertBefore(newpost, postList.firstChild);
 }
+
 
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
