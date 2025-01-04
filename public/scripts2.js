@@ -4,6 +4,11 @@ function toggleVisibility(elementId, displayType = 'block') {
     element.style.display = element.style.display === displayType ? 'none' : displayType;
 }
 
+function toggleVisibility1(elementId, displayType = 'grid') {
+    const element = document.getElementById(elementId);
+    element.style.display = element.style.display === displayType ? 'none' : displayType;
+}
+
 // Función para ocultar múltiples menús
 function hideMenus(...menuIds) {
     menuIds.forEach(menuId => {
@@ -81,7 +86,7 @@ function toggleSubMenu2() {
 }
 
 function toggle_UserMenu(user) {
-    toggleVisibility(user);
+    toggleVisibility1(user);
     deactivateAllDivs();
 }
 
