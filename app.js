@@ -351,22 +351,22 @@ app.post('/joinForum', (req, res) => {
     const checkQuery = 'SELECT * FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = false';
     db.query(checkQuery, [userId, forumId], (err, result) => {
         if (err) {
-            console.error('Error al verificar la participación en el foro:', err);
-            return res.status(500).json({ message: 'Error al verificar la participación' }); // Mensaje de error
+            console.error('Error al verificar si sigues el foro:', err);
+            return res.status(500).json({ message: 'Error al verificar la el seguimiento' }); // Mensaje de error
         }
 
         if (result.rows.length > 0) {
-            return res.status(400).json({ message: 'Ya estás participando en este foro' }); // Mensaje de advertencia
+            return res.status(400).json({ message: 'Ya estás siguiendo este foro' }); // Mensaje de advertencia
         }
 
         const insertQuery = 'INSERT INTO participantes (user_id, forum_or_group_id, is_group, joined_at) VALUES ($1, $2, false, $3)';
         db.query(insertQuery, [userId, forumId, new Date().toISOString()], (err) => {
             if (err) {
                 console.error('Error al unirse al foro:', err);
-                return res.status(500).json({ message: 'Error al unirse al foro' }); // Mensaje de error
+                return res.status(500).json({ message: 'Error al seguir al foro' }); // Mensaje de error
             }
 
-            res.status(201).json({ message: 'Unido al foro con éxito' }); // Mensaje de éxito
+            res.status(201).json({ message: 'Sigueiendo al foro con éxito' }); // Mensaje de éxito
         });
     });
 });
@@ -381,22 +381,22 @@ app.post('/leaveForum', (req, res) => {
     const checkQuery = 'SELECT * FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = false';
     db.query(checkQuery, [userId, forumId], (err, result) => {
         if (err) {
-            console.error('Error al verificar la participación en el foro:', err);
+            console.error('Error al verificar si sigues en el foro:', err);
             return res.status(500).json({ message: 'Error al verificar la participación' }); // Mensaje de error
         }
 
         if (result.rows.length === 0) {
-            return res.status(400).json({ message: 'No estás participando en este foro' }); // Mensaje de advertencia
+            return res.status(400).json({ message: 'No sigues en este foro' }); // Mensaje de advertencia
         }
 
         const deleteQuery = 'DELETE FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = false';
         db.query(deleteQuery, [userId, forumId], (err) => {
             if (err) {
-                console.error('Error al desunirse del foro:', err);
-                return res.status(500).json({ message: 'Error al desunirse del foro' }); // Mensaje de error
+                console.error('Error al dejar de seguir del foro:', err);
+                return res.status(500).json({ message: 'Error al dejar de seguir el foro' }); // Mensaje de error
             }
 
-            res.status(200).json({ message: 'Desunido del foro con éxito' }); // Mensaje de éxito
+            res.status(200).json({ message: 'Dejaste de seguir el foro con éxito' }); // Mensaje de éxito
         });
     });
 });
@@ -514,6 +514,65 @@ app.post('/unfollowUser', (req, res) => {
     });
 });
 
+app.get('/search', (req, res) => {
+    const { query } = req.query;  // El término de búsqueda se pasa como parámetro 'query'
+
+    if (!query) {
+        return res.status(400).json({ message: 'Consulta vacía' });
+    }
+
+    // Buscando foros por nombre o descripción
+    const forosQuery = `
+        SELECT id, name, description
+        FROM foros
+        WHERE name ILIKE $1 OR description ILIKE $1
+        ORDER BY name;
+    `;
+    
+    // Buscando usuarios por nombre de usuario
+    const usersQuery = `
+        SELECT id, username, image
+        FROM users
+        WHERE username ILIKE $1
+        ORDER BY username;
+    `;
+
+    // Ejecutamos las dos consultas en paralelo
+    db.query(forosQuery, [`%${query}%`], (err, foroResults) => {
+        if (err) {
+            console.error('Error al obtener los foros:', err);
+            return res.status(500).json({ error: 'Error al obtener los foros' });
+        }
+
+        db.query(usersQuery, [`%${query}%`], (err, userResults) => {
+            if (err) {
+                console.error('Error al obtener los usuarios:', err);
+                return res.status(500).json({ error: 'Error al obtener los usuarios' });
+            }
+
+            // Mapear los resultados de los foros
+            const foros = foroResults.rows.map(foro => ({
+                id: foro.id,
+                name: foro.name,
+                description: foro.description
+            }));
+
+            // Mapear los resultados de los usuarios
+            const usuarios = userResults.rows.map(user => ({
+                id: user.id,
+                username: user.username,
+                profilePicture: user.image || null
+            }));
+
+            // Devolver los resultados de la búsqueda
+            res.status(200).json({
+                foros: foros,
+                usuarios: usuarios
+            });
+        });
+    });
+});
+
 // Crear un chat privado
 app.post('/createPrivateChat', (req, res) => {
     const { user1Id, user2Id } = req.body;
@@ -570,37 +629,6 @@ app.post('/sendMessage', (req, res) => {
         }
 
         res.status(201).json({ messageId: result.rows[0].id, content });
-    });
-});
-
-// Buscar usuarios y foros
-app.get('/search', (req, res) => {
-    const { query } = req.query;
-
-    if (!query) {
-        return res.status(400).json('Consulta vacía');
-    }
-
-    const userQuery = 'SELECT * FROM users WHERE username LIKE $1';
-    const forumQuery = 'SELECT * FROM foros WHERE name LIKE $1';
-
-    db.query(userQuery, [`%${query}%`], (err, userResults) => {
-        if (err) {
-            console.error('Error al buscar usuarios:', err);
-            return res.status(500).json('Error al buscar usuarios');
-        }
-
-        db.query(forumQuery, [`%${query}%`], (err, forumResults) => {
-            if (err) {
-                console.error('Error al buscar foros:', err);
-                return res.status(500).json('Error al buscar foros');
-            }
-
-            res.status(200).json({
-                users: userResults.rows,
-                forums: forumResults.rows
-            });
-        });
     });
 });
 
