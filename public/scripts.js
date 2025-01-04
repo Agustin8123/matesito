@@ -965,7 +965,7 @@ function searchMotor() {
             // Mostrar foros
             data.foros.forEach(foro => {
                 const foroElement = document.createElement('div');
-                foroElement.classList.add('SearchContainer'); // Agregar clase
+                foroElement.classList.add('SearchContainer', 'forum-item'); // Agregar clases
                 foroElement.innerHTML = `
                     <p><strong>Foro:</strong> ${foro.name}</p>
                 `;
@@ -997,7 +997,8 @@ function searchMotor() {
             console.error('Error al buscar:', error);
             alert('Error al procesar la búsqueda');
         });
-}
+    }
+
 
 // Llamar a loadposts al cargar    página
 window.onload = verMant(mantenimiento);

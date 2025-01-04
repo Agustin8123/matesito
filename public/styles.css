@@ -451,6 +451,17 @@
             word-wrap: break-word;
         }
 
+        .SearchContainer.forum-item {
+            cursor: pointer; /* Cambiar el cursor a pointer */
+            transition: all 0.3s ease; /* Animación suave */
+        }
+        
+        .SearchContainer.forum-item:hover {
+            text-decoration: underline; /* Subrayar al pasar el mouse */
+            color: #007BFF; /* Cambiar el color opcionalmente */
+        }
+        
+
         .user-item {
             display: flex; /* Activa el modo flexbox */
             flex-direction: column; /* Alinea elementos en una columna */
