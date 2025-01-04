@@ -666,17 +666,20 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
            </div>`
         : `<div class="post-content">${content}${mediaHTML}</div>`;
 
+    // Crear un id único para la caja de usuario
+    const uniqueId = `userProfileBox_${userId}_${Math.random().toString(36).substr(2, 9)}`;
+
     // HTML del post
     newpost.innerHTML = `
         <div class="post-header">
             ${profilePicHTML}
-            <span class="username" onclick="toggleUserProfileBox(event, '${username}', ${userId})">${username}:</span>
+            <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${username}:</span>
         </div>
         ${contentHTML}
         <div class="post-footer">
             <span class="post-time">${localTime}</span>
         </div>
-        <div class="user-profile-box" id="userProfileBox_${username}" style="display:none;">
+        <div class="user-profile-box" id="${uniqueId}" style="display:none;">
             <button onclick="viewProfile('${username}')">Ver perfil</button>
             <button onclick="followUser(${userId})">Seguir</button>
         </div>
