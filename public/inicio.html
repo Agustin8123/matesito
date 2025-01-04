@@ -23,7 +23,7 @@
 
             <div class="dropdown-menu"  id="rightMenu" style="left: 160px; margin-top: 5px;">
                 <label for="General" class="boton">General</label>
-                <input type="radio" id="General" name="nav" style="display:none;" onclick="loadposts()">
+                <input type="radio" id="General" name="nav" style="display:none;" onclick="loadposts(), togglePosts()">
 
                 <label for="Foros" class="boton">Foros</label>
                     <input type="radio" id="Foros" name="nav" style="display:none;" onclick="toggleForumMenu()"> 
@@ -142,8 +142,8 @@
             <button id="toggleButton" class="button" onclick="toggleSensitiveContent()">Mostrar contenido sensible</button>
         </div>
     
-        <button id="Loadpostsbutton" class="button" style="margin: 10px auto; display: block;" onclick="loadposts()">Recargar posts</button>
-        <button id="loadAllPostsButton" class="button" style="margin: 10px auto; display: block;" onclick="togglePostLoad()">Cargar todos los posts</button>
+        <button id="Loadpostsbutton" class="button" style="margin: 10px auto; display: block;" onclick="loadposts(), togglePosts()">Recargar posts</button>
+        <button id="loadAllPostsButton" class="button" style="margin: 10px auto; display: block;" onclick="togglePostLoad(), togglePosts()">Cargar todos los posts</button>
     
         <ul id="postList" class="posts"></ul>
         <ul id="profileList" class="posts"></ul>

@@ -34,6 +34,14 @@ function toggleMenu() {
     toggleVisibility('dropdownMenu');
 }
 
+function togglePosts() {
+    const profileList = document.getElementById('profileList');
+    const postList = document.getElementById('postList');
+
+    profileList.style.display = 'none';
+    postList.style.display = 'block';
+}
+
 // Alerta de ayuda
 function HelpAlert() {
     alert('Si requieres ayuda con cualquier cosa, contactate con nuestro correo de soporte "matesito.soporte@gmail.com"');
