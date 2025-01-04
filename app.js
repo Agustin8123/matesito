@@ -155,7 +155,7 @@ app.get('/posts/user/:username', (req, res) => {
     const query = `
         SELECT 
         t.id AS postId, t.username, t.content, t.media, t.mediatype, t.createdAt, t.sensitive,
-        u.id AS userId
+        u.id AS userId, u.image AS profilePicture
         FROM posts t
         JOIN users u ON t.username = u.username
         WHERE t.username = $1
@@ -176,6 +176,7 @@ app.get('/posts/user/:username', (req, res) => {
             media: post.media || null,
             mediaType: post.mediatype || null,
             createdAt: post.createdat,
+            profilePicture: post.profilepicture || null,
             sensitive: !!post.sensitive // Asegúrate de que sea un booleano
         }));
 
