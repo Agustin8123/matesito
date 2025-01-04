@@ -346,7 +346,7 @@ function loadForos() {
                 // Si hay foros, los iteramos y renderizamos
                 foros.forEach(foro => {
                     const foroElement = document.createElement('div');
-                    foroElement.classList.add('foro'); // Agregar una clase para estilizar
+                    foroElement.classList.add('user'); // Agregar una clase para estilizar
 
                     // Creamos la estructura del foro (nombre, descripción y botón para unirse)
                     foroElement.innerHTML = `
