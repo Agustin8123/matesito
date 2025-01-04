@@ -350,8 +350,8 @@ function loadForos() {
 
                     // Creamos la estructura del foro (nombre, descripción y botón para unirse)
                     foroElement.innerHTML = `
-                    <label for="${foro.name}" class="boton">${foro.name}</label>
-                    <input type="radio" id="${foro.name}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
+                    <label for="${foro.id}${foro.name}" class="boton">${foro.name}</label>
+                    <input type="radio" id="${foro.id}${foro.name}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
                         <div id="${foro.name}" class="dropdown-menu" style=" position: fixed; left: 367px; top: 66px;">
                         <p>${foro.description}</p>
                             <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
