@@ -975,10 +975,9 @@ function searchMotor() {
                 const userElement = document.createElement('div');
                 userElement.classList.add('SearchContainer'); // Agregar clase
                 userElement.innerHTML = `
-                    <p><strong>Usuario:</strong></p>
-                    <div class="user-container">
-                        <img src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username}" class="profile-picture" />
-                        <span class="username">${user.username}</span>
+                    <div class="SearchContainer">
+                        <p><img src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username}" class="profile-picture" />
+                        ${user.username}</p>
                     </div>
                 `;
                 searchContainer.appendChild(userElement);
@@ -990,7 +989,7 @@ function searchMotor() {
         });
 }
 
-// Llamar a loadposts al cargar la página
+// Llamar a loadposts al cargar    página
 window.onload = verMant(mantenimiento);
 window.onload = checkRememberedUser();
 window.onload = loadposts();
