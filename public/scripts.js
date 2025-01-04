@@ -946,7 +946,7 @@ function loadFollowedUsers() {
 function searchMotor() {
     const query = document.getElementById('searchInput').value;
 
-    if (query.length < 1 ) {  // Para evitar búsquedas demasiado cortas
+    if (query.length < 1) { // Para evitar búsquedas demasiado cortas
         return;
     }
 
@@ -954,7 +954,7 @@ function searchMotor() {
         .then(response => response.json())
         .then(data => {
             const searchContainer = document.getElementById('searchconteiner');
-            searchContainer.innerHTML = '';  // Limpiar resultados previos
+            searchContainer.innerHTML = ''; // Limpiar resultados previos
 
             if (data.foros.length === 0 && data.usuarios.length === 0) {
                 searchContainer.innerHTML = '<p>No se encontraron resultados.</p>';
@@ -963,8 +963,9 @@ function searchMotor() {
             // Mostrar foros
             data.foros.forEach(foro => {
                 const foroElement = document.createElement('div');
+                foroElement.classList.add('SearchContainer'); // Agregar clase
                 foroElement.innerHTML = `
-                    <p><strong>Foro:</strong>${foro.name}</p>
+                    <p><strong>Foro:</strong> ${foro.name}</p>
                 `;
                 searchContainer.appendChild(foroElement);
             });
@@ -972,11 +973,13 @@ function searchMotor() {
             // Mostrar usuarios
             data.usuarios.forEach(user => {
                 const userElement = document.createElement('div');
+                userElement.classList.add('SearchContainer'); // Agregar clase
                 userElement.innerHTML = `
                     <p><strong>Usuario:</strong></p>
-                    <p><img  src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username}" class="profile-picture"/>
-                    ${user.username}</p>
-                    
+                    <div class="user-container">
+                        <img src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username}" class="profile-picture" />
+                        <span class="username">${user.username}</span>
+                    </div>
                 `;
                 searchContainer.appendChild(userElement);
             });
@@ -986,7 +989,6 @@ function searchMotor() {
             alert('Error al procesar la búsqueda');
         });
 }
-
 
 // Llamar a loadposts al cargar la página
 window.onload = verMant(mantenimiento);
