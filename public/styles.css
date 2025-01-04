@@ -451,6 +451,30 @@
             word-wrap: break-word;
         }
 
+        .user-item {
+            display: flex; /* Activa el modo flexbox */
+            flex-direction: column; /* Alinea elementos en una columna */
+            align-items: center; /* Centra verticalmente */
+            justify-content: center; /* Centra horizontalmente */
+            gap: 5px; /* Espaciado entre imagen y texto */
+            text-align: center; /* Asegura que el texto esté centrado */
+            width: 100px; /* Ajusta el ancho para mantener coherencia */
+            margin: 5px auto; /* Espaciado alrededor de cada usuario */
+        }
+        
+        .profile-picture {
+            width: 50px; /* Tamaño de la imagen */
+            height: 50px; /* Asegúrate de que sea cuadrada */
+            border-radius: 50%; /* Hace que la imagen sea circular */
+            object-fit: cover; /* Ajusta la imagen sin deformarla */
+        }
+        
+        .username {
+            font-size: 14px; /* Ajusta el tamaño del texto */
+            word-wrap: break-word; /* Ajusta texto largo para que no se salga */
+        }
+        
+
         .profile-picture {
             width: 40px;
             height: 40px;

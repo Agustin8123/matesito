@@ -977,9 +977,9 @@ function searchMotor() {
                 const userElement = document.createElement('div');
                 userElement.classList.add('SearchContainer'); // Agregar clase
                 userElement.innerHTML = `
-                    <div class="SearchContainer">
-                        <p style="word-wrap: break-word;"><img src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username}" class="profile-picture" />
-                        ${user.username}</p>
+                    <div class="SearchContainer user-item">
+                        <img src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username}" class="profile-picture" />
+                        <span class="username">${user.username}</span>
                     </div>
                 `;
                 searchContainer.appendChild(userElement);
