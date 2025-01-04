@@ -566,8 +566,6 @@ function loadposts(loadAll) {
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
 
-    profileList.innerHTML = '';
-
     profileList.style.display = 'none';
     postList.style.display = 'block';
 
@@ -580,7 +578,6 @@ function loadposts(loadAll) {
             return response.json();
         })
         .then(posts => {
-            const postList = document.getElementById('postList');
             const reversedPosts = posts;
 
             // Determinar cuántos posts renderizar
@@ -595,7 +592,7 @@ function loadposts(loadAll) {
                 if (!showSensitiveContent && sensitive === true) return;
 
                 if (content && username) {
-                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postList);
+                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, 'postList');
                 } else {
                     console.warn('Post inválido omitido:', post);
                 }
@@ -701,10 +698,8 @@ function viewProfile(username) {
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
 
-    // Limpiar el contenido de la lista de perfil
     profileList.innerHTML = '';
 
-    // Mostrar el contenedor de perfil y ocultar el de publicaciones
     profileList.style.display = 'block';
     postList.style.display = 'none';
 
