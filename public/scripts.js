@@ -341,6 +341,10 @@ function createForum() {
 }
 
 
+function reloadPosts() { 
+    loadPosts(loadAll);
+}
+
 // Esta función carga los foros y los muestra en la página
 function loadForos() {
     fetch('/foros')
@@ -1036,4 +1040,4 @@ function searchMotor() {
 // Llamar a loadposts al cargar    página
 window.onload = verMant(mantenimiento);
 window.onload = checkRememberedUser();
-window.onload = loadposts(loadAll);
+window.onload = reloadPosts();
