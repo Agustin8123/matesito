@@ -7,10 +7,8 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <link rel="preload" href="eyeClose.png" as="image">
-    <link rel="preload" href="eyeOpen.png" as="image">
-    <link rel="preload" href="scripts2.js" as="image">
-    <link rel="preload" href="scripts.js" as="image">
+    <link rel="preload" href="scripts2.js" as="script">
+    <link rel="preload" href="scripts.js" as="script">
 
     <div class="header">
         <div class="left-section">
@@ -171,6 +169,8 @@
 
 <!-- Overlay de Usuario Existente -->
 <div class="overlay" id="usernameOverlay" style="display: none;">
+    <link rel="preload" href="eyeClose.png" as="image">
+    <link rel="preload" href="eyeOpen.png" as="image">
     <div class="username-box">
         <input type="text" id="usernameInput" placeholder="Nombre de Usuario">
         <input type="password" id="passwordInput" placeholder="Contraseña">
@@ -208,6 +208,8 @@
 </div>
 
 <div class="overlay" id="userSelectOverlay" style="display: none;">
+    <link rel="preload" href="eyeClose.png" as="image">
+    <link rel="preload" href="eyeOpen.png" as="image">
     <div class="user-select-box">
         <input type="text" id="newUsernameInput" placeholder="Nuevo usuario">
         <input type="password" id="newPasswordInput" placeholder="Contraseña">
