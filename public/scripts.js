@@ -1035,7 +1035,18 @@ function searchMotor() {
             alert('Error al procesar la búsqueda');
         });
     }
-
+    
+function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+    
+async function init() {
+    toggleVisibility('postList');
+    
+    await wait(200);
+    
+    toggleVisibility('postList');
+    }
 
 // Llamar a loadposts al cargar    página
 window.onload = verMant(mantenimiento);
