@@ -342,7 +342,7 @@ function createForum() {
 
 
 function reloadPosts() { 
-    loadPosts(loadAll);
+    loadposts(loadAll);
 }
 
 // Esta función carga los foros y los muestra en la página
