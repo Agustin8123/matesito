@@ -1035,7 +1035,12 @@ function searchMotor() {
             alert('Error al procesar la búsqueda');
         });
     }
-    
+
+function toggleVisibility(elementId, displayType = 'block') {
+    const element = document.getElementById(elementId);
+    element.style.display = element.style.display === displayType ? 'none' : displayType;
+}
+
 function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
