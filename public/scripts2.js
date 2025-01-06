@@ -34,6 +34,23 @@ function toggleMenu() {
     toggleVisibility('dropdownMenu');
 }
 
+function toggleMenu() {
+    hideMenus('SearchMenu', 'rightMenu', 'forumSubMenu', 'userSubMenu');
+    toggleVisibility('dropdownMenu');
+}
+
+function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function init() {
+    toggleVisibility('postList');
+
+    await wait(200);
+
+    toggleVisibility('postList');
+}
+
 function togglePosts() {
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
