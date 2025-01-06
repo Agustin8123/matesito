@@ -1036,4 +1036,4 @@ function searchMotor() {
 // Llamar a loadposts al cargar    página
 window.onload = verMant(mantenimiento);
 window.onload = checkRememberedUser();
-window.onload = loadposts();
+window.onload = loadposts(loadAll);
