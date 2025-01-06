@@ -602,7 +602,7 @@ function containsForbiddenWords(message) {
                 selectedFile = null;
                 document.getElementById('loading').style.display = 'none';
                 alert('Tu post se ha enviado correctamente');
-                loadposts();togglePosts();
+                loadposts(loadAll);togglePosts();
             })
             .catch(error => {
                 console.error('Error al subir el archivo o enviar el post:', error);
@@ -620,7 +620,7 @@ function containsForbiddenWords(message) {
                 lastpostContent = data.content;
                 addpostToList(data.content, null, null, activeUser);
                 alert('Tu post se ha enviado correctamente');
-                loadposts();togglePosts();
+                loadposts(loadAll);togglePosts();
             })
             .catch(error => {
                 console.error('Error al enviar el post:', error);
@@ -1040,4 +1040,5 @@ function searchMotor() {
 // Llamar a loadposts al cargar    página
 window.onload = verMant(mantenimiento);
 window.onload = checkRememberedUser();
+window.onload = init();
 window.onload = reloadPosts();
