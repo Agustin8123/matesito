@@ -809,6 +809,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             const profileList = document.getElementById('profileList');
 
             if (unicPostList) {
+                unicPostList.style.display = 'block';
                 unicPostList.innerHTML = ''; // Limpiar la lista única
                 unicPostList.appendChild(newpost); // Mover el post a la lista única
             }
@@ -860,7 +861,7 @@ function viewProfile(username, loadAll) {
     profileList.style.display = 'block';
     postList.style.display = 'none';
     unicPostList.style.display = 'none';
-    
+
     console.log("Cargando posts de", username);
 
     // Cargar los posts del usuario
