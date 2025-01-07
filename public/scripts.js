@@ -646,12 +646,16 @@ function buttonsState() {
     // Obtener referencias a los contenedores directamente dentro de la función
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
+    const unicPostList = document.getElementById('unicPostList');
 
     if (profileList.style.display === 'block') {
-        const username = document.getElementById('currentProfileUsername').value; // Obtener el username actual
-        viewProfile(username, loadAll); // Llamar a viewProfile con el estado de loadAll
+        const username = document.getElementById('currentProfileUsername').value;
+        unicPostList.style.display = 'none'
+        viewProfile(username, loadAll); 
+
     } else if (postList.style.display === 'block') {
-        loadposts(loadAll); // Llamar a loadposts con el estado de loadAll
+        loadposts(loadAll); 
+        unicPostList.style.display = 'none'
     }
 }
 
