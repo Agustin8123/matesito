@@ -654,8 +654,8 @@ function buttonsState() {
         viewProfile(username, loadAll); 
 
     } else if (postList.style.display === 'block') {
-        loadposts(loadAll); 
         unicPostList.style.display = 'none';
+        loadposts(loadAll); 
     }
 }
 
@@ -691,6 +691,8 @@ function togglePostLoad() {
 // Función para cargar los posts
 // Función para cargar los posts
 function loadposts(loadAll) {
+    const unicPostList = document.getElementById('unicPostList');
+    unicPostList.style.display = 'none';
 
     console.log("Cargando posts...");
     fetch('https://matesitotest.onrender.com/posts')
@@ -839,6 +841,7 @@ function viewProfile(username, loadAll) {
     // Obtener referencias a los contenedores
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
+    const unicPostList = document.getElementById('unicPostList');
 
     // Guardar el username actual en un input oculto
     let currentProfileUsername = document.getElementById('currentProfileUsername');
@@ -856,7 +859,8 @@ function viewProfile(username, loadAll) {
     // Mostrar el contenedor de perfil y ocultar el de publicaciones
     profileList.style.display = 'block';
     postList.style.display = 'none';
-
+    unicPostList.style.display = 'none';
+    
     console.log("Cargando posts de", username);
 
     // Cargar los posts del usuario
