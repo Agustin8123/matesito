@@ -650,12 +650,12 @@ function buttonsState() {
 
     if (profileList.style.display === 'block') {
         const username = document.getElementById('currentProfileUsername').value;
-        unicPostList.style.display = 'none'
+        unicPostList.style.display = 'none';
         viewProfile(username, loadAll); 
 
     } else if (postList.style.display === 'block') {
         loadposts(loadAll); 
-        unicPostList.style.display = 'none'
+        unicPostList.style.display = 'none';
     }
 }
 
