@@ -157,11 +157,6 @@ app.get('/mensajes/:forumId', async (req, res) => {
     }
 });
 
-// Iniciar el servidor
-app.listen(port, () => {
-    console.log(`Servidor escuchando en http://localhost:${port}`);
-});
-
 // Obtener todos los posts
 app.get('/posts', (req, res) => {
     const query = `
