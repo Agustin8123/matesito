@@ -120,7 +120,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
     const { content, sensitive, sender_id, createdAt, media, mediaType } = req.body;
 
     try {
-        const result = await pool.query(
+        const result = await db.query(
             `INSERT INTO mensajes (forum_id, content, sensitive, sender_id, created_at, media, media_type) 
              VALUES ($1, $2, $3, $4, $5, $6, $7) 
              RETURNING *`,
@@ -138,7 +138,7 @@ app.get('/mensajes/:forumId', async (req, res) => {
     const { forumId } = req.params;
 
     try {
-        const result = await pool.query(
+        const result = await db.query(
             `SELECT 
                 m.*, 
                 u.username, 
