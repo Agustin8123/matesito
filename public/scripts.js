@@ -74,6 +74,15 @@ function createNewUser() {
     document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
 }
 
+function encodePassword(password) {
+    return btoa(password); // Convierte a Base64
+}
+
+// Función para decodificar la contraseña de Base64
+function decodePassword(encodedPassword) {
+    return atob(encodedPassword);
+}
+
 // Guardar la sesión con cookies
 function saveSession(username, password, rememberMe) {
     if (rememberMe) {
