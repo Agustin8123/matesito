@@ -121,7 +121,6 @@
     <div class="container" id="appContainer">
         <div class="post-box">
             <textarea id="postContent" rows="3" placeholder="¿Qué estás pensando?"></textarea>
-    
             <!-- Checkbox para marcar contenido sensible -->
             <label>
                 <input type="checkbox" id="sensitiveContentCheckbox" style="margin-top: 15px;">
@@ -135,7 +134,7 @@
             <input id="postMedia" type="file" accept="image/*, video/*, audio/*" style="display:none;" onchange="handleFileSelect(event)">
             
             <!-- Botón para enviar el post -->
-            <button class="button" onclick="postpost()">Cebar (publicar)</button>
+            <button class="button" onclick="wherePost()">Cebar (publicar)</button>
             <div id="loading" class="loader" style="display: none;"></div>
 
         </div>
@@ -150,6 +149,7 @@
         <ul id="postList" class="posts" style="display: block;"></ul>
         <ul id="profileList" class="posts"></ul>
         <ul id="unicPostList" class="posts"></ul>
+        <ul id="forumList" class="posts"></ul>
     </div>
 
 <div class="overlay" id="AvisoOverlay">
