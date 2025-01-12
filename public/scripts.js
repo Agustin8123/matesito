@@ -699,7 +699,7 @@ function containsForbiddenWords(message) {
             .then(data => {
                 lastpostContent = data.content;
                 document.getElementById('postContent').value = '';
-                fileInput.value = '';
+                selectedFile = null;
                 alert('Tu post se ha enviado correctamente');
                 loadposts(loadAll);togglePosts();
             })
@@ -813,7 +813,7 @@ function loadForumPosts(forumId, loadAll) {
     const forumList = document.getElementById('forumList');
     const postList = document.getElementById('postList');
     forumList.style.display = forumList.style.display === 'block';
-    postList.style.display = postList.style.display === 'block';
+    postList.style.display = postList.style.display === 'none';
     forumList.innerHTML = ''; // Limpiar lista de posts
 
     console.log(`Cargando mensajes del foro con ID: ${forumId}...`);
