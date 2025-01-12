@@ -365,7 +365,7 @@ function loadForos() {
                         <h2 style="margin-top: -5px;">${foro.name}</h2>
                         <p style="margin-top: -10px;">${foro.description}</p>
                             <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
-                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="loadForumPosts('${foro.id}')">
+                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="loadForumPosts('${foro.id}, ${loadAll}')">
 
                             <label for="${foro.id}${foro.name}${foro.id}" class="boton">Seguir foro</label>
                                 <input type="radio" id="${foro.id}${foro.name}${foro.id}" name="nav" style="display:none;" onclick="joinForum(${foro.id})">
@@ -482,7 +482,7 @@ function loadUserForums() {
                         <h2 style="margin-top: -5px;">${foro.name}</h2>
                         <p style="margin-top: -10px;">${foro.description}</p>
                             <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
-                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="loadForumPosts('${foro.id}')">
+                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="loadForumPosts('${foro.id}, ${loadAll}')">
 
                             <label for="${foro.id}${foro.name}${foro.id}" class="boton">Dejar de seguir foro</label>
                                 <input type="radio" id="${foro.id}${foro.name}${foro.id}" name="nav" style="display:none;" onclick="leaveForum(${foro.id})">
@@ -808,6 +808,16 @@ function loadposts(loadAll) {
             console.error('Error al cargar los posts:', error);
         });
 }
+
+function encodePassword(password) {
+    return btoa(password); // Convierte a Base64
+}
+
+// Función para decodificar la contraseña de Base64
+function decodePassword(encodedPassword) {
+    return atob(encodedPassword);
+}
+
 
 function loadForumPosts(forumId, loadAll) {
     const forumList = document.getElementById('forumList');
