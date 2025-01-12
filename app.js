@@ -115,6 +115,53 @@ app.post('/posts', (req, res) => {
     });
 });
 
+app.post('/mensajes/:forumId', async (req, res) => {
+    const { forumId } = req.params;
+    const { content, sensitive, sender_id, createdAt, media, mediaType } = req.body;
+
+    try {
+        const result = await pool.query(
+            `INSERT INTO mensajes (forum_id, content, sensitive, sender_id, created_at, media, media_type) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7) 
+             RETURNING *`,
+            [forumId, content, sensitive, sender_id, createdAt, media, mediaType]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error al guardar el mensaje:', error);
+        res.status(500).json({ error: 'Error al guardar el mensaje' });
+    }
+});
+
+app.get('/mensajes/:forumId', async (req, res) => {
+    const { forumId } = req.params;
+
+    try {
+        const result = await pool.query(
+            `SELECT 
+                m.*, 
+                u.username, 
+                u.profile_picture 
+             FROM mensajes m
+             INNER JOIN usuarios u ON m.sender_id = u.id
+             WHERE m.forum_id = $1
+             ORDER BY m.created_at ASC`,
+            [forumId]
+        );
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error al cargar los mensajes:', error);
+        res.status(500).json({ error: 'Error al cargar los mensajes' });
+    }
+});
+
+// Iniciar el servidor
+app.listen(port, () => {
+    console.log(`Servidor escuchando en http://localhost:${port}`);
+});
+
 // Obtener todos los posts
 app.get('/posts', (req, res) => {
     const query = `

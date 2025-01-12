@@ -74,15 +74,6 @@ function createNewUser() {
     document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
 }
 
-function encodePassword(password) {
-    return btoa(password); // Convierte a Base64
-}
-
-// Función para decodificar la contraseña de Base64
-function decodePassword(encodedPassword) {
-    return atob(encodedPassword);
-}
-
 // Guardar la sesión con cookies
 function saveSession(username, password, rememberMe) {
     if (rememberMe) {
@@ -374,7 +365,7 @@ function loadForos() {
                         <h2 style="margin-top: -5px;">${foro.name}</h2>
                         <p style="margin-top: -10px;">${foro.description}</p>
                             <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
-                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="viewForum('${foro.id}')">
+                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="loadForumPosts('${foro.id}')">
 
                             <label for="${foro.id}${foro.name}${foro.id}" class="boton">Seguir foro</label>
                                 <input type="radio" id="${foro.id}${foro.name}${foro.id}" name="nav" style="display:none;" onclick="joinForum(${foro.id})">
@@ -491,7 +482,7 @@ function loadUserForums() {
                         <h2 style="margin-top: -5px;">${foro.name}</h2>
                         <p style="margin-top: -10px;">${foro.description}</p>
                             <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
-                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="viewForum('${foro.id}')">
+                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="loadForumPosts('${foro.id}')">
 
                             <label for="${foro.id}${foro.name}${foro.id}" class="boton">Dejar de seguir foro</label>
                                 <input type="radio" id="${foro.id}${foro.name}${foro.id}" name="nav" style="display:none;" onclick="leaveForum(${foro.id})">
@@ -550,6 +541,96 @@ function containsForbiddenWords(message) {
         }
     }
 
+    function wherePost() {
+        const forumList = document.getElementById('forumList');
+        const postList = document.getElementById('postList');
+    
+        if (postList.style.display === 'block') {
+            postpost();
+        } else if (forumList.style.display === 'block') {
+            sendMessage(forumId);
+        } else {
+            alert("No puedes publicar un mensaje aquí");
+        }
+    }
+    
+
+    async function sendMessage(forumId) {
+        const content = document.getElementById('postContent').value;
+        const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
+        const fileInput = document.getElementById('postMedia');
+        const file = fileInput.files[0];
+    
+        // Validar contenido prohibido
+        if (containsForbiddenWords(content)) {
+            alert("Creemos que tu mensaje infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
+            return;
+        }
+    
+        // Verificar si el contenido es igual al último enviado
+        if (content === lastMessageContent) {
+            alert("No puedes enviar un mensaje igual al anterior.");
+            return;
+        }
+    
+        // Preparar los datos del mensaje
+        const messageData = {
+            content,
+            sensitive: isSensitive ? 1 : 0,
+            sender_id: senderId,
+            createdAt: new Date().toISOString(),
+        };
+    
+        let media = null;
+        let mediaType = null;
+    
+        if (file) {
+            const formData = new FormData();
+            formData.append("file", file);
+    
+            try {
+                // Subir el archivo a Cloudinary u otro servicio
+                const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const uploadData = await uploadResponse.json();
+                media = uploadData.secure_url;
+                mediaType = file.type;
+    
+                // Añadir los datos de media al mensaje
+                messageData.media = media;
+                messageData.mediaType = mediaType;
+            } catch (error) {
+                console.error('Error al subir el archivo:', error);
+                alert('Error al subir el archivo.');
+                return;
+            }
+        }
+    
+        try {
+            // Enviar el mensaje al servidor
+            const response = await fetch(`https://matesitotest.onrender.com/mensajes/${forumId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(messageData),
+            });
+    
+            if (response.ok) {
+                const responseData = await response.json();
+                lastMessageContent = responseData.content;
+                document.getElementById('postContent').value = '';
+                fileInput.value = '';
+                alert('Mensaje enviado con éxito');
+            } else {
+                alert('Error al enviar el mensaje');
+            }
+        } catch (error) {
+            console.error('Error al enviar el mensaje:', error);
+            alert('Error al enviar el mensaje.');
+        }
+    }    
+
     function postpost() {
         const postContent = document.getElementById('postContent').value;
         const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
@@ -597,7 +678,6 @@ function containsForbiddenWords(message) {
             .then(response => response.json())
             .then(data => {
                 lastpostContent = data.content;
-                addpostToList(data.content, data.media, data.mediaType, activeUser);
                 document.getElementById('postMedia').value = '';
                 selectedFile = null;
                 document.getElementById('loading').style.display = 'none';
@@ -618,7 +698,8 @@ function containsForbiddenWords(message) {
             .then(response => response.json())
             .then(data => {
                 lastpostContent = data.content;
-                addpostToList(data.content, null, null, activeUser);
+                document.getElementById('postContent').value = '';
+                fileInput.value = '';
                 alert('Tu post se ha enviado correctamente');
                 loadposts(loadAll);togglePosts();
             })
@@ -725,6 +806,61 @@ function loadposts(loadAll) {
         })
         .catch(error => {
             console.error('Error al cargar los posts:', error);
+        });
+}
+
+function loadForumPosts(forumId, loadAll) {
+    const forumList = document.getElementById('forumList');
+    const postList = document.getElementById('postList');
+    forumList.style.display = forumList.style.display === 'block';
+    postList.style.display = postList.style.display === 'block';
+    forumList.innerHTML = ''; // Limpiar lista de posts
+
+    console.log(`Cargando mensajes del foro con ID: ${forumId}...`);
+    fetch(`https://matesitotest.onrender.com/mensajes/${forumId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error al cargar los mensajes: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(messages => {
+            console.log(`Mensajes cargados (${messages.length}):`, messages);
+
+            // Determinar cuántos mensajes renderizar
+            const messagesToRender = loadAll ? messages : messages.slice(0, 12);
+
+            messagesToRender.forEach(message => {
+                const {
+                    content,
+                    media,
+                    media_type: mediaType,
+                    sensitive,
+                    created_at: createdAt,
+                    sender_id: userId,
+                    username,
+                    profile_picture: profilePicture,
+                } = message;
+
+                // Filtrar contenido sensible si es necesario
+                if (!showSensitiveContent && sensitive === true) return;
+
+                // Agregar mensaje a la lista
+                addpostToList(
+                    content,
+                    media || null,
+                    mediaType || null,
+                    username || `Usuario ${userId}`,
+                    profilePicture || '/default-profile.png',
+                    sensitive,
+                    createdAt,
+                    userId,
+                    'forumList'
+                );
+            });
+        })
+        .catch(error => {
+            console.error('Error al cargar los mensajes:', error);
         });
 }
 
