@@ -476,21 +476,24 @@ function loadUserForums() {
                     forumElement.classList.add('user');
 
                     forumElement.innerHTML = `
-                        <label for="${foro.id}${foro.name}" class="boton">${foro.name}</label>
+                    <label for="${foro.id}${foro.name}" class="boton">${foro.name}</label>
                     <input type="radio" id="${foro.id}${foro.name}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
-                        <div id="${foro.name}" class="dropdown-menu" style=" position: fixed; left: 367px; top: 66px;">
+                    <div id="${foro.name}" class="dropdown-menu" style="position: fixed; left: 367px; top: 66px;">
                         <h2 style="margin-top: -5px;">${foro.name}</h2>
                         <p style="margin-top: -10px;">${foro.description}</p>
-                            <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
-                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="loadForumPosts('${foro.id}, ${loadAll}')">
-
-                            <label for="${foro.id}${foro.name}${foro.id}" class="boton">Dejar de seguir foro</label>
-                                <input type="radio" id="${foro.id}${foro.name}${foro.id}" name="nav" style="display:none;" onclick="leaveForum(${foro.id})">
-
-                            <label for="${foro.id}" class="botonV">Volver</label>
-                                <input type="radio" id="${foro.id}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
-                        </div>
-                    `;
+                        <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
+                        <input type="radio" id="${foro.name}${foro.id}" name="nav" style="display:none;" 
+                               onclick="loadForumPosts(${foro.id})">
+                
+                        <label for="${foro.id}${foro.name}${foro.id}" class="boton">Dejar de seguir foro</label>
+                        <input type="radio" id="${foro.id}${foro.name}${foro.id}" name="nav" style="display:none;" 
+                               onclick="leaveForum(${foro.id})">
+                
+                        <label for="${foro.id}" class="botonV">Volver</label>
+                        <input type="radio" id="${foro.id}" name="nav" style="display:none;" 
+                               onclick="toggle_ForumMenu('${foro.name}')">
+                    </div>
+                `;
 
                     container.appendChild(forumElement);
                 });
@@ -808,16 +811,6 @@ function loadposts(loadAll) {
             console.error('Error al cargar los posts:', error);
         });
 }
-
-function encodePassword(password) {
-    return btoa(password); // Convierte a Base64
-}
-
-// Función para decodificar la contraseña de Base64
-function decodePassword(encodedPassword) {
-    return atob(encodedPassword);
-}
-
 
 function loadForumPosts(forumId, loadAll) {
     const forumList = document.getElementById('forumList');
