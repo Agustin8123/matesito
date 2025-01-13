@@ -962,6 +962,8 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 
             if (unicPostList) {
                 unicPostList.style.display = 'block';
+                postList.style.display = 'none';
+                profileList.style.display = 'none';
                 unicPostList.innerHTML = ''; // Limpiar la lista única
                 unicPostList.appendChild(newpost); // Mover el post a la lista única
             }
@@ -1047,6 +1049,11 @@ function followUser(userId) {
 
     if (!followerId) {
         alert('Error: Usuario activo no encontrado');
+        return;
+    }
+
+    if (followerId = userId) {
+        alert('No puedes seguirte ti mismo');
         return;
     }
 
