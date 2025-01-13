@@ -121,7 +121,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
 
     try {
         const result = await db.query(
-            `INSERT INTO mensajes (forum_id, content, sensitive, sender_id, created_at, media, media_type) 
+            `INSERT INTO mensajes (id, content, sensitive, sender_id, created_at, media, media_type) 
              VALUES ($1, $2, $3, $4, $5, $6, $7) 
              RETURNING *`,
             [forumId, content, sensitive, sender_id, createdAt, media, mediaType]

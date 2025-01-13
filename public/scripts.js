@@ -824,8 +824,8 @@ function loadposts(loadAll) {
 function loadForumPosts(forumId, loadAll) {
     const forumList = document.getElementById('forumList');
     const postList = document.getElementById('postList');
-    forumList.style.display = forumList.style.display === 'block';
-    postList.style.display = postList.style.display === 'none';
+    forumList.style.display = 'block';
+     postList.style.display = 'none';
     forumList.innerHTML = ''; // Limpiar lista de posts
 
     console.log(`Cargando mensajes del foro con ID: ${forumId}...`);
