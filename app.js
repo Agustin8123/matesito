@@ -144,10 +144,10 @@ app.get('/mensajes/:forumId', async (req, res) => {
                 m.*, 
                 u.username, 
                 u.image
-             FROM mensajes m
-             INNER JOIN users u ON m.sender_id = u.id
-             WHERE m.id = $1
-             ORDER BY m.created_at ASC`,
+            FROM mensajes m
+            INNER JOIN users u ON m.sender_id = u.id
+            WHERE m.chat_or_group_id = $1
+            ORDER BY m.created_at ASC`,
             [forumId]
         );
 

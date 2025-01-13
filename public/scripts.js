@@ -639,8 +639,10 @@ async function sendForumMessage(forumId) {
             document.getElementById('postContent').value = '';
             fileInput.value = '';
             alert('Mensaje enviado con éxito');
+            loadForumPosts(forumId);
         } else {
             alert('Error al enviar el mensaje');
+            loadForumPosts(forumId);
         }
     } catch (error) {
         console.error('Error al enviar el mensaje:', error);
@@ -860,7 +862,7 @@ function loadForumPosts(forumId, loadAll) {
                     created_at: createdAt,
                     sender_id: userId,
                     username,
-                    profile_picture: profilePicture,
+                    image: profilePicture,
                 } = message;
 
                 // Filtrar contenido sensible si es necesario
