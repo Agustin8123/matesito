@@ -477,24 +477,25 @@ function loadUserForums() {
                     const uniqueId = `${foro.id}-${index}-${Date.now()}`; // ID único
                     const forumElement = document.createElement('div');
                     forumElement.classList.add('user');
-
+                
                     forumElement.innerHTML = `
                         <label for="label-${uniqueId}" class="boton">${foro.name}</label>
-                        <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
+                        <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
                         <div id="menu-${uniqueId}" class="dropdown-menu" style="position: fixed; left: 367px; top: 66px;">
                             <h2 style="margin-top: -5px;">${foro.name}</h2>
                             <p style="margin-top: -10px;">${foro.description}</p>
                             <label for="view-${uniqueId}" class="boton">Ver Foro</label>
                             <input type="radio" id="view-${uniqueId}" name="nav" style="display:none;" onclick="loadForumPosts(${foro.id})">
-                            <label for="follow-${uniqueId}" class="boton">Seguir foro</label>
-                            <input type="radio" id="follow-${uniqueId}" name="nav" style="display:none;" onclick="joinForum(${foro.id})">
+                            <label for="follow-${uniqueId}" class="boton">Dejar foro</label>
+                            <input type="radio" id="follow-${uniqueId}" name="nav" style="display:none;" onclick="leaveForum(${foro.id})">
                             <label for="back-${uniqueId}" class="botonV">Volver</label>
-                            <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_UserMenu('menu-${uniqueId}')">
+                            <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
                         </div>
                     `;
-
+                
                     container.appendChild(forumElement);
                 });
+                
             }
         })
         .catch(error => {
