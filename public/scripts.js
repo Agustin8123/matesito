@@ -1,6 +1,7 @@
-let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imágenes de perfil
+    let users = {};  // Objeto para almacenar los usuarios y contrase
     let posts = [];  // Usamos un arreglo para almacenar los posts
     let activeUser = '';  // Variable para el usuario activo
+    let activeForum = '';
 
     let mantenimiento = false;
 
@@ -560,7 +561,7 @@ function containsForbiddenWords(message) {
         if (postList.style.display === 'block') {
             postpost();
         } else if (forumList.style.display === 'block') {
-            sendMessage(forumId);
+            sendMessage(activeForum);
         } else {
             alert("No puedes publicar un mensaje aquí");
         }
@@ -643,9 +644,13 @@ function containsForbiddenWords(message) {
         }
     }    
 
+
+
     function postpost() {
         const postContent = document.getElementById('postContent').value;
         const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
+
+        activeForum = '';
 
         if (containsForbiddenWords(postContent)) {
             alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
@@ -825,8 +830,10 @@ function loadForumPosts(forumId, loadAll) {
     const forumList = document.getElementById('forumList');
     const postList = document.getElementById('postList');
     forumList.style.display = 'block';
-     postList.style.display = 'none';
+    postList.style.display = 'none';
     forumList.innerHTML = ''; // Limpiar lista de posts
+
+    activeForum = forumId;
 
     console.log(`Cargando mensajes del foro con ID: ${forumId}...`);
     fetch(`https://matesitotest.onrender.com/mensajes/${forumId}`)
