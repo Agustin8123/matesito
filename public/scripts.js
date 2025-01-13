@@ -592,7 +592,7 @@ async function sendMessage(forumId) {
     const messageData = {
         content,
         sensitive: isSensitive ? 1 : 0,
-        sender_id: senderId,
+        sender_id: users[activeUser].id,
         createdAt: new Date().toISOString(),
     };
 
