@@ -561,7 +561,7 @@ function containsForbiddenWords(message) {
         if (postList.style.display === 'block') {
             postpost();
         } else if (forumList.style.display === 'block') {
-            sendMessage(activeForum);
+            sendForumMessage(activeForum);
         } else {
             alert("No puedes publicar un mensaje aquí");
         }
@@ -570,7 +570,7 @@ function containsForbiddenWords(message) {
 
     let lastMessageContent = '';  // Definir una variable global fuera de la función para almacenar el contenido del último mensaje
 
-async function sendMessage(forumId) {
+async function sendForumMessage(forumId) {
     const content = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
     const fileInput = document.getElementById('postMedia');
@@ -595,6 +595,7 @@ async function sendMessage(forumId) {
         sender_id: users[activeUser].id,
         createdAt: new Date().toISOString(),
         chat_or_group_id: forumId,
+        is_private: false,
     };
 
     let media = null;

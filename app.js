@@ -117,14 +117,14 @@ app.post('/posts', (req, res) => {
 
 app.post('/mensajes/:forumId', async (req, res) => {
     const { forumId } = req.params; // Este es el chat_or_group_id
-    const { content, sensitive, sender_id, createdAt, media, mediaType } = req.body;
+    const { content, sensitive, sender_id, createdAt, media, mediaType, is_private } = req.body;
 
     try {
         const result = await db.query(
-            `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7) 
+            `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
              RETURNING *`,
-            [forumId, content, sensitive, sender_id, createdAt, media, mediaType]
+            [forumId, content, sensitive, sender_id, createdAt, media, mediaType, is_private]
         );
 
         res.status(201).json(result.rows[0]);
@@ -133,6 +133,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
         res.status(500).json({ error: 'Error al guardar el mensaje' });
     }
 });
+
 
 app.get('/mensajes/:forumId', async (req, res) => {
     const { forumId } = req.params;
