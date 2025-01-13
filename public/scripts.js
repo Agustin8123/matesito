@@ -489,7 +489,7 @@ function loadUserForums() {
                             <label for="follow-${uniqueId}" class="boton">Seguir foro</label>
                             <input type="radio" id="follow-${uniqueId}" name="nav" style="display:none;" onclick="joinForum(${foro.id})">
                             <label for="back-${uniqueId}" class="botonV">Volver</label>
-                            <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
+                            <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_UserMenu('menu-${uniqueId}')">
                         </div>
                     `;
 
