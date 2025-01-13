@@ -594,6 +594,7 @@ async function sendMessage(forumId) {
         sensitive: isSensitive ? 1 : 0,
         sender_id: users[activeUser].id,
         createdAt: new Date().toISOString(),
+        chat_or_group_id: forumId,
     };
 
     let media = null;
