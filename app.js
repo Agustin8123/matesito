@@ -144,7 +144,7 @@ app.get('/mensajes/:forumId', async (req, res) => {
                 u.username, 
                 u.profile_picture 
              FROM mensajes m
-             INNER JOIN usuarios u ON m.sender_id = u.id
+             INNER JOIN users u ON m.sender_id = u.id
              WHERE m.forum_id = $1
              ORDER BY m.created_at ASC`,
             [forumId]
