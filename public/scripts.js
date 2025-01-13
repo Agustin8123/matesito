@@ -960,23 +960,33 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             const postList = document.getElementById('postList');
             const profileList = document.getElementById('profileList');
 
+            // Si unicPostList no tiene contenido, mover el post y marcarlo como fijo
             if (unicPostList) {
-                unicPostList.style.display = 'block';
-                postList.style.display = 'none';
-                profileList.style.display = 'none';
-                unicPostList.innerHTML = ''; // Limpiar la lista única
-                unicPostList.appendChild(newpost); // Mover el post a la lista única
+                // Si es el primer post que se mueve a unicPostList, lo guardamos como "fijo"
+                if (!localStorage.getItem('fixedPost')) {
+                    unicPostList.innerHTML = ''; // Limpiar la lista
+                    unicPostList.appendChild(newpost); // Mover el nuevo post a la lista única
+                    // Marcar como "fijo" en el localStorage
+                    localStorage.setItem('fixedPost', newpost.innerHTML);
+                }
             }
 
+            // Ocultar otras listas
             if (postList) postList.style.display = 'none'; // Desactivar lista postList
             if (profileList) profileList.style.display = 'none'; // Desactivar lista profileList
         });
     });
 
+    // Verificar si hay un post "fijo" al cargar la lista de posts
+    if (localStorage.getItem('fixedPost')) {
+        const unicPostList = document.getElementById('unicPostList');
+        if (unicPostList) {
+            unicPostList.innerHTML = localStorage.getItem('fixedPost'); // Mostrar el post "fijo"
+        }
+    }
+
     postList.insertBefore(newpost, postList.firstChild);
 }
-
-
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
 function toggleUserProfileBox(uniqueId) {
