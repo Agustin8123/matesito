@@ -880,7 +880,6 @@ function loadForumPosts(forumId, loadAll) {
         });
 }
 
-// Agregar un post a la lista
 function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, listId) {
     const postList = document.getElementById(listId);
     if (!postList) {
@@ -960,15 +959,13 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             const postList = document.getElementById('postList');
             const profileList = document.getElementById('profileList');
 
-            // Si unicPostList no tiene contenido, mover el post y marcarlo como fijo
+            // Si unicPostList existe, eliminar el post previo y añadir el nuevo
             if (unicPostList) {
-                // Si es el primer post que se mueve a unicPostList, lo guardamos como "fijo"
-                if (!localStorage.getItem('fixedPost')) {
-                    unicPostList.innerHTML = ''; // Limpiar la lista
-                    unicPostList.appendChild(newpost); // Mover el nuevo post a la lista única
-                    // Marcar como "fijo" en el localStorage
-                    localStorage.setItem('fixedPost', newpost.innerHTML);
-                }
+                // Limpiar la lista única antes de agregar el nuevo post
+                unicPostList.innerHTML = ''; // Limpiar la lista
+                unicPostList.appendChild(newpost); // Mover el nuevo post a la lista única
+                // Guardar el nuevo post en localStorage
+                localStorage.setItem('fixedPost', newpost.innerHTML);
             }
 
             // Ocultar otras listas
