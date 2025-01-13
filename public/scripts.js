@@ -346,7 +346,6 @@ function reloadPosts() {
     loadposts(loadAll);
 }
 
-// Esta función carga los foros y los muestra en la página
 function loadForos() {
     fetch('/foros')
         .then(response => response.json())
@@ -358,34 +357,31 @@ function loadForos() {
                 // Si no hay foros, mostramos un mensaje
                 const noForosMessage = document.createElement('p');
                 noForosMessage.textContent = 'No hay nada aquí';
-                noForosMessage.style.textAlign = 'center'; // Opcional, para centrar el texto
-                noForosMessage.style.color = 'gray'; // Opcional, para estilizar el texto
+                noForosMessage.style.textAlign = 'center';
+                noForosMessage.style.color = 'gray';
                 container.appendChild(noForosMessage);
             } else {
-                // Si hay foros, los iteramos y renderizamos
-                foros.forEach(foro => {
+                // Renderizar los foros
+                foros.forEach((foro, index) => {
+                    const uniqueId = `${foro.id}-${index}-${Date.now()}`; // ID único
                     const foroElement = document.createElement('div');
-                    foroElement.classList.add('user'); // Agregar una clase para estilizar
+                    foroElement.classList.add('user');
 
-                    // Creamos la estructura del foro (nombre, descripción y botón para unirse)
                     foroElement.innerHTML = `
-                    <label for="${foro.id}${foro.name}" class="boton">${foro.name}</label>
-                    <input type="radio" id="${foro.id}${foro.name}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
-                        <div id="${foro.name}" class="dropdown-menu" style=" position: fixed; left: 367px; top: 66px;">
-                        <h2 style="margin-top: -5px;">${foro.name}</h2>
-                        <p style="margin-top: -10px;">${foro.description}</p>
-                            <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
-                                <input type="radio" id="${foro.name}${foro.id}}" name="nav" style="display:none;" onclick="loadForumPosts('${foro.id}, ${loadAll}')">
-
-                            <label for="${foro.id}${foro.name}${foro.id}" class="boton">Seguir foro</label>
-                                <input type="radio" id="${foro.id}${foro.name}${foro.id}" name="nav" style="display:none;" onclick="joinForum(${foro.id})">
-
-                            <label for="${foro.id}" class="botonV">Volver</label>
-                                <input type="radio" id="${foro.id}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
+                        <label for="label-${uniqueId}" class="boton">${foro.name}</label>
+                        <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
+                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: fixed; left: 367px; top: 66px;">
+                            <h2 style="margin-top: -5px;">${foro.name}</h2>
+                            <p style="margin-top: -10px;">${foro.description}</p>
+                            <label for="view-${uniqueId}" class="boton">Ver Foro</label>
+                            <input type="radio" id="view-${uniqueId}" name="nav" style="display:none;" onclick="loadForumPosts(${foro.id})">
+                            <label for="follow-${uniqueId}" class="boton">Seguir foro</label>
+                            <input type="radio" id="follow-${uniqueId}" name="nav" style="display:none;" onclick="joinForum(${foro.id})">
+                            <label for="back-${uniqueId}" class="botonV">Volver</label>
+                            <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
                         </div>
                     `;
 
-                    // Agregamos el foro al contenedor
                     container.appendChild(foroElement);
                 });
             }
@@ -396,13 +392,12 @@ function loadForos() {
             const container = document.getElementById('forosContainer');
             container.innerHTML = ''; // Limpiamos el contenedor antes de renderizar
 
-            // Mostramos un mensaje indicando que no hay foros (por error)
             const noForosMessage = document.createElement('p');
             noForosMessage.textContent = 'No hay nada aquí';
-            noForosMessage.style.textAlign = 'center'; // Opcional, para centrar el texto
-            noForosMessage.style.color = 'gray'; // Opcional, para estilizar el texto
+            noForosMessage.style.textAlign = 'center';
+            noForosMessage.style.color = 'gray';
             container.appendChild(noForosMessage);
-            alert("Error al cargar los foros")
+            alert("Error al cargar los foros");
         });
 }
 
@@ -462,48 +457,41 @@ function leaveForum(forumId) {
     });
 }
 
-
 function loadUserForums() {
     const userId = users[activeUser].id;
 
     fetch(`https://matesitotest.onrender.com/userForums/${userId}`)
         .then(response => response.json())
         .then(forums => {
-            const container = document.getElementById('forosContainer2'); // Contenedor para los foros unidos
+            const container = document.getElementById('forosContainer2');
             container.innerHTML = ''; // Limpiamos el contenedor
 
             if (forums.length === 0) {
-                // Si no hay foros, mostramos un mensaje
                 const noForumsMessage = document.createElement('p');
                 noForumsMessage.textContent = 'No hay foros a los que estés unido';
                 noForumsMessage.style.textAlign = 'center';
                 noForumsMessage.style.color = 'gray';
                 container.appendChild(noForumsMessage);
             } else {
-                // Renderizamos los foros
-                forums.forEach(foro => {
+                forums.forEach((foro, index) => {
+                    const uniqueId = `${foro.id}-${index}-${Date.now()}`; // ID único
                     const forumElement = document.createElement('div');
                     forumElement.classList.add('user');
 
                     forumElement.innerHTML = `
-                    <label for="${foro.id}${foro.name}" class="boton">${foro.name}</label>
-                    <input type="radio" id="${foro.id}${foro.name}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
-                    <div id="${foro.name}" class="dropdown-menu" style="position: fixed; left: 367px; top: 66px;">
-                        <h2 style="margin-top: -5px;">${foro.name}</h2>
-                        <p style="margin-top: -10px;">${foro.description}</p>
-                        <label for="${foro.name}${foro.id}" class="boton">Ver Foro</label>
-                        <input type="radio" id="${foro.name}${foro.id}" name="nav" style="display:none;" 
-                               onclick="loadForumPosts(${foro.id})">
-                
-                        <label for="${foro.id}${foro.name}${foro.id}" class="boton">Dejar de seguir foro</label>
-                        <input type="radio" id="${foro.id}${foro.name}${foro.id}" name="nav" style="display:none;" 
-                               onclick="leaveForum(${foro.id})">
-                
-                        <label for="${foro.id}" class="botonV">Volver</label>
-                        <input type="radio" id="${foro.id}" name="nav" style="display:none;" 
-                               onclick="toggle_ForumMenu('${foro.name}')">
-                    </div>
-                `;
+                        <label for="label-${uniqueId}" class="boton">${foro.name}</label>
+                        <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
+                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: fixed; left: 367px; top: 66px;">
+                            <h2 style="margin-top: -5px;">${foro.name}</h2>
+                            <p style="margin-top: -10px;">${foro.description}</p>
+                            <label for="view-${uniqueId}" class="boton">Ver Foro</label>
+                            <input type="radio" id="view-${uniqueId}" name="nav" style="display:none;" onclick="loadForumPosts(${foro.id})">
+                            <label for="follow-${uniqueId}" class="boton">Seguir foro</label>
+                            <input type="radio" id="follow-${uniqueId}" name="nav" style="display:none;" onclick="joinForum(${foro.id})">
+                            <label for="back-${uniqueId}" class="botonV">Volver</label>
+                            <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('${foro.name}')">
+                        </div>
+                    `;
 
                     container.appendChild(forumElement);
                 });
@@ -514,7 +502,6 @@ function loadUserForums() {
             alert('Error al cargar los foros del usuario');
         });
 }
-
 
 function containsForbiddenWords(message) {
         return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
@@ -749,6 +736,7 @@ function buttonsState() {
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
     const unicPostList = document.getElementById('unicPostList');
+    const forumList = document.getElementById('forumList');
 
     if (profileList.style.display === 'block') {
         const username = document.getElementById('currentProfileUsername').value;
@@ -758,6 +746,9 @@ function buttonsState() {
     } else if (postList.style.display === 'block') {
         unicPostList.style.display = 'none';
         loadposts(loadAll); 
+    } else if (forumList.style.display === 'block') {
+        unicPostList.style.display = 'none';
+        loadForumPosts(activeForum, loadAll);
     }
 }
 
@@ -850,8 +841,9 @@ function loadForumPosts(forumId, loadAll) {
         .then(messages => {
             console.log(`Mensajes cargados (${messages.length}):`, messages);
 
-            // Determinar cuántos mensajes renderizar
-            const messagesToRender = loadAll ? messages : messages.slice(0, 12);
+            const reversedMessages = messages.reverse();
+
+            const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
 
             messagesToRender.forEach(message => {
                 const {
