@@ -588,7 +588,7 @@ async function sendMessage(forumId) {
         return;
     }
 
-    // Preparar los datos del mensaje
+    // Preparar los datos mensaje
     const messageData = {
         content,
         sensitive: isSensitive ? 1 : 0,
