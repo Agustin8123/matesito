@@ -568,83 +568,83 @@ function containsForbiddenWords(message) {
     }
     
 
-    async function sendMessage(forumId) {
-        const content = document.getElementById('postContent').value;
-        const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
-        const fileInput = document.getElementById('postMedia');
-        const file = fileInput.files[0];
-    
-        // Validar contenido prohibido
-        if (containsForbiddenWords(content)) {
-            alert("Creemos que tu mensaje infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
-            return;
-        }
-    
-        // Verificar si el contenido es igual al último enviado
-        if (content === lastMessageContent) {
-            alert("No puedes enviar un mensaje igual al anterior.");
-            return;
-        }
-    
-        // Preparar los datos del mensaje
-        const messageData = {
-            content,
-            sensitive: isSensitive ? 1 : 0,
-            sender_id: senderId,
-            createdAt: new Date().toISOString(),
-        };
-    
-        let media = null;
-        let mediaType = null;
-    
-        if (file) {
-            const formData = new FormData();
-            formData.append("file", file);
-    
-            try {
-                // Subir el archivo a Cloudinary u otro servicio
-                const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
-                const uploadData = await uploadResponse.json();
-                media = uploadData.secure_url;
-                mediaType = file.type;
-    
-                // Añadir los datos de media al mensaje
-                messageData.media = media;
-                messageData.mediaType = mediaType;
-            } catch (error) {
-                console.error('Error al subir el archivo:', error);
-                alert('Error al subir el archivo.');
-                return;
-            }
-        }
-    
+    let lastMessageContent = '';  // Definir una variable global fuera de la función para almacenar el contenido del último mensaje
+
+async function sendMessage(forumId) {
+    const content = document.getElementById('postContent').value;
+    const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
+    const fileInput = document.getElementById('postMedia');
+    const file = fileInput.files[0];
+
+    // Validar contenido prohibido
+    if (containsForbiddenWords(content)) {
+        alert("Creemos que tu mensaje infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
+        return;
+    }
+
+    // Verificar si el contenido es igual al último enviado
+    if (content === lastMessageContent) {
+        alert("No puedes enviar un mensaje igual al anterior.");
+        return;
+    }
+
+    // Preparar los datos del mensaje
+    const messageData = {
+        content,
+        sensitive: isSensitive ? 1 : 0,
+        sender_id: senderId,
+        createdAt: new Date().toISOString(),
+    };
+
+    let media = null;
+    let mediaType = null;
+
+    if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+
         try {
-            // Enviar el mensaje al servidor
-            const response = await fetch(`https://matesitotest.onrender.com/mensajes/${forumId}`, {
+            // Subir el archivo a Cloudinary u otro servicio
+            const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(messageData),
+                body: formData,
             });
-    
-            if (response.ok) {
-                const responseData = await response.json();
-                lastMessageContent = responseData.content;
-                document.getElementById('postContent').value = '';
-                fileInput.value = '';
-                alert('Mensaje enviado con éxito');
-            } else {
-                alert('Error al enviar el mensaje');
-            }
+            const uploadData = await uploadResponse.json();
+            media = uploadData.secure_url;
+            mediaType = file.type;
+
+            // Añadir los datos de media al mensaje
+            messageData.media = media;
+            messageData.mediaType = mediaType;
         } catch (error) {
-            console.error('Error al enviar el mensaje:', error);
-            alert('Error al enviar el mensaje.');
+            console.error('Error al subir el archivo:', error);
+            alert('Error al subir el archivo.');
+            return;
         }
-    }    
+    }
 
+    try {
+        // Enviar el mensaje al servidor
+        const response = await fetch(`https://matesitotest.onrender.com/mensajes/${forumId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(messageData),
+        });
 
+        if (response.ok) {
+            const responseData = await response.json();
+            lastMessageContent = responseData.content;  // Actualizar la variable global
+            document.getElementById('postContent').value = '';
+            fileInput.value = '';
+            alert('Mensaje enviado con éxito');
+        } else {
+            alert('Error al enviar el mensaje');
+        }
+    } catch (error) {
+        console.error('Error al enviar el mensaje:', error);
+        alert('Error al enviar el mensaje.');
+    }
+}
 
     function postpost() {
         const postContent = document.getElementById('postContent').value;
