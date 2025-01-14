@@ -1011,10 +1011,11 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
            </div>`
         : `<div class="post-content clickable">${content}${mediaHTML}</div>`;
 
-    // Crear un id único para la caja de usuario
+    // Crear un id único para la caja de usuario y para el widget de MicroReact
     const uniqueId = `userProfileBox_${userId}_${Math.random().toString(36).substr(2, 9)}`;
+    const microReactId = `post-${userId}-${Math.random().toString(36).substr(2, 9)}`;
 
-    // HTML del post
+    // HTML del post con MicroReact
     newpost.innerHTML = `
         <div class="post-header">
             ${profilePicHTML}
@@ -1027,6 +1028,15 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         <div class="user-profile-box" id="${uniqueId}" style="display:none;">
             <button onclick="viewProfile('${username}')">Ver perfil</button>
             <button onclick="followUser(${userId})">Seguir</button>
+        </div>
+        <div style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
+            <iframe 
+                src="https://microreact.glitch.me/embed?id=yourWebsiteName_${microReactId}" 
+                style="width: 275px; height: 100px; border: none;" 
+                frameborder="none" 
+                loading="lazy" 
+                title="Deja una reacción">
+            </iframe>
         </div>
     `;
 
