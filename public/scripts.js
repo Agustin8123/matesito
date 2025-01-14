@@ -549,6 +549,39 @@ function loadUserCreatedForums() {
             alert('Error al cargar los foros creados por el usuario');
         });
 }
+function deleteForum(forumId) {
+    const userId = users[activeUser].id; // ID del usuario activo
+
+    // Confirmar la eliminación
+    const confirmDelete = confirm('¿Estás seguro de que deseas eliminar este foro?');
+    if (!confirmDelete) {
+        return;
+    }
+
+    fetch(`https://matesitotest.onrender.com/foros/${forumId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data || 'Error al eliminar el foro');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data); // Mensaje de éxito del backend
+        loadUserCreatedForums(); // Actualiza la lista de foros creados
+    })
+    .catch(error => {
+        console.error('Error al eliminar el foro:', error);
+        alert(error.message || 'Error al eliminar el foro');
+    });
+}
 
 function containsForbiddenWords(message) {
         return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
