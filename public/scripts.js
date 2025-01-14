@@ -1058,7 +1058,7 @@ function followUser(userId) {
         return;
     }
 
-    if (followerId = userId) {
+    if (followerId === userId) {
         alert('No puedes seguirte ti mismo');
         return;
     }
