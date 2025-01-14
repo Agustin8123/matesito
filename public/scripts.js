@@ -370,7 +370,7 @@ function loadForos() {
                     foroElement.innerHTML = `
                         <label for="label-${uniqueId}" class="boton">${foro.name}</label>
                         <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
-                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 0; top: 0;">
+                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 188; top: -20;">
                             <h2 style="margin-top: -5px;">${foro.name}</h2>
                             <p style="margin-top: -10px;">${foro.description}</p>
                             <label for="view-${uniqueId}" class="boton">Ver Foro</label>
@@ -481,7 +481,7 @@ function loadUserForums() {
                     forumElement.innerHTML = `
                         <label for="label-${uniqueId}" class="boton">${foro.name}</label>
                         <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
-                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 0; top: 0;">
+                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
                             <h2 style="margin-top: -5px;">${foro.name}</h2>
                             <p style="margin-top: -10px;">${foro.description}</p>
                             <label for="view-${uniqueId}" class="boton">Ver Foro</label>
@@ -1132,16 +1132,17 @@ function loadFollowedUsers() {
 
                     userElement.innerHTML = `
                     <label for="${username}" class="boton">${user.username}</label>
-                        <input type="radio" id="${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
-                        <div id="${Id}" class="dropdown-menu" style=" position: fixed; left: 367px; top: 66px;">
-                            <label for="${username}${Id}" class="boton">Ver perfil</label>
-                                <input type="radio" id="${username}${Id}" name="nav" style="display:none;" onclick="viewProfile('${username}')">
-                            <label for="${Id}${username}${Id}" class="boton">Dejar de seguir</label>
-                                <input type="radio" id="${Id}${username}${Id}" name="nav" style="display:none;" onclick="unfollowUser(${followerId}, ${Id})">
+                    <input type="radio" id="${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
+                    <div id="${Id}" class="dropdown-menu" style="position: absolute; left: 367px; top: 66px;">
+                        <h1>${username}</h1>
 
-                            <label for="${Id}${username}" class="botonV">Volver</label>
-                                <input type="radio" id="${Id}${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
-                        </div>
+                        <label for="${username}${Id}" class="boton">Ver perfil</label>
+                        <input type="radio" id="${username}${Id}" name="nav" style="display:none;" onclick="viewProfile('${username}')">
+                        <label for="${Id}${username}${Id}" class="boton">Dejar de seguir</label>
+                        <input type="radio" id="${Id}${username}${Id}" name="nav" style="display:none;" onclick="unfollowUser(${followerId}, ${Id})">
+                        <label for="${Id}${username}" class="botonV">Volver</label>
+                        <input type="radio" id="${Id}${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
+                    </div>
                     `;
 
                     container.appendChild(userElement);
