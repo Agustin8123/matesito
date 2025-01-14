@@ -400,6 +400,39 @@ app.get('/userCreatedForums/:userId', (req, res) => {
     });
 });
 
+app.delete('/foros/:forumId', (req, res) => {
+    const forumId = req.params.forumId;
+    const { userId } = req.body; // El usuario que intenta eliminar el foro
+
+    if (!forumId || !userId) {
+        return res.status(400).json('Datos incompletos');
+    }
+
+    // Verificar que el usuario es el propietario del foro
+    const verifyQuery = 'SELECT owner_id FROM foros WHERE id = $1';
+    db.query(verifyQuery, [forumId], (err, result) => {
+        if (err) {
+            console.error('Error al verificar el foro:', err);
+            return res.status(500).json('Error al verificar el foro');
+        }
+
+        if (result.rows.length === 0 || result.rows[0].owner_id !== userId) {
+            return res.status(403).json('No tienes permiso para eliminar este foro');
+        }
+
+        // Eliminar el foro si es el propietario
+        const deleteQuery = 'DELETE FROM foros WHERE id = $1';
+        db.query(deleteQuery, [forumId], (err) => {
+            if (err) {
+                console.error('Error al eliminar el foro:', err);
+                return res.status(500).json('Error al eliminar el foro');
+            }
+
+            res.status(200).json('Foro eliminado con éxito');
+        });
+    });
+});
+
 // Unirse a un foro
 app.post('/joinForum', (req, res) => {
     const { userId, forumId } = req.body;
