@@ -382,6 +382,23 @@ app.get('/foros', (req, res) => {
     });
 });
 
+app.get('/userCreatedForums/:userId', (req, res) => {
+    const userId = req.params.userId;
+
+    if (!userId) {
+        return res.status(400).json('ID de usuario no proporcionado');
+    }
+
+    const query = 'SELECT id, name, description FROM foros WHERE owner_id = $1';
+    db.query(query, [userId], (err, result) => {
+        if (err) {
+            console.error('Error al obtener los foros del usuario:', err);
+            return res.status(500).json('Error al obtener los foros del usuario');
+        }
+
+        res.status(200).json(result.rows);
+    });
+});
 
 // Unirse a un foro
 app.post('/joinForum', (req, res) => {

@@ -55,6 +55,11 @@ function toggleForumMenu() {
     toggleVisibility('forumSubMenu');
 }
 
+function toggleMyForumMenu() {
+    toggleVisibility('myForumMenu');
+}
+
+
 function toggleUserMenu() {
     toggleVisibility('userSubMenu');
     loadFollowedUsers(); 
