@@ -1011,7 +1011,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 
     // Crear un id único para la caja de usuario y para el widget de MicroReact
     const uniqueId = `userProfileBox_${userId}_${Math.random().toString(36).substr(2, 9)}`;
-    const microReactId = `post-${postId}-${Math.random().toString(36).substr(2, 9)}`;
+    const microReactId = `post-${postId}`;
 
     // HTML del post con MicroReact
     newpost.innerHTML = `
