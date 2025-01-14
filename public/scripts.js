@@ -504,6 +504,52 @@ function loadUserForums() {
         });
 }
 
+function loadUserCreatedForums() {
+    const userId = users[activeUser].id; // ID del usuario activo
+
+    fetch(`https://matesitotest.onrender.com/userCreatedForums/${userId}`)
+        .then(response => response.json())
+        .then(forums => {
+            const container = document.getElementById('createdForosContainer');
+            container.innerHTML = ''; // Limpiamos el contenedor
+
+            if (forums.length === 0) {
+                const noForumsMessage = document.createElement('p');
+                noForumsMessage.textContent = 'No has creado ningún foro';
+                noForumsMessage.style.textAlign = 'center';
+                noForumsMessage.style.color = 'gray';
+                container.appendChild(noForumsMessage);
+            } else {
+                forums.forEach((foro, index) => {
+                    const uniqueId = `${foro.id}-${index}-${Date.now()}`; // ID único
+                    const forumElement = document.createElement('div');
+                    forumElement.classList.add('user');
+                
+                    forumElement.innerHTML = `
+                        <label for="label-${uniqueId}" class="boton">${foro.name}</label>
+                        <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
+                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
+                            <h2 style="margin-top: -5px;">${foro.name}</h2>
+                            <p style="margin-top: -10px;">${foro.description}</p>
+                            <label for="view-${uniqueId}" class="boton">Ver Foro</label>
+                            <input type="radio" id="view-${uniqueId}" name="nav" style="display:none;" onclick="loadForumPosts(${foro.id})">
+                            <label for="delete-${uniqueId}" class="boton">Eliminar Foro</label>
+                            <input type="radio" id="delete-${uniqueId}" name="nav" style="display:none;" onclick="deleteForum(${foro.id})">
+                            <label for="back-${uniqueId}" class="botonV">Volver</label>
+                            <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
+                        </div>
+                    `;
+                
+                    container.appendChild(forumElement);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar los foros creados por el usuario:', error);
+            alert('Error al cargar los foros creados por el usuario');
+        });
+}
+
 function containsForbiddenWords(message) {
         return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
     }
@@ -1133,7 +1179,7 @@ function loadFollowedUsers() {
                     userElement.innerHTML = `
                     <label for="${username}" class="boton">${user.username}</label>
                     <input type="radio" id="${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
-                    <div id="${Id}" class="dropdown-menu" style="position: absolute; left: 367px; top: 66px;">
+                    <div id="${Id}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
                         <h1>${username}</h1>
 
                         <label for="${username}${Id}" class="boton">Ver perfil</label>
