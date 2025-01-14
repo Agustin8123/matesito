@@ -860,9 +860,6 @@ function togglePostLoad() {
     buttonsState();
 }
 
-
-// Función para cargar los posts
-// Función para cargar los posts
 function loadposts(loadAll) {
     const unicPostList = document.getElementById('unicPostList');
     unicPostList.style.display = 'none';
@@ -884,13 +881,14 @@ function loadposts(loadAll) {
             // Limpiar la lista y renderizar los posts seleccionados
             postList.innerHTML = '';
             postsToRender.forEach(post => {
-                const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId } = post;
+                const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = post;
 
                 // Filtrar contenido sensible correctamente
                 if (!showSensitiveContent && sensitive === true) return;
 
                 if (content && username) {
-                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, 'postList');
+                    // Ahora estamos pasando postId a la función
+                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, 'postList');
                 } else {
                     console.warn('Post inválido omitido:', post);
                 }
@@ -959,7 +957,7 @@ function loadForumPosts(forumId, loadAll) {
         });
 }
 
-function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, listId) {
+function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId) {
     const postList = document.getElementById(listId);
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
@@ -1013,7 +1011,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 
     // Crear un id único para la caja de usuario y para el widget de MicroReact
     const uniqueId = `userProfileBox_${userId}_${Math.random().toString(36).substr(2, 9)}`;
-    const microReactId = `post-${userId}-${Math.random().toString(36).substr(2, 9)}`;
+    const microReactId = `post-${postId}-${Math.random().toString(36).substr(2, 9)}`;
 
     // HTML del post con MicroReact
     newpost.innerHTML = `
