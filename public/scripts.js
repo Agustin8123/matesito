@@ -961,11 +961,10 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 
             // Si unicPostList existe, eliminar el post previo y añadir el nuevo
             if (unicPostList) {
-                // Limpiar la lista única antes de agregar el nuevo post
                 unicPostList.innerHTML = ''; // Limpiar la lista
                 unicPostList.appendChild(newpost); // Mover el nuevo post a la lista única
-                // Guardar el nuevo post en localStorage
                 localStorage.setItem('fixedPost', newpost.innerHTML);
+                unicPostList.style.display = 'block';
             }
 
             // Ocultar otras listas
