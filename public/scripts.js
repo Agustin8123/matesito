@@ -370,7 +370,7 @@ function loadForos() {
                     foroElement.innerHTML = `
                         <label for="label-${uniqueId}" class="boton">${foro.name}</label>
                         <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
-                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: fixed; left: 367px; top: 66px;">
+                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 0; top: 0;">
                             <h2 style="margin-top: -5px;">${foro.name}</h2>
                             <p style="margin-top: -10px;">${foro.description}</p>
                             <label for="view-${uniqueId}" class="boton">Ver Foro</label>
@@ -481,7 +481,7 @@ function loadUserForums() {
                     forumElement.innerHTML = `
                         <label for="label-${uniqueId}" class="boton">${foro.name}</label>
                         <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
-                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: fixed; left: 367px; top: 66px;">
+                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 0; top: 0;">
                             <h2 style="margin-top: -5px;">${foro.name}</h2>
                             <p style="margin-top: -10px;">${foro.description}</p>
                             <label for="view-${uniqueId}" class="boton">Ver Foro</label>
