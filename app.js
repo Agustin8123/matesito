@@ -26,6 +26,53 @@ db.connect()
   .then(() => console.log('Conexión a la base de datos PostgreSQL exitosa'))
   .catch(err => console.error('Error al conectar a la base de datos:', err));
 
+
+  app.get('/get/microreact--reactions/:id', async (req, res) => {
+    const { id } = req.params;
+    const reaction = req.query.reaction;
+  
+    try {
+      const result = await pool.query(
+        'SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2',
+        [id, reaction]
+      );
+      if (result.rows.length === 0) {
+        return res.status(200).json({ value: 0 });
+      }
+      res.status(200).json({ value: result.rows[0].count });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+  
+  // Endpoint para actualizar la reacción cuando alguien da clic
+  app.get('/hit/microreact--reactions/:id-:reaction', async (req, res) => {
+    const { id, reaction } = req.params;
+  
+    try {
+      // Actualizar el contador en la base de datos
+      const result = await pool.query(
+        'UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2 RETURNING count',
+        [id, reaction]
+      );
+  
+      if (result.rows.length === 0) {
+        // Si no existe, insertamos una nueva fila
+        await pool.query(
+          'INSERT INTO reactions (id, reaction_id, count) VALUES ($1, $2, 1)',
+          [id, reaction]
+        );
+        return res.status(200).json({ value: 1 });
+      }
+  
+      res.status(200).json({ value: result.rows[0].count });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+  
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
     const { username, password, profileImage } = req.body;
@@ -42,8 +89,6 @@ app.post('/users', async (req, res) => {
         }
     });
 });
-
-
 
 // Iniciar sesión con un usuario existente
 app.post('/login', (req, res) => {

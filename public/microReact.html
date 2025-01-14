@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>MicroReact Embed</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>     
+      body,
+      html {
+        height: 100vh;
+        width: 100vw;
+        margin: 0px;
+        padding: 0px;
+        display: flex;
+        flex-direction: column;
+        max-height: 100vh;
+        overflow: hidden;
+        font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, "Geist Sans", Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, Helvetica, Apple Color Emoji, Arial, Segoe UI Emoji, Segoe UI Symbol;
+        color: black;
+      }
+      .reactions,
+      .list {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+      .reactions {
+        height: 100%;
+      }
+      .reactions button {
+        width: 100%;
+        font-size: 30px;
+        padding: 0px;
+        margin: 0px;
+        border: none;
+        background-color: transparent;
+        cursor: pointer;
+        transition: transform 0.25s, opacity 0.25s;
+      }
+      .reactions button:hover {
+        transform: scale(1.2);
+      }
+      .reactions button:active {
+        opacity: 0.7;
+      }
+      .reactions button[disabled] {
+        pointer-events: none;
+        opacity: 0.4;
+      }
+      .list p {
+        width: 100%;
+        margin: 0px;
+        text-align: center;
+        user-select: none;
+        font-family: inherit;
+        font-size: 13.5px;
+        opacity: 0.7;
+        transition: opacity 0.25s, margin-bottom 0.25s;
+      }
+      .small_credits {
+        text-align: right;
+        padding-right: 10px;
+      }
+      .small_credits a {
+        font-size: 10px;
+        opacity: 0.2;
+        text-decoration: none;
+        color: inherit;
+        transition: opacity 0.2s;
+        font-family: inherit;
+      }
+      .small_credits a:hover {
+        opacity: 0.7;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reactions">
+      <button
+        data-reaction-id="1"
+        title="Send 'thumbs up' reaction"
+        style="display: none"
+      >
+        👍
+      </button>
+      <button
+        data-reaction-id="2"
+        title="Send 'heart' reaction"
+        style="display: none"
+      >
+        ❤️
+      </button>
+      <button
+        data-reaction-id="3"
+        title="Send 'laugh' reaction"
+        style="display: none"
+      >
+        😂
+      </button>
+      <button
+        data-reaction-id="4"
+        title="Send 'surprised' reaction"
+        style="display: none"
+      >
+        😲
+      </button>
+      <button
+        data-reaction-id="5"
+        title="Send 'tears' reaction"
+        style="display: none"
+      >
+        😢
+      </button>
+    </div>
+    <div class="list">
+      <p
+        data-list-id="1"
+        title="Number of people that reacted 'thumbs up'"
+        style="display: none"
+      >
+        --
+      </p>
+      <p
+        data-list-id="2"
+        title="Number of people that reacted 'heart'"
+        style="display: none"
+      >
+        --
+      </p>
+      <p
+        data-list-id="3"
+        title="Number of people that reacted 'laugh'"
+        style="display: none"
+      >
+        --
+      </p>
+      <p
+        data-list-id="4"
+        title="Number of people that reacted 'surprised'"
+        style="display: none"
+      >
+        --
+      </p>
+      <p
+        data-list-id="5"
+        title="Number of people that reacted 'tears'"
+        style="display: none"
+      >
+        --
+      </p>
+    </div>
+    <div class="small_credits">
+      <a href="https://microreact.glitch.me/" target="_blank" rel="follow opener">by MicroReact</a>
+    </div>
+  </body>
+  <script defer src="https://uma.tiagorangel.com/script.js" data-website-id="ec673efa-f86a-4841-968b-a3a4a4980b5d"></script>
+  <script src="McRcScript.js" defer></script>
+</html>
