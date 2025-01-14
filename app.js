@@ -32,7 +32,7 @@ db.connect()
     const reaction = req.query.reaction;
   
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2',
         [id, reaction]
       );
@@ -52,14 +52,14 @@ db.connect()
   
     try {
       // Actualizar el contador en la base de datos
-      const result = await pool.query(
+      const result = await db.query(
         'UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2 RETURNING count',
         [id, reaction]
       );
   
       if (result.rows.length === 0) {
         // Si no existe, insertamos una nueva fila
-        await pool.query(
+        await db.query(
           'INSERT INTO reactions (id, reaction_id, count) VALUES ($1, $2, 1)',
           [id, reaction]
         );
@@ -72,7 +72,7 @@ db.connect()
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
-  
+
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
     const { username, password, profileImage } = req.body;
