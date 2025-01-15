@@ -37,16 +37,23 @@ reactions.forEach(async function (reaction) {
   el.style.display = "block";
   list.style.display = "block";
 
-  el.addEventListener("click", function (evt) {
-    fetch(
+  el.addEventListener("click", async function () {
+    const response = await fetch(
       `https://${API_BASE}/hit/microreact--reactions/${encodeURIComponent(id)}/${reaction}`,
       {
-        method: "POST", // Cambiamos el método a POST
+        method: "POST",
         headers: {
-          "Content-Type": "application/json", // Configuración opcional si envías datos
+          "Content-Type": "application/json",
         },
       }
     );
+  
+    if (response.ok) {
+      const data = await response.json();
+      list.innerText = data.value; // Actualizar el contador basado en el valor real devuelto
+    }
+  
+    // Animaciones posteriores
     el.style.opacity = "0";
     el.style.transform = "scale(0.8) rotate(20deg)";
     list.style.opacity = "0";
@@ -54,14 +61,12 @@ reactions.forEach(async function (reaction) {
   
     let originalText = el.innerText;
   
-    setTimeout(async function () {
+    setTimeout(function () {
       list.style.opacity = "1";
       list.style.marginBottom = "0px";
       el.style.opacity = ".7";
       el.innerText = "✔️";
       el.style.transform = "scale(1)";
-  
-      list.innerText = parseInt(list.innerText) + 1;
     }, 250);
   
     setTimeout(function () {
