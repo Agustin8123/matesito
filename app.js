@@ -27,7 +27,8 @@ db.connect()
   .catch(err => console.error('Error al conectar a la base de datos:', err));
 
 
-  app.get('/get/microreact--reactions/:id', async (req, res) => {
+ // Obtener la cantidad de reacciones
+app.get('/get/microreact--reactions/:id', async (req, res) => {
     const { id } = req.params;
     const reaction = req.query.reaction;
   
@@ -46,8 +47,8 @@ db.connect()
     }
   });
   
-  // Endpoint para actualizar la reacción cuando alguien da clic
-  app.get('/hit/microreact--reactions/:id-:reaction', async (req, res) => {
+  // Actualizar el contador de reacciones
+  app.post('/hit/microreact--reactions/:id/:reaction', async (req, res) => {
     const { id, reaction } = req.params;
   
     try {
