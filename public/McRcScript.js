@@ -88,19 +88,18 @@ reactions.forEach(async function (reaction) {
   });
 
   try {
-    list.innerText =
+    list.innerText = (
       (
-        (await (
+        await (
           await fetch(
-            `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(
-              id
-            )}-${reaction}`
+            `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(reaction)}`
           )
-        ).json()) || { value: 0 }
-      ).value || 0;
+        ).json()
+      ) || { value: 0 }
+    ).value || 0;
   } catch {
     list.innerText = "0";
-  }
+  }  
 });
 
 let css = "";
