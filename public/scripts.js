@@ -1032,7 +1032,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         <div style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
            <iframe 
             src="https://matesitotest.onrender.com/microReact.html?id=Matesito_${microReactId}" 
-                style="width: 200px; height: 50px; border: none;" 
+                style="width: 275px; height: 100px; border: none;" 
                 frameborder="0" 
                 loading="lazy" 
                 title="Deja una reacción">
@@ -1223,8 +1223,6 @@ function loadFollowedUsers() {
                     <label for="${username}" class="boton">${user.username}</label>
                     <input type="radio" id="${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
                     <div id="${Id}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
-                        <h1>${username}</h1>
-
                         <label for="${username}${Id}" class="boton">Ver perfil</label>
                         <input type="radio" id="${username}${Id}" name="nav" style="display:none;" onclick="viewProfile('${username}')">
                         <label for="${Id}${username}${Id}" class="boton">Dejar de seguir</label>
