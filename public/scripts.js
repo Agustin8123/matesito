@@ -933,6 +933,7 @@ function loadForumPosts(forumId, loadAll) {
                     sender_id: userId,
                     username,
                     image: profilePicture,
+                    id: postId // Asegurarse de que se obtenga el ID del mensaje
                 } = message;
 
                 // Filtrar contenido sensible si es necesario
@@ -948,6 +949,7 @@ function loadForumPosts(forumId, loadAll) {
                     sensitive,
                     createdAt,
                     userId,
+                    postId,
                     'forumList'
                 );
             });
@@ -1123,11 +1125,11 @@ function viewProfile(username, loadAll) {
             const postsToRender = loadAll ? posts : posts.slice(0, 12);
 
             postsToRender.forEach(post => {
-                const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId } = post;
+                const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = post;
                 // Filtrar contenido sensible si es necesario
                 if (!showSensitiveContent && sensitive === true) return;
                 if (content && username) {
-                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, 'profileList');
+                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, 'profileList');
                 }
             });
         })
