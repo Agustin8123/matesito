@@ -41,7 +41,7 @@ reactions.forEach(async function (reaction) {
     const response = await fetch(
       `https://${API_BASE}/hit/microreact--reactions/${encodeURIComponent(id)}/${reaction}`,
       {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
