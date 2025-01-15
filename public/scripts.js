@@ -1028,10 +1028,10 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             <button onclick="followUser(${userId})">Seguir</button>
         </div>
         <div style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
-            <iframe 
-                src="https://matesitotest.onrender.com/microReact.html?id=Matesito_${microReactId}" 
-                style="width: 275px; height: 100px; border: none;" 
-                frameborder="none" 
+           <iframe 
+            src="https://matesitotest.onrender.com/microReact.html?id=Matesito_${microReactId}" 
+                style="width: 200px; height: 50px; border: none;" 
+                frameborder="0" 
                 loading="lazy" 
                 title="Deja una reacción">
             </iframe>
