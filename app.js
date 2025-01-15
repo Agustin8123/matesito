@@ -46,33 +46,24 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
-  
-  // Actualizar el contador de reacciones
-  app.post('/hit/microreact--reactions/:id/:reaction', async (req, res) => {
+
+  app.get('/get/microreact--reactions/:id/:reaction', async (req, res) => {
     const { id, reaction } = req.params;
   
     try {
-      // Actualizar el contador en la base de datos
       const result = await db.query(
-        'UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2 RETURNING count',
+        'SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2',
         [id, reaction]
       );
-  
       if (result.rows.length === 0) {
-        // Si no existe, insertamos una nueva fila
-        await db.query(
-          'INSERT INTO reactions (id, reaction_id, count) VALUES ($1, $2, 1)',
-          [id, reaction]
-        );
-        return res.status(200).json({ value: 1 });
+        return res.status(200).json({ value: 0 });
       }
-  
       res.status(200).json({ value: result.rows[0].count });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  });
+  });  
 
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
