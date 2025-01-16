@@ -899,6 +899,107 @@ function loadposts(loadAll) {
         });
 }
 
+function createOrLoadChat(user2Id) {
+    const user1Id = users[activeUser].id;
+
+    if (!user1Id || !user2Id) {
+        console.error('IDs de usuario incompletos');
+        return;
+    }
+
+    console.log(`Intentando cargar o crear un chat entre el usuario ${user1Id} y el usuario ${user2Id}...`);
+
+    fetch('https://matesitotest.onrender.com/createOrLoadPrivateChat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user1Id, user2Id }),
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error al cargar o crear el chat: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const { chatId } = data;
+            if (!chatId) {
+                throw new Error('No se recibió un chatId válido del servidor');
+            }
+
+            console.log(`Chat cargado o creado con éxito. ID del chat: ${chatId}`);
+            
+            // Llamar a la función de cargar mensajes
+            loadChatMessages(chatId, loadAll);
+        })
+        .catch(error => {
+            console.error('Error en createOrLoadChat:', error);
+        });
+}
+
+function loadChatMessages(chatId, loadAll) {
+    const postList = document.getElementById('postList');
+    postList.style.display = 'none';
+    const messageList = document.getElementById('messageList');
+    messageList.style.display = 'block';
+
+    console.log(`Cargando mensajes del chat ${chatId}...`);
+    fetch(`https://matesitotest.onrender.com/chat/messages/${chatId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error al cargar los mensajes: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(messages => {
+            const reversedMessages = messages.reverse(); // Ordenar de más antiguos a más recientes
+
+            // Determinar cuántos mensajes renderizar
+            const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
+
+            // Limpiar la lista y renderizar los mensajes seleccionados
+            postList.innerHTML = '';
+            messagesToRender.forEach(message => {
+                const {
+                    content,
+                    media,
+                    mediaType,
+                    senderUsername,
+                    senderProfilePicture,
+                    sensitive,
+                    createdAt,
+                    senderId,
+                    messageId,
+                } = message;
+
+                // Filtrar contenido sensible correctamente
+                if (!showSensitiveContent && sensitive === true) return;
+
+                if (content && senderUsername) {
+                    // Pasar datos incluyendo medios
+                    addpostToList(
+                        content,
+                        media, // Medios asociados al mensaje
+                        mediaType, // Tipo de medio (imagen, video, etc.)
+                        senderUsername,
+                        senderProfilePicture,
+                        sensitive,
+                        createdAt,
+                        senderId,
+                        messageId,
+                        'messageList'
+                    );
+                } else {
+                    console.warn('Mensaje inválido omitido:', message);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error al cargar los mensajes:', error);
+        });
+}
+
 function loadForumPosts(forumId, loadAll) {
     const forumList = document.getElementById('forumList');
     const postList = document.getElementById('postList');
@@ -958,6 +1059,8 @@ function loadForumPosts(forumId, loadAll) {
             console.error('Error al cargar los mensajes:', error);
         });
 }
+
+
 
 function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId) {
     const postList = document.getElementById(listId);
@@ -1227,6 +1330,10 @@ function loadFollowedUsers() {
                         <input type="radio" id="${username}${Id}" name="nav" style="display:none;" onclick="viewProfile('${username}')">
                         <label for="${Id}${username}${Id}" class="boton">Dejar de seguir</label>
                         <input type="radio" id="${Id}${username}${Id}" name="nav" style="display:none;" onclick="unfollowUser(${followerId}, ${Id})">
+                        <label for="${Id}${Id}" class="boton">Chat privado</label>
+                        <input type="radio" id="${Id}${Id}" name="nav" style="display:none;" onclick="createOrLoadChat(${Id})">
+                        
+
                         <label for="${Id}${username}" class="botonV">Volver</label>
                         <input type="radio" id="${Id}${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
                     </div>
