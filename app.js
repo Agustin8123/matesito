@@ -718,38 +718,61 @@ app.get('/search', (req, res) => {
 });
 
 // Crear un chat privado
-app.post('/createPrivateChat', (req, res) => {
+app.post('/createOrLoadPrivateChat', (req, res) => {
     const { user1Id, user2Id } = req.body;
 
     if (!user1Id || !user2Id) {
         return res.status(400).json('Datos incompletos');
     }
 
-    // Verificar si ambos usuarios se siguen mutuamente
-    const checkQuery = `
-        SELECT * FROM seguir 
-        WHERE (follower_id = $1 AND followed_id = $2) 
-        AND (follower_id = $2 AND followed_id = $1)
+    // Verificar si ya existe un chat entre estos dos usuarios
+    const checkExistingChatQuery = `
+        SELECT id FROM chats 
+        WHERE (user1_id = $1 AND user2_id = $2) 
+        OR (user1_id = $2 AND user2_id = $1)
     `;
-    db.query(checkQuery, [user1Id, user2Id], (err, result) => {
+    db.query(checkExistingChatQuery, [user1Id, user2Id], (err, chatResult) => {
         if (err) {
-            console.error('Error al verificar el seguimiento mutuo:', err);
-            return res.status(500).json('Error al verificar el seguimiento mutuo');
+            console.error('Error al verificar el chat existente:', err);
+            return res.status(500).json('Error al verificar el chat existente');
         }
 
-        if (result.rows.length === 0) {
-            return res.status(400).json('Ambos usuarios deben seguirse mutuamente');
+        if (chatResult.rows.length > 0) {
+            const chatId = chatResult.rows[0].id;
+
+            // Retornar el chatId para que el frontend lo utilice
+            return res.status(200).json({ chatId });
+        } else {
+            // Crear un nuevo chat si no existe
+            const createChatQuery = 'INSERT INTO chats (user1_id, user2_id, created_at) VALUES ($1, $2, $3) RETURNING id';
+            db.query(createChatQuery, [user1Id, user2Id, new Date().toISOString()], (err, createResult) => {
+                if (err) {
+                    console.error('Error al crear el chat privado:', err);
+                    return res.status(500).json('Error al crear el chat privado');
+                }
+
+                return res.status(201).json({ chatId: createResult.rows[0].id });
+            });
+        }
+    });
+});
+
+// Cargar mensajes de un chat específico
+app.get('/chat/messages/:chatId', (req, res) => {
+    const { chatId } = req.params;
+
+    if (!chatId) {
+        return res.status(400).json('Falta el ID del chat');
+    }
+
+    const loadMessagesQuery = 'SELECT * FROM mensajes WHERE chat_or_group_id = $1 ORDER BY created_at ASC';
+    db.query(loadMessagesQuery, [chatId], (err, messagesResult) => {
+        if (err) {
+            console.error('Error al cargar los mensajes:', err);
+            return res.status(500).json('Error al cargar los mensajes');
         }
 
-        const createChatQuery = 'INSERT INTO chats (user1_id, user2_id, created_at) VALUES ($1, $2, $3) RETURNING id';
-        db.query(createChatQuery, [user1Id, user2Id, new Date().toISOString()], (err, result) => {
-            if (err) {
-                console.error('Error al crear el chat privado:', err);
-                return res.status(500).json('Error al crear el chat privado');
-            }
-
-            res.status(201).json({ chatId: result.rows[0].id });
-        });
+        return res.status(200).json(messagesResult.rows);
     });
 });
 
