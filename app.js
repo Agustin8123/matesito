@@ -715,7 +715,40 @@ app.get('/search', (req, res) => {
             });
         });
     });
-});+
+});
+
+app.post('/verifyMutualFollow', (req, res) => {
+    const { user1Id, user2Id } = req.body;
+
+    if (!user1Id || !user2Id) {
+        return res.status(400).json({ message: 'Datos incompletos' });
+    }
+
+    const checkFollowQuery = `
+        SELECT EXISTS (
+            SELECT 1 FROM seguir WHERE follower_id = $1 AND followed_id = $2
+        ) AS user1FollowsUser2,
+        EXISTS (
+            SELECT 1 FROM seguir WHERE follower_id = $2 AND followed_id = $1
+        ) AS user2FollowsUser1
+    `;
+
+    db.query(checkFollowQuery, [user1Id, user2Id], (err, result) => {
+        if (err) {
+            console.error('Error al verificar si los usuarios se siguen mutuamente:', err);
+            return res.status(500).json({ message: 'Error interno del servidor' });
+        }
+
+        const { user1FollowsUser2, user2FollowsUser1 } = result.rows[0];
+        const mutualFollow = user1FollowsUser2 && user2FollowsUser1;
+
+        console.log(`Usuario ${user1Id} sigue a Usuario ${user2Id}: ${user1FollowsUser2}`);
+        console.log(`Usuario ${user2Id} sigue a Usuario ${user1Id}: ${user2FollowsUser1}`);
+        console.log(`¿Se siguen mutuamente? ${mutualFollow ? 'Sí' : 'No'}`);
+
+        res.status(200).json({ mutualFollow: mutualFollow ? 'Sí' : 'No' });
+    });
+});
 
 // Crear un chat privado
 app.post('/createOrLoadPrivateChat', (req, res) => {
