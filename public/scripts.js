@@ -385,6 +385,8 @@ function createGroup() {
         alert(`Grupo creado exitosamente: ${data.name} con código de invitación: ${data.invite_code}`);
         document.getElementById('groupName').value = '';
         document.getElementById('groupDescription').value = '';
+        document.getElementById('inviteCode').value = `${data.invite_code}`;
+        joinGroup();
         createGroupMenu();
     })
     .catch(error => {
