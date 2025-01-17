@@ -78,6 +78,11 @@ function createGroupMenu() {
     toggleRightMenu();
 }
 
+function joinGroupMenu() {
+    toggleVisibility('createGroupOverlay', 'flex');
+    toggleRightMenu();
+}
+
 function exploreForumMenu() {
     toggleVisibility('exploreforumMenu');
     loadForos();
