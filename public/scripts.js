@@ -382,7 +382,7 @@ function createGroup() {
     })
     .then(data => {
         // Mostrar un mensaje de éxito y limpiar los campos
-        alert(`Grupo creado exitosamente: ${data.name} con código de invitación: ${data.inviteCode}`);
+        alert(`Grupo creado exitosamente: ${data.name} con código de invitación: ${data.invite_code}`);
         document.getElementById('groupName').value = '';
         document.getElementById('groupDescription').value = '';
     })
