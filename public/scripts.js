@@ -1555,8 +1555,8 @@ function loadUserGroups() {
                         <input type="radio" id="details-${groupId}" name="nav" style="display:none;" onclick="viewGroupDetails(${groupId})">
                         <label for="leave-${groupId}" class="boton">Salir del grupo</label>
                         <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${userId}, ${groupId})">
-                        <label for="${menuId}" class="botonV">Volver</label>
-                        <input type="radio" id="${menuId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
+                        <label for="${groupId}${menuId}" class="botonV">Volver</label>
+                        <input type="radio" id="$${groupId}${menuId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
                     </div>
                     `;
 
