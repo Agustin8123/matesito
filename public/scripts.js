@@ -903,6 +903,23 @@ function loadposts(loadAll) {
         });
 }
 
+function verifyMutualFollow(user1Id, user2Id) {
+    fetch('https://matesitotest.onrender.com/verifyMutualFollow', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user1Id, user2Id }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(`¿Se siguen mutuamente? ${data.mutualFollow}`);
+        })
+        .catch(error => {
+            console.error('Error al verificar seguimiento mutuo:', error);
+        });
+}
+
 function createOrLoadChat(user2Id) {
     const user1Id = users[activeUser].id;
 
