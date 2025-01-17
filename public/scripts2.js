@@ -131,7 +131,7 @@ function toggleDetails2(menu, group) {
     fetch(`https://matesitotest.onrender.com/grupo/${group}`)
         .then(response => response.json())
         .then(group => {
-            const detailsElement = document.getElementById(`GroupDetailsContainer-${groupId}`);
+            const detailsElement = document.getElementById(`GroupDetailsContainer-${group}`);
             detailsElement.innerHTML = `
                 <h3>${group.name}</h3>
                 <p>${group.description}</p>
