@@ -727,12 +727,10 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
 
     // Verificar si los usuarios se siguen mutuamente usando la tabla `seguir`
     const checkFollowQuery = `
-        SELECT EXISTS (
-            SELECT 1 FROM seguir WHERE follower_id = $1 AND followed_id = $2
-        ) AS user1FollowsUser2,
-        EXISTS (
-            SELECT 1 FROM seguir WHERE follower_id = $2 AND followed_id = $1
-        ) AS user2FollowsUser1
+    SELECT COUNT(*) = 2 AS bothFollow
+    FROM seguir
+    WHERE (follower_id = $1 AND followed_id = $2)
+    OR (follower_id = $2 AND followed_id = $1);
     `;
     db.query(checkFollowQuery, [user1Id, user2Id], (err, followResult) => {
         if (err) {
@@ -740,8 +738,8 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
             return res.status(500).json({ error: 'Error al verificar las relaciones de seguimiento' });
         }
 
-        const { user1FollowsUser2, user2FollowsUser1 } = followResult.rows[0];
-        if (!user1FollowsUser2 || !user2FollowsUser1) {
+        const bothFollow = followResult.rows[0].bothfollow;
+        if (!bothFollow) {
             return res.status(403).json({ error: 'Ambos usuarios deben seguirse mutuamente para iniciar un chat' });
         }
 
