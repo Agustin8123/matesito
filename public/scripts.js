@@ -425,6 +425,35 @@ function joinGroup() {
     });
 }
 
+function leaveGroup(groupId) {
+    const userId = users[activeUser].id;
+    if (!confirm('¿Estás seguro de que deseas salir del grupo?')) {
+        return; // Si el usuario cancela, no hacemos nada
+    }
+
+    fetch('https://matesitotest.onrender.com/salir-grupo', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, groupId }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => { throw new Error(data.error); });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message);
+        // Opcional: Actualizar la interfaz después de salir del grupo
+        document.getElementById(`menu-${groupId}`).style.display = 'none'; // Esconde el menú del grupo
+    })
+    .catch(error => {
+        alert(`Error: ${error.message}`);
+    });
+}
+
 function reloadPosts() { 
     loadposts(loadAll);
 }
@@ -1564,11 +1593,11 @@ function loadUserGroups() {
                             </div>
                         </div>
 
-                        <label for="enter-${menuId}-${groupId}" class="boton">Entrar al grupo</label>
+                        <label for="enter-${menuId}-${groupId}" class="boton">Entrar al chat</label>
                         <input type="radio" id="enter-${menuId}-${groupId}" name="nav" style="display:none;" onclick="SendGroupMessaje(${groupId})">
 
                         <label for="leave-${menuId}${groupId}" class="boton">Salir del grupo</label>
-                        <input type="radio" id="leave-${menuId}${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${userId}, ${groupId})">
+                        <input type="radio" id="leave-${menuId}${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${groupId})">
 
                         <label for="${menuId}${groupId}" class="botonV">Volver</label>
                         <input type="radio" id="${menuId}${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
@@ -1585,44 +1614,7 @@ function loadUserGroups() {
         });
 }
 
-function viewDetails(groupId) {
-    // Hacer una solicitud al servidor para obtener los detalles del grupo
-    fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
-        .then(response => response.json())
-        .then(group => {
-            if (group) {
-                // Crear y mostrar los detalles del grupo en un modal o en un área de detalles
-                const groupDetailsContainer = document.getElementById('groupDetailsContainer');
-                groupDetailsContainer.innerHTML = ''; // Limpiar el contenedor
 
-                const groupName = group.name;
-                const groupDescription = group.description;
-                const inviteCode = group.invite_code;
-
-                // Crear los elementos para mostrar los detalles
-                const nameElement = document.createElement('h3');
-                nameElement.textContent = `Nombre: ${groupName}`;
-                
-                const descriptionElement = document.createElement('p');
-                descriptionElement.textContent = `Descripción: ${groupDescription}`;
-                
-                const inviteCodeElement = document.createElement('p');
-                inviteCodeElement.textContent = `Código de invitación: ${inviteCode}`;
-
-                // Añadir los detalles al contenedor
-                groupDetailsContainer.appendChild(nameElement);
-                groupDetailsContainer.appendChild(descriptionElement);
-                groupDetailsContainer.appendChild(inviteCodeElement);
-
-                // Mostrar el contenedor de detalles
-                groupDetailsContainer.style.display = 'block';
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar los detalles del grupo:', error);
-            alert('Error al cargar los detalles del grupo');
-        });
-}
 
 function loadCreatedGroups() {
     const userId = users[activeUser]?.id; // ID del usuario activo
