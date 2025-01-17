@@ -2,6 +2,7 @@
     let posts = [];  // Usamos un arreglo para almacenar los posts
     let activeUser = '';  // Variable para el usuario activo
     let activeForum = '';
+    let activeChat = '';
 
     let mantenimiento = false;
 
@@ -624,11 +625,14 @@ function containsForbiddenWords(message) {
     function wherePost() {
         const forumList = document.getElementById('forumList');
         const postList = document.getElementById('postList');
+        const messageList = document.getElementById('messageList');
     
         if (postList.style.display === 'block') {
             postpost();
         } else if (forumList.style.display === 'block') {
             sendForumMessage(activeForum);
+        } else if (messageList.style.display === 'block') {
+            sendChatMessage(activeChat);
         } else {
             alert("No puedes publicar un mensaje aquí");
         }
@@ -903,7 +907,7 @@ function createOrLoadChat(user2Id) {
     const user1Id = users[activeUser].id;
 
     if (!user1Id || !user2Id) {
-        console.error('IDs de usuario incompletos');
+        alert('IDs de usuario incompletos');
         return;
     }
 
@@ -918,7 +922,9 @@ function createOrLoadChat(user2Id) {
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Error al cargar o crear el chat: ${response.status}`);
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error || 'Error desconocido');
+                });
             }
             return response.json();
         })
@@ -929,12 +935,14 @@ function createOrLoadChat(user2Id) {
             }
 
             console.log(`Chat cargado o creado con éxito. ID del chat: ${chatId}`);
-            
+
             // Llamar a la función de cargar mensajes
             loadChatMessages(chatId, loadAll);
+            activeChat = chatId;
         })
         .catch(error => {
             console.error('Error en createOrLoadChat:', error);
+            alert(`Error: ${error.message}`);
         });
 }
 
