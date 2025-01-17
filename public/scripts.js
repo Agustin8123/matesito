@@ -1564,7 +1564,7 @@ function loadUserGroups() {
                             </div>
                         </div>
 
-                        <label for="enter-${menuId}-${groupId}" class="boton">Entrar al chat</label>
+                        <label for="enter-${menuId}-${groupId}" class="boton">Entrar al grupo</label>
                         <input type="radio" id="enter-${menuId}-${groupId}" name="nav" style="display:none;" onclick="SendGroupMessaje(${groupId})">
 
                         <label for="leave-${menuId}${groupId}" class="boton">Salir del grupo</label>
@@ -1653,9 +1653,9 @@ function loadCreatedGroups() {
 
                     groupElement.innerHTML = `
                     <label for="${groupName}${groupId}" class="boton">${groupName}</label>
-                    <input type="radio" id=${groupName}"${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${groupId}')">
+                    <input type="radio" id="${groupName}${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('menu-${groupId}')">
 
-                    <div id="menu-${groupId}${groupName}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
+                    <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
                         <label for="details-${groupName}" class="boton">Ver detalles</label>
                         <input type="radio" id="details-${groupName}" name="nav" style="display:none;" onclick="toggleDetails2('details-${groupId}', ${groupId})">
                         
