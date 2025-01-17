@@ -84,10 +84,7 @@
                 <label for="grupos" class="boton">Grupos</label>
                         <input type="radio" id="grupos" name="nav" style="display:none;" onclick="toggleGruposMenu(); loadUserGroups();">
                     <div id="gruposMenu" class="dropdown-menu" style="left: 188px; top: -20px;">
-                                
-                        <label for="Creargrupo" class="boton">Crear grupo</label>
-                            <input type="radio" id="Creargrupo" name="nav" style="display:none;" onclick="createGroupMenu()">
-
+                            
                         <label for="userCreated" class="boton">Administración de grupos</label>
                             <input type="radio" id="userCreated" name="nav" style="display:none;" onclick="usercreatedGroupMenu(); loadCreatedGroups();">  
                         <div id="userCreatedMenu" class="dropdown-menu" style="left: 188px; top: -20px;"> 
@@ -97,10 +94,7 @@
                             <div id="createdGroupsContainer">
                                 <!-- Los grupos se renderizarán aquí -->
                             </div>
-                        </div>   
-
-                        <label for="entrargrupo" class="boton">Entrar a un grupo</label>
-                            <input type="radio" id="entrargrupo" name="nav" style="display:none;" onclick="joinGroupMenu()">
+                        </div>
 
                         <label for="userJoined" class="boton">Ver mis grupos</label>
                             <input type="radio" id="userJoined" name="nav" style="display:none;" onclick="userJoinedGroupMenu(); loadUserGroups()">  
@@ -112,7 +106,13 @@
                                 <!-- Los grupos se renderizarán aquí -->
                             </div>
                         </div>
-                            
+
+                        <label for="Creargrupo" class="boton">Crear grupo</label>
+                            <input type="radio" id="Creargrupo" name="nav" style="display:none;" onclick="createGroupMenu()">   
+
+                        <label for="entrargrupo" class="boton">Entrar a un grupo</label>
+                            <input type="radio" id="entrargrupo" name="nav" style="display:none;" onclick="joinGroupMenu()">
+    
                         <label for="Volver7" class="botonV">Volver</label>
                             <input type="radio" id="Volver7" name="nav" style="display:none;" onclick="toggleGruposMenu()">
                    </div>
