@@ -1031,12 +1031,14 @@ function createOrLoadChat(user2Id) {
 }
 
 function loadChatMessages(chatId, loadAll) {
-    const postList = document.getElementById('postList');
-    postList.style.display = 'none';
     const messageList = document.getElementById('messageList');
-    messageList.style.display = 'block';
+    messageList.style.display = 'block'; // Mostrar la lista de mensajes
+    const postList = document.getElementById('postList');
+    postList.style.display = 'none'; // Ocultar la lista del foro
 
-    console.log(`Cargando mensajes del chat ${chatId}...`);
+    messageList.innerHTML = ''; // Limpiar lista de mensajes
+
+    console.log(`Cargando mensajes del chat con ID: ${chatId}...`);
     fetch(`https://matesitotest.onrender.com/chat/messages/${chatId}`)
         .then(response => {
             if (!response.ok) {
@@ -1045,46 +1047,41 @@ function loadChatMessages(chatId, loadAll) {
             return response.json();
         })
         .then(messages => {
-            const reversedMessages = messages.reverse(); // Ordenar de más antiguos a más recientes
+            console.log(`Mensajes cargados (${messages.length}):`, messages);
 
-            // Determinar cuántos mensajes renderizar
+            const reversedMessages = messages.reverse(); // Ordenar los mensajes de más antiguos a más recientes
+
             const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
 
-            // Limpiar la lista y renderizar los mensajes seleccionados
-            postList.innerHTML = '';
             messagesToRender.forEach(message => {
                 const {
                     content,
                     media,
-                    mediaType,
-                    senderUsername,
-                    senderProfilePicture,
+                    media_type: mediaType,
                     sensitive,
-                    createdAt,
-                    senderId,
-                    messageId,
+                    created_at: createdAt,
+                    sender_id: userId,
+                    username,
+                    image: profilePicture,
+                    id: messageId // Asegurarse de que se obtenga el ID del mensaje
                 } = message;
 
-                // Filtrar contenido sensible correctamente
+                // Filtrar contenido sensible si es necesario
                 if (!showSensitiveContent && sensitive === true) return;
 
-                if (content && senderUsername) {
-                    // Pasar datos incluyendo medios
-                    addpostToList(
-                        content,
-                        media, // Medios asociados al mensaje
-                        mediaType, // Tipo de medio (imagen, video, etc.)
-                        senderUsername,
-                        senderProfilePicture,
-                        sensitive,
-                        createdAt,
-                        senderId,
-                        messageId,
-                        'messageList'
-                    );
-                } else {
-                    console.warn('Mensaje inválido omitido:', message);
-                }
+                // Agregar mensaje a la lista
+                addpostToList(
+                    content,
+                    media || null,
+                    mediaType || null,
+                    username || `Usuario ${userId}`,
+                    profilePicture || '/default-profile.png',
+                    sensitive,
+                    createdAt,
+                    userId,
+                    messageId,
+                    'messageList'
+                );
             });
         })
         .catch(error => {
