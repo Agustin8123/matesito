@@ -1649,7 +1649,7 @@ function loadCreatedGroups() {
 
                     <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
                         <label for="details-${groupName}" class="boton">Ver detalles</label>
-                        <input type="radio" id="details-${groupName}" name="nav" style="display:none;" onclick="toggleDetails2('${groupId}')">
+                        <input type="radio" id="details-${groupName}" name="nav" style="display:none;" onclick="toggleDetails2('details-${groupId}, ${groupId}')">
                         
                         <!-- Contenedor para los detalles del grupo -->
                         <div id="details-${groupId}" style="display: none;">
