@@ -119,6 +119,10 @@ function toggle_ForumMenu(forum) {
     toggleVisibility(forum);
 }
 
+function toggle_GroupMenu(group) {
+    toggleVisibility(group);
+}
+
 // Overlay inicial
 function Acept() {
     document.getElementById('initialOverlay').style.display = 'flex';

@@ -1552,9 +1552,6 @@ function loadUserGroups() {
                         <label for="${groupId}${groupName}${groupId}" class="boton">Salir del grupo</label>
                         <input type="radio" id="${groupId}${groupName}${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${userId}, ${groupId})">
                         
-                        <label for="${groupId}${groupId}" class="boton">Ver miembros</label>
-                        <input type="radio" id="${groupId}${groupId}" name="nav" style="display:none;" onclick="viewGroupMembers(${groupId})">
-
                         <label for="${groupId}${groupName}" class="botonV">Volver</label>
                         <input type="radio" id="${groupId}${groupName}" name="nav" style="display:none;" onclick="toggle_GroupMenu(${groupId})">
                     </div>
@@ -1576,7 +1573,7 @@ function loadCreatedGroups() {
     fetch(`https://matesitotest.onrender.com/grupos-creados/${userId}`)
         .then(response => response.json())
         .then(groups => {
-            const container = document.getElementById('createdGruposContainer');
+            const container = document.getElementById('createdGroupsContainer');
             container.innerHTML = ''; // Limpiamos el contenedor
 
             if (groups.length === 0) {
@@ -1598,14 +1595,15 @@ function loadCreatedGroups() {
                     const inviteCode = group.invite_code;
 
                     groupElement.innerHTML = `
-                    <div class="group-header">
-                        <h3>${groupName}</h3>
-                        <p>${groupDescription}</p>
-                    </div>
-                    <div class="group-details">
-                        <p>Código de invitación: <strong>${inviteCode}</strong></p>
-                        <button onclick="deleteGroup(${groupId})">Eliminar grupo</button>
-                        <button onclick="viewGroupDetails(${groupId})">Ver detalles</button>
+                    <label for="${groupName}" class="boton">${group.name}</label>
+                    <input type="radio" id="${groupName}" name="nav" style="display:none;" onclick="toggle_GroupMenu(${groupId})">
+                    <div id="${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
+                        <label for="${groupName}${groupId}" class="boton">Ver detalles</label>
+                        <input type="radio" id="${groupName}${groupId}" name="nav" style="display:none;" onclick="viewGroupDetails(${groupId})">
+                        <label for="${groupId}${groupName}${groupId}" class="boton">Eliminar grupo</label>
+                        <input type="radio" id="${groupId}${groupName}${groupId}" name="nav" style="display:none;" onclick="deleteGroup(${groupId})">
+                        <label for="${groupId}${groupName}" class="botonV">Volver</label>
+                        <input type="radio" id="${groupId}${groupName}" name="nav" style="display:none;" onclick="toggle_GroupMenu(${groupId})">
                     </div>
                     `;
 
