@@ -79,7 +79,7 @@ function createGroupMenu() {
 }
 
 function joinGroupMenu() {
-    toggleVisibility('createGroupOverlay', 'flex');
+    toggleVisibility('joinGrupoMenu', 'flex');
     toggleRightMenu();
 }
 
