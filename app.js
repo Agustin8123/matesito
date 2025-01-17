@@ -725,13 +725,13 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
         return res.status(400).json({ error: 'Datos incompletos' });
     }
 
-    // Verificar si los usuarios se siguen mutuamente
+    // Verificar si los usuarios se siguen mutuamente usando la tabla `seguir`
     const checkFollowQuery = `
         SELECT EXISTS (
-            SELECT 1 FROM followers WHERE follower_id = $1 AND following_id = $2
+            SELECT 1 FROM seguir WHERE follower_id = $1 AND followed_id = $2
         ) AS user1FollowsUser2,
         EXISTS (
-            SELECT 1 FROM followers WHERE follower_id = $2 AND following_id = $1
+            SELECT 1 FROM seguir WHERE follower_id = $2 AND followed_id = $1
         ) AS user2FollowsUser1
     `;
     db.query(checkFollowQuery, [user1Id, user2Id], (err, followResult) => {
