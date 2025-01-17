@@ -1559,7 +1559,7 @@ function loadUserGroups() {
                         
                         <!-- Contenedor para los detalles del grupo -->
                         <div id="details-${menuId}" style="display: none;">
-                            <div id="${groupId}-groupDetailsContainer">
+                            <div id="groupDetailsContainer">
                                 <!-- Los detalles del grupo se cargarán aquí -->
                             </div>
                         </div>
@@ -1582,6 +1582,45 @@ function loadUserGroups() {
         .catch(error => {
             console.error('Error al cargar los grupos del usuario:', error);
             alert('Error al cargar los grupos del usuario');
+        });
+}
+
+function viewDetails(groupId) {
+    // Hacer una solicitud al servidor para obtener los detalles del grupo
+    fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
+        .then(response => response.json())
+        .then(group => {
+            if (group) {
+                // Crear y mostrar los detalles del grupo en un modal o en un área de detalles
+                const groupDetailsContainer = document.getElementById('groupDetailsContainer');
+                groupDetailsContainer.innerHTML = ''; // Limpiar el contenedor
+
+                const groupName = group.name;
+                const groupDescription = group.description;
+                const inviteCode = group.invite_code;
+
+                // Crear los elementos para mostrar los detalles
+                const nameElement = document.createElement('h3');
+                nameElement.textContent = `Nombre: ${groupName}`;
+                
+                const descriptionElement = document.createElement('p');
+                descriptionElement.textContent = `Descripción: ${groupDescription}`;
+                
+                const inviteCodeElement = document.createElement('p');
+                inviteCodeElement.textContent = `Código de invitación: ${inviteCode}`;
+
+                // Añadir los detalles al contenedor
+                groupDetailsContainer.appendChild(nameElement);
+                groupDetailsContainer.appendChild(descriptionElement);
+                groupDetailsContainer.appendChild(inviteCodeElement);
+
+                // Mostrar el contenedor de detalles
+                groupDetailsContainer.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar los detalles del grupo:', error);
+            alert('Error al cargar los detalles del grupo');
         });
 }
 
@@ -1618,11 +1657,11 @@ function loadCreatedGroups() {
 
                     <div id="menu-${groupId}${groupName}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
                         <label for="details-${groupName}" class="boton">Ver detalles</label>
-                        <input type="radio" id="details-${groupName}" name="nav" style="display:none;" onclick="toggleDetails('details-${groupId}', ${groupId})">
+                        <input type="radio" id="details-${groupName}" name="nav" style="display:none;" onclick="toggleDetails2('details-${groupId}', ${groupId})">
                         
                         <!-- Contenedor para los detalles del grupo -->
                         <div id="details-${groupId}" style="display: none;">
-                            <div id="groupDetailsContainer-${groupId}">
+                            <div id="GroupDetailsContainer-${groupId}">
                                 <!-- Los detalles del grupo se cargarán aquí -->
                             </div>
                         </div>
