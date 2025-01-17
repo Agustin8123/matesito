@@ -501,11 +501,6 @@ app.get('/grupos-creados/:ownerId', async (req, res) => {
         `;
         const result = await db.query(query, [ownerId]);
 
-        // Verificar si el usuario no ha creado ningún grupo
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: 'No has creado ningún grupo' });
-        }
-
         res.status(200).json(result.rows);
     } catch (error) {
         console.error('Error al obtener los grupos creados:', error);
