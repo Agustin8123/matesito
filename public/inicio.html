@@ -81,6 +81,21 @@
                     </div>
                 </div>
 
+                <label for="grupos" class="boton">Grupos</label>
+                        <input type="radio" id="grupos" name="nav" style="display:none;" onclick="toggleGruposMenu(); loadUserGroups();">
+                    <div id="gruposMenu" class="dropdown-menu" style="left: 188px; margin-top: -41px;">
+
+                        <label for="Volver7" class="botonV">Volver</label>
+                                <input type="radio" id="Volver7" name="nav" style="display:none;" onclick="toggleGruposMenu()">
+                                
+                        <label for="Creargrupo" class="boton">Crear grupo</label>
+                            <input type="radio" id="Creargrupo" name="nav" style="display:none;" onclick="createForumMenu()">
+
+                            <div id="createdForosContainer">
+                                <!-- Los grupos se renderizarán aquí -->
+                            </div>    
+                   </div>
+
                 <label for="Cerrar1" class="botonV">Cerrar</label>
                 <input type="radio" id="Cerrar1" name="nav" style="display:none;" onclick="toggleRightMenu()">
             </div>
@@ -217,6 +232,20 @@
         <!-- Botones -->
         <button onclick="createForum()">Crear Foro</button>
         <button onclick="createForumMenu()">Volver</button>
+    </div>
+</div>
+
+<div class="overlay" id="createGroupOverlay" style="display: none;">
+    <div class="forum-box">
+        <!-- Campo para el nombre del grupo -->
+        <input type="text" id="groupName" placeholder="Nombre del Grupo">
+        
+        <!-- Campo para la descripción del grupo -->
+        <textarea id="groupDescription" placeholder="Descripción del Grupo"></textarea>
+        
+        <!-- Botones -->
+        <button onclick="createGroup()">Crear Grupo</button>
+        <button onclick="createGroupMenu()">Volver</button>
     </div>
 </div>
 

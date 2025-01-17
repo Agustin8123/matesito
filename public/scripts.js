@@ -342,6 +342,85 @@ function createForum() {
     });
 }
 
+function createGroup() {
+    const groupName = document.getElementById('groupName').value.trim();
+    const groupDescription = document.getElementById('groupDescription').value.trim();
+    const ownerId = users[activeUser].id;
+
+    // Validar longitud del nombre del grupo
+    if (groupName.length > 30) {
+        alert('El nombre del grupo no puede tener más de 30 caracteres.');
+        return;
+    }
+
+    // Validar que todos los campos estén completos
+    if (!groupName || !groupDescription || !ownerId) {
+        alert("Por favor, completa todos los campos.");
+        return;
+    }
+
+    // Crear el objeto de datos para enviar al backend
+    const groupData = {
+        name: groupName,
+        description: groupDescription,
+        ownerId: parseInt(ownerId),
+    };
+
+    // Enviar la solicitud al backend
+    fetch('https://matesitotest.onrender.com/grupos', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(groupData),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al crear el grupo');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Mostrar un mensaje de éxito y limpiar los campos
+        alert(`Grupo creado exitosamente: ${data.name} con código de invitación: ${data.inviteCode}`);
+        document.getElementById('groupName').value = '';
+        document.getElementById('groupDescription').value = '';
+    })
+    .catch(error => {
+        alert(`Error: ${error.message}`);
+    });
+}
+
+function joinGroup() {
+    const inviteCode = document.getElementById('inviteCode').value.trim();
+    const userId = users[activeUser].id;
+
+    if (!inviteCode) {
+        alert('Por favor, ingresa un código de invitación.');
+        return;
+    }
+
+    fetch('https://matesitotest.onrender.com/unir-grupo', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ inviteCode, userId }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => { throw new Error(data.error); });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message);
+        // Opcional: redirigir o actualizar la interfaz
+    })
+    .catch(error => {
+        alert(`Error: ${error.message}`);
+    });
+}
 
 function reloadPosts() { 
     loadposts(loadAll);
