@@ -63,6 +63,14 @@ function toggleGruposMenu() {
     toggleVisibility('gruposMenu');
 }
 
+function userJoinedGroupMenu() {
+    toggleVisibility('userJoinedMenu');
+}
+
+function usercreatedGroupMenu() {
+    toggleVisibility('userCreatedMenu');
+}
+
 function toggleUserMenu() {
     toggleVisibility('userSubMenu');
     loadFollowedUsers(); 
