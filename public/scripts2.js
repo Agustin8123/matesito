@@ -127,7 +127,7 @@ function toggleDetails(menu, group) {
 }
 
 function toggleDetails2(menu, group) {
-    toggleVisibility(menu);
+    toggleVisibility(`details-${menu}`);
     fetch(`https://matesitotest.onrender.com/grupo/${group}`)
         .then(response => response.json())
         .then(group => {
