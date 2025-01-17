@@ -715,45 +715,69 @@ app.get('/search', (req, res) => {
             });
         });
     });
-});
+});+
 
 // Crear un chat privado
 app.post('/createOrLoadPrivateChat', (req, res) => {
     const { user1Id, user2Id } = req.body;
 
     if (!user1Id || !user2Id) {
-        return res.status(400).json('Datos incompletos');
+        return res.status(400).json({ error: 'Datos incompletos' });
     }
 
-    // Verificar si ya existe un chat entre estos dos usuarios
-    const checkExistingChatQuery = `
-        SELECT id FROM chats 
-        WHERE (user1_id = $1 AND user2_id = $2) 
-        OR (user1_id = $2 AND user2_id = $1)
+    // Verificar si los usuarios se siguen mutuamente
+    const checkFollowQuery = `
+        SELECT EXISTS (
+            SELECT 1 FROM followers WHERE follower_id = $1 AND following_id = $2
+        ) AS user1FollowsUser2,
+        EXISTS (
+            SELECT 1 FROM followers WHERE follower_id = $2 AND following_id = $1
+        ) AS user2FollowsUser1
     `;
-    db.query(checkExistingChatQuery, [user1Id, user2Id], (err, chatResult) => {
+    db.query(checkFollowQuery, [user1Id, user2Id], (err, followResult) => {
         if (err) {
-            console.error('Error al verificar el chat existente:', err);
-            return res.status(500).json('Error al verificar el chat existente');
+            console.error('Error al verificar si los usuarios se siguen mutuamente:', err);
+            return res.status(500).json({ error: 'Error al verificar las relaciones de seguimiento' });
         }
 
-        if (chatResult.rows.length > 0) {
-            const chatId = chatResult.rows[0].id;
-
-            // Retornar el chatId para que el frontend lo utilice
-            return res.status(200).json({ chatId });
-        } else {
-            // Crear un nuevo chat si no existe
-            const createChatQuery = 'INSERT INTO chats (user1_id, user2_id, created_at) VALUES ($1, $2, $3) RETURNING id';
-            db.query(createChatQuery, [user1Id, user2Id, new Date().toISOString()], (err, createResult) => {
-                if (err) {
-                    console.error('Error al crear el chat privado:', err);
-                    return res.status(500).json('Error al crear el chat privado');
-                }
-
-                return res.status(201).json({ chatId: createResult.rows[0].id });
-            });
+        const { user1FollowsUser2, user2FollowsUser1 } = followResult.rows[0];
+        if (!user1FollowsUser2 || !user2FollowsUser1) {
+            return res.status(403).json({ error: 'Ambos usuarios deben seguirse mutuamente para iniciar un chat' });
         }
+
+        // Verificar si ya existe un chat entre estos dos usuarios
+        const checkExistingChatQuery = `
+            SELECT id FROM chats 
+            WHERE (user1_id = $1 AND user2_id = $2) 
+            OR (user1_id = $2 AND user2_id = $1)
+        `;
+        db.query(checkExistingChatQuery, [user1Id, user2Id], (err, chatResult) => {
+            if (err) {
+                console.error('Error al verificar el chat existente:', err);
+                return res.status(500).json({ error: 'Error al verificar el chat existente' });
+            }
+
+            if (chatResult.rows.length > 0) {
+                const chatId = chatResult.rows[0].id;
+
+                // Retornar el chatId para que el frontend lo utilice
+                return res.status(200).json({ chatId });
+            } else {
+                // Crear un nuevo chat si no existe
+                const createChatQuery = `
+                    INSERT INTO chats (user1_id, user2_id, created_at) 
+                    VALUES ($1, $2, $3) RETURNING id
+                `;
+                db.query(createChatQuery, [user1Id, user2Id, new Date().toISOString()], (err, createResult) => {
+                    if (err) {
+                        console.error('Error al crear el chat privado:', err);
+                        return res.status(500).json({ error: 'Error al crear el chat privado' });
+                    }
+
+                    return res.status(201).json({ chatId: createResult.rows[0].id });
+                });
+            }
+        });
     });
 });
 
