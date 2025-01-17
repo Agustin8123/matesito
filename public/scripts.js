@@ -1554,7 +1554,15 @@ function loadUserGroups() {
                     <input type="radio" id="${radioId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
                     <div id="${menuId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
                         <label for="details-${groupId}" class="boton">Ver detalles</label>
-                        <input type="radio" id="details-${groupId}" name="nav" style="display:none;" onclick="viewGroupDetails(${groupId})">
+                        <input type="radio" id="details-${groupId}" name="nav" style="display:none;" onclick="toggleDetails(details-${menuId}, ${groupId})">
+                        <div id="details-${menuId}">
+                            <divid="groupDetailsContainer">
+                            </div>
+
+                            <label for="${menuId}details-${groupId}" class="boton">Entrar al grupo</label>
+                                <input type="radio" id="${menuId}details-${groupId}" name="nav" style="display:none;" onclick="SendGroupMessaje(${groupId})">
+                        </div>
+
                         <label for="leave-${menuId}${groupId}" class="boton">Salir del grupo</label>
                         <input type="radio" id="leave-${menuId}${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${userId}, ${groupId})">
                         <label for="${groupId}${menuId}" class="botonV">Volver</label>
@@ -1569,6 +1577,45 @@ function loadUserGroups() {
         .catch(error => {
             console.error('Error al cargar los grupos del usuario:', error);
             alert('Error al cargar los grupos del usuario');
+        });
+}
+
+function viewDetails(groupId) {
+    // Hacer una solicitud al servidor para obtener los detalles del grupo
+    fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
+        .then(response => response.json())
+        .then(group => {
+            if (group) {
+                // Crear y mostrar los detalles del grupo en un modal o en un área de detalles
+                const groupDetailsContainer = document.getElementById('groupDetailsContainer');
+                groupDetailsContainer.innerHTML = ''; // Limpiar el contenedor
+
+                const groupName = group.name;
+                const groupDescription = group.description;
+                const inviteCode = group.invite_code;
+
+                // Crear los elementos para mostrar los detalles
+                const nameElement = document.createElement('h3');
+                nameElement.textContent = `Nombre: ${groupName}`;
+                
+                const descriptionElement = document.createElement('p');
+                descriptionElement.textContent = `Descripción: ${groupDescription}`;
+                
+                const inviteCodeElement = document.createElement('p');
+                inviteCodeElement.textContent = `Código de invitación: ${inviteCode}`;
+
+                // Añadir los detalles al contenedor
+                groupDetailsContainer.appendChild(nameElement);
+                groupDetailsContainer.appendChild(descriptionElement);
+                groupDetailsContainer.appendChild(inviteCodeElement);
+
+                // Mostrar el contenedor de detalles
+                groupDetailsContainer.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar los detalles del grupo:', error);
+            alert('Error al cargar los detalles del grupo');
         });
 }
 
