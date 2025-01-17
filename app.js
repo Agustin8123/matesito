@@ -483,6 +483,74 @@ app.post('/grupos', async (req, res) => {
     }
 });
 
+app.get('/grupos-creados/:ownerId', async (req, res) => {
+    const { ownerId } = req.params;
+
+    // Validar que se haya proporcionado el ID del propietario
+    if (!ownerId) {
+        return res.status(400).json({ error: 'El ID del propietario es requerido' });
+    }
+
+    try {
+        // Consultar los grupos creados por el usuario
+        const query = `
+            SELECT id, name, description, invite_code, created_at
+            FROM grupos
+            WHERE owner_id = $1
+            ORDER BY created_at DESC
+        `;
+        const result = await db.query(query, [ownerId]);
+
+        // Verificar si el usuario no ha creado ningún grupo
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'No has creado ningún grupo' });
+        }
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener los grupos creados:', error);
+        res.status(500).json({ error: 'Error al procesar la solicitud' });
+    }
+});
+
+app.delete('/grupo/:groupId/:ownerId', async (req, res) => {
+    const { groupId, ownerId } = req.params;
+
+    // Validar que el ID del propietario y del grupo estén presentes
+    if (!groupId || !ownerId) {
+        return res.status(400).json({ error: 'El ID del grupo y el propietario son requeridos' });
+    }
+
+    try {
+        // Verificar si el grupo existe y si el propietario es el dueño del grupo
+        const groupResult = await db.query(
+            'SELECT owner_id FROM grupos WHERE id = $1',
+            [groupId]
+        );
+
+        if (groupResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Grupo no encontrado' });
+        }
+
+        const groupOwnerId = groupResult.rows[0].owner_id;
+
+        if (parseInt(ownerId) !== groupOwnerId) {
+            return res.status(403).json({ error: 'No tienes permisos para eliminar este grupo' });
+        }
+
+        // Eliminar el grupo
+        await db.query('DELETE FROM grupos WHERE id = $1', [groupId]);
+
+        // Eliminar los participantes asociados al grupo
+        await db.query('DELETE FROM participantes WHERE forum_or_group_id = $1 AND is_group = TRUE', [groupId]);
+
+        res.status(200).json({ message: 'Grupo eliminado correctamente' });
+    } catch (error) {
+        console.error('Error al eliminar el grupo:', error);
+        res.status(500).json({ error: 'Error al procesar la solicitud' });
+    }
+});
+
 app.post('/unir-grupo', async (req, res) => {
     const { inviteCode, userId } = req.body;
 
@@ -530,6 +598,72 @@ app.post('/unir-grupo', async (req, res) => {
         });
     } catch (error) {
         console.error('Error al unir al usuario al grupo:', error);
+        res.status(500).json({ error: 'Error al procesar la solicitud' });
+    }
+});
+
+app.delete('/salir-grupo', async (req, res) => {
+    const { groupId, userId } = req.body;
+
+    // Validar que se envíen todos los datos necesarios
+    if (!groupId || !userId) {
+        return res.status(400).json({ error: 'El ID del grupo y el ID del usuario son requeridos' });
+    }
+
+    try {
+        // Verificar si el usuario pertenece al grupo
+        const participanteResult = await db.query(
+            'SELECT 1 FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = TRUE',
+            [userId, groupId]
+        );
+
+        if (participanteResult.rows.length === 0) {
+            return res.status(404).json({ error: 'El usuario no pertenece a este grupo' });
+        }
+
+        // Eliminar al usuario del grupo
+        await db.query(
+            'DELETE FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = TRUE',
+            [userId, groupId]
+        );
+
+        res.status(200).json({ message: 'Usuario eliminado del grupo exitosamente' });
+    } catch (error) {
+        console.error('Error al salir del grupo:', error);
+        res.status(500).json({ error: 'Error al procesar la solicitud' });
+    }
+});
+
+app.get('/grupos-usuario/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    // Validar que se proporcione el ID del usuario
+    if (!userId) {
+        return res.status(400).json({ error: 'El ID del usuario es requerido' });
+    }
+
+    try {
+        // Obtener los grupos a los que pertenece el usuario
+        const gruposResult = await db.query(
+            `
+            SELECT g.id, g.name, g.description, g.invite_code, g.created_at
+            FROM grupos g
+            INNER JOIN participantes p ON g.id = p.forum_or_group_id
+            WHERE p.user_id = $1 AND p.is_group = TRUE
+            ORDER BY g.created_at DESC
+            `,
+            [userId]
+        );
+
+        // Verificar si el usuario pertenece a algún grupo
+        if (gruposResult.rows.length === 0) {
+            return res.status(404).json({ error: 'El usuario no pertenece a ningún grupo' });
+        }
+
+        // Devolver los grupos al cliente
+        res.status(200).json(gruposResult.rows);
+    } catch (error) {
+        console.error('Error al obtener los grupos del usuario:', error);
         res.status(500).json({ error: 'Error al procesar la solicitud' });
     }
 });

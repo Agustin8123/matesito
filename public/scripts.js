@@ -1518,6 +1518,128 @@ function loadFollowedUsers() {
         });
 }
 
+function loadUserGroups() {
+    const userId = users[activeUser]?.id; // ID del usuario activo
+
+    fetch(`https://matesitotest.onrender.com/grupos-usuario/${userId}`)
+        .then(response => response.json())
+        .then(groups => {
+            const container = document.getElementById('joinedGruposContainer');
+            container.innerHTML = ''; // Limpiamos el contenedor
+
+            if (groups.length === 0) {
+                // Si no pertenece a ningún grupo, mostramos un mensaje
+                const noGroupsMessage = document.createElement('p');
+                noGroupsMessage.textContent = 'No perteneces a ningún grupo';
+                noGroupsMessage.style.textAlign = 'center';
+                noGroupsMessage.style.color = 'gray';
+                container.appendChild(noGroupsMessage);
+            } else {
+                // Renderizamos los grupos
+                groups.forEach(group => {
+                    const groupElement = document.createElement('div');
+                    groupElement.classList.add('group');
+
+                    const groupId = group.id;
+                    const groupName = group.name;
+
+                    groupElement.innerHTML = `
+                    <label for="${groupName}" class="boton">${group.name}</label>
+                    <input type="radio" id="${groupName}" name="nav" style="display:none;" onclick="toggle_GroupMenu(${groupId})">
+                    <div id="${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
+                        <label for="${groupName}${groupId}" class="boton">Ver detalles</label>
+                        <input type="radio" id="${groupName}${groupId}" name="nav" style="display:none;" onclick="viewGroupDetails(${groupId})">
+                        <label for="${groupId}${groupName}${groupId}" class="boton">Salir del grupo</label>
+                        <input type="radio" id="${groupId}${groupName}${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${userId}, ${groupId})">
+                        
+                        <label for="${groupId}${groupId}" class="boton">Ver miembros</label>
+                        <input type="radio" id="${groupId}${groupId}" name="nav" style="display:none;" onclick="viewGroupMembers(${groupId})">
+
+                        <label for="${groupId}${groupName}" class="botonV">Volver</label>
+                        <input type="radio" id="${groupId}${groupName}" name="nav" style="display:none;" onclick="toggle_GroupMenu(${groupId})">
+                    </div>
+                    `;
+
+                    container.appendChild(groupElement);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar los grupos del usuario:', error);
+            alert('Error al cargar los grupos del usuario');
+        });
+}
+
+function loadCreatedGroups() {
+    const userId = users[activeUser]?.id; // ID del usuario activo
+
+    fetch(`https://matesitotest.onrender.com/grupos-creados/${userId}`)
+        .then(response => response.json())
+        .then(groups => {
+            const container = document.getElementById('createdGruposContainer');
+            container.innerHTML = ''; // Limpiamos el contenedor
+
+            if (groups.length === 0) {
+                // Si no hay grupos creados, mostramos un mensaje
+                const noGroupsMessage = document.createElement('p');
+                noGroupsMessage.textContent = 'No has creado ningún grupo';
+                noGroupsMessage.style.textAlign = 'center';
+                noGroupsMessage.style.color = 'gray';
+                container.appendChild(noGroupsMessage);
+            } else {
+                // Renderizamos los grupos creados
+                groups.forEach(group => {
+                    const groupElement = document.createElement('div');
+                    groupElement.classList.add('group');
+
+                    const groupId = group.id;
+                    const groupName = group.name;
+                    const groupDescription = group.description;
+                    const inviteCode = group.invite_code;
+
+                    groupElement.innerHTML = `
+                    <div class="group-header">
+                        <h3>${groupName}</h3>
+                        <p>${groupDescription}</p>
+                    </div>
+                    <div class="group-details">
+                        <p>Código de invitación: <strong>${inviteCode}</strong></p>
+                        <button onclick="deleteGroup(${groupId})">Eliminar grupo</button>
+                        <button onclick="viewGroupDetails(${groupId})">Ver detalles</button>
+                    </div>
+                    `;
+
+                    container.appendChild(groupElement);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar los grupos creados:', error);
+            alert('Error al cargar los grupos creados');
+        });
+}
+
+function deleteGroup(groupId) {
+    const userId = users[activeUser]?.id; // ID del usuario activo
+
+    fetch(`https://matesitotest.onrender.com/grupo/${groupId}/${userId}`, {
+        method: 'DELETE',
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message); // Mostrar mensaje de éxito
+                loadCreatedGroups(); // Volver a cargar los grupos creados
+            } else {
+                alert(data.error); // Mostrar mensaje de error
+            }
+        })
+        .catch(error => {
+            console.error('Error al eliminar el grupo:', error);
+            alert('Error al eliminar el grupo');
+        });
+}
+
 function searchMotor() {
     const query = document.getElementById('searchInput').value;
     const searchContainer = document.getElementById('searchconteiner');
