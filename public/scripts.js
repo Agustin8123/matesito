@@ -1653,7 +1653,7 @@ function loadCreatedGroups() {
 
                     groupElement.innerHTML = `
                     <label for="${groupName}${groupId}" class="boton">${groupName}</label>
-                    <input type="radio" id="${groupName}${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${groupId}')">
+                    <input type="radio" id="${groupName}${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu2('${groupId}')">
 
                     <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
                         <label for="details-${groupName}" class="boton">Ver detalles</label>
@@ -1673,7 +1673,7 @@ function loadCreatedGroups() {
                         <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${userId}, ${groupId})">
 
                         <label for="menu-${groupId}" class="botonV">Volver</label>
-                        <input type="radio" id="menu-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${groupId}')">
+                        <input type="radio" id="menu-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu2('${groupId}')">
                     </div>
                     `;
 
