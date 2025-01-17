@@ -59,6 +59,9 @@ function toggleMyForumMenu() {
     toggleVisibility('myForumMenu');
 }
 
+function toggleGruposMenu() {
+    toggleVisibility('gruposMenu');
+}
 
 function toggleUserMenu() {
     toggleVisibility('userSubMenu');
@@ -67,6 +70,11 @@ function toggleUserMenu() {
 
 function createForumMenu() {
     toggleVisibility('createForumOverlay', 'flex');
+    toggleRightMenu();
+}
+
+function createGroupMenu() {
+    toggleVisibility('createGroupOverlay', 'flex');
     toggleRightMenu();
 }
 

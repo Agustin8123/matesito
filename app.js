@@ -433,6 +433,107 @@ app.get('/foros', (req, res) => {
     });
 });
 
+app.post('/grupos', async (req, res) => {
+    const { name, description, ownerId } = req.body;
+
+    // Validar que los campos requeridos estén presentes
+    if (!name || !description || !ownerId) {
+        return res.status(400).json('Datos incompletos');
+    }
+
+    try {
+        // Función para generar un código de invitación único
+        async function generateUniqueInviteCode() {
+            let inviteCode;
+            let exists = true;
+
+            while (exists) {
+                inviteCode = Math.random().toString(36).substring(2, 8); // Generar código aleatorio de 6 caracteres
+
+                // Verificar si el código ya existe
+                const result = await db.query('SELECT 1 FROM grupos WHERE invite_code = $1', [inviteCode]);
+                exists = result.rows.length > 0;
+            }
+
+            return inviteCode;
+        }
+
+        // Generar el código único
+        const inviteCode = await generateUniqueInviteCode();
+
+        // Insertar el nuevo grupo en la base de datos
+        const query = `
+            INSERT INTO grupos (name, description, owner_id, invite_code, created_at) 
+            VALUES ($1, $2, $3, $4, $5) 
+            RETURNING id, name, description, invite_code
+        `;
+        const result = await db.query(query, [
+            name,
+            description,
+            ownerId,
+            inviteCode,
+            new Date().toISOString(),
+        ]);
+
+        // Responder con los datos del grupo creado
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error al crear el grupo:', error);
+        res.status(500).json('Error al crear el grupo');
+    }
+});
+
+app.post('/unir-grupo', async (req, res) => {
+    const { inviteCode, userId } = req.body;
+
+    // Validar que se envíen todos los datos necesarios
+    if (!inviteCode || !userId) {
+        return res.status(400).json({ error: 'Código de invitación y userId son requeridos' });
+    }
+
+    try {
+        // Verificar si el código de invitación existe y obtener el grupo
+        const grupoResult = await db.query(
+            'SELECT id FROM grupos WHERE invite_code = $1',
+            [inviteCode]
+        );
+
+        if (grupoResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Código de invitación no válido' });
+        }
+
+        const groupId = grupoResult.rows[0].id;
+
+        // Verificar si el usuario ya es participante del grupo
+        const participanteResult = await db.query(
+            'SELECT 1 FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = TRUE',
+            [userId, groupId]
+        );
+
+        if (participanteResult.rows.length > 0) {
+            return res.status(400).json({ error: 'El usuario ya pertenece a este grupo' });
+        }
+
+        // Agregar al usuario al grupo
+        const insertResult = await db.query(
+            `
+            INSERT INTO participantes (user_id, forum_or_group_id, is_group, joined_at)
+            VALUES ($1, $2, TRUE, CURRENT_TIMESTAMP)
+            RETURNING id
+            `,
+            [userId, groupId]
+        );
+
+        res.status(201).json({
+            message: 'Usuario unido al grupo exitosamente',
+            participanteId: insertResult.rows[0].id,
+        });
+    } catch (error) {
+        console.error('Error al unir al usuario al grupo:', error);
+        res.status(500).json({ error: 'Error al procesar la solicitud' });
+    }
+});
+
 app.get('/userCreatedForums/:userId', (req, res) => {
     const userId = req.params.userId;
 
