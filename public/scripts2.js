@@ -155,6 +155,10 @@ function toggle_GroupMenu(group) {
     toggleVisibility(group);
 }
 
+function toggle_GroupMenu2(group) {
+    toggleVisibility(`menu-${group}`);
+}
+
 // Overlay inicial
 function Acept() {
     document.getElementById('initialOverlay').style.display = 'flex';
