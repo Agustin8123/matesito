@@ -721,6 +721,86 @@ async function sendForumMessage(forumId) {
     }
 }
 
+async function sendChatMessage(chatId) {
+    const content = document.getElementById('postContent').value;
+    const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
+    const fileInput = document.getElementById('postMedia');
+    const file = fileInput.files[0];
+
+    // Validar contenido prohibido
+    if (containsForbiddenWords(content)) {
+        alert("Creemos que tu mensaje infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
+        return;
+    }
+
+    // Verificar si el contenido es igual al último enviado
+    if (content === lastMessageContent) {
+        alert("No puedes enviar un mensaje igual al anterior.");
+        return;
+    }
+
+    // Preparar los datos del mensaje
+    const messageData = {
+        content,
+        sensitive: isSensitive ? 1 : 0,
+        sender_id: users[activeUser].id,
+        createdAt: new Date().toISOString(),
+        chat_or_group_id: chatId,
+        is_private: true,  // Marcar el mensaje como privado
+    };
+
+    let media = null;
+    let mediaType = null;
+
+    if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            // Subir el archivo a Cloudinary u otro servicio
+            const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const uploadData = await uploadResponse.json();
+            media = uploadData.secure_url;
+            mediaType = file.type;
+
+            // Añadir los datos de media al mensaje
+            messageData.media = media;
+            messageData.mediaType = mediaType;
+        } catch (error) {
+            console.error('Error al subir el archivo:', error);
+            alert('Error al subir el archivo.');
+            return;
+        }
+    }
+
+    try {
+        // Enviar el mensaje al servidor
+        const response = await fetch(`https://matesitotest.onrender.com/mensajes/${chatId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(messageData),
+        });
+
+        if (response.ok) {
+            const responseData = await response.json();
+            lastMessageContent = responseData.content;  // Actualizar la variable global
+            document.getElementById('postContent').value = '';
+            fileInput.value = '';
+            alert('Mensaje enviado con éxito');
+            loadChatMessages(chatId, loadAll);  // Cargar los mensajes del chat
+        } else {
+            alert('Error al enviar el mensaje');
+            loadChatMessages(chatId, loadAll);  // Cargar los mensajes del chat
+        }
+    } catch (error) {
+        console.error('Error al enviar el mensaje:', error);
+        alert('Error al enviar el mensaje.');
+    }
+}
+
     function postpost() {
         const postContent = document.getElementById('postContent').value;
         const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
@@ -821,6 +901,7 @@ function buttonsState() {
     const postList = document.getElementById('postList');
     const unicPostList = document.getElementById('unicPostList');
     const forumList = document.getElementById('forumList');
+    const messageList = document.getElementById('messageList');
 
     if (profileList.style.display === 'block') {
         const username = document.getElementById('currentProfileUsername').value;
@@ -833,6 +914,9 @@ function buttonsState() {
     } else if (forumList.style.display === 'block') {
         unicPostList.style.display = 'none';
         loadForumPosts(activeForum, loadAll);
+    }else if (messageList.style.display === 'block') {
+        unicPostList.style.display = 'none';
+        loadChatMessages(activeChat, loadAll);
     }
 }
 
@@ -900,23 +984,6 @@ function loadposts(loadAll) {
         })
         .catch(error => {
             console.error('Error al cargar los posts:', error);
-        });
-}
-
-function verifyMutualFollow(user1Id, user2Id) {
-    fetch('https://matesitotest.onrender.com/verifyMutualFollow', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ user1Id, user2Id }),
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log(`¿Se siguen mutuamente? ${data.mutualFollow}`);
-        })
-        .catch(error => {
-            console.error('Error al verificar seguimiento mutuo:', error);
         });
 }
 
