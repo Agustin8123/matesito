@@ -780,22 +780,27 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
 });
 
 // Cargar mensajes de un chat específico
-app.get('/chat/messages/:chatId', (req, res) => {
+app.get('/chat/messages/:chatId', async (req, res) => {
     const { chatId } = req.params;
 
-    if (!chatId) {
-        return res.status(400).json('Falta el ID del chat');
+    try {
+        const result = await db.query(
+            `SELECT 
+                m.*, 
+                u.username, 
+                u.image
+            FROM mensajes m
+            INNER JOIN users u ON m.sender_id = u.id
+            WHERE m.chat_or_group_id = $1
+            ORDER BY m.created_at ASC`,
+            [chatId]
+        );
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error al cargar los mensajes del chat:', error);
+        res.status(500).json({ error: 'Error al cargar los mensajes del chat' });
     }
-
-    const loadMessagesQuery = 'SELECT * FROM mensajes WHERE chat_or_group_id = $1 ORDER BY created_at ASC';
-    db.query(loadMessagesQuery, [chatId], (err, messagesResult) => {
-        if (err) {
-            console.error('Error al cargar los mensajes:', err);
-            return res.status(500).json('Error al cargar los mensajes');
-        }
-
-        return res.status(200).json(messagesResult.rows);
-    });
 });
 
 // Enviar un mensaje
