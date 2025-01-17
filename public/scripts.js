@@ -1543,17 +1543,20 @@ function loadUserGroups() {
                     const groupId = group.id;
                     const groupName = group.name;
 
+                    // Asegurarnos de que los IDs de los elementos son únicos
+                    const menuId = `menu-${groupId}`;
+                    const radioId = `radio-${groupId}`;
+
                     groupElement.innerHTML = `
-                    <label for="${groupName}" class="boton">${group.name}</label>
-                    <input type="radio" id="${groupName}" name="nav" style="display:none;" onclick="toggle_GroupMenu(${groupId})">
-                    <div id="${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
-                        <label for="${groupName}${groupId}" class="boton">Ver detalles</label>
-                        <input type="radio" id="${groupName}${groupId}" name="nav" style="display:none;" onclick="viewGroupDetails(${groupId})">
-                        <label for="${groupId}${groupName}${groupId}" class="boton">Salir del grupo</label>
-                        <input type="radio" id="${groupId}${groupName}${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${userId}, ${groupId})">
-                        
-                        <label for="${groupId}${groupName}" class="botonV">Volver</label>
-                        <input type="radio" id="${groupId}${groupName}" name="nav" style="display:none;" onclick="toggle_GroupMenu(${groupId})">
+                    <label for="${radioId}" class="boton">${group.name}</label>
+                    <input type="radio" id="${radioId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
+                    <div id="${menuId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
+                        <label for="details-${groupId}" class="boton">Ver detalles</label>
+                        <input type="radio" id="details-${groupId}" name="nav" style="display:none;" onclick="viewGroupDetails(${groupId})">
+                        <label for="leave-${groupId}" class="boton">Salir del grupo</label>
+                        <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${userId}, ${groupId})">
+                        <label for="${menuId}" class="botonV">Volver</label>
+                        <input type="radio" id="${menuId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
                     </div>
                     `;
 
