@@ -112,7 +112,33 @@ function toggleSubMenu2() {
 
 function toggleDetails(menu, group) {
     toggleVisibility(menu);
-    viewDetails(group);
+    fetch(`https://matesitotest.onrender.com/grupo/${group}`)
+        .then(response => response.json())
+        .then(group => {
+            const detailsElement = document.getElementById(`${group}-groupDetailsContainer`);
+            detailsElement.innerHTML = `
+                <h3>${group.name}</h3>
+                <p>${group.description}</p>
+                <p>Código de invitación: ${group.invite_code}</p>
+            `;
+        })
+        .catch(error => console.error('Error al cargar los detalles del grupo:', error));
+
+}
+
+function toggleDetails(menu, group) {
+    toggleVisibility(menu);
+    fetch(`https://matesitotest.onrender.com/grupo/${group}`)
+        .then(response => response.json())
+        .then(group => {
+            const detailsElement = document.getElementById(`groupDetailsContainer-${group}`);
+            detailsElement.innerHTML = `
+                <h3>${group.name}</h3>
+                <p>${group.description}</p>
+                <p>Código de invitación: ${group.invite_code}</p>
+            `;
+        })
+        .catch(error => console.error('Error al cargar los detalles del grupo:', error));
 
 }
 
