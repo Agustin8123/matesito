@@ -658,6 +658,27 @@ app.get('/grupos-usuario/:userId', async (req, res) => {
     }
 });
 
+// Ruta para obtener los detalles de un grupo por su ID
+app.get('/grupo/:id', async (req, res) => {
+    const groupId = req.params.id;
+
+    try {
+        // Consulta para obtener los detalles del grupo por ID
+        const query = 'SELECT name, description, invite_code FROM grupos WHERE id = $1';
+        const result = await db.query(query, [groupId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json('Grupo no encontrado');
+        }
+
+        // Retornar los detalles del grupo
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error al obtener los detalles del grupo:', error);
+        res.status(500).json('Error al obtener los detalles del grupo');
+    }
+});
+
 app.get('/userCreatedForums/:userId', (req, res) => {
     const userId = req.params.userId;
 

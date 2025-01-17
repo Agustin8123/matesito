@@ -110,6 +110,12 @@ function toggleSubMenu2() {
     toggleVisibility('subMenu2');
 }
 
+function toggleDetails(menu, group) {
+    toggleVisibility(menu);
+    viewDetails(group);
+
+}
+
 function toggle_UserMenu(user) {
     toggleVisibility(user);
 
