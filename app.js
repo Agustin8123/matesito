@@ -650,11 +650,6 @@ app.get('/grupos-usuario/:userId', async (req, res) => {
             [userId]
         );
 
-        // Verificar si el usuario pertenece a algún grupo
-        if (gruposResult.rows.length === 0) {
-            return res.status(404).json({ error: 'El usuario no pertenece a ningún grupo' });
-        }
-
         // Devolver los grupos al cliente
         res.status(200).json(gruposResult.rows);
     } catch (error) {
