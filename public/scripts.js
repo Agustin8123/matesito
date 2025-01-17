@@ -1669,8 +1669,8 @@ function loadCreatedGroups() {
                         <label for="enter-${groupId}" class="boton">Entrar al chat</label>
                         <input type="radio" id="enter-${groupId}" name="nav" style="display:none;" onclick="SendGroupMessaje(${groupId})">
 
-                        <label for="leave-${groupId}" class="boton">Salir del grupo</label>
-                        <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${userId}, ${groupId})">
+                        <label for="leave-${groupId}" class="boton">Eliminar grupo</label>
+                        <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="delateGroup(${groupId})">
 
                         <label for="menu-${groupId}" class="botonV">Volver</label>
                         <input type="radio" id="menu-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu2('${groupId}')">
