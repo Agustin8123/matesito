@@ -1647,7 +1647,7 @@ function loadUserGroups() {
 
                     groupElement.innerHTML = `
                     <label for="${radioId}" class="boton">${group.name}</label>
-                    <input type="radio" id="${radioId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
+                    <input type="radio" id="${radioId}" name="nav" style="display:none;" onclick="toggle_GroupMenu1('${menuId}')">
 
                     <div id="${menuId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
                         <label for="details-${groupId}" class="boton">Ver detalles</label>
@@ -1661,13 +1661,13 @@ function loadUserGroups() {
                         </div>
 
                         <label for="enter-${menuId}-${groupId}" class="boton">Entrar al chat</label>
-                        <input type="radio" id="enter-${menuId}-${groupId}" name="nav" style="display:none;" onclick="SendGroupMessaje(${groupId})">
+                        <input type="radio" id="enter-${menuId}-${groupId}" name="nav" style="display:none;" onclick="loadGroupMessages(${groupId})">
 
                         <label for="leave-${menuId}${groupId}" class="boton">Salir del grupo</label>
                         <input type="radio" id="leave-${menuId}${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${groupId})">
 
                         <label for="${menuId}${groupId}" class="botonV">Volver</label>
-                        <input type="radio" id="${menuId}${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
+                        <input type="radio" id="${menuId}${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu1('${menuId}')">
                     </div>
                     `;
 
@@ -1724,7 +1724,7 @@ function loadCreatedGroups() {
                         </div>
 
                         <label for="enter-${groupId}" class="boton">Entrar al chat</label>
-                        <input type="radio" id="enter-${groupId}" name="nav" style="display:none;" onclick="SendGroupMessaje(${groupId})">
+                        <input type="radio" id="enter-${groupId}" name="nav" style="display:none;" onclick="loadGroupMessages(${groupId})">
 
                         <label for="leave-${groupId}" class="boton">Eliminar grupo</label>
                         <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="deleteGroup(${groupId})">

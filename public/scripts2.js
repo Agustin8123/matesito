@@ -163,8 +163,13 @@ function toggle_GroupMenu(groupId) {
     }
 }
 
-function toggle_GroupMenu2(group) {
-    toggleVisibility(`menu-${group}`);
+function toggle_GroupMenu1(groupId) {
+    const menu = document.getElementById(`${groupId}`);
+    if (menu.style.display === 'none' || menu.style.display === '') {
+        menu.style.display = 'block';
+    } else {
+        menu.style.display = 'none';
+    }
 }
 
 // Overlay inicial
