@@ -14,7 +14,7 @@ function hideMenus(...menuIds) {
     });
 }
 
-function showOnlyMenu(menuIdToShow, ...allMenuIds) {
+export function showOnlyMenu(menuIdToShow, ...allMenuIds) {
     hideMenus(...allMenuIds);
 
     toggleVisibility(menuIdToShow);
