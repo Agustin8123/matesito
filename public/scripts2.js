@@ -14,6 +14,12 @@ function hideMenus(...menuIds) {
     });
 }
 
+function showOnlyMenu(menuIdToShow, ...allMenuIds) {
+    hideMenus(...allMenuIds);
+
+    toggleVisibility(menuIdToShow);
+}
+
 // Menú desplegable principal
 function toggleMenu() {
     hideMenus('SearchMenu', 'rightMenu', 'forumSubMenu', 'userSubMenu');
