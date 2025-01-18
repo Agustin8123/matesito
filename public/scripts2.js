@@ -110,20 +110,44 @@ function toggleSubMenu2() {
     toggleVisibility('subMenu2');
 }
 
-function toggleDetails(menu, group) {
+function toggleDetails(menu, groupId) {
     toggleVisibility(menu);
-    fetch(`https://matesitotest.onrender.com/grupo/${group}`)
+    fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
         .then(response => response.json())
         .then(group => {
-            const detailsElement = document.getElementById(`groupDetailsContainer`);
-            detailsElement.innerHTML = `
-                <h3>${group.name}</h3>
-                <p>${group.description}</p>
-                <p>Código de invitación: ${group.invite_code}</p>
-            `;
+            // Seleccionar el contenedor dinámico basado en el groupId
+            const detailsElement = document.getElementById(`GroupDetailsContainer-${groupId}`);
+            if (detailsElement) {
+                detailsElement.innerHTML = `
+                    <h3>${group.name}</h3>
+                    <p>${group.description}</p>
+                    <p>Código de invitación: ${group.invite_code}</p>
+                `;
+            } else {
+                console.error(`No se encontró el contenedor para los detalles del grupo con ID: ${groupId}`);
+            }
         })
         .catch(error => console.error('Error al cargar los detalles del grupo:', error));
+}
 
+function toggleDetails1(menu, groupId) {
+    toggleVisibility(menu);
+    fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
+        .then(response => response.json())
+        .then(group => {
+            // Seleccionar el contenedor dinámico basado en el groupId
+            const detailsElement = document.getElementById(`groupDetailsContainer-${groupId}`);
+            if (detailsElement) {
+                detailsElement.innerHTML = `
+                    <h3>${group.name}</h3>
+                    <p>${group.description}</p>
+                    <p>Código de invitación: ${group.invite_code}</p>
+                `;
+            } else {
+                console.error(`No se encontró el contenedor para los detalles del grupo con ID: ${groupId}`);
+            }
+        })
+        .catch(error => console.error('Error al cargar los detalles del grupo:', error));
 }
 
 function toggle_UserMenu(user) {
