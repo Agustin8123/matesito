@@ -1062,20 +1062,23 @@ app.get('/group/messages/:groupId/:userId', async (req, res) => {
             INNER JOIN users u ON m.sender_id = u.id
             WHERE m.chat_or_group_id = $1
             AND m.is_private = FALSE
-            AND m.sender_id IN (
-                SELECT user_id 
-                FROM participantes 
-                WHERE forum_or_group_id = $1 AND is_group = TRUE
-            )
-            AND m.sender_id IN (
-                SELECT followed_id 
-                FROM seguir 
-                WHERE follower_id = $2
-            )
-            AND m.sender_id IN (
-                SELECT follower_id 
-                FROM seguir 
-                WHERE followed_id = $2
+            AND (
+                m.sender_id IN (
+                    SELECT user_id 
+                    FROM participantes 
+                    WHERE forum_or_group_id = $1 AND is_group = TRUE
+                )
+                AND m.sender_id IN (
+                    SELECT followed_id 
+                    FROM seguir 
+                    WHERE follower_id = $2
+                )
+                AND m.sender_id IN (
+                    SELECT follower_id 
+                    FROM seguir 
+                    WHERE followed_id = $2
+                )
+                OR m.sender_id = $2 -- Incluir siempre los mensajes del usuario activo
             )
             ORDER BY m.created_at ASC`,
             [groupId, userId]
