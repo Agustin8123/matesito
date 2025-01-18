@@ -1708,8 +1708,8 @@ function loadCreatedGroups() {
                     <input type="radio" id="radio-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('menu-${groupId}')">
 
                     <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
-                        <label for="details-${groupId}" class="boton">Ver detalles</label>
-                        <input type="radio" id="details-${groupId}" name="nav" style="display:none;" onclick="toggleDetails('details-${groupId}')">
+                        <label for="details-${groupId}b" class="boton">Ver detalles</label>
+                        <input type="radio" id="details-${groupId}b" name="nav" style="display:none;" onclick="toggleDetails('details-${groupId}')">
                         
                         <div id="details-${groupId}" style="display: none;">
                             <div id="GroupDetailsContainer-${groupId}">
