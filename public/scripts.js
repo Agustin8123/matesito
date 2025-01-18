@@ -1280,7 +1280,7 @@ function loadGroupMessages(groupId, loadAll) {
 
     const activeUserId = users[activeUser].id;
 
-    messageList.innerHTML = ''; // Limpiar lista de mensajes
+    groupMessageList.innerHTML = ''; // Limpiar lista de mensajes
 
     console.log(`Cargando mensajes del grupo con ID: ${groupId} para el usuario activo ID: ${activeUserId}...`);
     fetch(`https://matesitotest.onrender.com/group/messages/${groupId}/${activeUserId}`)
