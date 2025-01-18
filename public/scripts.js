@@ -1626,44 +1626,48 @@ function loadUserGroups() {
             container.innerHTML = ''; // Limpiamos el contenedor
 
             if (groups.length === 0) {
+                // Si no pertenece a ningún grupo, mostramos un mensaje
                 const noGroupsMessage = document.createElement('p');
                 noGroupsMessage.textContent = 'No perteneces a ningún grupo';
                 noGroupsMessage.style.textAlign = 'center';
                 noGroupsMessage.style.color = 'gray';
                 container.appendChild(noGroupsMessage);
             } else {
+                // Renderizamos los grupos
                 groups.forEach(group => {
                     const groupElement = document.createElement('div');
                     groupElement.classList.add('group');
 
                     const groupId = group.id;
+                    const groupName = group.name;
 
-                    // Incorporar el groupId para evitar conflictos
+                    // Asegurarnos de que los IDs y nombres son únicos
                     const menuId = `menu-${groupId}`;
                     const radioId = `radio-${groupId}`;
 
                     groupElement.innerHTML = `
-                    <label for="${radioId}" class="boton">${group.name}</label>
-                    <input type="radio" id="${radioId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
+                    <label for="${radioId}" class="boton">${groupName}</label>
+                    <input type="radio" id="${radioId}" name="nav-${groupId}" style="display:none;" onclick="toggle_GroupMenu1('${menuId}')">
 
                     <div id="${menuId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
-                        <label for="details-${menuId}" class="boton">Ver detalles</label>
-                        <input type="radio" id="details-${menuId}" name="nav" style="display:none;" onclick="toggleDetails('details-${menuId}', ${groupId})">
+                        <label for="details-${groupId}" class="boton">Ver detalles</label>
+                        <input type="radio" id="details-${groupId}" name="nav-${groupId}" style="display:none;" onclick="toggleDetails('details-${menuId}', ${groupId})">
                         
+                        <!-- Contenedor para los detalles del grupo -->
                         <div id="details-${menuId}" style="display: none;">
-                            <div id="groupDetailsContainer-${groupId}">
+                            <div id="groupDetailsContainer">
                                 <!-- Los detalles del grupo se cargarán aquí -->
                             </div>
                         </div>
 
-                        <label for="enter-${menuId}" class="boton">Entrar al chat</label>
-                        <input type="radio" id="enter-${menuId}" name="nav" style="display:none;" onclick="loadGroupMessages(${groupId})">
+                        <label for="enter-${menuId}-${groupId}" class="boton">Entrar al chat</label>
+                        <input type="radio" id="enter-${menuId}-${groupId}" name="nav-${groupId}" style="display:none;" onclick="loadGroupMessages(${groupId})">
 
-                        <label for="leave-${menuId}" class="boton">Salir del grupo</label>
-                        <input type="radio" id="leave-${menuId}" name="nav" style="display:none;" onclick="leaveGroup(${groupId})">
+                        <label for="leave-${menuId}${groupId}" class="boton">Salir del grupo</label>
+                        <input type="radio" id="leave-${menuId}${groupId}" name="nav-${groupId}" style="display:none;" onclick="leaveGroup(${groupId})">
 
-                        <label for="close-${menuId}" class="botonV">Volver</label>
-                        <input type="radio" id="close-${menuId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
+                        <label for="${menuId}${groupId}" class="botonV">Volver</label>
+                        <input type="radio" id="${menuId}${groupId}" name="nav-${groupId}" style="display:none;" onclick="toggle_GroupMenu1('${menuId}')">
                     </div>
                     `;
 
