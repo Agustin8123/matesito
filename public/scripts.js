@@ -1,3 +1,5 @@
+import * as scripts2 from './scripts2.js';
+    
     let users = {};  // Objeto para almacenar los usuarios y contrase
     let posts = [];  // Usamos un arreglo para almacenar los posts
     let activeUser = '';  // Variable para el usuario activo
@@ -1140,7 +1142,7 @@ function loadposts(loadAll) {
     activeChat = '';
     activeGroup = '';
 
-    showOnlyMenu(postList, forumList, postList, messageList, groupMessageList);
+    scripts2.showOnlyMenu(postList, forumList, postList, messageList, groupMessageList);
 
     postList.innerHTML = '';
 
@@ -1223,7 +1225,7 @@ function createOrLoadChat(user2Id) {
 }
 
 function loadChatMessages(chatId, loadAll) {
-    showOnlyMenu(messageList, forumList, postList, messageList, groupMessageList);
+    scripts2.showOnlyMenu(messageList, forumList, postList, messageList, groupMessageList);
     activeForum = '';
     activeGroup = '';
 
@@ -1281,7 +1283,7 @@ function loadChatMessages(chatId, loadAll) {
 }
 
 function loadGroupMessages(groupId, loadAll) {
-    showOnlyMenu(groupMessageList, forumList, postList, messageList, groupMessageList);
+    scripts2.showOnlyMenu(groupMessageList, forumList, postList, messageList, groupMessageList);
 
     activeForum = '';
     activeChat = '';
@@ -1344,7 +1346,7 @@ function loadGroupMessages(groupId, loadAll) {
 }
 
 function loadForumPosts(forumId, loadAll) {
-    showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList);
+    scripts2.showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList);
 
     forumList.innerHTML = ''; // Limpiar lista de posts
    
