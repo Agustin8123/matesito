@@ -1088,6 +1088,40 @@ app.get('/group/messages/:groupId/:userId', async (req, res) => {
     }
 });
 
+app.post('/group/messages/:groupId', async (req, res) => {
+    const { groupId } = req.params;
+    const { content, sensitive, sender_id, media, mediaType } = req.body;
+
+    try {
+        // Validar que el usuario pertenece al grupo
+        const isParticipant = await db.query(
+            `SELECT COUNT(*) 
+             FROM participantes 
+             WHERE forum_or_group_id = $1 
+             AND user_id = $2 
+             AND is_group = TRUE`,
+            [groupId, sender_id]
+        );
+
+        if (parseInt(isParticipant.rows[0].count) === 0) {
+            return res.status(403).json({ error: 'No tienes permiso para publicar en este grupo.' });
+        }
+
+        // Insertar el mensaje en la base de datos
+        const result = await db.query(
+            `INSERT INTO mensajes (chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at)
+             VALUES ($1, $2, $3, $4, $5, $6, FALSE, NOW())
+             RETURNING *`,
+            [groupId, sender_id, content, sensitive, media, mediaType]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error al publicar el mensaje:', error);
+        res.status(500).json({ error: 'Error al publicar el mensaje.' });
+    }
+});
+
 // Enviar un mensaje
 app.post('/sendMessage', (req, res) => {
     const { senderId, chatOrGroupId, content, isPrivate, media, mediaType } = req.body;

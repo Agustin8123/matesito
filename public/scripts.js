@@ -747,7 +747,7 @@ function containsForbiddenWords(message) {
         } else if (messageList.style.display === 'block') {
             sendChatMessage(activeChat);
         } else if (groupMessageList.style.display === 'block') {
-            
+            sendGroupMessage(activeGroup);
         } else {
             alert("No puedes publicar un mensaje aquí");
         }
@@ -909,6 +909,72 @@ async function sendChatMessage(chatId) {
         } else {
             alert('Error al enviar el mensaje');
             loadChatMessages(chatId, loadAll);  // Cargar los mensajes del chat
+        }
+    } catch (error) {
+        console.error('Error al enviar el mensaje:', error);
+        alert('Error al enviar el mensaje.');
+    }
+}
+
+async function sendGroupMessage(groupId) {
+    const content = document.getElementById('postContent').value;
+    const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
+    const fileInput = document.getElementById('postMedia');
+    const file = fileInput.files[0];
+
+    // Validar contenido prohibido
+    if (containsForbiddenWords(content)) {
+        alert("Tu mensaje puede infringir las políticas. Por favor revisa su contenido.");
+        return;
+    }
+
+    let media = null;
+    let mediaType = null;
+
+    if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            // Subir el archivo a Cloudinary u otro servicio
+            const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const uploadData = await uploadResponse.json();
+            media = uploadData.secure_url;
+            mediaType = file.type;
+        } catch (error) {
+            console.error('Error al subir el archivo:', error);
+            alert('Error al subir el archivo.');
+            return;
+        }
+    }
+
+    // Crear datos del mensaje
+    const messageData = {
+        content,
+        sensitive: isSensitive ? 1 : 0,
+        sender_id: users[activeUser].id,
+        media,
+        mediaType,
+    };
+
+    try {
+        const response = await fetch(`https://matesitotest.onrender.com/group/messages/${groupId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(messageData),
+        });
+
+        if (response.ok) {
+            const responseData = await response.json();
+            document.getElementById('postContent').value = '';
+            fileInput.value = '';
+            alert('Mensaje enviado con éxito');
+            loadGroupMessages(groupId); // Cargar los mensajes del grupo
+        } else {
+            alert('Error al enviar el mensaje');
         }
     } catch (error) {
         console.error('Error al enviar el mensaje:', error);
