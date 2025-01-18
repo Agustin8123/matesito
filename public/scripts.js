@@ -4,6 +4,13 @@
     let activeForum = '';
     let activeChat = '';
     let activeGroup = '';
+    
+    const forumList = document.getElementById('forumList');
+    const postList = document.getElementById('postList');
+    const messageList = document.getElementById('messageList');
+    const groupMessageList = document.getElementById('groupMessageList');
+    const profileList = document.getElementById('profileList');
+    const unicPostList = document.getElementById('unicPostList');  
 
     let mantenimiento = false;
 
@@ -460,6 +467,8 @@ function reloadPosts() {
 }
 
 function loadForos() {
+
+    
     fetch('/foros')
         .then(response => response.json())
         .then(foros => {
@@ -735,11 +744,6 @@ function containsForbiddenWords(message) {
     }
 
     function wherePost() {
-        const forumList = document.getElementById('forumList');
-        const postList = document.getElementById('postList');
-        const messageList = document.getElementById('messageList');
-        const groupMessageList = document.getElementById('groupMessageList');
-    
         if (postList.style.display === 'block') {
             postpost();
         } else if (forumList.style.display === 'block') {
@@ -986,8 +990,6 @@ async function sendGroupMessage(groupId) {
         const postContent = document.getElementById('postContent').value;
         const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
 
-        activeForum = '';
-
         if (containsForbiddenWords(postContent)) {
             alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
             return;
@@ -1133,6 +1135,15 @@ function loadposts(loadAll) {
     const unicPostList = document.getElementById('unicPostList');
     unicPostList.style.display = 'none';
 
+    
+    activeForum = '';
+    activeChat = '';
+    activeGroup = '';
+
+    showOnlyMenu(postList, forumList, postList, messageList, groupMessageList);
+
+    postList.innerHTML = '';
+
     console.log("Cargando posts...");
     fetch('https://matesitotest.onrender.com/posts')
         .then(response => {
@@ -1212,10 +1223,9 @@ function createOrLoadChat(user2Id) {
 }
 
 function loadChatMessages(chatId, loadAll) {
-    const messageList = document.getElementById('messageList');
-    messageList.style.display = 'block'; // Mostrar la lista de mensajes
-    const postList = document.getElementById('postList');
-    postList.style.display = 'none'; // Ocultar la lista del foro
+    showOnlyMenu(messageList, forumList, postList, messageList, groupMessageList);
+    activeForum = '';
+    activeGroup = '';
 
     messageList.innerHTML = ''; // Limpiar lista de mensajes
 
@@ -1271,10 +1281,10 @@ function loadChatMessages(chatId, loadAll) {
 }
 
 function loadGroupMessages(groupId, loadAll) {
-    const groupMessageList = document.getElementById('groupMessageList');
-    groupMessageList.style.display = 'block'; // Mostrar la lista de mensajes
-    const postList = document.getElementById('postList');
-    postList.style.display = 'none'; // Ocultar la lista del foro
+    showOnlyMenu(groupMessageList, forumList, postList, messageList, groupMessageList);
+
+    activeForum = '';
+    activeChat = '';
 
     activeGroup = groupId;
 
@@ -1334,12 +1344,12 @@ function loadGroupMessages(groupId, loadAll) {
 }
 
 function loadForumPosts(forumId, loadAll) {
-    const forumList = document.getElementById('forumList');
-    const postList = document.getElementById('postList');
-    forumList.style.display = 'block';
-    postList.style.display = 'none';
-    forumList.innerHTML = ''; // Limpiar lista de posts
+    showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList);
 
+    forumList.innerHTML = ''; // Limpiar lista de posts
+   
+    activeChat = '';
+    activeGroup = '';
     activeForum = forumId;
 
     console.log(`Cargando mensajes del foro con ID: ${forumId}...`);
