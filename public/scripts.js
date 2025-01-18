@@ -1645,11 +1645,11 @@ function loadCreatedGroups() {
 
                     groupElement.innerHTML = `
                     <label for="${groupName}${groupId}" class="boton">${groupName}</label>
-                    <input type="radio" id="${groupName}${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu2('${groupId}')">
+                    <input type="radio" id="${groupName}${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${groupId}')">
 
                     <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
                         <label for="details-${groupName}" class="boton">Ver detalles</label>
-                        <input type="radio" id="details-${groupName}" name="nav" style="display:none;" onclick="toggleDetails2('details-${groupId}, ${groupId}')">
+                        <input type="radio" id="details-${groupName}" name="nav" style="display:none;" onclick="toggleDetails2('${groupId}')">
                         
                         <!-- Contenedor para los detalles del grupo -->
                         <div id="details-${groupId}" style="display: none;">
@@ -1661,11 +1661,11 @@ function loadCreatedGroups() {
                         <label for="enter-${groupId}" class="boton">Entrar al chat</label>
                         <input type="radio" id="enter-${groupId}" name="nav" style="display:none;" onclick="SendGroupMessaje(${groupId})">
 
-                        <label for="leave-${groupId}" class="boton">Eliminar grupo</label>
-                        <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="delateGroup(${groupId})">
+                        <label for="leave-${groupId}" class="boton">Salir del grupo</label>
+                        <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${userId}, ${groupId})">
 
                         <label for="menu-${groupId}" class="botonV">Volver</label>
-                        <input type="radio" id="menu-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu2('${groupId}')">
+                        <input type="radio" id="menu-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${groupId}')">
                     </div>
                     `;
 

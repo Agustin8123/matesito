@@ -126,12 +126,16 @@ function toggleDetails(menu, group) {
 
 }
 
-function toggleDetails2(menu, group) {
-    toggleVisibility(`details-${menu}`);
-    fetch(`https://matesitotest.onrender.com/grupo/${group}`)
+function toggleDetails2(groupId) {
+    // Alterna la visibilidad de los detalles del grupo
+    const detailsContainer = document.getElementById(`details-${groupId}`);
+    detailsContainer.style.display = (detailsContainer.style.display === 'none' || detailsContainer.style.display === '') ? 'block' : 'none';
+    
+    // Cargar los detalles del grupo
+    fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
         .then(response => response.json())
         .then(group => {
-            const detailsElement = document.getElementById(`GroupDetailsContainer-${group}`);
+            const detailsElement = document.getElementById(`GroupDetailsContainer-${groupId}`);
             detailsElement.innerHTML = `
                 <h3>${group.name}</h3>
                 <p>${group.description}</p>
@@ -139,7 +143,6 @@ function toggleDetails2(menu, group) {
             `;
         })
         .catch(error => console.error('Error al cargar los detalles del grupo:', error));
-
 }
 
 function toggle_UserMenu(user) {
@@ -151,8 +154,13 @@ function toggle_ForumMenu(forum) {
     toggleVisibility(forum);
 }
 
-function toggle_GroupMenu(group) {
-    toggleVisibility(group);
+function toggle_GroupMenu(groupId) {
+    const menu = document.getElementById(`menu-${groupId}`);
+    if (menu.style.display === 'none' || menu.style.display === '') {
+        menu.style.display = 'block';
+    } else {
+        menu.style.display = 'none';
+    }
 }
 
 function toggle_GroupMenu2(group) {
