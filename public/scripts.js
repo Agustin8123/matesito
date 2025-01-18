@@ -3,6 +3,7 @@
     let activeUser = '';  // Variable para el usuario activo
     let activeForum = '';
     let activeChat = '';
+    let activeGroup = '';
 
     let mantenimiento = false;
 
@@ -737,6 +738,7 @@ function containsForbiddenWords(message) {
         const forumList = document.getElementById('forumList');
         const postList = document.getElementById('postList');
         const messageList = document.getElementById('messageList');
+        const groupMessageList = document.getElementById('groupMessageList');
     
         if (postList.style.display === 'block') {
             postpost();
@@ -744,6 +746,8 @@ function containsForbiddenWords(message) {
             sendForumMessage(activeForum);
         } else if (messageList.style.display === 'block') {
             sendChatMessage(activeChat);
+        } else if (groupMessageList.style.display === 'block') {
+            
         } else {
             alert("No puedes publicar un mensaje aquí");
         }
@@ -1197,6 +1201,69 @@ function loadChatMessages(chatId, loadAll) {
         })
         .catch(error => {
             console.error('Error al cargar los mensajes:', error);
+        });
+}
+
+function loadGroupMessages(groupId, loadAll) {
+    const groupMessageList = document.getElementById('groupMessageList');
+    groupMessageList.style.display = 'block'; // Mostrar la lista de mensajes
+    const postList = document.getElementById('postList');
+    postList.style.display = 'none'; // Ocultar la lista del foro
+
+    activeGroup = groupId;
+
+    const activeUserId = users[activeUser].id;
+
+    messageList.innerHTML = ''; // Limpiar lista de mensajes
+
+    console.log(`Cargando mensajes del grupo con ID: ${groupId} para el usuario activo ID: ${activeUserId}...`);
+    fetch(`https://matesitotest.onrender.com/group/messages/${groupId}/${activeUserId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error al cargar los mensajes: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(messages => {
+            console.log(`Mensajes cargados (${messages.length}):`, messages);
+
+            const reversedMessages = messages.reverse(); // Ordenar los mensajes de más antiguos a más recientes
+
+            const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
+
+            messagesToRender.forEach(message => {
+                const {
+                    content,
+                    media,
+                    media_type: mediaType,
+                    sensitive,
+                    created_at: createdAt,
+                    sender_id: userId,
+                    username,
+                    image: profilePicture,
+                    id: messageId // Asegurarse de que se obtenga el ID del mensaje
+                } = message;
+
+                // Filtrar contenido sensible si es necesario
+                if (!showSensitiveContent && sensitive === true) return;
+
+                // Agregar mensaje a la lista
+                addpostToList(
+                    content,
+                    media || null,
+                    mediaType || null,
+                    username || `Usuario ${userId}`,
+                    profilePicture || '/default-profile.png',
+                    sensitive,
+                    createdAt,
+                    userId,
+                    messageId,
+                    'groupMessageList'
+                );
+            });
+        })
+        .catch(error => {
+            console.error('Error al cargar los mensajes del grupo:', error);
         });
 }
 
@@ -1660,7 +1727,7 @@ function loadCreatedGroups() {
                         <input type="radio" id="enter-${groupId}" name="nav" style="display:none;" onclick="SendGroupMessaje(${groupId})">
 
                         <label for="leave-${groupId}" class="boton">Eliminar grupo</label>
-                        <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="delateGroup(${groupId})">
+                        <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="deleteGroup(${groupId})">
 
                         <label for="menu-${groupId}" class="botonV">Volver</label>
                         <input type="radio" id="menu-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${groupId}')">
