@@ -1623,7 +1623,9 @@ function loadUserGroups() {
         .then(response => response.json())
         .then(groups => {
             const container = document.getElementById('joinedGruposContainer');
+            const container1 = document.getElementById('createdGroupsContainer');
             container.innerHTML = ''; // Limpiamos el contenedor
+            container1.innerHTML = '';
 
             if (groups.length === 0) {
                 // Si no pertenece a ningún grupo, mostramos un mensaje
@@ -1688,7 +1690,9 @@ function loadCreatedGroups() {
         .then(response => response.json())
         .then(groups => {
             const container = document.getElementById('createdGroupsContainer');
+            const container1 = document.getElementById('joinedGruposContainer');
             container.innerHTML = ''; // Limpiamos el contenedor
+            container1.innerHTML = '';
 
             if (groups.length === 0) {
                 const noGroupsMessage = document.createElement('p');
