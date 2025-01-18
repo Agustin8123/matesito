@@ -1642,8 +1642,8 @@ function loadUserGroups() {
                     const groupName = group.name;
 
                     // Asegurarnos de que los IDs y nombres son únicos
-                    const menuId = `menu-${groupId}`;
-                    const radioId = `radio-${groupId}`;
+                    const menuId = `menus-${groupId}`;
+                    const radioId = `radios-${groupId}`;
 
                     groupElement.innerHTML = `
                     <label for="${radioId}" class="boton">${groupName}</label>
