@@ -1,4 +1,4 @@
-import * as scripts2 from './scripts2.js';
+import * as scripts2 from 'https://matesitotest.onrender.com/scripts2.js';
     
     let users = {};  // Objeto para almacenar los usuarios y contrase
     let posts = [];  // Usamos un arreglo para almacenar los posts
