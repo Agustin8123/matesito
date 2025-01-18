@@ -1049,6 +1049,45 @@ app.get('/chat/messages/:chatId', async (req, res) => {
     }
 });
 
+app.get('/group/messages/:groupId/:userId', async (req, res) => {
+    const { groupId, userId } = req.params;
+
+    try {
+        const result = await db.query(
+            `SELECT 
+                m.*, 
+                u.username, 
+                u.image
+            FROM mensajes m
+            INNER JOIN users u ON m.sender_id = u.id
+            WHERE m.chat_or_group_id = $1
+            AND m.is_private = FALSE
+            AND m.sender_id IN (
+                SELECT user_id 
+                FROM participantes 
+                WHERE forum_or_group_id = $1 AND is_group = TRUE
+            )
+            AND m.sender_id IN (
+                SELECT followed_id 
+                FROM seguir 
+                WHERE follower_id = $2
+            )
+            AND m.sender_id IN (
+                SELECT follower_id 
+                FROM seguir 
+                WHERE followed_id = $2
+            )
+            ORDER BY m.created_at ASC`,
+            [groupId, userId]
+        );
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error al cargar los mensajes del grupo:', error);
+        res.status(500).json({ error: 'Error al cargar los mensajes del grupo' });
+    }
+});
+
 // Enviar un mensaje
 app.post('/sendMessage', (req, res) => {
     const { senderId, chatOrGroupId, content, isPrivate, media, mediaType } = req.body;
