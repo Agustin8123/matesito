@@ -26,11 +26,6 @@ function toggleMenu() {
     toggleVisibility('dropdownMenu');
 }
 
-function toggleMenu() {
-    hideMenus('SearchMenu', 'rightMenu', 'forumSubMenu', 'userSubMenu');
-    toggleVisibility('dropdownMenu');
-}
-
 function togglePosts() {
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
