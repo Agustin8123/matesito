@@ -1626,48 +1626,44 @@ function loadUserGroups() {
             container.innerHTML = ''; // Limpiamos el contenedor
 
             if (groups.length === 0) {
-                // Si no pertenece a ningún grupo, mostramos un mensaje
                 const noGroupsMessage = document.createElement('p');
                 noGroupsMessage.textContent = 'No perteneces a ningún grupo';
                 noGroupsMessage.style.textAlign = 'center';
                 noGroupsMessage.style.color = 'gray';
                 container.appendChild(noGroupsMessage);
             } else {
-                // Renderizamos los grupos
                 groups.forEach(group => {
                     const groupElement = document.createElement('div');
                     groupElement.classList.add('group');
 
                     const groupId = group.id;
-                    const groupName = group.name;
 
-                    // Asegurarnos de que los IDs de los elementos son únicos
+                    // Incorporar el groupId para evitar conflictos
                     const menuId = `menu-${groupId}`;
                     const radioId = `radio-${groupId}`;
 
                     groupElement.innerHTML = `
                     <label for="${radioId}" class="boton">${group.name}</label>
-                    <input type="radio" id="${radioId}" name="nav" style="display:none;" onclick="toggle_GroupMenu1('${menuId}')">
+                    <input type="radio" id="${radioId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
 
                     <div id="${menuId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
-                        <label for="details-${groupId}" class="boton">Ver detalles</label>
-                        <input type="radio" id="details-${groupId}" name="nav" style="display:none;" onclick="toggleDetails('details-${menuId}', ${groupId})">
+                        <label for="details-${menuId}" class="boton">Ver detalles</label>
+                        <input type="radio" id="details-${menuId}" name="nav" style="display:none;" onclick="toggleDetails('details-${menuId}', ${groupId})">
                         
-                        <!-- Contenedor para los detalles del grupo -->
                         <div id="details-${menuId}" style="display: none;">
-                            <div id="groupDetailsContainer">
+                            <div id="groupDetailsContainer-${groupId}">
                                 <!-- Los detalles del grupo se cargarán aquí -->
                             </div>
                         </div>
 
-                        <label for="enter-${menuId}-${groupId}" class="boton">Entrar al chat</label>
-                        <input type="radio" id="enter-${menuId}-${groupId}" name="nav" style="display:none;" onclick="loadGroupMessages(${groupId})">
+                        <label for="enter-${menuId}" class="boton">Entrar al chat</label>
+                        <input type="radio" id="enter-${menuId}" name="nav" style="display:none;" onclick="loadGroupMessages(${groupId})">
 
-                        <label for="leave-${menuId}${groupId}" class="boton">Salir del grupo</label>
-                        <input type="radio" id="leave-${menuId}${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${groupId})">
+                        <label for="leave-${menuId}" class="boton">Salir del grupo</label>
+                        <input type="radio" id="leave-${menuId}" name="nav" style="display:none;" onclick="leaveGroup(${groupId})">
 
-                        <label for="${menuId}${groupId}" class="botonV">Volver</label>
-                        <input type="radio" id="${menuId}${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu1('${menuId}')">
+                        <label for="close-${menuId}" class="botonV">Volver</label>
+                        <input type="radio" id="close-${menuId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${menuId}')">
                     </div>
                     `;
 
@@ -1691,32 +1687,26 @@ function loadCreatedGroups() {
             container.innerHTML = ''; // Limpiamos el contenedor
 
             if (groups.length === 0) {
-                // Si no hay grupos creados, mostramos un mensaje
                 const noGroupsMessage = document.createElement('p');
                 noGroupsMessage.textContent = 'No has creado ningún grupo';
                 noGroupsMessage.style.textAlign = 'center';
                 noGroupsMessage.style.color = 'gray';
                 container.appendChild(noGroupsMessage);
             } else {
-                // Renderizamos los grupos creados
                 groups.forEach(group => {
                     const groupElement = document.createElement('div');
                     groupElement.classList.add('group');
 
                     const groupId = group.id;
-                    const groupName = group.name;
-                    const groupDescription = group.description;
-                    const inviteCode = group.invite_code;
 
                     groupElement.innerHTML = `
-                    <label for="${groupName}${groupId}" class="boton">${groupName}</label>
-                    <input type="radio" id="${groupName}${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${groupId}')">
+                    <label for="radio-${groupId}" class="boton">${group.name}</label>
+                    <input type="radio" id="radio-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('menu-${groupId}')">
 
-                    <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
-                        <label for="details-${groupName}" class="boton">Ver detalles</label>
-                        <input type="radio" id="details-${groupName}" name="nav" style="display:none;" onclick="toggleDetails2('${groupId}')">
+                    <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
+                        <label for="details-${groupId}" class="boton">Ver detalles</label>
+                        <input type="radio" id="details-${groupId}" name="nav" style="display:none;" onclick="toggleDetails('details-${groupId}')">
                         
-                        <!-- Contenedor para los detalles del grupo -->
                         <div id="details-${groupId}" style="display: none;">
                             <div id="GroupDetailsContainer-${groupId}">
                                 <!-- Los detalles del grupo se cargarán aquí -->
@@ -1726,11 +1716,11 @@ function loadCreatedGroups() {
                         <label for="enter-${groupId}" class="boton">Entrar al chat</label>
                         <input type="radio" id="enter-${groupId}" name="nav" style="display:none;" onclick="loadGroupMessages(${groupId})">
 
-                        <label for="leave-${groupId}" class="boton">Eliminar grupo</label>
-                        <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="deleteGroup(${groupId})">
+                        <label for="delete-${groupId}" class="boton">Eliminar grupo</label>
+                        <input type="radio" id="delete-${groupId}" name="nav" style="display:none;" onclick="deleteGroup(${groupId})">
 
-                        <label for="menu-${groupId}v" class="botonV">Volver</label>
-                        <input type="radio" id="menu-${groupId}v" name="nav" style="display:none;" onclick="toggle_GroupMenu('${groupId}')">
+                        <label for="close-${groupId}" class="botonV">Volver</label>
+                        <input type="radio" id="close-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('menu-${groupId}')">
                     </div>
                     `;
 
