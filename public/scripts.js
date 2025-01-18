@@ -1729,8 +1729,8 @@ function loadCreatedGroups() {
                         <label for="leave-${groupId}" class="boton">Eliminar grupo</label>
                         <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="deleteGroup(${groupId})">
 
-                        <label for="menu-${groupId}" class="botonV">Volver</label>
-                        <input type="radio" id="menu-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('${groupId}')">
+                        <label for="menu-${groupId}v" class="botonV">Volver</label>
+                        <input type="radio" id="menu-${groupId}v" name="nav" style="display:none;" onclick="toggle_GroupMenu('${groupId}')">
                     </div>
                     `;
 
