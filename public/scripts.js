@@ -1144,7 +1144,7 @@ function loadposts(loadAll) {
 
     scripts2.showOnlyMenu(postList, forumList, postList, messageList, groupMessageList);
 
-    postList.innerHTML = '';
+    document.getElementById('postList').innerHTML = '';
 
     console.log("Cargando posts...");
     fetch('https://matesitotest.onrender.com/posts')
@@ -1229,7 +1229,7 @@ function loadChatMessages(chatId, loadAll) {
     activeForum = '';
     activeGroup = '';
 
-    messageList.innerHTML = ''; // Limpiar lista de mensajes
+    document.getElementById('messageList').innerHTML = ''; // Limpiar lista de mensajes
 
     console.log(`Cargando mensajes del chat con ID: ${chatId}...`);
     fetch(`https://matesitotest.onrender.com/chat/messages/${chatId}`)
@@ -1292,7 +1292,7 @@ function loadGroupMessages(groupId, loadAll) {
 
     const activeUserId = users[activeUser].id;
 
-    groupMessageList.innerHTML = ''; // Limpiar lista de mensajes
+    document.getElementById('groupMessageList').innerHTML = ''; // Limpiar lista de mensajes
 
     console.log(`Cargando mensajes del grupo con ID: ${groupId} para el usuario activo ID: ${activeUserId}...`);
     fetch(`https://matesitotest.onrender.com/group/messages/${groupId}/${activeUserId}`)
@@ -1348,7 +1348,7 @@ function loadGroupMessages(groupId, loadAll) {
 function loadForumPosts(forumId, loadAll) {
     scripts2.showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList);
 
-    forumList.innerHTML = ''; // Limpiar lista de posts
+    document.getElementById('forumList').innerHTML = ''; // Limpiar lista de posts
    
     activeChat = '';
     activeGroup = '';
