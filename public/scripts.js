@@ -495,10 +495,6 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
     });
 }
 
-  function reloadPosts() { 
-    loadposts(loadAll);
-}
-
   function loadForos() {
 
     
@@ -866,10 +862,8 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
             document.getElementById('postContent').value = '';
             fileInput.value = '';
             alert('Mensaje enviado con éxito');
-            loadForumPosts(forumId);
         } else {
             alert('Error al enviar el mensaje');
-            loadForumPosts(forumId);
         }
     } catch (error) {
         console.error('Error al enviar el mensaje:', error);
@@ -946,10 +940,8 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
             document.getElementById('postContent').value = '';
             fileInput.value = '';
             alert('Mensaje enviado con éxito');
-            loadChatMessages(chatId, loadAll);  // Cargar los mensajes del chat
         } else {
             alert('Error al enviar el mensaje');
-            loadChatMessages(chatId, loadAll);  // Cargar los mensajes del chat
         }
     } catch (error) {
         console.error('Error al enviar el mensaje:', error);
@@ -1013,7 +1005,6 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
             document.getElementById('postContent').value = '';
             fileInput.value = '';
             alert('Mensaje enviado con éxito');
-            loadGroupMessages(groupId); // Cargar los mensajes del grupo
         } else {
             alert('Error al enviar el mensaje');
         }
@@ -1074,7 +1065,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
                 selectedFile = null;
                 document.getElementById('loading').style.display = 'none';
                 alert('Tu post se ha enviado correctamente');
-                loadposts(loadAll);togglePosts();
+                ;togglePosts();
             })
             .catch(error => {
                 console.error('Error al subir el archivo o enviar el post:', error);
@@ -1093,7 +1084,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
                 document.getElementById('postContent').value = '';
                 selectedFile = null;
                 alert('Tu post se ha enviado correctamente');
-                loadposts(loadAll);togglePosts();
+                ;togglePosts();
             })
             .catch(error => {
                 console.error('Error al enviar el post:', error);
