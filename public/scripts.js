@@ -780,7 +780,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
         const messageList = document.getElementById('messageList');
         const groupMessageList = document.getElementById('groupMessageList');
         const postList = document.getElementById('postList');
-        
+
         if (postList.style.display === 'block') {
             postpost();
         } else if (forumList.style.display === 'block') {
@@ -1125,22 +1125,22 @@ let showSensitiveContent = false;
     const postList = document.getElementById('postList');
 
     if (profileList.style.display === 'block') {
-        const username = document.getElementById('currentProfileUsername').value;
-        unicPostList.style.display = 'none';
+        profileList.innerHTML = '';
         viewProfile(username, loadAll); 
 
     } else if (postList.style.display === 'block') {
-        unicPostList.style.display = 'none';
         loadposts(loadAll); 
+        postList.innerHTML = '';
     } else if (forumList.style.display === 'block') {
-        unicPostList.style.display = 'none';
         loadForumPosts(activeForum, loadAll);
+        forumList.innerHTML = '';
     }else if (messageList.style.display === 'block') {
-        unicPostList.style.display = 'none';
         loadChatMessages(activeChat, loadAll);
+        messageList.innerHTML = '';
     } else if (groupMessageList.style.display === 'block')
     {
         loadGroupMessages(activeGroup, loadAll);
+        groupMessageList.innerHTML = '';
     }
 }
 
