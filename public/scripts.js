@@ -1122,19 +1122,23 @@ let showSensitiveContent = false;
     if (profileList.style.display === 'block') {
         const username = document.getElementById('currentProfileUsername').value;
         profileList.innerHTML = '';
+        unicPostList.innerHTML = '';
         viewProfile(username, loadAll); 
 
     } else if (postList.style.display === 'block') {
         loadposts(loadAll); 
         postList.innerHTML = '';
+        unicPostList.innerHTML = '';
     } else if (forumList.style.display === 'block') {
         loadForumPosts(activeForum, loadAll);
         forumList.innerHTML = '';
+        unicPostList.innerHTML = '';
     }else if (messageList.style.display === 'block') {
         loadChatMessages(activeChat, loadAll);
         messageList.innerHTML = '';
-    } else if (groupMessageList.style.display === 'block')
-    {
+        unicPostList.innerHTML = '';
+    } else if (groupMessageList.style.display === 'block') {
+        unicPostList.innerHTML = '';
         loadGroupMessages(activeGroup, loadAll);
         groupMessageList.innerHTML = '';
     }
@@ -1262,6 +1266,7 @@ let showSensitiveContent = false;
     activeGroup = '';
 
     document.getElementById('messageList').innerHTML = ''; // Limpiar lista de mensajes
+    const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
 
     console.log(`Cargando mensajes del chat con ID: ${chatId}...`);
     fetch(`https://matesitotest.onrender.com/chat/messages/${chatId}`)
@@ -1316,6 +1321,7 @@ let showSensitiveContent = false;
 
   function loadGroupMessages(groupId, loadAll) {
     showOnlyMenu(groupMessageList, forumList, postList, messageList, groupMessageList, profileList);
+    const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
 
     activeForum = '';
     activeChat = '';
@@ -1381,6 +1387,7 @@ let showSensitiveContent = false;
    showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList, profileList);
 
     document.getElementById('forumList').innerHTML = ''; // Limpiar lista de posts
+    const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
    
     activeChat = '';
     activeGroup = '';
@@ -1570,6 +1577,7 @@ let showSensitiveContent = false;
   function viewProfile(username, loadAll) {
     // Obtener referencias a los contenedores
     const profileList = document.getElementById('profileList');
+    const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
 
     // Guardar el username actual en un input oculto
     let currentProfileUsername = document.getElementById('currentProfileUsername');
@@ -1579,6 +1587,8 @@ let showSensitiveContent = false;
         currentProfileUsername.id = 'currentProfileUsername';
         document.body.appendChild(currentProfileUsername);
     }
+    
+    
     currentProfileUsername.value = username;
 
     // Limpiar el contenido de la lista de perfil
