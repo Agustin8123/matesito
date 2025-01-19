@@ -1159,9 +1159,6 @@ function loadposts(loadAll) {
 
             // Determinar cuántos posts renderizar
             const postsToRender = loadAll ? reversedPosts : reversedPosts.slice(0, 12);
-
-            // Limpiar la lista y renderizar los posts seleccionados
-            postList.innerHTML = '';
             postsToRender.forEach(post => {
                 const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = post;
 
