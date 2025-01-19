@@ -1,7 +1,6 @@
 import * as scripts2 from 'https://matesitotest.onrender.com/scripts2.js';
     
     let users = {};  // Objeto para almacenar los usuarios y contrase
-    let posts = [];  // Usamos un arreglo para almacenar los posts
     let activeUser = '';  // Variable para el usuario activo
     let activeForum = '';
     let activeChat = '';
@@ -464,7 +463,7 @@ function leaveGroup(groupId) {
     });
 }
 
-function reloadPosts() { 
+export function reloadPosts() { 
     loadposts(loadAll);
 }
 
