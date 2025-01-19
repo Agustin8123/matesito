@@ -1,11 +1,13 @@
 // Función genérica para alternar la visibilidad de un elemento
 function toggleVisibility(elementId, displayType = 'block') {
+    console.log("interactuando con: ", elementId);
     const element = document.getElementById(elementId);
     element.style.display = element.style.display === displayType ? 'none' : displayType;
 }
 
 // Función para ocultar múltiples menús
 function hideMenus(...menuIds) {
+    console.log("interactuando con: ", menuIds);
     menuIds.forEach(menuId => {
         const menu = document.getElementById(menuId);
         if (menu && menu.style.display !== 'none') {
