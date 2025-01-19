@@ -1120,6 +1120,7 @@ let showSensitiveContent = false;
     const postList = document.getElementById('postList');
 
     if (profileList.style.display === 'block') {
+        const username = document.getElementById('currentProfileUsername').value;
         profileList.innerHTML = '';
         viewProfile(username, loadAll); 
 
