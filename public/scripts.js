@@ -1940,4 +1940,3 @@ let showSensitiveContent = false;
 window.onload = verMant(mantenimiento);
 window.onload = checkRememberedUser();
 window.onload = init();
-window.onload = reloadPosts();
