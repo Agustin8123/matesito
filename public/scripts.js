@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
             document.getElementById('appContainer').style.display = 'block';
             updateUserButton();
             HideOverlays();
-            loadPosts(loadAll);
+            loadposts(loadAll);
         } else {
             alert("Usuario no encontrado.");
         }
