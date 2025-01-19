@@ -777,6 +777,10 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
     }
 
       function wherePost() {
+        const messageList = document.getElementById('messageList');
+        const groupMessageList = document.getElementById('groupMessageList');
+        const postList = document.getElementById('postList');
+        
         if (postList.style.display === 'block') {
             postpost();
         } else if (forumList.style.display === 'block') {
@@ -1114,11 +1118,11 @@ let showSensitiveContent = false;
   function buttonsState() {
     // Obtener referencias a los contenedores directamente dentro de la función
     const profileList = document.getElementById('profileList');
-    const postList = document.getElementById('postList');
     const unicPostList = document.getElementById('unicPostList');
     const forumList = document.getElementById('forumList');
     const messageList = document.getElementById('messageList');
     const groupMessageList = document.getElementById('groupMessageList');
+    const postList = document.getElementById('postList');
 
     if (profileList.style.display === 'block') {
         const username = document.getElementById('currentProfileUsername').value;
