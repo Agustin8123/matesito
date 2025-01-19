@@ -1848,7 +1848,7 @@ let showSensitiveContent = false;
 }
 
   function deleteGroup(groupId) {
-    const userId = users[activeUser]?.id; // ID del usuario activo
+    const userId = users[activeUser]?.id; // ID del suario activo
 
     fetch(`https://matesitotest.onrender.com/grupo/${groupId}/${userId}`, {
         method: 'DELETE',
