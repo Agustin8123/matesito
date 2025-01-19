@@ -313,10 +313,11 @@
 <script type="module" src="scripts2.js"></script>
 <script src="/socket.io/socket.io.js"></script>
   <script>
+    import * as scripts from 'https://matesitotest.onrender.com/scripts.js';
     const socket = io();
 
     socket.on('reloadPosts', () => {
-        reloadPosts();
+        scripts.reloadPosts();
     });
   </script>
 </body>
