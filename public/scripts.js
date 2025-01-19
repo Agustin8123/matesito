@@ -231,6 +231,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
             document.getElementById('appContainer').style.display = 'block';
             updateUserButton();
             HideOverlays();
+            loadPosts(loadAll);
         } else {
             alert("Usuario no encontrado.");
         }
@@ -1117,6 +1118,7 @@ let showSensitiveContent = false;
     const unicPostList = document.getElementById('unicPostList');
     const forumList = document.getElementById('forumList');
     const messageList = document.getElementById('messageList');
+    const groupMessageList = document.getElementById('groupMessageList');
 
     if (profileList.style.display === 'block') {
         const username = document.getElementById('currentProfileUsername').value;
@@ -1132,6 +1134,9 @@ let showSensitiveContent = false;
     }else if (messageList.style.display === 'block') {
         unicPostList.style.display = 'none';
         loadChatMessages(activeChat, loadAll);
+    } else if (groupMessageList.style.display === 'block')
+    {
+        loadGroupMessages(activeGroup, loadAll);
     }
 }
 
