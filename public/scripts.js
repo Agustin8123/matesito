@@ -7,12 +7,12 @@ import * as scripts2 from 'https://matesitotest.onrender.com/scripts2.js';
     let activeChat = '';
     let activeGroup = '';
     
-    const forumList = document.getElementById('forumList');
-    const postList = document.getElementById('postList');
-    const messageList = document.getElementById('messageList');
-    const groupMessageList = document.getElementById('groupMessageList');
-    const profileList = document.getElementById('profileList');
-    const unicPostList = document.getElementById('unicPostList');  
+    const forumList = 'forumList';
+    const postList = 'postList';
+    const messageList = 'messageList';
+    const groupMessageList = 'groupMessageList';
+    const profileList = 'profileList';
+    const unicPostList = 'unicPostList';  
 
     let mantenimiento = false;
 
