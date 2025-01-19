@@ -780,6 +780,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
         const messageList = document.getElementById('messageList');
         const groupMessageList = document.getElementById('groupMessageList');
         const postList = document.getElementById('postList');
+        const forumList = document.getElementById('forumList');
 
         if (postList.style.display === 'block') {
             postpost();
