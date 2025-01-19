@@ -1,5 +1,3 @@
-import * as scripts2 from 'https://matesitotest.onrender.com/scripts2.js';
-    
     let users = {};  // Objeto para almacenar los usuarios y contrase
     let activeUser = '';  // Variable para el usuario activo
     let activeForum = '';
