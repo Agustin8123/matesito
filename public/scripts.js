@@ -42,13 +42,13 @@ window.onload = function() {
     document.getElementById('usernameOverlay').style.display = 'none';
 }
 
-function verMant(valor) {
+export function verMant(valor) {
     if (valor === true) {
         window.location.href = 'mantenimiento.html';
     }
 }
 
-    function togglePassword() {
+    export function togglePassword() {
         const passwordInput = document.getElementById('newPasswordInput');
         const toggleButton = document.getElementById('togglePasswordButton');
 
@@ -61,7 +61,7 @@ function verMant(valor) {
         }
     }
 
-    function togglePassword1() {
+    export function togglePassword1() {
         const passwordInput = document.getElementById('passwordInput');
         const toggleButton = document.getElementById('togglePasswordBoton');
 
@@ -74,28 +74,28 @@ function verMant(valor) {
         }
     }
 
-function useExistingUser() {
+export function useExistingUser() {
     document.getElementById('initialOverlay').style.display = 'none';
     document.getElementById('usernameOverlay').style.display = 'flex';
 }
 
-function createNewUser() {
+export function createNewUser() {
     document.getElementById('initialOverlay').style.display = 'none';
     document.getElementById('userSelectOverlay').style.display = 'flex';
     document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
 }
 
-function encodePassword(password) {
+export function encodePassword(password) {
     return btoa(password); // Convierte a Base64
 }
 
 // Función para decodificar la contraseña de Base64
-function decodePassword(encodedPassword) {
+export function decodePassword(encodedPassword) {
     return atob(encodedPassword);
 }
 
 // Guardar la sesión con cookies
-function saveSession(username, password, rememberMe) {
+export function saveSession(username, password, rememberMe) {
     if (rememberMe) {
         // Guardar usuario y contraseña en cookies con encriptación
         document.cookie = `username=${username}; max-age=86400; path=/`;
@@ -108,7 +108,7 @@ function saveSession(username, password, rememberMe) {
 }
 
 // Función de login
-function loginUser() {
+export function loginUser() {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput').value.trim();
     const rememberMe = document.getElementById('rememberMe').checked;
@@ -133,14 +133,14 @@ function loginUser() {
 }
 
 // Obtener cookies
-function getCookie(name) {
+export function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
 // Verificar si el usuario está guardado en las cookies
-function checkRememberedUser() {
+export function checkRememberedUser() {
     const username = getCookie('username');
     const encodedPassword = getCookie('password');
     if (username && encodedPassword) {
@@ -154,13 +154,13 @@ function checkRememberedUser() {
 // Llamar a esta función al cargar la página
 document.addEventListener('DOMContentLoaded', checkRememberedUser);
 
-function HideOverlays(){
+export function HideOverlays(){
     document.getElementById('initialOverlay').style.display = 'none';
     document.getElementById('userSelectOverlay').style.display = 'none';
     document.getElementById('usernameOverlay').style.display = 'none'; 
 }
 
-function updateUserButton() {
+export function updateUserButton() {
     const userButton = document.querySelector('#userButton');
 
     // Usar la imagen del usuario activo, o una predeterminada si no existe
@@ -173,7 +173,7 @@ function updateUserButton() {
 }
 
 
-function setActiveUser(username) {
+export function setActiveUser(username) {
     fetch('https://matesitotest.onrender.com/getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -212,16 +212,16 @@ function setActiveUser(username) {
 
 
 
-function showUserSelectOverlay() {
+export function showUserSelectOverlay() {
     document.getElementById('initialOverlay').style.display = 'flex';
 }
 
-function hideUserSelectOverlay() {
+export function hideUserSelectOverlay() {
     document.getElementById('userSelectOverlay').style.display = 'none';
     document.querySelector('.header button').style.display = 'block'; // Mostrar el botón de selección de usuario nuevamente
 }
 
-function addNewUser() {
+export function addNewUser() {
     const usernameInput = document.getElementById('newUsernameInput');
     const passwordInput = document.getElementById('newPasswordInput');
     const profileImageInput = document.getElementById('newProfileImage');
@@ -274,7 +274,7 @@ function addNewUser() {
 }
 
 
-function createUserInDatabase(username, password, profileImageURL) {
+export function createUserInDatabase(username, password, profileImageURL) {
     const userData = {
         username,
         password,
@@ -302,7 +302,7 @@ function createUserInDatabase(username, password, profileImageURL) {
     });
 }
 
-function createForum() {
+export function createForum() {
     const forumName = document.getElementById('forumName').value.trim();
     const forumDescription = document.getElementById('forumDescription').value.trim();
     const ownerId = users[activeUser].id;
@@ -351,7 +351,7 @@ function createForum() {
     });
 }
 
-function createGroup() {
+export function createGroup() {
     const groupName = document.getElementById('groupName').value.trim();
     const groupDescription = document.getElementById('groupDescription').value.trim();
     const ownerId = users[activeUser].id;
@@ -403,7 +403,7 @@ function createGroup() {
     });
 }
 
-function joinGroup() {
+export function joinGroup() {
     const inviteCode = document.getElementById('inviteCode').value.trim();
     const userId = users[activeUser].id;
 
@@ -434,7 +434,7 @@ function joinGroup() {
     });
 }
 
-function leaveGroup(groupId) {
+export function leaveGroup(groupId) {
     const userId = users[activeUser].id;
     if (!confirm('¿Estás seguro de que deseas salir del grupo?')) {
         return; // Si el usuario cancela, no hacemos nada
@@ -467,7 +467,7 @@ export function reloadPosts() {
     loadposts(loadAll);
 }
 
-function loadForos() {
+export function loadForos() {
 
     
     fetch('/foros')
@@ -524,7 +524,7 @@ function loadForos() {
         });
 }
 
-function joinForum(forumId) {
+export function joinForum(forumId) {
     // Asegúrate de que 'users.id' esté correctamente definido en tu aplicación
     const data = {
         userId: users[activeUser].id, // ID del usuario activo
@@ -552,7 +552,7 @@ function joinForum(forumId) {
     });
 }
 
-function leaveForum(forumId) {
+export function leaveForum(forumId) {
     // Asegúrate de que 'users.id' esté correctamente definido en tu aplicación
     const data = {
         userId: users[activeUser].id, // ID del usuario activo
@@ -580,7 +580,7 @@ function leaveForum(forumId) {
     });
 }
 
-function loadUserForums() {
+export function loadUserForums() {
     const userId = users[activeUser].id;
 
     fetch(`https://matesitotest.onrender.com/userForums/${userId}`)
@@ -627,7 +627,7 @@ function loadUserForums() {
         });
 }
 
-function loadUserCreatedForums() {
+export function loadUserCreatedForums() {
     const userId = users[activeUser].id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/userCreatedForums/${userId}`)
@@ -672,7 +672,7 @@ function loadUserCreatedForums() {
             alert('Error al cargar los foros creados por el usuario');
         });
 }
-function deleteForum(forumId) {
+export function deleteForum(forumId) {
     const userId = users[activeUser].id; // ID del usuario activo
 
     // Confirmar la eliminación
@@ -706,11 +706,11 @@ function deleteForum(forumId) {
     });
 }
 
-function containsForbiddenWords(message) {
+export function containsForbiddenWords(message) {
         return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
     }
 
-    function handleFileSelect(event) {
+    export function handleFileSelect(event) {
         selectedFile = event.target.files[0]; // Guardar el archivo seleccionado
         if (selectedFile) {
             const fileType = selectedFile.type;
@@ -744,7 +744,7 @@ function containsForbiddenWords(message) {
         }
     }
 
-    function wherePost() {
+    export function wherePost() {
         if (postList.style.display === 'block') {
             postpost();
         } else if (forumList.style.display === 'block') {
@@ -761,7 +761,7 @@ function containsForbiddenWords(message) {
 
     let lastMessageContent = '';  // Definir una variable global fuera de la función para almacenar el contenido del último mensaje
 
-async function sendForumMessage(forumId) {
+export async  function sendForumMessage(forumId) {
     const content = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
     const fileInput = document.getElementById('postMedia');
@@ -841,7 +841,7 @@ async function sendForumMessage(forumId) {
     }
 }
 
-async function sendChatMessage(chatId) {
+export async  function sendChatMessage(chatId) {
     const content = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
     const fileInput = document.getElementById('postMedia');
@@ -921,7 +921,7 @@ async function sendChatMessage(chatId) {
     }
 }
 
-async function sendGroupMessage(groupId) {
+export async  function sendGroupMessage(groupId) {
     const content = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
     const fileInput = document.getElementById('postMedia');
@@ -987,7 +987,7 @@ async function sendGroupMessage(groupId) {
     }
 }
 
-    function postpost() {
+    export function postpost() {
         const postContent = document.getElementById('postContent').value;
         const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
 
@@ -1070,7 +1070,7 @@ async function sendGroupMessage(groupId) {
         }
     }    
 
-function goBackToInitial() {
+export function goBackToInitial() {
     document.getElementById('usernameOverlay').style.display = 'none';
     document.getElementById('userSelectOverlay').style.display = 'none';
 
@@ -1079,7 +1079,7 @@ function goBackToInitial() {
 
 let showSensitiveContent = false;
 
-function buttonsState() {
+export function buttonsState() {
     // Obtener referencias a los contenedores directamente dentro de la función
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
@@ -1105,7 +1105,7 @@ function buttonsState() {
 }
 
 // Función para alternar la configuración de contenido sensible
-function toggleSensitiveContent() {
+export function toggleSensitiveContent() {
     showSensitiveContent = !showSensitiveContent;
 
     const toggleButton = document.getElementById('toggleButton');
@@ -1121,7 +1121,7 @@ function toggleSensitiveContent() {
     console.log(showSensitiveContent);
 }
 
-function togglePostLoad() {
+export function togglePostLoad() {
     loadAll = !loadAll; // Alternar estado
     const button = document.getElementById('loadAllPostsButton');
 
@@ -1132,7 +1132,7 @@ function togglePostLoad() {
     buttonsState();
 }
 
-function loadposts(loadAll) {
+export function loadposts(loadAll) {
     const unicPostList = document.getElementById('unicPostList');
     unicPostList.style.display = 'none';
 
@@ -1177,7 +1177,7 @@ function loadposts(loadAll) {
         });
 }
 
-function createOrLoadChat(user2Id) {
+export function createOrLoadChat(user2Id) {
     const user1Id = users[activeUser].id;
 
     if (!user1Id || !user2Id) {
@@ -1220,7 +1220,7 @@ function createOrLoadChat(user2Id) {
         });
 }
 
-function loadChatMessages(chatId, loadAll) {
+export function loadChatMessages(chatId, loadAll) {
     scripts2.showOnlyMenu(messageList, forumList, postList, messageList, groupMessageList);
     activeForum = '';
     activeGroup = '';
@@ -1278,7 +1278,7 @@ function loadChatMessages(chatId, loadAll) {
         });
 }
 
-function loadGroupMessages(groupId, loadAll) {
+export function loadGroupMessages(groupId, loadAll) {
     scripts2.showOnlyMenu(groupMessageList, forumList, postList, messageList, groupMessageList);
 
     activeForum = '';
@@ -1341,7 +1341,7 @@ function loadGroupMessages(groupId, loadAll) {
         });
 }
 
-function loadForumPosts(forumId, loadAll) {
+export function loadForumPosts(forumId, loadAll) {
     scripts2.showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList);
 
     document.getElementById('forumList').innerHTML = ''; // Limpiar lista de posts
@@ -1403,7 +1403,7 @@ function loadForumPosts(forumId, loadAll) {
 
 
 
-function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId) {
+export function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId) {
     const postList = document.getElementById(listId);
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
@@ -1518,7 +1518,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 }
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
-function toggleUserProfileBox(uniqueId) {
+export function toggleUserProfileBox(uniqueId) {
     // Ocultar todas las cajas de perfil
     const allProfileBoxes = document.querySelectorAll('.user-profile-box');
     allProfileBoxes.forEach(box => box.style.display = 'none');
@@ -1531,7 +1531,7 @@ function toggleUserProfileBox(uniqueId) {
 }
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
-function viewProfile(username, loadAll) {
+export function viewProfile(username, loadAll) {
     // Obtener referencias a los contenedores
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
@@ -1583,7 +1583,7 @@ function viewProfile(username, loadAll) {
 }
 
 // Función para seguir al usuario
-function followUser(userId) {
+export function followUser(userId) {
     const followerId = users[activeUser].id; // El ID del usuario que está siguiendo
 
     if (!followerId) {
@@ -1618,7 +1618,7 @@ function followUser(userId) {
     });
 }
 
-function unfollowUser(followerId, followedId) {
+export function unfollowUser(followerId, followedId) {
     fetch('https://matesitotest.onrender.com/unfollowUser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1638,7 +1638,7 @@ function unfollowUser(followerId, followedId) {
     });
 }
 
-function loadFollowedUsers() {
+export function loadFollowedUsers() {
     const followerId = users[activeUser]?.id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/followedUsers/${followerId}`)
@@ -1690,7 +1690,7 @@ function loadFollowedUsers() {
         });
 }
 
-function loadUserGroups() {
+export function loadUserGroups() {
     const userId = users[activeUser]?.id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/grupos-usuario/${userId}`)
@@ -1757,7 +1757,7 @@ function loadUserGroups() {
         });
 }
 
-function loadCreatedGroups() {
+export function loadCreatedGroups() {
     const userId = users[activeUser]?.id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/grupos-creados/${userId}`)
@@ -1816,7 +1816,7 @@ function loadCreatedGroups() {
         });
 }
 
-function deleteGroup(groupId) {
+export function deleteGroup(groupId) {
     const userId = users[activeUser]?.id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/grupo/${groupId}/${userId}`, {
@@ -1837,7 +1837,7 @@ function deleteGroup(groupId) {
         });
 }
 
-function searchMotor() {
+export function searchMotor() {
     const query = document.getElementById('searchInput').value;
     const searchContainer = document.getElementById('searchconteiner');
 
@@ -1893,16 +1893,16 @@ function searchMotor() {
         });
     }
 
-function toggleVisibility(elementId, displayType = 'block') {
+export function toggleVisibility(elementId, displayType = 'block') {
     const element = document.getElementById(elementId);
     element.style.display = element.style.display === displayType ? 'none' : displayType;
 }
 
-function wait(ms) {
+export function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
     
-async function init() {
+export async  function init() {
     toggleVisibility('postList');
     
     await wait(200);

@@ -1,14 +1,14 @@
 let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imágenes de perfil
     
 
-function Acept() {
+export function Acept() {
     document.getElementById('usernameOverlay').style.display = 'flex';
     document.getElementById('appContainer').style.display = 'flex';
     document.getElementById('AvisoOverlay').style.display = 'none';
 }
 
 // Función de login
-function loginUser() {
+export function loginUser() {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput1').value.trim();
 
@@ -30,7 +30,7 @@ function loginUser() {
     });
 }
 
-function setActiveUser(username) {
+export function setActiveUser(username) {
     fetch('https://matesitotest.onrender.com/getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -60,11 +60,11 @@ function setActiveUser(username) {
     });
 }
 
-function hideUserSelectOverlay() {
+export function hideUserSelectOverlay() {
     document.getElementById('usernameOverlay').style.display = 'none';
 }
 
-function updateUsername() {
+export function updateUsername() {
     const newUsername = document.getElementById('newUsername').value.trim();
     if (!newUsername) {
         alert('El nombre de usuario no puede estar vacío.');
@@ -89,7 +89,7 @@ function updateUsername() {
     .catch(error => console.error('Error al actualizar el nombre:', error));
 }
 
-function togglePassword() {
+export function togglePassword() {
     const passwordInput = document.getElementById('currentPassword');
     const toggleButton = document.getElementById('togglePasswordButton');
 
@@ -102,7 +102,7 @@ function togglePassword() {
     }
 }
 
-function togglePassword1() {
+export function togglePassword1() {
     const passwordInput = document.getElementById('newPassword');
     const toggleButton = document.getElementById('togglePasswordBoton');
 
@@ -115,7 +115,7 @@ function togglePassword1() {
     }
 }
 
-function togglePassword2() {
+export function togglePassword2() {
     const passwordInput = document.getElementById('passwordInput1');
     const toggleButton = document.getElementById('toggleBotonPassword');
 
@@ -128,7 +128,7 @@ function togglePassword2() {
     }
 }
 
-function updatePassword() {
+export function updatePassword() {
     const currentPassword = document.getElementById('currentPassword').value.trim();
     const newPassword = document.getElementById('newPassword').value.trim();
 
@@ -160,7 +160,7 @@ function updatePassword() {
 }
 
 
-function updateProfileImage() {
+export function updateProfileImage() {
     const profileImageInput = document.getElementById('profileImage');
     if (!profileImageInput.files || !profileImageInput.files[0]) {
         alert('Por favor selecciona una imagen para subir.');
@@ -188,7 +188,7 @@ function updateProfileImage() {
     });
 }
 
-function updateProfileImageInDatabase(newProfileImageURL) {
+export function updateProfileImageInDatabase(newProfileImageURL) {
     fetch('https://matesitotest.onrender.com/updateProfileImage', {
         method: 'PUT',
         headers: {

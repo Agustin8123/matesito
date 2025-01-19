@@ -4,8 +4,8 @@ const path = require('path');
 // Configuración
 const directoryPath = './'; // Directorio raíz del proyecto
 const fileExtension = '.js'; // Extensión de archivo a buscar
-const searchTerm = 'https://matesito.onrender.com'; // Palabra a reemplazar
-const replaceTerm = 'https://matesitotest.onrender.com'; // Nueva palabra
+const searchTerm = 'function'; // Palabra a reemplazar
+const replaceTerm = 'export function'; // Nueva palabra
 const scriptFileName = path.basename(__filename); // Nombre del script para excluirlo
 
 // Función para reemplazar texto en un archivo
