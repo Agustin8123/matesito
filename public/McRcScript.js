@@ -17,7 +17,7 @@ if (!id) {
   );
 }
 
-reactions.forEach(async export function (reaction) {
+reactions.forEach(async    function (reaction) {
   const el = document.querySelector(`[data-reaction-id="${reaction}"]`);
   const list = document.querySelector(`[data-list-id="${reaction}"]`);
 
@@ -37,7 +37,7 @@ reactions.forEach(async export function (reaction) {
   el.style.display = "block";
   list.style.display = "block";
 
-  el.addEventListener("click", export function (evt) {
+  el.addEventListener("click",    function (evt) {
     fetch(
       `https://${API_BASE}/hit/microreact--reactions/${encodeURIComponent(id)}/${reaction}`,
       {
@@ -54,7 +54,7 @@ reactions.forEach(async export function (reaction) {
   
     let originalText = el.innerText;
   
-    setTimeout(async export function () {
+    setTimeout(async    function () {
       list.style.opacity = "1";
       list.style.marginBottom = "0px";
       el.style.opacity = ".7";
@@ -64,12 +64,12 @@ reactions.forEach(async export function (reaction) {
       list.innerText = parseInt(list.innerText) + 1;
     }, 250);
   
-    setTimeout(export function () {
+    setTimeout(   function () {
       el.style.opacity = "0";
       el.style.transform = "scale(0.8) rotate(60deg)";
     }, 1250);
   
-    setTimeout(export function () {
+    setTimeout(   function () {
       el.style.opacity = "1";
       el.style.transform = "scale(1)";
       el.innerText = originalText;
