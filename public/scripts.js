@@ -17,10 +17,10 @@
     let loadAll = false;
 
     (function() {
-        function toggleVisibility(elementId, displayType = 'block') {
+        function toggleVisibility(elementId) {
                 console.log("interactuando con: ", elementId);
                 const element = document.getElementById(elementId);
-                element.style.display = element.style.display === displayType ? 'none' : displayType;
+                element.style.display = 'block';
             }
     
         // Función para ocultar múltiples menús
@@ -1445,8 +1445,6 @@ let showSensitiveContent = false;
         });
 }
 
-
-
   function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId) {
     const postList = document.getElementById(listId);
     if (!postList) {
@@ -1535,6 +1533,8 @@ let showSensitiveContent = false;
             const unicPostList = document.getElementById('unicPostList');
             const postList = document.getElementById('postList');
             const profileList = document.getElementById('profileList');
+            const messageList = document.getElementById('messageList');
+            const groupMessageList = document.getElementById('groupMessageList');
 
             // Si unicPostList existe, eliminar el post previo y añadir el nuevo
             if (unicPostList) {
@@ -1545,8 +1545,10 @@ let showSensitiveContent = false;
             }
 
             // Ocultar otras listas
-            if (postList) postList.style.display = 'none'; // Desactivar lista postList
-            if (profileList) profileList.style.display = 'none'; // Desactivar lista profileList
+            if (postList) postList.style.display = 'none';
+            if (profileList) profileList.style.display = 'none';
+            if (messageList) messageList.style.display = 'none';
+            if (groupMessageList) groupMessageList.style.display = 'none';
         });
     });
 

@@ -172,21 +172,35 @@ app.post('/mensajes/:forumId', async (req, res) => {
     const { content, sensitive, sender_id, createdAt, media, mediaType, is_private } = req.body;
 
     try {
+        // Insertar mensaje y obtener el ID generado
         const result = await db.query(
             `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private) 
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-             RETURNING *`,
+             RETURNING id, chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private`,
             [forumId, content, sensitive, sender_id, createdAt, media, mediaType, is_private]
         );
 
+        const mensaje = result.rows[0];
+
+        // Crear el ID personalizado
+        const formattedId = `F-${mensaje.id}`;
+
+        // Actualizar el campo id con el ID formateado
+        await db.query(
+            `UPDATE mensajes SET id = $1 WHERE id = $2`,
+            [formattedId, mensaje.id]
+        );
+
+        // Actualizar el objeto de respuesta con el ID formateado
+        mensaje.id = formattedId;
+
         io.emit('reloadPosts');
-        res.status(201).json(result.rows[0]);
+        res.status(201).json(mensaje);
     } catch (error) {
         console.error('Error al guardar el mensaje:', error);
         res.status(500).json({ error: 'Error al guardar el mensaje' });
     }
 });
-
 
 app.get('/mensajes/:forumId', async (req, res) => {
     const { forumId } = req.params;
@@ -1117,12 +1131,26 @@ app.post('/group/messages/:groupId', async (req, res) => {
         const result = await db.query(
             `INSERT INTO mensajes (chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at)
              VALUES ($1, $2, $3, $4, $5, $6, FALSE, NOW())
-             RETURNING *`,
+             RETURNING id, chat_or_group_id, content, sensitive, sender_id, media, media_type, created_at`,
             [groupId, sender_id, content, sensitive, media, mediaType]
         );
 
+        const mensaje = result.rows[0];
+
+        // Crear el ID personalizado
+        const formattedId = `G-${mensaje.id}`;
+
+        // Actualizar el campo id con el ID formateado
+        await db.query(
+            `UPDATE mensajes SET id = $1 WHERE id = $2`,
+            [formattedId, mensaje.id]
+        );
+
+        // Actualizar el objeto de respuesta con el ID formateado
+        mensaje.id = formattedId;
+
         io.emit('reloadPosts');
-        res.status(201).json(result.rows[0]);
+        res.status(201).json(mensaje);
     } catch (error) {
         console.error('Error al publicar el mensaje:', error);
         res.status(500).json({ error: 'Error al publicar el mensaje.' });
@@ -1140,17 +1168,41 @@ app.post('/sendMessage', (req, res) => {
     const query = `
         INSERT INTO mensajes (content, media, media_type, sender_id, chat_or_group_id, is_private, created_at) 
         VALUES ($1, $2, $3, $4, $5, $6, $7) 
-        RETURNING id
+        RETURNING id, content, media, media_type, sender_id, chat_or_group_id, is_private, created_at
     `;
-    db.query(query, [content, media || null, mediaType || null, senderId, chatOrGroupId, isPrivate, new Date().toISOString()], (err, result) => {
-        if (err) {
-            console.error('Error al enviar el mensaje:', err);
-            return res.status(500).json('Error al enviar el mensaje');
-        }
 
-        io.emit('reloadPosts');
-        res.status(201).json({ messageId: result.rows[0].id, content });
-    });
+    db.query(
+        query,
+        [content, media || null, mediaType || null, senderId, chatOrGroupId, isPrivate, new Date().toISOString()],
+        async (err, result) => {
+            if (err) {
+                console.error('Error al enviar el mensaje:', err);
+                return res.status(500).json('Error al enviar el mensaje');
+            }
+
+            const mensaje = result.rows[0];
+
+            // Crear el ID personalizado
+            const formattedId = `C-${mensaje.id}`;
+
+            // Actualizar el campo id con el ID formateado
+            try {
+                await db.query(
+                    `UPDATE mensajes SET id = $1 WHERE id = $2`,
+                    [formattedId, mensaje.id]
+                );
+
+                // Actualizar el objeto de respuesta con el ID formateado
+                mensaje.id = formattedId;
+
+                io.emit('reloadPosts');
+                res.status(201).json(mensaje);
+            } catch (updateError) {
+                console.error('Error al actualizar el ID del mensaje:', updateError);
+                res.status(500).json('Error al actualizar el ID del mensaje');
+            }
+        }
+    );
 });
 
 // Crear el servidor
