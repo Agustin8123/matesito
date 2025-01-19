@@ -161,6 +161,7 @@ app.post('/posts', (req, res) => {
                 return res.status(500).json('Error al publicar el post');
             }
             const postId = result.rows[0].id;
+            io.emit('reloadPosts');
             res.status(201).json({ id: postId, content, media, mediaType });
         });
     });
@@ -178,6 +179,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
             [forumId, content, sensitive, sender_id, createdAt, media, mediaType, is_private]
         );
 
+        io.emit('reloadPosts');
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error('Error al guardar el mensaje:', error);
@@ -476,6 +478,7 @@ app.post('/grupos', async (req, res) => {
         ]);
 
         // Responder con los datos del grupo creado
+
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error('Error al crear el grupo:', error);
@@ -1118,6 +1121,7 @@ app.post('/group/messages/:groupId', async (req, res) => {
             [groupId, sender_id, content, sensitive, media, mediaType]
         );
 
+        io.emit('reloadPosts');
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error('Error al publicar el mensaje:', error);
@@ -1144,6 +1148,7 @@ app.post('/sendMessage', (req, res) => {
             return res.status(500).json('Error al enviar el mensaje');
         }
 
+        io.emit('reloadPosts');
         res.status(201).json({ messageId: result.rows[0].id, content });
     });
 });
@@ -1167,12 +1172,6 @@ io.on('connection', (socket) => {
     console.log('Un cliente se ha desconectado');
   });
 });
-
-// Función que envía el mensaje a todos los clientes cada 20 segundos
-setInterval(() => {
-  console.log('Enviando solicitud para recargar posts a todos los clientes');
-  io.emit('reloadPosts'); // Emite el evento 'reloadPosts' a todos los clientes conectados
-}, 20000); // 20000 ms = 20 segundo
 
 app.use(express.static(path.join(__dirname, 'public')));
 
