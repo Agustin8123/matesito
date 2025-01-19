@@ -18,8 +18,8 @@ export function showOnlyMenu(menuIdToShow, ...allMenuIds) {
     hideMenus(...allMenuIds);
     console.log("ocultando: ", allMenuIds);
 
-    toggleVisibility(menuIdToShow);
     console.log("mostrando: ", menuIdToShow);
+    toggleVisibility(menuIdToShow, 'block');
 }
 
 // Menú desplegable principal
