@@ -1,14 +1,14 @@
 
 
 // Función genérica para alternar la visibilidad de un elemento
-export function toggleVisibility(elementId, displayType = 'block') {
+  function toggleVisibility(elementId, displayType = 'block') {
     console.log("interactuando con: ", elementId);
     const element = document.getElementById(elementId);
     element.style.display = element.style.display === displayType ? 'none' : displayType;
 }
 
 // Función para ocultar múltiples menús
-export function hideMenus(...menuIds) {
+  function hideMenus(...menuIds) {
     console.log("interactuando con: ", menuIds);
     menuIds.forEach(menuId => {
         const menu = document.getElementById(menuId);
@@ -18,7 +18,7 @@ export function hideMenus(...menuIds) {
     });
 }
 
-export function showOnlyMenu(menuIdToShow, ...allMenuIds) {
+  function showOnlyMenu(menuIdToShow, ...allMenuIds) {
     hideMenus(...allMenuIds);
     console.log("ocultando: ", allMenuIds);
 
@@ -27,12 +27,12 @@ export function showOnlyMenu(menuIdToShow, ...allMenuIds) {
 }
 
 // Menú desplegable principal
-export function toggleMenu() {
+  function toggleMenu() {
     hideMenus('SearchMenu', 'rightMenu', 'forumSubMenu', 'userSubMenu');
     toggleVisibility('dropdownMenu');
 }
 
-export function togglePosts() {
+  function togglePosts() {
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
 
@@ -41,83 +41,83 @@ export function togglePosts() {
 }
 
 // Alerta de ayuda
-export function HelpAlert() {
+  function HelpAlert() {
     alert('Si requieres ayuda con cualquier cosa, contactate con nuestro correo de soporte "matesito.soporte@gmail.com"');
 }
 
 // Menú lateral derecho
-export function toggleRightMenu() {
+  function toggleRightMenu() {
     hideMenus('SearchMenu', 'dropdownMenu');
     toggleVisibility('rightMenu');
 }
 
 // Menú de búsqueda
-export function toggleSearch() {
+  function toggleSearch() {
     hideMenus('rightMenu', 'dropdownMenu');
     toggleVisibility('SearchMenu');
 }
 
 // Submenús específicos
-export function toggleForumMenu() {
+  function toggleForumMenu() {
     toggleVisibility('forumSubMenu');
 }
 
-export function toggleMyForumMenu() {
+  function toggleMyForumMenu() {
     toggleVisibility('myForumMenu');
 }
 
-export function toggleGruposMenu() {
+  function toggleGruposMenu() {
     toggleVisibility('gruposMenu');
 }
 
-export function userJoinedGroupMenu() {
+  function userJoinedGroupMenu() {
     toggleVisibility('userJoinedMenu');
 }
 
-export function usercreatedGroupMenu() {
+  function usercreatedGroupMenu() {
     toggleVisibility('userCreatedMenu');
 }
 
-export function toggleUserMenu() {
+  function toggleUserMenu() {
     toggleVisibility('userSubMenu');
     loadFollowedUsers(); 
 }
 
-export function createForumMenu() {
+  function createForumMenu() {
     toggleVisibility('createForumOverlay', 'flex');
     toggleRightMenu();
 }
 
-export function createGroupMenu() {
+  function createGroupMenu() {
     toggleVisibility('createGroupOverlay', 'flex');
     toggleRightMenu();
 }
 
-export function joinGroupMenu() {
+  function joinGroupMenu() {
     toggleVisibility('joinGrupoMenu', 'flex');
     toggleRightMenu();
 }
 
-export function exploreForumMenu() {
+  function exploreForumMenu() {
     toggleVisibility('exploreforumMenu');
     loadForos();
 }
 
-export function exploreForumMenu2() {
+  function exploreForumMenu2() {
     toggleVisibility('exploreforumMenu2');
     loadUserForums();
 }
 
 // Otros submenús
-export function toggleSubMenu() {
+  function toggleSubMenu() {
     toggleVisibility('subMenu');
 }
 
-export function toggleSubMenu2() {
+  function toggleSubMenu2() {
     toggleVisibility('subMenu2');
 }
 
-export function toggleDetails(menu, groupId) {
+  function toggleDetails(menu, groupId) {
     toggleVisibility(menu);
     fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
         .then(response => response.json())
@@ -137,7 +137,7 @@ export function toggleDetails(menu, groupId) {
         .catch(error => console.error('Error al cargar los detalles del grupo:', error));
 }
 
-export function toggleDetails1(menu, groupId) {
+  function toggleDetails1(menu, groupId) {
     toggleVisibility(menu);
     fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
         .then(response => response.json())
@@ -157,16 +157,16 @@ export function toggleDetails1(menu, groupId) {
         .catch(error => console.error('Error al cargar los detalles del grupo:', error));
 }
 
-export function toggle_UserMenu(user) {
+  function toggle_UserMenu(user) {
     toggleVisibility(user);
 
 }
 
-export function toggle_ForumMenu(forum) {
+  function toggle_ForumMenu(forum) {
     toggleVisibility(forum);
 }
 
-export function toggle_GroupMenu(groupId) {
+  function toggle_GroupMenu(groupId) {
     const menu = document.getElementById(`${groupId}`);
     if (menu.style.display === 'none' || menu.style.display === '') {
         menu.style.display = 'block';
@@ -175,7 +175,7 @@ export function toggle_GroupMenu(groupId) {
     }
 }
 
-export function toggle_GroupMenu1(groupId) {
+  function toggle_GroupMenu1(groupId) {
     const menu = document.getElementById(`${groupId}`);
     if (menu.style.display === 'none' || menu.style.display === '') {
         menu.style.display = 'block';
@@ -185,7 +185,7 @@ export function toggle_GroupMenu1(groupId) {
 }
 
 // Overlay inicial
-export function Acept() {
+  function Acept() {
     document.getElementById('initialOverlay').style.display = 'flex';
     document.getElementById('AvisoOverlay').style.display = 'none';
 }

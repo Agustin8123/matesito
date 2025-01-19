@@ -18,6 +18,32 @@ import * as scripts2 from 'https://matesitotest.onrender.com/scripts2.js';
     let selectedFile = null;
     let loadAll = false;
 
+    function toggleVisibility(elementId, displayType = 'block') {
+        console.log("interactuando con: ", elementId);
+        const element = document.getElementById(elementId);
+        element.style.display = element.style.display === displayType ? 'none' : displayType;
+    }
+    
+    // Función para ocultar múltiples menús
+      function hideMenus(...menuIds) {
+        console.log("interactuando con: ", menuIds);
+        menuIds.forEach(menuId => {
+            const menu = document.getElementById(menuId);
+            if (menu && menu.style.display !== 'none') {
+                menu.style.display = 'none';
+            }
+        });
+    }
+    
+      function showOnlyMenu(menuIdToShow, ...allMenuIds) {
+        hideMenus(...allMenuIds);
+        console.log("ocultando: ", allMenuIds);
+    
+        console.log("mostrando: ", menuIdToShow);
+        toggleVisibility(menuIdToShow, 'block');
+    }
+    
+
     let lastpostContent = "";
     const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'merca', 'falopa', 'cocaína', 'kok4', 'c0ca', 'cocaína', 'marihuana', 'weed', 'hierba', 'porro', 'mota', 'cannabis', '4:20', 'maría', '420', 'hachís', 'thc', 'éxtasis', 'éxt4sis', 'xtc', 'mdma', 'éxtasis', 'lsd', 'ácido', 'trips', 'lsd', 'd.r.o.g.a', 'dro@g@', 'DrOgA', 'dRoJA'];
 
@@ -42,13 +68,13 @@ window.onload = function() {
     document.getElementById('usernameOverlay').style.display = 'none';
 }
 
-export function verMant(valor) {
+  function verMant(valor) {
     if (valor === true) {
         window.location.href = 'mantenimiento.html';
     }
 }
 
-    export function togglePassword() {
+      function togglePassword() {
         const passwordInput = document.getElementById('newPasswordInput');
         const toggleButton = document.getElementById('togglePasswordButton');
 
@@ -61,7 +87,7 @@ export function verMant(valor) {
         }
     }
 
-    export function togglePassword1() {
+      function togglePassword1() {
         const passwordInput = document.getElementById('passwordInput');
         const toggleButton = document.getElementById('togglePasswordBoton');
 
@@ -74,28 +100,28 @@ export function verMant(valor) {
         }
     }
 
-export function useExistingUser() {
+  function useExistingUser() {
     document.getElementById('initialOverlay').style.display = 'none';
     document.getElementById('usernameOverlay').style.display = 'flex';
 }
 
-export function createNewUser() {
+  function createNewUser() {
     document.getElementById('initialOverlay').style.display = 'none';
     document.getElementById('userSelectOverlay').style.display = 'flex';
     document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
 }
 
-export function encodePassword(password) {
+  function encodePassword(password) {
     return btoa(password); // Convierte a Base64
 }
 
 // Función para decodificar la contraseña de Base64
-export function decodePassword(encodedPassword) {
+  function decodePassword(encodedPassword) {
     return atob(encodedPassword);
 }
 
 // Guardar la sesión con cookies
-export function saveSession(username, password, rememberMe) {
+  function saveSession(username, password, rememberMe) {
     if (rememberMe) {
         // Guardar usuario y contraseña en cookies con encriptación
         document.cookie = `username=${username}; max-age=86400; path=/`;
@@ -108,7 +134,7 @@ export function saveSession(username, password, rememberMe) {
 }
 
 // Función de login
-export function loginUser() {
+  function loginUser() {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput').value.trim();
     const rememberMe = document.getElementById('rememberMe').checked;
@@ -133,14 +159,14 @@ export function loginUser() {
 }
 
 // Obtener cookies
-export function getCookie(name) {
+  function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
 // Verificar si el usuario está guardado en las cookies
-export function checkRememberedUser() {
+  function checkRememberedUser() {
     const username = getCookie('username');
     const encodedPassword = getCookie('password');
     if (username && encodedPassword) {
@@ -154,13 +180,13 @@ export function checkRememberedUser() {
 // Llamar a esta función al cargar la página
 document.addEventListener('DOMContentLoaded', checkRememberedUser);
 
-export function HideOverlays(){
+  function HideOverlays(){
     document.getElementById('initialOverlay').style.display = 'none';
     document.getElementById('userSelectOverlay').style.display = 'none';
     document.getElementById('usernameOverlay').style.display = 'none'; 
 }
 
-export function updateUserButton() {
+  function updateUserButton() {
     const userButton = document.querySelector('#userButton');
 
     // Usar la imagen del usuario activo, o una predeterminada si no existe
@@ -173,7 +199,7 @@ export function updateUserButton() {
 }
 
 
-export function setActiveUser(username) {
+  function setActiveUser(username) {
     fetch('https://matesitotest.onrender.com/getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -212,16 +238,16 @@ export function setActiveUser(username) {
 
 
 
-export function showUserSelectOverlay() {
+  function showUserSelectOverlay() {
     document.getElementById('initialOverlay').style.display = 'flex';
 }
 
-export function hideUserSelectOverlay() {
+  function hideUserSelectOverlay() {
     document.getElementById('userSelectOverlay').style.display = 'none';
     document.querySelector('.header button').style.display = 'block'; // Mostrar el botón de selección de usuario nuevamente
 }
 
-export function addNewUser() {
+  function addNewUser() {
     const usernameInput = document.getElementById('newUsernameInput');
     const passwordInput = document.getElementById('newPasswordInput');
     const profileImageInput = document.getElementById('newProfileImage');
@@ -274,7 +300,7 @@ export function addNewUser() {
 }
 
 
-export function createUserInDatabase(username, password, profileImageURL) {
+  function createUserInDatabase(username, password, profileImageURL) {
     const userData = {
         username,
         password,
@@ -302,7 +328,7 @@ export function createUserInDatabase(username, password, profileImageURL) {
     });
 }
 
-export function createForum() {
+  function createForum() {
     const forumName = document.getElementById('forumName').value.trim();
     const forumDescription = document.getElementById('forumDescription').value.trim();
     const ownerId = users[activeUser].id;
@@ -351,7 +377,7 @@ export function createForum() {
     });
 }
 
-export function createGroup() {
+  function createGroup() {
     const groupName = document.getElementById('groupName').value.trim();
     const groupDescription = document.getElementById('groupDescription').value.trim();
     const ownerId = users[activeUser].id;
@@ -403,7 +429,7 @@ export function createGroup() {
     });
 }
 
-export function joinGroup() {
+  function joinGroup() {
     const inviteCode = document.getElementById('inviteCode').value.trim();
     const userId = users[activeUser].id;
 
@@ -434,7 +460,7 @@ export function joinGroup() {
     });
 }
 
-export function leaveGroup(groupId) {
+  function leaveGroup(groupId) {
     const userId = users[activeUser].id;
     if (!confirm('¿Estás seguro de que deseas salir del grupo?')) {
         return; // Si el usuario cancela, no hacemos nada
@@ -463,11 +489,11 @@ export function leaveGroup(groupId) {
     });
 }
 
-export function reloadPosts() { 
+  function reloadPosts() { 
     loadposts(loadAll);
 }
 
-export function loadForos() {
+  function loadForos() {
 
     
     fetch('/foros')
@@ -524,7 +550,7 @@ export function loadForos() {
         });
 }
 
-export function joinForum(forumId) {
+  function joinForum(forumId) {
     // Asegúrate de que 'users.id' esté correctamente definido en tu aplicación
     const data = {
         userId: users[activeUser].id, // ID del usuario activo
@@ -552,7 +578,7 @@ export function joinForum(forumId) {
     });
 }
 
-export function leaveForum(forumId) {
+  function leaveForum(forumId) {
     // Asegúrate de que 'users.id' esté correctamente definido en tu aplicación
     const data = {
         userId: users[activeUser].id, // ID del usuario activo
@@ -580,7 +606,7 @@ export function leaveForum(forumId) {
     });
 }
 
-export function loadUserForums() {
+  function loadUserForums() {
     const userId = users[activeUser].id;
 
     fetch(`https://matesitotest.onrender.com/userForums/${userId}`)
@@ -627,7 +653,7 @@ export function loadUserForums() {
         });
 }
 
-export function loadUserCreatedForums() {
+  function loadUserCreatedForums() {
     const userId = users[activeUser].id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/userCreatedForums/${userId}`)
@@ -672,7 +698,7 @@ export function loadUserCreatedForums() {
             alert('Error al cargar los foros creados por el usuario');
         });
 }
-export function deleteForum(forumId) {
+  function deleteForum(forumId) {
     const userId = users[activeUser].id; // ID del usuario activo
 
     // Confirmar la eliminación
@@ -706,11 +732,11 @@ export function deleteForum(forumId) {
     });
 }
 
-export function containsForbiddenWords(message) {
+  function containsForbiddenWords(message) {
         return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
     }
 
-    export function handleFileSelect(event) {
+      function handleFileSelect(event) {
         selectedFile = event.target.files[0]; // Guardar el archivo seleccionado
         if (selectedFile) {
             const fileType = selectedFile.type;
@@ -744,7 +770,7 @@ export function containsForbiddenWords(message) {
         }
     }
 
-    export function wherePost() {
+      function wherePost() {
         if (postList.style.display === 'block') {
             postpost();
         } else if (forumList.style.display === 'block') {
@@ -761,7 +787,7 @@ export function containsForbiddenWords(message) {
 
     let lastMessageContent = '';  // Definir una variable global fuera de la función para almacenar el contenido del último mensaje
 
-export async  function sendForumMessage(forumId) {
+  async  function sendForumMessage(forumId) {
     const content = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
     const fileInput = document.getElementById('postMedia');
@@ -841,7 +867,7 @@ export async  function sendForumMessage(forumId) {
     }
 }
 
-export async  function sendChatMessage(chatId) {
+  async  function sendChatMessage(chatId) {
     const content = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
     const fileInput = document.getElementById('postMedia');
@@ -921,7 +947,7 @@ export async  function sendChatMessage(chatId) {
     }
 }
 
-export async  function sendGroupMessage(groupId) {
+  async  function sendGroupMessage(groupId) {
     const content = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
     const fileInput = document.getElementById('postMedia');
@@ -987,7 +1013,7 @@ export async  function sendGroupMessage(groupId) {
     }
 }
 
-    export function postpost() {
+      function postpost() {
         const postContent = document.getElementById('postContent').value;
         const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
 
@@ -1070,7 +1096,7 @@ export async  function sendGroupMessage(groupId) {
         }
     }    
 
-export function goBackToInitial() {
+  function goBackToInitial() {
     document.getElementById('usernameOverlay').style.display = 'none';
     document.getElementById('userSelectOverlay').style.display = 'none';
 
@@ -1079,7 +1105,7 @@ export function goBackToInitial() {
 
 let showSensitiveContent = false;
 
-export function buttonsState() {
+  function buttonsState() {
     // Obtener referencias a los contenedores directamente dentro de la función
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
@@ -1105,7 +1131,7 @@ export function buttonsState() {
 }
 
 // Función para alternar la configuración de contenido sensible
-export function toggleSensitiveContent() {
+  function toggleSensitiveContent() {
     showSensitiveContent = !showSensitiveContent;
 
     const toggleButton = document.getElementById('toggleButton');
@@ -1121,7 +1147,7 @@ export function toggleSensitiveContent() {
     console.log(showSensitiveContent);
 }
 
-export function togglePostLoad() {
+  function togglePostLoad() {
     loadAll = !loadAll; // Alternar estado
     const button = document.getElementById('loadAllPostsButton');
 
@@ -1132,7 +1158,7 @@ export function togglePostLoad() {
     buttonsState();
 }
 
-export function loadposts(loadAll) {
+  function loadposts(loadAll) {
     const unicPostList = document.getElementById('unicPostList');
     unicPostList.style.display = 'none';
 
@@ -1141,7 +1167,7 @@ export function loadposts(loadAll) {
     activeChat = '';
     activeGroup = '';
 
-    scripts2.showOnlyMenu(postList, forumList, postList, messageList, groupMessageList);
+    showOnlyMenu(postList, forumList, postList, messageList, groupMessageList);
 
     document.getElementById('postList').innerHTML = '';
 
@@ -1177,7 +1203,7 @@ export function loadposts(loadAll) {
         });
 }
 
-export function createOrLoadChat(user2Id) {
+  function createOrLoadChat(user2Id) {
     const user1Id = users[activeUser].id;
 
     if (!user1Id || !user2Id) {
@@ -1220,8 +1246,8 @@ export function createOrLoadChat(user2Id) {
         });
 }
 
-export function loadChatMessages(chatId, loadAll) {
-    scripts2.showOnlyMenu(messageList, forumList, postList, messageList, groupMessageList);
+  function loadChatMessages(chatId, loadAll) {
+    showOnlyMenu(messageList, forumList, postList, messageList, groupMessageList);
     activeForum = '';
     activeGroup = '';
 
@@ -1278,8 +1304,8 @@ export function loadChatMessages(chatId, loadAll) {
         });
 }
 
-export function loadGroupMessages(groupId, loadAll) {
-    scripts2.showOnlyMenu(groupMessageList, forumList, postList, messageList, groupMessageList);
+  function loadGroupMessages(groupId, loadAll) {
+    showOnlyMenu(groupMessageList, forumList, postList, messageList, groupMessageList);
 
     activeForum = '';
     activeChat = '';
@@ -1341,8 +1367,8 @@ export function loadGroupMessages(groupId, loadAll) {
         });
 }
 
-export function loadForumPosts(forumId, loadAll) {
-    scripts2.showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList);
+  function loadForumPosts(forumId, loadAll) {
+   showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList);
 
     document.getElementById('forumList').innerHTML = ''; // Limpiar lista de posts
    
@@ -1403,7 +1429,7 @@ export function loadForumPosts(forumId, loadAll) {
 
 
 
-export function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId) {
+  function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId) {
     const postList = document.getElementById(listId);
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
@@ -1518,7 +1544,7 @@ export function addpostToList(content, media, mediaType, username, profilePictur
 }
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
-export function toggleUserProfileBox(uniqueId) {
+  function toggleUserProfileBox(uniqueId) {
     // Ocultar todas las cajas de perfil
     const allProfileBoxes = document.querySelectorAll('.user-profile-box');
     allProfileBoxes.forEach(box => box.style.display = 'none');
@@ -1531,7 +1557,7 @@ export function toggleUserProfileBox(uniqueId) {
 }
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
-export function viewProfile(username, loadAll) {
+  function viewProfile(username, loadAll) {
     // Obtener referencias a los contenedores
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
@@ -1583,7 +1609,7 @@ export function viewProfile(username, loadAll) {
 }
 
 // Función para seguir al usuario
-export function followUser(userId) {
+  function followUser(userId) {
     const followerId = users[activeUser].id; // El ID del usuario que está siguiendo
 
     if (!followerId) {
@@ -1618,7 +1644,7 @@ export function followUser(userId) {
     });
 }
 
-export function unfollowUser(followerId, followedId) {
+  function unfollowUser(followerId, followedId) {
     fetch('https://matesitotest.onrender.com/unfollowUser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1638,7 +1664,7 @@ export function unfollowUser(followerId, followedId) {
     });
 }
 
-export function loadFollowedUsers() {
+  function loadFollowedUsers() {
     const followerId = users[activeUser]?.id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/followedUsers/${followerId}`)
@@ -1690,7 +1716,7 @@ export function loadFollowedUsers() {
         });
 }
 
-export function loadUserGroups() {
+  function loadUserGroups() {
     const userId = users[activeUser]?.id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/grupos-usuario/${userId}`)
@@ -1757,7 +1783,7 @@ export function loadUserGroups() {
         });
 }
 
-export function loadCreatedGroups() {
+  function loadCreatedGroups() {
     const userId = users[activeUser]?.id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/grupos-creados/${userId}`)
@@ -1816,7 +1842,7 @@ export function loadCreatedGroups() {
         });
 }
 
-export function deleteGroup(groupId) {
+  function deleteGroup(groupId) {
     const userId = users[activeUser]?.id; // ID del usuario activo
 
     fetch(`https://matesitotest.onrender.com/grupo/${groupId}/${userId}`, {
@@ -1837,7 +1863,7 @@ export function deleteGroup(groupId) {
         });
 }
 
-export function searchMotor() {
+  function searchMotor() {
     const query = document.getElementById('searchInput').value;
     const searchContainer = document.getElementById('searchconteiner');
 
@@ -1893,16 +1919,16 @@ export function searchMotor() {
         });
     }
 
-export function toggleVisibility(elementId, displayType = 'block') {
+  function toggleVisibility(elementId, displayType = 'block') {
     const element = document.getElementById(elementId);
     element.style.display = element.style.display === displayType ? 'none' : displayType;
 }
 
-export function wait(ms) {
+  function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
     
-export async  function init() {
+  async  function init() {
     toggleVisibility('postList');
     
     await wait(200);
