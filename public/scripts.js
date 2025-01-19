@@ -57,6 +57,10 @@
     document.getElementById('initialOverlay').style.display = 'none';
     });
 
+    function reloadPosts(){
+        loadposts(loadAll);
+    } 
+
     document.getElementById('acceptTermsCheckbox').addEventListener('change', function() {
     const createButton = document.getElementById('createUserButton');
     if (this.checked) {
@@ -521,7 +525,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
                     foroElement.innerHTML = `
                         <label for="label-${uniqueId}" class="boton">${foro.name}</label>
                         <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
-                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 188; top: -20;">
+                        <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 190px; top: -20px;">
                             <h2 style="margin-top: -5px;">${foro.name}</h2>
                             <p style="margin-top: -10px;">${foro.description}</p>
                             <label for="view-${uniqueId}" class="boton">Ver Foro</label>
@@ -1565,7 +1569,6 @@ let showSensitiveContent = false;
   function viewProfile(username, loadAll) {
     // Obtener referencias a los contenedores
     const profileList = document.getElementById('profileList');
-    const postList = document.getElementById('postList');
 
     // Guardar el username actual en un input oculto
     let currentProfileUsername = document.getElementById('currentProfileUsername');
@@ -1581,7 +1584,7 @@ let showSensitiveContent = false;
     profileList.innerHTML = '';
 
     // Mostrar el contenedor de perfil y ocultar el de publicaciones
-    showOnlyMenu(profileList, forumList, postList, messageList, groupMessageList, profileList);
+    showOnlyMenu('profileList', forumList, postList, messageList, groupMessageList, profileList);
     activeForum = '';
     activeGroup = '';
     activeChat = '';
