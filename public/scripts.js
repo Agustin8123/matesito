@@ -1534,6 +1534,7 @@ let showSensitiveContent = false;
             const postList = document.getElementById('postList');
             const profileList = document.getElementById('profileList');
             const messageList = document.getElementById('messageList');
+            const forumList = document.getElementById('forumList');
             const groupMessageList = document.getElementById('groupMessageList');
 
             // Si unicPostList existe, eliminar el post previo y añadir el nuevo
@@ -1545,6 +1546,7 @@ let showSensitiveContent = false;
             }
 
             // Ocultar otras listas
+            if (forumList) postList.style.display = 'none';
             if (postList) postList.style.display = 'none';
             if (profileList) profileList.style.display = 'none';
             if (messageList) messageList.style.display = 'none';
