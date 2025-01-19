@@ -1,12 +1,14 @@
+
+
 // Función genérica para alternar la visibilidad de un elemento
-function toggleVisibility(elementId, displayType = 'block') {
+export function toggleVisibility(elementId, displayType = 'block') {
     console.log("interactuando con: ", elementId);
     const element = document.getElementById(elementId);
     element.style.display = element.style.display === displayType ? 'none' : displayType;
 }
 
 // Función para ocultar múltiples menús
-function hideMenus(...menuIds) {
+export function hideMenus(...menuIds) {
     console.log("interactuando con: ", menuIds);
     menuIds.forEach(menuId => {
         const menu = document.getElementById(menuId);
@@ -25,12 +27,12 @@ export function showOnlyMenu(menuIdToShow, ...allMenuIds) {
 }
 
 // Menú desplegable principal
-function toggleMenu() {
+export function toggleMenu() {
     hideMenus('SearchMenu', 'rightMenu', 'forumSubMenu', 'userSubMenu');
     toggleVisibility('dropdownMenu');
 }
 
-function togglePosts() {
+export function togglePosts() {
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
 
@@ -39,83 +41,83 @@ function togglePosts() {
 }
 
 // Alerta de ayuda
-function HelpAlert() {
+export function HelpAlert() {
     alert('Si requieres ayuda con cualquier cosa, contactate con nuestro correo de soporte "matesito.soporte@gmail.com"');
 }
 
 // Menú lateral derecho
-function toggleRightMenu() {
+export function toggleRightMenu() {
     hideMenus('SearchMenu', 'dropdownMenu');
     toggleVisibility('rightMenu');
 }
 
 // Menú de búsqueda
-function toggleSearch() {
+export function toggleSearch() {
     hideMenus('rightMenu', 'dropdownMenu');
     toggleVisibility('SearchMenu');
 }
 
 // Submenús específicos
-function toggleForumMenu() {
+export function toggleForumMenu() {
     toggleVisibility('forumSubMenu');
 }
 
-function toggleMyForumMenu() {
+export function toggleMyForumMenu() {
     toggleVisibility('myForumMenu');
 }
 
-function toggleGruposMenu() {
+export function toggleGruposMenu() {
     toggleVisibility('gruposMenu');
 }
 
-function userJoinedGroupMenu() {
+export function userJoinedGroupMenu() {
     toggleVisibility('userJoinedMenu');
 }
 
-function usercreatedGroupMenu() {
+export function usercreatedGroupMenu() {
     toggleVisibility('userCreatedMenu');
 }
 
-function toggleUserMenu() {
+export function toggleUserMenu() {
     toggleVisibility('userSubMenu');
     loadFollowedUsers(); 
 }
 
-function createForumMenu() {
+export function createForumMenu() {
     toggleVisibility('createForumOverlay', 'flex');
     toggleRightMenu();
 }
 
-function createGroupMenu() {
+export function createGroupMenu() {
     toggleVisibility('createGroupOverlay', 'flex');
     toggleRightMenu();
 }
 
-function joinGroupMenu() {
+export function joinGroupMenu() {
     toggleVisibility('joinGrupoMenu', 'flex');
     toggleRightMenu();
 }
 
-function exploreForumMenu() {
+export function exploreForumMenu() {
     toggleVisibility('exploreforumMenu');
     loadForos();
 }
 
-function exploreForumMenu2() {
+export function exploreForumMenu2() {
     toggleVisibility('exploreforumMenu2');
     loadUserForums();
 }
 
 // Otros submenús
-function toggleSubMenu() {
+export function toggleSubMenu() {
     toggleVisibility('subMenu');
 }
 
-function toggleSubMenu2() {
+export function toggleSubMenu2() {
     toggleVisibility('subMenu2');
 }
 
-function toggleDetails(menu, groupId) {
+export function toggleDetails(menu, groupId) {
     toggleVisibility(menu);
     fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
         .then(response => response.json())
@@ -135,7 +137,7 @@ function toggleDetails(menu, groupId) {
         .catch(error => console.error('Error al cargar los detalles del grupo:', error));
 }
 
-function toggleDetails1(menu, groupId) {
+export function toggleDetails1(menu, groupId) {
     toggleVisibility(menu);
     fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
         .then(response => response.json())
@@ -155,16 +157,16 @@ function toggleDetails1(menu, groupId) {
         .catch(error => console.error('Error al cargar los detalles del grupo:', error));
 }
 
-function toggle_UserMenu(user) {
+export function toggle_UserMenu(user) {
     toggleVisibility(user);
 
 }
 
-function toggle_ForumMenu(forum) {
+export function toggle_ForumMenu(forum) {
     toggleVisibility(forum);
 }
 
-function toggle_GroupMenu(groupId) {
+export function toggle_GroupMenu(groupId) {
     const menu = document.getElementById(`${groupId}`);
     if (menu.style.display === 'none' || menu.style.display === '') {
         menu.style.display = 'block';
@@ -173,7 +175,7 @@ function toggle_GroupMenu(groupId) {
     }
 }
 
-function toggle_GroupMenu1(groupId) {
+export function toggle_GroupMenu1(groupId) {
     const menu = document.getElementById(`${groupId}`);
     if (menu.style.display === 'none' || menu.style.display === '') {
         menu.style.display = 'block';
@@ -183,7 +185,7 @@ function toggle_GroupMenu1(groupId) {
 }
 
 // Overlay inicial
-function Acept() {
+export function Acept() {
     document.getElementById('initialOverlay').style.display = 'flex';
     document.getElementById('AvisoOverlay').style.display = 'none';
 }
