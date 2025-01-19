@@ -1165,7 +1165,7 @@ let showSensitiveContent = false;
     activeChat = '';
     activeGroup = '';
 
-    showOnlyMenu(postList, forumList, postList, messageList, groupMessageList);
+    showOnlyMenu(postList, forumList, postList, messageList, groupMessageList, profileList);
 
     document.getElementById('postList').innerHTML = '';
 
@@ -1245,7 +1245,7 @@ let showSensitiveContent = false;
 }
 
   function loadChatMessages(chatId, loadAll) {
-    showOnlyMenu(messageList, forumList, postList, messageList, groupMessageList);
+    showOnlyMenu(messageList, forumList, postList, messageList, groupMessageList, profileList);
     activeForum = '';
     activeGroup = '';
 
@@ -1303,7 +1303,7 @@ let showSensitiveContent = false;
 }
 
   function loadGroupMessages(groupId, loadAll) {
-    showOnlyMenu(groupMessageList, forumList, postList, messageList, groupMessageList);
+    showOnlyMenu(groupMessageList, forumList, postList, messageList, groupMessageList, profileList);
 
     activeForum = '';
     activeChat = '';
@@ -1366,7 +1366,7 @@ let showSensitiveContent = false;
 }
 
   function loadForumPosts(forumId, loadAll) {
-   showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList);
+   showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList, profileList);
 
     document.getElementById('forumList').innerHTML = ''; // Limpiar lista de posts
    
@@ -1559,7 +1559,6 @@ let showSensitiveContent = false;
     // Obtener referencias a los contenedores
     const profileList = document.getElementById('profileList');
     const postList = document.getElementById('postList');
-    const unicPostList = document.getElementById('unicPostList');
 
     // Guardar el username actual en un input oculto
     let currentProfileUsername = document.getElementById('currentProfileUsername');
@@ -1575,9 +1574,10 @@ let showSensitiveContent = false;
     profileList.innerHTML = '';
 
     // Mostrar el contenedor de perfil y ocultar el de publicaciones
-    profileList.style.display = 'block';
-    postList.style.display = 'none';
-    unicPostList.style.display = 'none';
+    showOnlyMenu(profileList, forumList, postList, messageList, groupMessageList, profileList);
+    activeForum = '';
+    activeGroup = '';
+    activeChat = '';
 
     console.log("Cargando posts de", username);
 
