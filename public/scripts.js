@@ -31,11 +31,11 @@
         });
     }
 
-    function toggleVisibility(elementId) {
+    function toggleVisibility(elementId, displayType = 'block') {
         const element = document.getElementById(elementId);
         if (element) {
             // Alternar entre 'block' y 'none'
-            element.style.display = (element.style.display === 'block') ? 'none' : 'block';
+            element.style.display = (element.style.display === displayType) ? 'none' : displayType;
         } else {
             console.error(`No se encontró el elemento con id "${elementId}".`);
         }
