@@ -92,7 +92,7 @@
 
   function toggleDetails(menu, groupId) {
     toggleVisibility(menu);
-    fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
+    fetch(`https://matesito.onrender.com/grupo/${groupId}`)
         .then(response => response.json())
         .then(group => {
             // Seleccionar el contenedor dinámico basado en el groupId
@@ -112,7 +112,7 @@
 
   function toggleDetails1(menu, groupId) {
     toggleVisibility(menu);
-    fetch(`https://matesitotest.onrender.com/grupo/${groupId}`)
+    fetch(`https://matesito.onrender.com/grupo/${groupId}`)
         .then(response => response.json())
         .then(group => {
             // Seleccionar el contenedor dinámico basado en el groupId
