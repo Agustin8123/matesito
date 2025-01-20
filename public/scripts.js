@@ -17,14 +17,12 @@
     let loadAll = false;
 
     function ToggleVisibility(elementId) {
-        console.log("interactuando con: ", elementId);
         const element = document.getElementById(elementId);
         element.style.display = 'block';
     }
     
     // Función para ocultar múltiples menús
     function HideMenus(...menuIds) {
-        console.log("interactuando con: ", menuIds);
         menuIds.forEach(menuId => {
             const menu = document.getElementById(menuId);
             if (menu && menu.style.display !== 'none') {
@@ -34,7 +32,6 @@
     }
 
     function toggleVisibility(elementId) {
-        console.log("Interactuando con:", elementId);
         const element = document.getElementById(elementId);
         if (element) {
             // Alternar entre 'block' y 'none'
@@ -45,7 +42,6 @@
     }
 
     function hideMenus(...menuIds) {
-        console.log("interactuando con: ", menuIds);
         menuIds.forEach(menuId => {
             const menu = document.getElementById(menuId);
             if (menu && menu.style.display !== 'none') {
@@ -56,9 +52,6 @@
     
       function showOnlyMenu(menuIdToShow, ...allMenuIds) {
         HideMenus(...allMenuIds);
-        console.log("ocultando: ", allMenuIds);
-    
-        console.log("mostrando: ", menuIdToShow);
         ToggleVisibility(menuIdToShow, 'block');
     }
     
@@ -230,7 +223,6 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Datos recibidos:', data);
         if (data.id) {
             // Guardar detalles del usuario activo
             activeUser = username;
@@ -783,11 +775,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
                 event.target.value = ''; // Restablecer la selección
                 return;
             }
-
-            console.log("Archivo válido seleccionado:", selectedFile.name);
-        } else {
-            console.log("No se seleccionó ningún archivo");
-        }
+        } 
     }
 
       function wherePost() {
@@ -1172,8 +1160,6 @@ let showSensitiveContent = false;
 
     // Llamar a buttonsState para recargar los posts según el estado actual
     buttonsState();
-
-    console.log(showSensitiveContent);
 }
 
   function togglePostLoad() {
@@ -1200,7 +1186,6 @@ let showSensitiveContent = false;
 
     document.getElementById('postList').innerHTML = '';
 
-    console.log("Cargando posts...");
     fetch('https://matesitotest.onrender.com/posts')
         .then(response => {
             if (!response.ok) {
@@ -1240,8 +1225,6 @@ let showSensitiveContent = false;
         return;
     }
 
-    console.log(`Intentando cargar o crear un chat entre el usuario ${user1Id} y el usuario ${user2Id}...`);
-
     fetch('https://matesitotest.onrender.com/createOrLoadPrivateChat', {
         method: 'POST',
         headers: {
@@ -1263,8 +1246,6 @@ let showSensitiveContent = false;
                 throw new Error('No se recibió un chatId válido del servidor');
             }
 
-            console.log(`Chat cargado o creado con éxito. ID del chat: ${chatId}`);
-
             // Llamar a la función de cargar mensajes
             loadChatMessages(chatId, loadAll);
             activeChat = chatId;
@@ -1283,7 +1264,6 @@ let showSensitiveContent = false;
     document.getElementById('messageList').innerHTML = ''; // Limpiar lista de mensajes
     const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
 
-    console.log(`Cargando mensajes del chat con ID: ${chatId}...`);
     fetch(`https://matesitotest.onrender.com/chat/messages/${chatId}`)
         .then(response => {
             if (!response.ok) {
@@ -1292,8 +1272,6 @@ let showSensitiveContent = false;
             return response.json();
         })
         .then(messages => {
-            console.log(`Mensajes cargados (${messages.length}):`, messages);
-
             const reversedMessages = messages.reverse(); // Ordenar los mensajes de más antiguos a más recientes
 
             const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
@@ -1347,7 +1325,6 @@ let showSensitiveContent = false;
 
     document.getElementById('groupMessageList').innerHTML = ''; // Limpiar lista de mensajes
 
-    console.log(`Cargando mensajes del grupo con ID: ${groupId} para el usuario activo ID: ${activeUserId}...`);
     fetch(`https://matesitotest.onrender.com/group/messages/${groupId}/${activeUserId}`)
         .then(response => {
             if (!response.ok) {
@@ -1356,8 +1333,6 @@ let showSensitiveContent = false;
             return response.json();
         })
         .then(messages => {
-            console.log(`Mensajes cargados (${messages.length}):`, messages);
-
             const reversedMessages = messages.reverse(); // Ordenar los mensajes de más antiguos a más recientes
 
             const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
@@ -1408,7 +1383,6 @@ let showSensitiveContent = false;
     activeGroup = '';
     activeForum = forumId;
 
-    console.log(`Cargando mensajes del foro con ID: ${forumId}...`);
     fetch(`https://matesitotest.onrender.com/mensajes/${forumId}`)
         .then(response => {
             if (!response.ok) {
@@ -1417,7 +1391,6 @@ let showSensitiveContent = false;
             return response.json();
         })
         .then(messages => {
-            console.log(`Mensajes cargados (${messages.length}):`, messages);
 
             const reversedMessages = messages.reverse();
 
@@ -1618,8 +1591,6 @@ let showSensitiveContent = false;
     activeForum = '';
     activeGroup = '';
     activeChat = '';
-
-    console.log("Cargando posts de", username);
 
     // Cargar los posts del usuario
     fetch(`https://matesitotest.onrender.com/posts/user/${username}`)
