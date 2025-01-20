@@ -16,36 +16,41 @@
     let selectedFile = null;
     let loadAll = false;
 
-    (function() {
-        function toggleVisibility(elementId) {
-                console.log("interactuando con: ", elementId);
-                const element = document.getElementById(elementId);
-                element.style.display = 'block';
-            }
+    function ToggleVisibility(elementId) {
+        console.log("interactuando con: ", elementId);
+        const element = document.getElementById(elementId);
+        element.style.display = 'block';
+    }
     
-        // Función para ocultar múltiples menús
-        function hideMenus(...menuIds) {
-            console.log("interactuando con: ", menuIds);
-            menuIds.forEach(menuId => {
-                const menu = document.getElementById(menuId);
-                if (menu && menu.style.display !== 'none') {
-                    menu.style.display = 'none';
-                }
-            });
+    // Función para ocultar múltiples menús
+    function HideMenus(...menuIds) {
+        console.log("interactuando con: ", menuIds);
+        menuIds.forEach(menuId => {
+            const menu = document.getElementById(menuId);
+            if (menu && menu.style.display !== 'none') {
+                menu.style.display = 'none';
+            }
+        });
+    }
+
+    function toggleVisibility(elementId) {
+        console.log("Interactuando con:", elementId);
+        const element = document.getElementById(elementId);
+        if (element) {
+            // Alternar entre 'block' y 'none'
+            element.style.display = (element.style.display === 'block') ? 'none' : 'block';
+        } else {
+            console.error(`No se encontró el elemento con id "${elementId}".`);
         }
-
-        window.toggleVisibility = toggleVisibility;
-        window.hideMenus = hideMenus;
-
-    })();
+    }
     
     
       function showOnlyMenu(menuIdToShow, ...allMenuIds) {
-        hideMenus(...allMenuIds);
+        HideMenus(...allMenuIds);
         console.log("ocultando: ", allMenuIds);
     
         console.log("mostrando: ", menuIdToShow);
-        toggleVisibility(menuIdToShow, 'block');
+        ToggleVisibility(menuIdToShow, 'block');
     }
     
 
