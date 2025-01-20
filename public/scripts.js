@@ -155,7 +155,7 @@ window.onload = function() {
     const password = document.getElementById('passwordInput').value.trim();
     const rememberMe = document.getElementById('rememberMe').checked;
 
-    fetch('https://matesitotest.onrender.com/login', {
+    fetch('https://matesito.onrender.com/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
 
 
   function setActiveUser(username) {
-    fetch('https://matesitotest.onrender.com/getUserDetails', {
+    fetch('https://matesito.onrender.com/getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
         profileImage: profileImageURL,
     };
 
-    fetch('https://matesitotest.onrender.com/users', {
+    fetch('https://matesito.onrender.com/users', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
     };
 
     // Enviar la solicitud al backend
-    fetch('https://matesitotest.onrender.com/foros', {
+    fetch('https://matesito.onrender.com/foros', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
     };
 
     // Enviar la solicitud al backend
-    fetch('https://matesitotest.onrender.com/grupos', {
+    fetch('https://matesito.onrender.com/grupos', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -454,7 +454,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
         return;
     }
 
-    fetch('https://matesitotest.onrender.com/unir-grupo', {
+    fetch('https://matesito.onrender.com/unir-grupo', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
         return; // Si el usuario cancela, no hacemos nada
     }
 
-    fetch('https://matesitotest.onrender.com/salir-grupo', {
+    fetch('https://matesito.onrender.com/salir-grupo', {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -569,7 +569,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
         forumId: forumId  // ID del foro que se pasa como parámetro
     };
 
-    fetch('https://matesitotest.onrender.com/joinForum', {
+    fetch('https://matesito.onrender.com/joinForum', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -597,7 +597,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
         forumId: forumId  // ID del foro que se pasa como parámetro
     };
 
-    fetch('https://matesitotest.onrender.com/leaveForum', {
+    fetch('https://matesito.onrender.com/leaveForum', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -621,7 +621,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
   function loadUserForums() {
     const userId = users[activeUser].id;
 
-    fetch(`https://matesitotest.onrender.com/userForums/${userId}`)
+    fetch(`https://matesito.onrender.com/userForums/${userId}`)
         .then(response => response.json())
         .then(forums => {
             const container = document.getElementById('forosContainer2');
@@ -668,7 +668,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
   function loadUserCreatedForums() {
     const userId = users[activeUser].id; // ID del usuario activo
 
-    fetch(`https://matesitotest.onrender.com/userCreatedForums/${userId}`)
+    fetch(`https://matesito.onrender.com/userCreatedForums/${userId}`)
         .then(response => response.json())
         .then(forums => {
             const container = document.getElementById('createdForosContainer');
@@ -719,7 +719,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
         return;
     }
 
-    fetch(`https://matesitotest.onrender.com/foros/${forumId}`, {
+    fetch(`https://matesito.onrender.com/foros/${forumId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -857,7 +857,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
 
     try {
         // Enviar el mensaje al servidor
-        const response = await fetch(`https://matesitotest.onrender.com/mensajes/${forumId}`, {
+        const response = await fetch(`https://matesito.onrender.com/mensajes/${forumId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(messageData),
@@ -935,7 +935,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
 
     try {
         // Enviar el mensaje al servidor
-        const response = await fetch(`https://matesitotest.onrender.com/mensajes/${chatId}`, {
+        const response = await fetch(`https://matesito.onrender.com/mensajes/${chatId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(messageData),
@@ -1001,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
     };
 
     try {
-        const response = await fetch(`https://matesitotest.onrender.com/group/messages/${groupId}`, {
+        const response = await fetch(`https://matesito.onrender.com/group/messages/${groupId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(messageData),
@@ -1059,7 +1059,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
                 postData.media = data.secure_url;
                 postData.mediaType = selectedFile.type;
 
-                return fetch('https://matesitotest.onrender.com/posts', {
+                return fetch('https://matesito.onrender.com/posts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(postData),
@@ -1080,7 +1080,7 @@ document.addEventListener('DOMContentLoaded', checkRememberedUser);
             })
 
         } else {
-            fetch('https://matesitotest.onrender.com/posts', {
+            fetch('https://matesito.onrender.com/posts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(postData),
@@ -1186,7 +1186,7 @@ let showSensitiveContent = false;
 
     document.getElementById('postList').innerHTML = '';
 
-    fetch('https://matesitotest.onrender.com/posts')
+    fetch('https://matesito.onrender.com/posts')
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los posts: ${response.status}`);
@@ -1225,7 +1225,7 @@ let showSensitiveContent = false;
         return;
     }
 
-    fetch('https://matesitotest.onrender.com/createOrLoadPrivateChat', {
+    fetch('https://matesito.onrender.com/createOrLoadPrivateChat', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1264,7 +1264,7 @@ let showSensitiveContent = false;
     document.getElementById('messageList').innerHTML = ''; // Limpiar lista de mensajes
     const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
 
-    fetch(`https://matesitotest.onrender.com/chat/messages/${chatId}`)
+    fetch(`https://matesito.onrender.com/chat/messages/${chatId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los mensajes: ${response.status}`);
@@ -1325,7 +1325,7 @@ let showSensitiveContent = false;
 
     document.getElementById('groupMessageList').innerHTML = ''; // Limpiar lista de mensajes
 
-    fetch(`https://matesitotest.onrender.com/group/messages/${groupId}/${activeUserId}`)
+    fetch(`https://matesito.onrender.com/group/messages/${groupId}/${activeUserId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los mensajes: ${response.status}`);
@@ -1383,7 +1383,7 @@ let showSensitiveContent = false;
     activeGroup = '';
     activeForum = forumId;
 
-    fetch(`https://matesitotest.onrender.com/mensajes/${forumId}`)
+    fetch(`https://matesito.onrender.com/mensajes/${forumId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los mensajes: ${response.status}`);
@@ -1504,7 +1504,7 @@ let showSensitiveContent = false;
         </div>
         <div style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
            <iframe 
-            src="https://matesitotest.onrender.com/microReact.html?id=Matesito_${microReactId}" 
+            src="https://matesito.onrender.com/microReact.html?id=Matesito_${microReactId}" 
                 style="width: 275px; height: 100px; border: none;" 
                 frameborder="0" 
                 loading="lazy" 
@@ -1593,7 +1593,7 @@ let showSensitiveContent = false;
     activeChat = '';
 
     // Cargar los posts del usuario
-    fetch(`https://matesitotest.onrender.com/posts/user/${username}`)
+    fetch(`https://matesito.onrender.com/posts/user/${username}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los posts del usuario ${username}`);
@@ -1631,7 +1631,7 @@ let showSensitiveContent = false;
         return;
     }
 
-    fetch('https://matesitotest.onrender.com/followUser', {
+    fetch('https://matesito.onrender.com/followUser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ followerId, followedId: userId })
@@ -1654,7 +1654,7 @@ let showSensitiveContent = false;
 }
 
   function unfollowUser(followerId, followedId) {
-    fetch('https://matesitotest.onrender.com/unfollowUser', {
+    fetch('https://matesito.onrender.com/unfollowUser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ followerId, followedId })
@@ -1676,7 +1676,7 @@ let showSensitiveContent = false;
   function loadFollowedUsers() {
     const followerId = users[activeUser]?.id; // ID del usuario activo
 
-    fetch(`https://matesitotest.onrender.com/followedUsers/${followerId}`)
+    fetch(`https://matesito.onrender.com/followedUsers/${followerId}`)
         .then(response => response.json())
         .then(users => {
             const container = document.getElementById('usersContainer');
@@ -1728,7 +1728,7 @@ let showSensitiveContent = false;
   function loadUserGroups() {
     const userId = users[activeUser]?.id; // ID del usuario activo
 
-    fetch(`https://matesitotest.onrender.com/grupos-usuario/${userId}`)
+    fetch(`https://matesito.onrender.com/grupos-usuario/${userId}`)
         .then(response => response.json())
         .then(groups => {
             const container = document.getElementById('joinedGruposContainer');
@@ -1795,7 +1795,7 @@ let showSensitiveContent = false;
   function loadCreatedGroups() {
     const userId = users[activeUser]?.id; // ID del usuario activo
 
-    fetch(`https://matesitotest.onrender.com/grupos-creados/${userId}`)
+    fetch(`https://matesito.onrender.com/grupos-creados/${userId}`)
         .then(response => response.json())
         .then(groups => {
             const container = document.getElementById('createdGroupsContainer');
@@ -1854,7 +1854,7 @@ let showSensitiveContent = false;
   function deleteGroup(groupId) {
     const userId = users[activeUser]?.id; // ID del suario activo
 
-    fetch(`https://matesitotest.onrender.com/grupo/${groupId}/${userId}`, {
+    fetch(`https://matesito.onrender.com/grupo/${groupId}/${userId}`, {
         method: 'DELETE',
     })
         .then(response => response.json())
