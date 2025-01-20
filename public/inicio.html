@@ -246,43 +246,32 @@
     </div>
 </div>
 
-<div class="overlay" id="createForumOverlay" style="display: none;">
+<div class="overlay" id="createForumOverlay" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
     <div class="forum-box">
-        <!-- Campo para el nombre del foro -->
         <input type="text" id="forumName" placeholder="Nombre del Foro">
-        
-        <!-- Campo para la descripción del foro -->
         <textarea id="forumDescription" placeholder="Descripción del Foro"></textarea>
-        
-        <!-- Botones -->
         <button onclick="createForum()">Crear Foro</button>
         <button onclick="createForumMenu()">Volver</button>
     </div>
 </div>
 
-<div class="overlay" id="createGroupOverlay" style="display: none;">
+<div class="overlay" id="createGroupOverlay" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
     <div class="forum-box">
-        <!-- Campo para el nombre del grupo -->
         <input type="text" id="groupName" placeholder="Nombre del Grupo">
-        
-        <!-- Campo para la descripción del grupo -->
         <textarea id="groupDescription" placeholder="Descripción del Grupo"></textarea>
-        
-        <!-- Botones -->
         <button onclick="createGroup()">Crear Grupo</button>
         <button onclick="createGroupMenu()">Volver</button>
     </div>
 </div>
 
-<div class="overlay" id="joinGrupoMenu" style="display: none;">
+<div class="overlay" id="joinGrupoMenu" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
     <div class="forum-box">
-        <!-- Campo para el nombre del grupo -->
         <input type="text" id="inviteCode" placeholder="Codigo de invitación">
-        
         <button onclick="joinGroup()">Unirse</button>
         <button onclick="joinGroupMenu()">Volver</button>
     </div>
 </div>
+
 
 <div class="overlay" id="userSelectOverlay" style="display: none;">
     <link rel="preload" href="eyeClose.png" as="image">
