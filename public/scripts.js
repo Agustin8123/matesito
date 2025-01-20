@@ -43,7 +43,16 @@
             console.error(`No se encontró el elemento con id "${elementId}".`);
         }
     }
-    
+
+    function hideMenus(...menuIds) {
+        console.log("interactuando con: ", menuIds);
+        menuIds.forEach(menuId => {
+            const menu = document.getElementById(menuId);
+            if (menu && menu.style.display !== 'none') {
+                menu.style.display = 'none';
+            }
+        });
+    }
     
       function showOnlyMenu(menuIdToShow, ...allMenuIds) {
         HideMenus(...allMenuIds);
