@@ -38,7 +38,6 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Datos recibidos:', data);
         if (data.id) {
             // Guardar detalles del usuario activo
             activeUser = username;
