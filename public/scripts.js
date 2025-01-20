@@ -1560,7 +1560,7 @@ let showSensitiveContent = false;
             }
 
             // Ocultar otras listas
-            if (forumList) postList.style.display = 'none';
+            if (forumList) forumList.style.display = 'none';
             if (postList) postList.style.display = 'none';
             if (profileList) profileList.style.display = 'none';
             if (messageList) messageList.style.display = 'none';
