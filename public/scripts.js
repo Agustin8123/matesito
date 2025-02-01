@@ -153,7 +153,6 @@ function saveSession(username, password, rememberMe) {
         document.cookie = `username=${username}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
         document.cookie = `password=${encodePassword(password)}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
 
-        console.log("Sesión guardada:", document.cookie);
     } else {
         document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
         document.cookie = `password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
