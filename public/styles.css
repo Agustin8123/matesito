@@ -563,23 +563,34 @@
         }
         
         .post-footer {
+            position: absolute;
             bottom: 5px;
             top: 5px;
             right: 10px;
             font-size: 12px;
             color: #ffffff;
-            position: relative;
-            z-index: 1;
-        }
-            
-        .reactions-wrapper {
-            position: absolute;
-            bottom: 10px; /* Ajusta según sea necesario */
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
         }
 
+        .post-user-info {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Para dispositivos móviles */
+        @media (max-width: 600px) {
+            .post-user-info {
+                flex-direction: column; /* Coloca la hora debajo del nombre */
+                align-items: flex-start; /* Alinea a la izquierda */
+            }
+        
+            .post-time {
+                font-size: 12px; /* Tamaño más pequeño para la hora */
+                color: gray;
+            }
+        }        
+            
         #loadAllPostsButton {
             display: block;
             margin: 10px auto;
