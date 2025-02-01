@@ -202,8 +202,7 @@ function checkRememberedUser() {
         document.getElementById('passwordInput').value = decodePassword(encodedPassword);
         document.getElementById('rememberMe').checked = true;
 
-        setTimeout(() => loginUser(), 200); // Usar setTimeout en lugar de una función "wait"
-        document.getElementById('initialOverlay').style.display = 'none';
+        loginUser();
     }
 }
 
