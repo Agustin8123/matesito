@@ -82,6 +82,8 @@
     gap: 10px;
     justify-content: center;
     align-items: center;
+    width: fit-content;
+    margin: 0 auto; /* Centra el contenedor */
   }
   .reactions button:nth-child(4) {
     grid-column: 2 / 3;
@@ -89,7 +91,24 @@
   .reactions button:nth-child(5) {
     grid-column: 3 / 4;
   }
+
+  .list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    margin: 0 auto; /* Centra los números */
+  }
+  .list p:nth-child(4) {
+    grid-column: 2 / 3;
+  }
+  .list p:nth-child(5) {
+    grid-column: 3 / 4;
+  }
 }
+
     </style>
   </head>
   <body>
