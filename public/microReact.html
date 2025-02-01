@@ -74,6 +74,21 @@
       .small_credits a:hover {
         opacity: 0.7;
       }
+
+    @media (max-width: 600px) {
+    .reactions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+  .reactions button:nth-child(4),
+  .reactions button:nth-child(5) {
+    grid-column: span 2;
+  }
+}
+
     </style>
   </head>
   <body>
