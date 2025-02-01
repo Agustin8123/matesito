@@ -76,36 +76,39 @@
       }
 
       @media (max-width: 600px) {
+  /* Contenedor de emojis */
   .reactions {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
-    width: fit-content;
-    margin: 0 auto; /* Centra el contenedor */
   }
-  .reactions button:nth-child(4) {
-    grid-column: 2 / 3;
+  /* Los primeros 3 botones (primera fila) ocuparán 33.33% cada uno */
+  .reactions button:nth-child(-n+3) {
+    flex: 0 0 33.33%;
+    text-align: center;
   }
-  .reactions button:nth-child(5) {
-    grid-column: 3 / 4;
+  /* Los botones 4 y 5 (segunda fila) ocuparán 40% cada uno para que, en conjunto,
+     queden centrados respecto a la fila de 3 */
+  .reactions button:nth-child(n+4) {
+    flex: 0 0 40%;
+    text-align: center;
   }
 
+  /* Contenedor de números */
   .list {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
-    width: fit-content;
-    margin: 0 auto; /* Centra los números */
   }
-  .list p:nth-child(4) {
-    grid-column: 2 / 3;
+  /* Los primeros 3 párrafos (primera fila) */
+  .list p:nth-child(-n+3) {
+    flex: 0 0 33.33%;
+    text-align: center;
   }
-  .list p:nth-child(5) {
-    grid-column: 3 / 4;
+  /* Los párrafos 4 y 5 (segunda fila) */
+  .list p:nth-child(n+4) {
+    flex: 0 0 40%;
+    text-align: center;
   }
 }
 
