@@ -61,20 +61,18 @@ db.connect()
       const result = await db.query(
         'UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2 RETURNING count',
         [id, reaction]
-      );
+      ); io.emit('reloadPosts');
   
       if (result.rows.length === 0) {
         // Si no existe, insertamos una nueva fila
         await db.query(
           'INSERT INTO reactions (id, reaction_id, count) VALUES ($1, $2, 1)',
           [id, reaction]
-        );
+        ); io.emit('reloadPosts');
         return res.status(200).json({ value: 1 });
       }
   
       res.status(200).json({ value: result.rows[0].count });
-
-      io.emit('reloadPosts');
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Internal Server Error' });
