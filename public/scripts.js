@@ -1513,7 +1513,7 @@ let showSensitiveContent = false;
             <button onclick="viewProfile('${username}')">Ver perfil</button>
             <button onclick="followUser(${userId})">Seguir</button>
         </div>
-        <div style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
+        <div class="" style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
            <iframe 
             src="https://matesito.onrender.com/microReact.html?id=Matesito_${microReactId}" 
                 style="width: 275px; height: 100px; border: none;" 
