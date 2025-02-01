@@ -202,13 +202,21 @@ app.post('/mensajes/:forumId', async (req, res) => {
     }
 });
 
-app.get('/mensajes/:forumId', async (req, res) => {
+  app.get('/mensajes/:forumId', async (req, res) => {
     const { forumId } = req.params;
 
     try {
         const result = await db.query(
             `SELECT 
-                m.*, 
+                m.id,
+                m.chat_or_group_id, 
+                m.content, 
+                m.sensitive, 
+                m.sender_id, 
+                m.created_at, 
+                m.media, 
+                m.media_type, 
+                m.is_private,
                 u.username, 
                 u.image
             FROM mensajes m
@@ -1051,14 +1059,21 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
     });
 });
 
-// Cargar mensajes de un chat específico
-app.get('/chat/messages/:chatId', async (req, res) => {
+  app.get('/chat/messages/:chatId', async (req, res) => {
     const { chatId } = req.params;
 
     try {
         const result = await db.query(
             `SELECT 
-                m.*, 
+                m.id,
+                m.chat_or_group_id, 
+                m.content, 
+                m.sensitive, 
+                m.sender_id, 
+                m.created_at, 
+                m.media, 
+                m.media_type, 
+                m.is_private,
                 u.username, 
                 u.image
             FROM mensajes m
@@ -1081,7 +1096,15 @@ app.get('/group/messages/:groupId/:userId', async (req, res) => {
     try {
         const result = await db.query(
             `SELECT 
-                m.*, 
+                m.id,
+                m.chat_or_group_id, 
+                m.content, 
+                m.sensitive, 
+                m.sender_id, 
+                m.created_at, 
+                m.media, 
+                m.media_type, 
+                m.is_private,
                 u.username, 
                 u.image
             FROM mensajes m
