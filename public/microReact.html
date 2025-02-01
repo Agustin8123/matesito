@@ -78,40 +78,57 @@
       @media (max-width: 600px) {
   /* Contenedor de emojis */
   .reactions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 300px; /* ancho máximo para agrupar los emojis */
+    margin: 0 auto;   /* centrar el grupo en la pantalla */
   }
-  /* Los primeros 3 botones (primera fila) ocuparán 33.33% cada uno */
-  .reactions button:nth-child(-n+3) {
-    flex: 0 0 33.33%;
-    text-align: center;
+  /* Posiciona cada botón en la grilla:
+     - Los tres primeros en la primera fila.
+     - El cuarto y quinto en la segunda fila, dejando vacía la primera columna para centrar. */
+  .reactions button:nth-child(1) {
+    grid-column: 1; grid-row: 1;
   }
-  /* Los botones 4 y 5 (segunda fila) ocuparán 40% cada uno para que, en conjunto,
-     queden centrados respecto a la fila de 3 */
-  .reactions button:nth-child(n+4) {
-    flex: 0 0 40%;
-    text-align: center;
+  .reactions button:nth-child(2) {
+    grid-column: 2; grid-row: 1;
+  }
+  .reactions button:nth-child(3) {
+    grid-column: 3; grid-row: 1;
+  }
+  .reactions button:nth-child(4) {
+    grid-column: 2; grid-row: 2;
+  }
+  .reactions button:nth-child(5) {
+    grid-column: 3; grid-row: 2;
   }
 
   /* Contenedor de números */
   .list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 300px;
+    margin: 10px auto 0; /* centrar y separar un poco de los emojis */
   }
-  /* Los primeros 3 párrafos (primera fila) */
-  .list p:nth-child(-n+3) {
-    flex: 0 0 33.33%;
-    text-align: center;
+  /* Se posicionan los párrafos de la misma forma que los emojis,
+     de modo que cada número quede directamente debajo de su emoji */
+  .list p:nth-child(1) {
+    grid-column: 1; grid-row: 1;
   }
-  /* Los párrafos 4 y 5 (segunda fila) */
-  .list p:nth-child(n+4) {
-    flex: 0 0 40%;
-    text-align: center;
+  .list p:nth-child(2) {
+    grid-column: 2; grid-row: 1;
+  }
+  .list p:nth-child(3) {
+    grid-column: 3; grid-row: 1;
+  }
+  .list p:nth-child(4) {
+    grid-column: 2; grid-row: 2;
+  }
+  .list p:nth-child(5) {
+    grid-column: 3; grid-row: 2;
   }
 }
-
     </style>
   </head>
   <body>
