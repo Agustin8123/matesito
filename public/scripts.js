@@ -1030,7 +1030,8 @@ function checkRememberedUser() {
             console.error('Error al enviar el mensaje:', error);
             alert('Error al enviar el mensaje.');
         }
-    }    
+    }
+    
 
       function postpost() {
         const postContent = document.getElementById('postContent').value;
@@ -1501,28 +1502,28 @@ let showSensitiveContent = false;
 
     // HTML del post con MicroReact
     newpost.innerHTML = `
-        <div class="post-header">
-            ${profilePicHTML}
+    <div class="post-header">
+        ${profilePicHTML}
+        <div class="post-user-info">
             <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${username}:</span>
-        </div>
-        ${contentHTML}
-        <div class="post-footer">
             <span class="post-time">${localTime}</span>
         </div>
-        <div class="user-profile-box" id="${uniqueId}" style="display:none;">
-            <button onclick="viewProfile('${username}')">Ver perfil</button>
-            <button onclick="followUser(${userId})">Seguir</button>
-        </div>
-        <div class="" style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
-           <iframe 
-            src="https://matesito.onrender.com/microReact.html?id=Matesito_${microReactId}" 
-                style="width: 275px; height: 100px; border: none;" 
-                frameborder="0" 
-                loading="lazy" 
-                title="Deja una reacción">
-            </iframe>
-        </div>
-    `;
+    </div>
+    ${contentHTML}
+    <div class="user-profile-box" id="${uniqueId}" style="display:none;">
+        <button onclick="viewProfile('${username}')">Ver perfil</button>
+        <button onclick="followUser(${userId})">Seguir</button>
+    </div>
+    <div style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
+       <iframe 
+        src="https://matesito.onrender.com/microReact.html?id=Matesito_${microReactId}" 
+            style="width: 275px; height: 100px; border: none;" 
+            frameborder="0" 
+            loading="lazy" 
+            title="Deja una reacción">
+        </iframe>
+    </div>
+`;
 
     // Añadir eventos de clic solo a los elementos interactivos
     newpost.querySelectorAll('.clickable').forEach(element => {
