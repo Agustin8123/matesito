@@ -7,80 +7,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <style>     
-      body,
-      html {
-        height: 100vh;
-        width: 100vw;
-        margin: 0px;
-        padding: 0px;
-        display: flex;
-        flex-direction: column;
-        max-height: 100vh;
-        overflow: hidden;
-        font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, "Geist Sans", Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, Helvetica, Apple Color Emoji, Arial, Segoe UI Emoji, Segoe UI Symbol;
-        color: black;
-      }
-      .reactions-container {
-        width: 100%;
-        overflow-x: auto;
-        white-space: nowrap;
-        padding: 5px 0;
-      }
-      .reactions {
-        display: flex;
-        gap: 10px;
-        justify-content: flex-start;
-        min-width: 500px;
-      }
-      .reactions button {
-        font-size: 30px;
-        padding: 10px;
-        border: none;
-        background-color: transparent;
-        cursor: pointer;
-        transition: transform 0.25s, opacity 0.25s;
-      }
-      .reactions button:hover {
-        transform: scale(1.2);
-      }
-      .reactions button:active {
-        opacity: 0.7;
-      }
-      .reactions button[disabled] {
-        pointer-events: none;
-        opacity: 0.4;
-      }
-      .list {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-      }
-      .list p {
-        margin: 0px;
-        text-align: center;
-        font-size: 13.5px;
-        opacity: 0.7;
-      }
-      .small_credits {
-        text-align: right;
-        padding-right: 10px;
-      }
-      .small_credits a {
-        font-size: 10px;
-        opacity: 0.2;
-        text-decoration: none;
-        color: inherit;
-        transition: opacity 0.2s;
-      }
-      .small_credits a:hover {
-        opacity: 0.7;
-      }
-      @media (max-width: 500px) {
-        iframe {
-          width: 120%;
-          margin-left: -10%;
-        }
-      }
+     body,
+html {
+  height: 100vh;
+  width: 100vw;
+  margin: 0px;
+  padding: 0px;
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
+  overflow: hidden;
+  font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, "Geist Sans", Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, Helvetica, Apple Color Emoji, Arial, Segoe UI Emoji, Segoe UI Symbol;
+  color: black;
+}
+
+.reactions-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.reactions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.reactions button {
+  width: 100%;
+  font-size: 30px;
+  padding: 0px;
+  margin: 0px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: transform 0.25s, opacity 0.25s;
+}
+
+.reactions button:hover {
+  transform: scale(1.2);
+}
+
+.reactions button:active {
+  opacity: 0.7;
+}
+
+.reactions button[disabled] {
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.list {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.list p {
+  width: 100%;
+  margin: 0px;
+  text-align: center;
+  user-select: none;
+  font-family: inherit;
+  font-size: 13.5px;
+  opacity: 0.7;
+  transition: opacity 0.25s, margin-bottom 0.25s;
+}
+
+.small_credits {
+  text-align: right;
+  padding-right: 10px;
+}
+
+.small_credits a {
+  font-size: 10px;
+  opacity: 0.2;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s;
+  font-family: inherit;
+}
+
+.small_credits a:hover {
+  opacity: 0.7;
+}
+
+/* Estilos para pantallas pequeñas */
+@media (max-width: 500px) {
+  .reactions-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    width: 100%;
+    padding: 10px;
+  }
+
+  .reactions {
+    display: inline-flex;
+    gap: 15px;
+  }
+
+  .list {
+    display: inline-flex;
+    gap: 15px;
+  }
+}
     </style>
   </head>
   <body>
