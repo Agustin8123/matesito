@@ -145,16 +145,19 @@ window.onload = function() {
     return atob(encodedPassword);
 }
 
-// Guardar la sesión con cookies
-  function saveSession(username, password, rememberMe) {
+function saveSession(username, password, rememberMe) {
     if (rememberMe) {
-        // Guardar usuario y contraseña en cookies con encriptación
-        document.cookie = `username=${username}; max-age=604800; path=/`;
-        document.cookie = `password=${encodePassword(password)}; max-age=604800; path=/`;
+        let expirationDate = new Date();
+        expirationDate.setTime(expirationDate.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 días
+
+        document.cookie = `username=${username}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
+        document.cookie = `password=${encodePassword(password)}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
+
+        console.log("Sesión guardada:", document.cookie);
     } else {
-        // Eliminar cookies si no está marcada la opción "Recordar sesión"
-        document.cookie = `username=; max-age=0; path=/`;
-        document.cookie = `password=; max-age=0; path=/`;
+        document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        document.cookie = `password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        console.log("Sesión eliminada.");
     }
 }
 
@@ -190,24 +193,21 @@ window.onload = function() {
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-// Verificar si el usuario está guardado en las cookies
-  function checkRememberedUser() {
+function checkRememberedUser() {
     const username = getCookie('username');
     const encodedPassword = getCookie('password');
+
+    console.log("Cookies cargadas:", document.cookie);
+
     if (username && encodedPassword) {
-        // Completar los campos de inicio de sesión con valores decodificados
         document.getElementById('usernameInput').value = username;
         document.getElementById('passwordInput').value = decodePassword(encodedPassword);
         document.getElementById('rememberMe').checked = true;
 
-        wait(200);
-        loginUser();
+        setTimeout(() => loginUser(), 200); // Usar setTimeout en lugar de una función "wait"
         document.getElementById('usernameOverlay').style.display = 'none';
     }
 }
-
-// Llamar a esta función al cargar la página
-document.addEventListener('DOMContentLoaded', checkRememberedUser);
 
   function HideOverlays(){
     document.getElementById('initialOverlay').style.display = 'none';
