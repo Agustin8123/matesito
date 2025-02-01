@@ -73,6 +73,8 @@ db.connect()
       }
   
       res.status(200).json({ value: result.rows[0].count });
+
+      io.emit('reloadPosts');
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -425,6 +427,7 @@ app.post('/foros', (req, res) => {
         }
 
         res.status(201).json({ id: result.rows[0].id, name, description });
+        io.emit('reloadFG');
     });
 });
 
@@ -608,6 +611,7 @@ app.post('/unir-grupo', async (req, res) => {
             message: 'Usuario unido al grupo exitosamente',
             participanteId: insertResult.rows[0].id,
         });
+        io.emit('reloadFG');
     } catch (error) {
         console.error('Error al unir al usuario al grupo:', error);
         res.status(500).json({ error: 'Error al procesar la solicitud' });
@@ -640,6 +644,7 @@ app.delete('/salir-grupo', async (req, res) => {
         );
 
         res.status(200).json({ message: 'Usuario eliminado del grupo exitosamente' });
+        io.emit('reloadFG');
     } catch (error) {
         console.error('Error al salir del grupo:', error);
         res.status(500).json({ error: 'Error al procesar la solicitud' });
@@ -743,6 +748,7 @@ app.delete('/foros/:forumId', (req, res) => {
             }
 
             res.status(200).json('Foro eliminado con éxito');
+            io.emit('reloadFG');
         });
     });
 });
@@ -774,6 +780,7 @@ app.post('/joinForum', (req, res) => {
             }
 
             res.status(201).json({ message: 'Sigueiendo al foro con éxito' }); // Mensaje de éxito
+            io.emit('reloadFG');
         });
     });
 });
@@ -804,6 +811,7 @@ app.post('/leaveForum', (req, res) => {
             }
 
             res.status(200).json({ message: 'Dejaste de seguir el foro con éxito' }); // Mensaje de éxito
+            io.emit('reloadFG');
         });
     });
 });
@@ -861,6 +869,7 @@ app.post('/followUser', (req, res) => {
             }
 
             res.status(201).json({ message: 'Ahora sigues a este usuario' });
+            io.emit('reloadFG');
         });
     });
 });
@@ -917,6 +926,7 @@ app.post('/unfollowUser', (req, res) => {
             }
 
             res.status(200).json({ message: 'Has dejado de seguir a este usuario' });
+            io.emit('reloadFG');
         });
     });
 });
@@ -1036,6 +1046,7 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
                     }
 
                     return res.status(201).json({ chatId: createResult.rows[0].id });
+                    io.emit('reloadFG');
                 });
             }
         });

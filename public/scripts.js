@@ -68,6 +68,15 @@
         loadposts(loadAll);
     } 
 
+    function reloadFG(){
+        loadCreatedGroups();
+        loadUserCreatedForums();
+        loadUserForums();
+        loadUserGroups();
+        loadForos();
+        loadFollowedUsers();
+    } 
+
     document.getElementById('acceptTermsCheckbox').addEventListener('change', function() {
     const createButton = document.getElementById('createUserButton');
     if (this.checked) {
@@ -140,8 +149,8 @@ window.onload = function() {
   function saveSession(username, password, rememberMe) {
     if (rememberMe) {
         // Guardar usuario y contraseña en cookies con encriptación
-        document.cookie = `username=${username}; max-age=86400; path=/`;
-        document.cookie = `password=${encodePassword(password)}; max-age=86400; path=/`;
+        document.cookie = `username=${username}; max-age=604800; path=/`;
+        document.cookie = `password=${encodePassword(password)}; max-age=604800; path=/`;
     } else {
         // Eliminar cookies si no está marcada la opción "Recordar sesión"
         document.cookie = `username=; max-age=0; path=/`;
@@ -190,6 +199,8 @@ window.onload = function() {
         document.getElementById('usernameInput').value = username;
         document.getElementById('passwordInput').value = decodePassword(encodedPassword);
         document.getElementById('rememberMe').checked = true;
+
+        loginUser();
     }
 }
 
