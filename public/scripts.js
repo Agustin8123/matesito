@@ -859,6 +859,7 @@ function checkRememberedUser() {
             // Añadir los datos de media al mensaje
             messageData.media = media;
             messageData.mediaType = mediaType;
+            console.log(media);
         } catch (error) {
             console.error('Error al subir el archivo:', error);
             alert('Error al subir el archivo.');
