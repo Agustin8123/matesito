@@ -197,15 +197,13 @@ function checkRememberedUser() {
     const username = getCookie('username');
     const encodedPassword = getCookie('password');
 
-    console.log("Cookies cargadas:", document.cookie);
-
     if (username && encodedPassword) {
         document.getElementById('usernameInput').value = username;
         document.getElementById('passwordInput').value = decodePassword(encodedPassword);
         document.getElementById('rememberMe').checked = true;
 
         setTimeout(() => loginUser(), 200); // Usar setTimeout en lugar de una función "wait"
-        document.getElementById('usernameOverlay').style.display = 'none';
+        document.getElementById('initialOverlay').style.display = 'none';
     }
 }
 
@@ -1955,5 +1953,5 @@ let showSensitiveContent = false;
 
 // Llamar a loadposts al cargar    página
 window.onload = verMant(mantenimiento);
-window.onload = checkRememberedUser();
+checkRememberedUser();
 window.onload = init();
