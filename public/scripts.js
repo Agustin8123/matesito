@@ -200,7 +200,9 @@ window.onload = function() {
         document.getElementById('passwordInput').value = decodePassword(encodedPassword);
         document.getElementById('rememberMe').checked = true;
 
+        wait(200);
         loginUser();
+        document.getElementById('usernameOverlay').style.display = 'none';
     }
 }
 
