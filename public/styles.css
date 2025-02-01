@@ -495,7 +495,8 @@
         .post-header {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            justify-content: space-between; /* Distribuye el nombre a la izquierda y la hora a la derecha */
+            width: 100%;
         }
         
         .username {
@@ -562,31 +563,34 @@
             background-color: #dddddd2b;
         }
         
-        .post-footer {
-            position: absolute;
-            bottom: 5px;
-            top: 5px;
-            right: 10px;
-            font-size: 12px;
-            color: #ffffff;
-        }
-
         .post-user-info {
             display: flex;
             flex-direction: row;
             align-items: center;
             gap: 5px;
+            flex-grow: 1; /* Hace que el nombre ocupe el espacio disponible */
+        }
+        
+        .post-time {
+            font-size: 12px;
+            color: gray;
+            white-space: nowrap; /* Evita que la hora se parta en varias líneas */
         }
         
         /* Para dispositivos móviles */
         @media (max-width: 600px) {
+            .post-header {
+                flex-direction: column; /* Coloca los elementos en columna */
+                align-items: flex-start; /* Alinea el contenido a la izquierda */
+            }
+        
             .post-user-info {
                 flex-direction: column; /* Coloca la hora debajo del nombre */
-                align-items: flex-start; /* Alinea a la izquierda */
+                align-items: flex-start;
             }
         
             .post-time {
-                font-size: 12px; /* Tamaño más pequeño para la hora */
+                font-size: 12px;
                 color: gray;
             }
         }        
