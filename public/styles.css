@@ -573,7 +573,7 @@
         
         .post-time {
             font-size: 12px;
-            color: gray;
+            color: rgb(196, 191, 191);
             white-space: nowrap; /* Evita que la hora se parta en varias líneas */
         }
         
