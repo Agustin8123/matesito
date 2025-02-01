@@ -811,84 +811,85 @@ function checkRememberedUser() {
 
     let lastMessageContent = '';  // Definir una variable global fuera de la función para almacenar el contenido del último mensaje
 
-  async  function sendForumMessage(forumId) {
-    const content = document.getElementById('postContent').value;
-    const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
-    const fileInput = document.getElementById('postMedia');
-    const file = fileInput.files[0];
-
-    // Validar contenido prohibido
-    if (containsForbiddenWords(content)) {
-        alert("Creemos que tu mensaje infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
-        return;
-    }
-
-    // Verificar si el contenido es igual al último enviado
-    if (content === lastMessageContent) {
-        alert("No puedes enviar un mensaje igual al anterior.");
-        return;
-    }
-
-    // Preparar los datos mensaje
-    const messageData = {
-        content,
-        sensitive: isSensitive ? 1 : 0,
-        sender_id: users[activeUser].id,
-        createdAt: new Date().toISOString(),
-        chat_or_group_id: forumId,
-        is_private: false,
-    };
-
-    let media = null;
-    let mediaType = null;
-
-    if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-            // Subir el archivo a Cloudinary u otro servicio
-            const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
-                method: 'POST',
-                body: formData,
-            });
-            const uploadData = await uploadResponse.json();
-            media = uploadData.secure_url;
-            mediaType = file.type;
-
-            // Añadir los datos de media al mensaje
-            messageData.media = media;
-            messageData.mediaType = mediaType;
-            console.log(media);
-        } catch (error) {
-            console.error('Error al subir el archivo:', error);
-            alert('Error al subir el archivo.');
+    async function sendForumMessage(forumId) {
+        const content = document.getElementById('postContent').value;
+        const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
+        const fileInput = document.getElementById('postMedia');
+        const file = fileInput?.files?.[0];
+    
+        // Validar contenido prohibido
+        if (containsForbiddenWords(content)) {
+            alert("Creemos que tu mensaje infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
             return;
         }
-    }
-
-    try {
-        // Enviar el mensaje al servidor
-        const response = await fetch(`https://matesito.onrender.com/mensajes/${forumId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(messageData),
-        });
-
-        if (response.ok) {
-            const responseData = await response.json();
-            lastMessageContent = responseData.content;  // Actualizar la variable global
-            document.getElementById('postContent').value = '';
-            fileInput.value = '';
-            alert('Mensaje enviado con éxito');
-        } else {
-            alert('Error al enviar el mensaje');
+    
+        // Verificar si el contenido es igual al último enviado
+        if (content === lastMessageContent) {
+            alert("No puedes enviar un mensaje igual al anterior.");
+            return;
         }
-    } catch (error) {
-        console.error('Error al enviar el mensaje:', error);
-        alert('Error al enviar el mensaje.');
-    }
-}
+    
+        // Preparar los datos del mensaje
+        const messageData = {
+            content,
+            sensitive: isSensitive ? 1 : 0,
+            sender_id: users[activeUser].id,
+            createdAt: new Date().toISOString(),
+            chat_or_group_id: forumId,
+            is_private: false,
+        };
+    
+        let media = null;
+        let mediaType = null;
+    
+        if (file) {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", "matesito"); // Agregado para Cloudinary
+    
+            try {
+                // Subir el archivo a Cloudinary u otro servicio
+                const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const uploadData = await uploadResponse.json();
+                media = uploadData.secure_url;
+                mediaType = file.type;
+    
+                // Añadir los datos de media al mensaje
+                messageData.media = media;
+                messageData.mediaType = mediaType;
+                console.log(media);
+            } catch (error) {
+                console.error('Error al subir el archivo:', error);
+                alert('Error al subir el archivo.');
+                return;
+            }
+        }
+    
+        try {
+            // Enviar el mensaje al servidor
+            const response = await fetch(`https://matesito.onrender.com/mensajes/${forumId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(messageData),
+            });
+    
+            if (response.ok) {
+                const responseData = await response.json();
+                lastMessageContent = responseData.content;  // Actualizar la variable global
+                document.getElementById('postContent').value = '';
+                fileInput.value = ''; // Limpiar input de archivos
+                alert('Mensaje enviado con éxito');
+            } else {
+                alert('Error al enviar el mensaje');
+            }
+        } catch (error) {
+            console.error('Error al enviar el mensaje:', error);
+            alert('Error al enviar el mensaje.');
+        }
+    }    
 
   async  function sendChatMessage(chatId) {
     const content = document.getElementById('postContent').value;
