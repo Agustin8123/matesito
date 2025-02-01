@@ -152,7 +152,6 @@ function saveSession(username, password, rememberMe) {
 
         document.cookie = `username=${username}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
         document.cookie = `password=${encodePassword(password)}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
-
     } else {
         document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
         document.cookie = `password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
@@ -202,6 +201,9 @@ function checkRememberedUser() {
         document.getElementById('rememberMe').checked = true;
 
         loginUser();
+        document.getElementById('AvisoOverlay').style.display = 'none';
+  
+        document.getElementById('initialOverlay').style.display = 'none';
     }
 }
 

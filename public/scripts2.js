@@ -161,6 +161,4 @@
   function Acept() {
     document.getElementById('initialOverlay').style.display = 'flex';
     document.getElementById('AvisoOverlay').style.display = 'none';
-  
-    document.getElementById('initialOverlay').style.display = 'none';
 }
