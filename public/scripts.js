@@ -1716,7 +1716,7 @@ let showSensitiveContent = false;
         });
 }
 
-  function loadUserGroups() {
+function loadUserGroups() {
     const userId = users[activeUser]?.id; // ID del usuario activo
 
     fetch(`https://matesito.onrender.com/grupos-usuario/${userId}`)
@@ -1728,52 +1728,54 @@ let showSensitiveContent = false;
             container1.innerHTML = '';
 
             if (groups.length === 0) {
-                // Si no pertenece a ningún grupo, mostramos un mensaje
                 const noGroupsMessage = document.createElement('p');
                 noGroupsMessage.textContent = 'No perteneces a ningún grupo';
                 noGroupsMessage.style.textAlign = 'center';
                 noGroupsMessage.style.color = 'gray';
                 container.appendChild(noGroupsMessage);
             } else {
-                // Renderizamos los grupos
                 groups.forEach(group => {
                     const groupElement = document.createElement('div');
                     groupElement.classList.add('group');
 
                     const groupId = group.id;
                     const groupName = group.name;
+                    const ownerId = group.owner_id; // ID del creador
 
-                    // Asegurarnos de que los IDs y nombres son únicos
-                    const menuId = `menus-${groupId}`;
-                    const radioId = `radios-${groupId}`;
+                    fetch(`https://matesito.onrender.com/usuario/${ownerId}`) // Obtener info del creador
+                        .then(response => response.json())
+                        .then(owner => {
+                            const ownerName = owner.name; // Suponiendo que la API devuelve { name: "..." }
 
-                    groupElement.innerHTML = `
-                    <label for="${radioId}" class="boton">${groupName}</label>
-                    <input type="radio" id="${radioId}" name="nav-${groupId}" style="display:none;" onclick="toggle_GroupMenu1('${menuId}')">
+                            groupElement.innerHTML = `
+                            <label for="radio-${groupId}" class="boton">${groupName}</label>
+                            <p style="font-size: 12px; color: gray;">Creado por: ${ownerName}</p>
+                            <input type="radio" id="radio-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('menu-${groupId}')">
 
-                    <div id="${menuId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
-                        <label for="details-${groupId}v" class="boton">Ver detalles</label>
-                        <input type="radio" id="details-${groupId}v" name="nav-${groupId}" style="display:none;" onclick="toggleDetails1('details-${menuId}', ${groupId})">
-                        
-                        <!-- Contenedor para los detalles del grupo -->
-                        <div id="details-${menuId}" style="display: none;">
-                            <div id="groupDetailsContainer-${groupId}">
-                                <!-- Los detalles del grupo se cargarán aquí -->
+                            <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
+                                <label for="details-${groupId}" class="boton">Ver detalles</label>
+                                <input type="radio" id="details-${groupId}" name="nav" style="display:none;" onclick="toggleDetails('details-${groupId}', ${groupId})">
+                                
+                                <div id="details-${groupId}" style="display: none;">
+                                    <div id="groupDetailsContainer-${groupId}">
+                                        <!-- Los detalles del grupo se cargarán aquí -->
+                                    </div>
+                                </div>
+
+                                <label for="enter-${groupId}" class="boton">Entrar al chat</label>
+                                <input type="radio" id="enter-${groupId}" name="nav" style="display:none;" onclick="loadGroupMessages(${groupId})">
+
+                                <label for="leave-${groupId}" class="boton">Salir del grupo</label>
+                                <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${groupId})">
+
+                                <label for="close-${groupId}" class="botonV">Volver</label>
+                                <input type="radio" id="close-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('menu-${groupId}')">
                             </div>
-                        </div>
+                            `;
 
-                        <label for="enter-${menuId}-${groupId}" class="boton">Entrar al chat</label>
-                        <input type="radio" id="enter-${menuId}-${groupId}" name="nav-${groupId}" style="display:none;" onclick="loadGroupMessages(${groupId})">
-
-                        <label for="leave-${menuId}${groupId}" class="boton">Salir del grupo</label>
-                        <input type="radio" id="leave-${menuId}${groupId}" name="nav-${groupId}" style="display:none;" onclick="leaveGroup(${groupId})">
-
-                        <label for="${menuId}${groupId}" class="botonV">Volver</label>
-                        <input type="radio" id="${menuId}${groupId}" name="nav-${groupId}" style="display:none;" onclick="toggle_GroupMenu1('${menuId}')">
-                    </div>
-                    `;
-
-                    container.appendChild(groupElement);
+                            container.appendChild(groupElement);
+                        })
+                        .catch(error => console.error('Error al obtener el creador del grupo:', error));
                 });
             }
         })
