@@ -849,7 +849,6 @@ app.post('/leaveForum', (req, res) => {
     });
 });
 
-
 app.get('/userForums/:userId', (req, res) => {
     const { userId } = req.params;
 
@@ -858,9 +857,10 @@ app.get('/userForums/:userId', (req, res) => {
     }
 
     const query = `
-        SELECT f.id, f.name, f.description
+        SELECT f.id, f.name, f.description, u.username AS owner_name
         FROM foros f
         INNER JOIN participantes p ON f.id = p.forum_or_group_id
+        INNER JOIN users u ON f.owner_id = u.id
         WHERE p.user_id = $1 AND p.is_group = false
     `;
 
@@ -873,7 +873,6 @@ app.get('/userForums/:userId', (req, res) => {
         res.status(200).json(result.rows);
     });
 });
-
 
 // Seguir un usuario
 app.post('/followUser', (req, res) => {
