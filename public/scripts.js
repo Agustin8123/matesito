@@ -355,51 +355,42 @@ function checkRememberedUser() {
     });
 }
 
-  function createForum() {
+function createForum() {
     const forumName = document.getElementById('forumName').value.trim();
     const forumDescription = document.getElementById('forumDescription').value.trim();
     const ownerId = users[activeUser].id;
 
-    // Validar longitud del nombre del foro
     if (forumName.length > 30) {
         alert('El nombre del foro no puede tener más de 30 caracteres.');
         return;
     }
 
-    // Validación simple
     if (!forumName || !forumDescription || !ownerId) {
         alert("Por favor, completa todos los campos.");
         return;
     }
 
-    // Crear el objeto de datos a enviar
     const forumData = {
         name: forumName,
         description: forumDescription,
-        ownerId: parseInt(ownerId),  // Asegurarse de que el ID sea un número
+        ownerId: parseInt(ownerId),
     };
 
-    // Enviar la solicitud al backend
     fetch('https://matesito.onrender.com/foros', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(forumData),
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error al crear el foro');
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        // Mostrar un mensaje de éxito y cerrar el overlay
-        alert(`Foro creado exitosamente: ${data.name}`);
-        createForumMenu();  // Cerrar el overlay
+        if (data.error) {
+            alert(`Error: ${data.error}`); // Manejar error si el foro ya existe
+        } else {
+            alert(`Foro creado exitosamente: ${data.name}`);
+            createForumMenu();
+        }
     })
     .catch(error => {
-        // Mostrar un mensaje de error
         alert(`Error: ${error.message}`);
     });
 }
@@ -516,26 +507,22 @@ function checkRememberedUser() {
     });
 }
 
-  function loadForos() {
-
-    
+function loadForos() {
     fetch('/foros')
         .then(response => response.json())
         .then(foros => {
             const container = document.getElementById('forosContainer');
-            container.innerHTML = ''; // Limpiamos el contenedor antes de renderizar
+            container.innerHTML = '';
 
             if (foros.length === 0) {
-                // Si no hay foros, mostramos un mensaje
                 const noForosMessage = document.createElement('p');
                 noForosMessage.textContent = 'No hay nada aquí';
                 noForosMessage.style.textAlign = 'center';
                 noForosMessage.style.color = 'gray';
                 container.appendChild(noForosMessage);
             } else {
-                // Renderizar los foros
                 foros.forEach((foro, index) => {
-                    const uniqueId = `${foro.id}-${index}-${Date.now()}`; // ID único
+                    const uniqueId = `${foro.id}-${index}-${Date.now()}`;
                     const foroElement = document.createElement('div');
                     foroElement.classList.add('user');
                 
@@ -545,6 +532,7 @@ function checkRememberedUser() {
                         <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 190px; top: -20px;">
                             <h2 style="margin-top: -5px;">${foro.name}</h2>
                             <p style="margin-top: -10px;">${foro.description}</p>
+                            <p style="font-size: 0.9em; color: gray;">Creado por: <strong>${foro.ownerName}</strong></p>
                             <label for="view-${uniqueId}" class="boton">Ver Foro</label>
                             <input type="radio" id="view-${uniqueId}" name="nav" style="display:none;" onclick="loadForumPosts(${foro.id})">
                             <label for="follow-${uniqueId}" class="boton">Seguir foro</label>
@@ -553,22 +541,13 @@ function checkRememberedUser() {
                             <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
                         </div>
                     `;
-                
+
                     container.appendChild(foroElement);
                 });
             }
         })
         .catch(error => {
             console.error('Error al cargar los foros:', error);
-
-            const container = document.getElementById('forosContainer');
-            container.innerHTML = ''; // Limpiamos el contenedor antes de renderizar
-
-            const noForosMessage = document.createElement('p');
-            noForosMessage.textContent = 'No hay nada aquí';
-            noForosMessage.style.textAlign = 'center';
-            noForosMessage.style.color = 'gray';
-            container.appendChild(noForosMessage);
             alert("Error al cargar los foros");
         });
 }
@@ -1912,7 +1891,7 @@ let showSensitiveContent = false;
                 `;
                 // Agregar manejador de clic para el foro
                 foroElement.addEventListener('click', () => {
-                    viewForum(foro.id); // Llamar a la función con el ID del foro
+                    loadForumPosts(foro.id, loadAll); // Llamar a la función con el ID del foro
                 });
                 searchContainer.appendChild(foroElement);
             });

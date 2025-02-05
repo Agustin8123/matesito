@@ -61,18 +61,19 @@ db.connect()
       const result = await db.query(
         'UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2 RETURNING count',
         [id, reaction]
-      ); io.emit('reloadPosts');
+      );
   
       if (result.rows.length === 0) {
         // Si no existe, insertamos una nueva fila
         await db.query(
           'INSERT INTO reactions (id, reaction_id, count) VALUES ($1, $2, 1)',
           [id, reaction]
-        ); io.emit('reloadPosts');
+        ); 
         return res.status(200).json({ value: 1 });
       }
   
       res.status(200).json({ value: result.rows[0].count });
+      io.emit('reloadPosts');
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -422,24 +423,42 @@ app.post('/foros', (req, res) => {
     const { name, description, ownerId } = req.body;
 
     if (!name || !description || !ownerId) {
-        return res.status(400).json('Datos incompletos');
+        return res.status(400).json({ error: 'Datos incompletos' });
     }
 
-    const query = 'INSERT INTO foros (name, description, owner_id, created_at) VALUES ($1, $2, $3, $4) RETURNING id';
-    db.query(query, [name, description, ownerId, new Date().toISOString()], (err, result) => {
+    const checkQuery = 'SELECT id FROM foros WHERE name = $1';
+
+    db.query(checkQuery, [name], (err, result) => {
         if (err) {
-            console.error('Error al crear el foro:', err);
-            return res.status(500).json('Error al crear el foro');
+            console.error('Error al verificar el nombre del foro:', err);
+            return res.status(500).json({ error: 'Error interno del servidor' });
         }
 
-        res.status(201).json({ id: result.rows[0].id, name, description });
-        io.emit('reloadFG');
+        if (result.rows.length > 0) {
+            return res.status(400).json({ error: 'El nombre del foro ya está en uso' });
+        }
+
+        // Si el nombre no está en uso, procedemos a insertarlo
+        const insertQuery = 'INSERT INTO foros (name, description, owner_id, created_at) VALUES ($1, $2, $3, $4) RETURNING id';
+
+        db.query(insertQuery, [name, description, ownerId, new Date().toISOString()], (err, insertResult) => {
+            if (err) {
+                console.error('Error al crear el foro:', err);
+                return res.status(500).json({ error: 'Error al crear el foro' });
+            }
+
+            res.status(201).json({ id: insertResult.rows[0].id, name, description });
+            io.emit('reloadFG');
+        });
     });
 });
 
 app.get('/foros', (req, res) => {
     const query = `
-        SELECT id, name, description FROM foros ORDER BY name;
+        SELECT foros.id, foros.name, foros.description, users.username AS owner_name
+        FROM foros
+        JOIN users ON foros.owner_id = users.id
+        ORDER BY foros.name;
     `;
 
     db.query(query, (err, results) => {
@@ -451,7 +470,8 @@ app.get('/foros', (req, res) => {
         const foros = results.rows.map(foro => ({
             id: foro.id,
             name: foro.name,
-            description: foro.description
+            description: foro.description,
+            ownerName: foro.owner_name // Ahora tenemos el nombre del creador
         }));
 
         res.status(200).json(foros);
