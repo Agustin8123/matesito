@@ -57,28 +57,35 @@ db.connect()
     const { id, reaction } = req.params;
   
     try {
-      // Actualizar el contador en la base de datos
-      const result = await db.query(
-        'UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2 RETURNING count',
-        [id, reaction]
-      );
-  
-      if (result.rows.length === 0) {
-        // Si no existe, insertamos una nueva fila
-        await db.query(
-          'INSERT INTO reactions (id, reaction_id, count) VALUES ($1, $2, 1)',
-          [id, reaction]
-        ); 
-        return res.status(200).json({ value: 1 });
-      }
-  
-      res.status(200).json({ value: result.rows[0].count });
-      io.emit('reloadPosts');
+        // Intentamos actualizar el contador en la base de datos
+        const result = await db.query(
+            'UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2 RETURNING count',
+            [id, reaction]
+        );
+
+        let newCount;
+        
+        if (result.rows.length === 0) {
+            // Si no existía, insertamos una nueva fila
+            const insertResult = await db.query(
+                'INSERT INTO reactions (id, reaction_id, count) VALUES ($1, $2, 1) RETURNING count',
+                [id, reaction]
+            );
+            newCount = insertResult.rows[0].count;
+        } else {
+            newCount = result.rows[0].count;
+        }
+
+        // Emitimos el evento solo una vez, después de que se haya hecho un cambio
+        io.emit('reloadPosts');
+
+        res.status(200).json({ value: newCount });
+
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-  });
+});
 
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
