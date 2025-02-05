@@ -687,25 +687,23 @@ app.delete('/salir-grupo', async (req, res) => {
 app.get('/grupos-usuario/:userId', async (req, res) => {
     const { userId } = req.params;
 
-    // Validar que se proporcione el ID del usuario
     if (!userId) {
         return res.status(400).json({ error: 'El ID del usuario es requerido' });
     }
 
     try {
-        // Obtener los grupos a los que pertenece el usuario
         const gruposResult = await db.query(
             `
-            SELECT g.id, g.name, g.description, g.invite_code, g.created_at
+            SELECT g.id, g.name, g.description, g.invite_code, g.created_at, u.username AS owner_name
             FROM grupos g
             INNER JOIN participantes p ON g.id = p.forum_or_group_id
+            INNER JOIN usuarios u ON g.owner_id = u.id
             WHERE p.user_id = $1 AND p.is_group = TRUE
             ORDER BY g.created_at DESC
             `,
             [userId]
         );
 
-        // Devolver los grupos al cliente
         res.status(200).json(gruposResult.rows);
     } catch (error) {
         console.error('Error al obtener los grupos del usuario:', error);
