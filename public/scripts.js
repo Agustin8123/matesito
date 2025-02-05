@@ -608,7 +608,7 @@ function loadForos() {
     });
 }
 
-  function loadUserForums() {
+function loadUserForums() {
     const userId = users[activeUser].id;
 
     fetch(`https://matesito.onrender.com/userForums/${userId}`)
@@ -635,6 +635,7 @@ function loadForos() {
                         <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
                             <h2 style="margin-top: -5px;">${foro.name}</h2>
                             <p style="margin-top: -10px;">${foro.description}</p>
+                            <p style="font-size: 0.9em; color: gray;">Creado por: <strong>${foro.owner_name}</strong></p>
                             <label for="view-${uniqueId}" class="boton">Ver Foro</label>
                             <input type="radio" id="view-${uniqueId}" name="nav" style="display:none;" onclick="loadForumPosts(${foro.id})">
                             <label for="follow-${uniqueId}" class="boton">Dejar foro</label>
@@ -646,7 +647,6 @@ function loadForos() {
                 
                     container.appendChild(forumElement);
                 });
-                
             }
         })
         .catch(error => {
