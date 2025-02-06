@@ -697,7 +697,7 @@ app.get('/grupos-usuario/:userId', async (req, res) => {
             SELECT g.id, g.name, g.description, g.invite_code, g.created_at, u.username AS owner_name
             FROM grupos g
             INNER JOIN participantes p ON g.id = p.forum_or_group_id
-            INNER JOIN usuarios u ON g.owner_id = u.id
+            INNER JOIN users u ON g.owner_id = u.id
             WHERE p.user_id = $1 AND p.is_group = TRUE
             ORDER BY g.created_at DESC
             `,

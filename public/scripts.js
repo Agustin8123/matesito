@@ -867,6 +867,7 @@ function loadUserForums() {
                 alert('Error al enviar el mensaje');
             }
         } catch (error) {
+            document.getElementById('loading').style.display = 'none';
             console.error('Error al enviar el mensaje:', error);
             alert('Error al enviar el mensaje.');
         }
@@ -947,6 +948,7 @@ function loadUserForums() {
                 alert('Error al enviar el mensaje');
             }
         } catch (error) {
+            document.getElementById('loading').style.display = 'none';
             console.error('Error al enviar el mensaje:', error);
             alert('Error al enviar el mensaje.');
         }
@@ -1012,6 +1014,7 @@ function loadUserForums() {
                 alert('Mensaje enviado con éxito');
                 document.getElementById('loading').style.display = 'none';
             } else {
+                document.getElementById('loading').style.display = 'none';
                 alert('Error al enviar el mensaje');
             }
         } catch (error) {
