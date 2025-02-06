@@ -1762,7 +1762,7 @@ function loadUserGroups() {
 
                 <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
                     <label for="details-${groupId}" class="boton">Ver detalles</label>
-                    <input type="radio" id="details-${groupId}" name="nav" style="display:none;" onclick="toggleDetails('details-${groupId}', ${groupId})">
+                    <input type="radio" id="Details-${groupId}" name="nav" style="display:none;" onclick="toggleDetails('details-${groupId}', ${groupId})">
                     
                     <div id="details-${groupId}" style="display: none;">
                         <div id="GroupDetailsContainer-${groupId}">
@@ -1821,7 +1821,7 @@ function loadUserGroups() {
 
                     <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
                         <label for="details-${groupId}b" class="boton">Ver detalles</label>
-                        <input type="radio" id="details-${groupId}b" name="nav" style="display:none;" onclick="toggleDetails1('details-${groupId}', ${groupId})">
+                        <input type="radio" id="Details-${groupId}b" name="nav" style="display:none;" onclick="toggleDetails1('details-${groupId}', ${groupId})">
                         
                         <div id="details-${groupId}" style="display: none;">
                             <div id="GroupDetailsContainer-${groupId}">
