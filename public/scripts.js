@@ -1756,7 +1756,7 @@ function loadUserGroups() {
                     const groupName = group.name;
                     const ownerId = group.owner_id; // ID del creador
 
-                    fetch(`https://matesito.onrender.com/usuario/${ownerId}`) // Obtener info del creador
+                    fetch(`https://matesito.onrender.com/grupos-usuario/:userId`) // Obtener info del creador
                         .then(response => response.json())
                         .then(owner => {
                             const ownerName = owner.name; // Suponiendo que la API devuelve { name: "..." }
