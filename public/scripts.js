@@ -857,18 +857,18 @@ function loadUserForums() {
     
             if (response.ok) {
                 const responseData = await response.json();
+                lastMessageContent = responseData.content;  // Actualizar la variable global
                 document.getElementById('postContent').value = '';
-                if (fileInput) fileInput.value = '';
+                fileInput.value = ''; // Limpiar input de archivos
+                document.getElementById('loading').style.display = 'none';
                 alert('Mensaje enviado con éxito');
-                document.getElementById('loading').style.display = 'none';
             } else {
-                alert('Error al enviar el mensaje');
                 document.getElementById('loading').style.display = 'none';
+                alert('Error al enviar el mensaje');
             }
         } catch (error) {
             console.error('Error al enviar el mensaje:', error);
             alert('Error al enviar el mensaje.');
-            document.getElementById('loading').style.display = 'none';
         }
     }    
 
@@ -925,9 +925,9 @@ function loadUserForums() {
                 return;
             }
         }
-    
-        document.getElementById('loading').style.display = 'block';
 
+        document.getElementById('loading').style.display = 'block';
+    
         try {
             const response = await fetch(`https://matesito.onrender.com/mensajes/${chatId}`, {
                 method: 'POST',
@@ -937,18 +937,18 @@ function loadUserForums() {
     
             if (response.ok) {
                 const responseData = await response.json();
+                lastMessageContent = responseData.content;
                 document.getElementById('postContent').value = '';
                 if (fileInput) fileInput.value = '';
+                document.getElementById('loading').style.display = 'none';
                 alert('Mensaje enviado con éxito');
-                document.getElementById('loading').style.display = 'none';
             } else {
-                alert('Error al enviar el mensaje');
                 document.getElementById('loading').style.display = 'none';
+                alert('Error al enviar el mensaje');
             }
         } catch (error) {
             console.error('Error al enviar el mensaje:', error);
             alert('Error al enviar el mensaje.');
-            document.getElementById('loading').style.display = 'none';
         }
     }
     
@@ -1013,15 +1013,16 @@ function loadUserForums() {
                 document.getElementById('loading').style.display = 'none';
             } else {
                 alert('Error al enviar el mensaje');
-                document.getElementById('loading').style.display = 'none';
             }
         } catch (error) {
             console.error('Error al enviar el mensaje:', error);
             alert('Error al enviar el mensaje.');
             document.getElementById('loading').style.display = 'none';
-        }  
+        }
+        
     }
     
+
       function postpost() {
         const postContent = document.getElementById('postContent').value;
         const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
