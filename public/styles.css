@@ -618,7 +618,7 @@
         border-radius: 50%;
         width: 20px;
         height: 20px;
-        position: fixed;
+        position: absolute; /* Cambiado a absolute */
         top: 7%; /* Ajusta este valor para moverlo más arriba */
         left: 50%;
         transform: translate(-50%, -50%);
