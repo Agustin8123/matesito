@@ -499,8 +499,6 @@ function createForum() {
     })
     .then(data => {
         alert(data.message);
-        // Opcional: Actualizar la interfaz después de salir del grupo
-        document.getElementById(`menu-${groupId}`).style.display = 'none'; // Esconde el menú del grupo
     })
     .catch(error => {
         alert(`Error: ${error.message}`);
@@ -757,8 +755,8 @@ function loadUserForums() {
 
             // Validar tamaño de archivo
             if (
-                (fileCategory === 'image' || fileCategory === 'audio') && fileSize > 6 * 1024 * 1024 ||
-                fileCategory === 'video' && fileSize > 10 * 1024 * 1024
+                (fileCategory === 'image' || fileCategory === 'audio') && fileSize > 10 * 1024 * 1024 ||
+                fileCategory === 'video' && fileSize > 20 * 1024 * 1024
             ) {
                 alert("El archivo seleccionado excede el tamaño máximo permitido.");
                 selectedFile = null;
@@ -847,6 +845,8 @@ function loadUserForums() {
             }
         }
     
+        document.getElementById('loading').style.display = 'block';
+
         try {
             // Enviar el mensaje al servidor
             const response = await fetch(`https://matesito.onrender.com/mensajes/${forumId}`, {
@@ -857,16 +857,18 @@ function loadUserForums() {
     
             if (response.ok) {
                 const responseData = await response.json();
-                lastMessageContent = responseData.content;  // Actualizar la variable global
                 document.getElementById('postContent').value = '';
-                fileInput.value = ''; // Limpiar input de archivos
+                if (fileInput) fileInput.value = '';
                 alert('Mensaje enviado con éxito');
+                document.getElementById('loading').style.display = 'none';
             } else {
                 alert('Error al enviar el mensaje');
+                document.getElementById('loading').style.display = 'none';
             }
         } catch (error) {
             console.error('Error al enviar el mensaje:', error);
             alert('Error al enviar el mensaje.');
+            document.getElementById('loading').style.display = 'none';
         }
     }    
 
@@ -924,6 +926,8 @@ function loadUserForums() {
             }
         }
     
+        document.getElementById('loading').style.display = 'block';
+
         try {
             const response = await fetch(`https://matesito.onrender.com/mensajes/${chatId}`, {
                 method: 'POST',
@@ -933,16 +937,18 @@ function loadUserForums() {
     
             if (response.ok) {
                 const responseData = await response.json();
-                lastMessageContent = responseData.content;
                 document.getElementById('postContent').value = '';
                 if (fileInput) fileInput.value = '';
                 alert('Mensaje enviado con éxito');
+                document.getElementById('loading').style.display = 'none';
             } else {
                 alert('Error al enviar el mensaje');
+                document.getElementById('loading').style.display = 'none';
             }
         } catch (error) {
             console.error('Error al enviar el mensaje:', error);
             alert('Error al enviar el mensaje.');
+            document.getElementById('loading').style.display = 'none';
         }
     }
     
@@ -990,6 +996,8 @@ function loadUserForums() {
             mediaType,
         };
     
+        document.getElementById('loading').style.display = 'block';
+
         try {
             const response = await fetch(`https://matesito.onrender.com/group/messages/${groupId}`, {
                 method: 'POST',
@@ -1002,16 +1010,18 @@ function loadUserForums() {
                 document.getElementById('postContent').value = '';
                 if (fileInput) fileInput.value = '';
                 alert('Mensaje enviado con éxito');
+                document.getElementById('loading').style.display = 'none';
             } else {
                 alert('Error al enviar el mensaje');
+                document.getElementById('loading').style.display = 'none';
             }
         } catch (error) {
             console.error('Error al enviar el mensaje:', error);
             alert('Error al enviar el mensaje.');
-        }
+            document.getElementById('loading').style.display = 'none';
+        }  
     }
     
-
       function postpost() {
         const postContent = document.getElementById('postContent').value;
         const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
