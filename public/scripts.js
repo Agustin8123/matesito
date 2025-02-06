@@ -1761,8 +1761,8 @@ function loadUserGroups() {
                 <input type="radio" id="radio-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('menu-${groupId}')">
 
                 <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
-                    <label for="details-${groupId}" class="boton">Ver detalles</label>
-                    <input type="radio" id="Details-${groupId}" name="nav" style="display:none;" onclick="toggleDetails('details-${groupId}', ${groupId})">
+                    <label for="dDetailS-${groupId}" class="boton">Ver detalles</label>
+                    <input type="radio" id="dDetailS-${groupId}" name="nav" style="display:none;" onclick="toggleDetails('details-${groupId}', ${groupId})">
                     
                     <div id="details-${groupId}" style="display: none;">
                         <div id="GroupDetailsContainer-${groupId}">
