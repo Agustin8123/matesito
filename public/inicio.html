@@ -143,39 +143,34 @@
             <button id="userButton" onclick="toggleMenu()">Seleccionar Usuario</button>
 
             <div class="dropdown-menu" id="dropdownMenu">
-                <label for="Cambiar usuario" class="boton" onclick="toggleSubMenu2()">Usuario</label>
+                <!-- Botón Usuario -->
+                <label class="boton" onclick="toggleSubMenu2()">Usuario</label>
                 <div class="dropdown-menu" id="subMenu2" style="display: none; position: absolute; left: 172px; margin-top: -41px;">
-                    <label for="configuración de la cuenta" class="boton">configuración de la cuenta</label>
-                    <input type="radio" id="configuración de la cuenta" name="nav" style="display:none;" onclick="location.href='cuenta.html'">
+                    <label class="boton" onclick="location.href='cuenta.html'">Configuración de la cuenta</label>
                     
-                    <label for="Cerrar sesión" class="boton">Cerrar sesión</label>
-                    <input type="radio" id="Cerrar sesión" name="nav" style="display:none;" onclick="showUserSelectOverlay(); toggleMenu(); toggleSubMenu2();">
-
-                    <label for="Volver1" class="botonV">Volver</label>
-                    <input type="radio" id="Volver1" name="nav" style="display:none;" onclick="toggleSubMenu2()">
+                    <label class="boton" onclick="showUserSelectOverlay(); toggleMenu(); toggleSubMenu2();">Cerrar sesión</label>
+            
+                    <label class="botonV" onclick="toggleSubMenu2()">Volver</label>
                 </div>
-                
-                <label for="acercade" class="boton">Acerca de...</label>
-                <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='informacion.html'">
-
-                <label for="Otros" class="boton" onclick="toggleSubMenu()">Otros</label>
+            
+                <!-- Botón Acerca de -->
+                <label class="boton" onclick="location.href='informacion.html'">Acerca de...</label>
+            
+                <!-- Botón Otros -->
+                <label class="boton" onclick="toggleSubMenu()">Otros</label>
                 <div class="dropdown-menu" id="subMenu" style="display: none; position: absolute; left: 171px; margin-top: -82px;">
-                    <label for="Politicas" class="boton">Políticas</label>
-                    <input type="radio" id="Politicas" name="nav" style="display:none;" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">
-
-                    <label for="versiones" class="boton">Versiones</label>
-                    <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='vers.html'">
-
-                    <label for="Ayuda" class="boton">Ayuda</label>
-                    <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="HelpAlert()">
-
-                    <label for="Volver" class="botonV">Volver</label>
-                    <input type="radio" id="Volver" name="nav" style="display:none;" onclick="toggleSubMenu()">
+                    <label class="boton" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">Políticas</label>
+            
+                    <label class="boton" onclick="location.href='vers.html'">Versiones</label>
+            
+                    <label class="boton" onclick="HelpAlert()">Ayuda</label>
+            
+                    <label class="botonV" onclick="toggleSubMenu()">Volver</label>
                 </div>
-                <label for="Cerrar" class="botonV">Cerrar</label>
-                <input type="radio" id="Cerrar" name="nav" style="display:none;" onclick="toggleMenu()">
-            </div>
-        </div>
+            
+                <!-- Botón Cerrar -->
+                <label class="botonV" onclick="toggleMenu()">Cerrar</label>
+            </div>            
     </div>
 
     <div class="container" id="appContainer">
