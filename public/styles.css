@@ -26,21 +26,25 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
+        
+        /* Caja de publicación */
         .post-box {
             display: flex;
             flex-direction: column;
             margin-bottom: 15px;
         }
+        
         .post-box textarea {
             width: 100%;
-            padding: -1px;
+            padding: 10px;
             border: 1px solid #333;
             border-radius: 10px;
             resize: none;
             background-color: #ffffff;
         }
+        
         .post-box button {
-            background-color: #ffffff; /* Color bordó */
+            background-color: #ffffff;
             color: #800020;
             border: none;
             padding: 10px;
@@ -48,14 +52,33 @@
             cursor: pointer;
             margin-top: 15px;
         }
+        
+        /* Contenedor de publicaciones con límite de altura y scroll */
         .posts {
             list-style: none;
             padding: 0;
-        }
-        .post {
-            padding: 10px 0;
+            max-height: 250px; /* Altura máxima antes de que aparezca el scroll */
+            overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
+            overflow-x: hidden; /* Evita el desplazamiento horizontal */
+            background-color: #fff;
             border-radius: 10px;
+            padding: 10px;
         }
+        
+        /* Cada publicación */
+        .post {
+            padding: 10px;
+            border-bottom: 1px solid #ddd; /* Línea divisoria entre posts */
+            border-radius: 5px;
+            background-color: #f5f5f5;
+            margin-bottom: 10px;
+        }
+        
+        /* Último post sin línea inferior */
+        .post:last-child {
+            border-bottom: none;
+        }
+        
         .post-cotent {
             font-weight: normal;
             margin-right: 5px;
@@ -446,7 +469,8 @@
         #searchconteiner {
             display: flex;
             flex-direction: column; /* Acomoda los elementos en columna */
-            width: 230px; /* Ancho fijo */
+            border-top: 5px;
+            width: 220px; /* Ancho fijo */
             max-height: 200px; /* Altura máxima antes del scroll */
             overflow-y: auto; /* Activa la barra de desplazamiento vertical */
             overflow-x: hidden; /* Evita desplazamiento horizontal */
