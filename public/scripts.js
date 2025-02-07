@@ -1157,6 +1157,8 @@ let showSensitiveContent = false;
         loadGroupMessages(activeGroup, loadAll);
         groupMessageList.innerHTML = '';
     }
+
+    scrollToBottom();
 }
 
 // Función para alternar la configuración de contenido sensible
@@ -1947,7 +1949,15 @@ function loadUserGroups() {
     toggleVisibility('postList');
     }
 
+    function scrollToBottom() {
+        let containers = document.querySelectorAll(".posts");
+        containers.forEach(container => {
+            container.scrollTop = container.scrollHeight;
+        });
+    }
+    
 // Llamar a loadposts al cargar    página
 window.onload = verMant(mantenimiento);
 checkRememberedUser();
 window.onload = init();
+window.onload = scrollToBottom();
