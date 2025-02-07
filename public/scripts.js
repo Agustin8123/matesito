@@ -1157,9 +1157,6 @@ let showSensitiveContent = false;
         loadGroupMessages(activeGroup, loadAll);
         groupMessageList.innerHTML = '';
     }
-
-    wait(500);
-    scrollToBottom();
 }
 
 // Función para alternar la configuración de contenido sensible
@@ -1565,6 +1562,8 @@ let showSensitiveContent = false;
     }
 
     postList.insertBefore(newpost, postList.firstChild);
+
+    scrollToBottom();
 }
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
@@ -1961,5 +1960,3 @@ function loadUserGroups() {
 window.onload = verMant(mantenimiento);
 checkRememberedUser();
 window.onload = init();
-wait(1000);
-window.onload = scrollToBottom();
