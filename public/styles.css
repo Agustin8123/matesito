@@ -446,27 +446,31 @@
         .SearchContainer {
             display: flex;
             flex-direction: column; /* Para apilar los resultados en vertical */
-            max-width: 230px;
+            width: 230px; /* Fijar ancho exacto */
             max-height: 200px; /* Altura máxima antes del scroll */
+            height: 200px; /* Fijar la altura para que el scroll se active */
             overflow-y: auto; /* Activa la barra de desplazamiento vertical */
             overflow-x: hidden; /* Evita el desplazamiento horizontal */
             padding: 5px; /* Espaciado interno */
             border-radius: 5px; /* Bordes redondeados */
-            background-color: #333; /* Fondo blanco para visibilidad */
+            background-color: #333; /* Fondo oscuro */
+            border: 1px solid #555; /* Borde sutil para visibilidad */
         }
         
         /* Estilos de cada elemento dentro del contenedor */
         .SearchContainer .forum-item {
             cursor: pointer;
             transition: all 0.2s ease;
-            padding: 5px; /* Espaciado interno */
+            padding: 10px; /* Espaciado interno */
             background-color: #3f3f3f; /* Fondo de cada elemento */
-            border-bottom: 1px solid #ddd; /* Separación entre elementos */
+            border-bottom: 1px solid #555; /* Separación entre elementos */
+            color: white; /* Texto blanco para contraste */
         }
         
+        /* Efecto hover */
         .SearchContainer .forum-item:hover {
-            background-color: #f0f0f0; /* Efecto al pasar el mouse */
-        }
+            background-color: #444; /* Color al pasar el mouse */
+        }        
         
         /* Ajustes a los usuarios */
         .user-item {
