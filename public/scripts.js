@@ -1158,6 +1158,7 @@ let showSensitiveContent = false;
         groupMessageList.innerHTML = '';
     }
 
+    wait(300);
     scrollToBottom();
 }
 
@@ -1960,4 +1961,5 @@ function loadUserGroups() {
 window.onload = verMant(mantenimiento);
 checkRememberedUser();
 window.onload = init();
+wait(300);
 window.onload = scrollToBottom();
