@@ -26,6 +26,25 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
+
+        /* Personalización de la barra de desplazamiento */
+        .posts::-webkit-scrollbar {
+            width: 8px; /* Grosor de la barra */
+        }
+
+        .posts::-webkit-scrollbar-track {
+            background: #ddd; /* Color del fondo de la barra */
+            border-radius: 10px; /* Bordes redondeados */
+        }
+
+        .posts::-webkit-scrollbar-thumb {
+            background: #888; /* Color de la barra */
+            border-radius: 10px; /* Bordes redondeados */
+        }
+
+        .posts::-webkit-scrollbar-thumb:hover {
+            background: #555; /* Color cuando pasas el mouse */
+        }
         
         /* Caja de publicación */
         .post-box {
@@ -60,7 +79,7 @@
             max-height: 250px; /* Altura máxima antes de que aparezca el scroll */
             overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
             overflow-x: hidden; /* Evita el desplazamiento horizontal */
-            background-color: #fff;
+            background-color: #ffffff00;
             border-radius: 10px;
             padding: 10px;
         }
