@@ -456,25 +456,14 @@
             border: 1px solid #555; /* Borde sutil para visibilidad */
         }
         
-        /* Estilos de los elementos dentro del contenedor */
-        /* Asegura que cada foro/usuario tenga un tamaño adecuado */
-        #searchconteiner .forum-item {
-            cursor: pointer;
-            padding: 8px; /* Espaciado interno */
-            background-color: #3f3f3f; /* Fondo de cada elemento */
-            border-bottom: 1px solid #555; /* Separación entre elementos */
-            color: white; /* Texto blanco */
-            width: 100%; /* Ajusta el ancho al 100% del contenedor */
-            box-sizing: border-box; /* Evita que padding aumente el tamaño */
-            white-space: nowrap; /* Evita que los nombres largos se corten en varias líneas */
-            overflow: hidden;
-            text-overflow: ellipsis; /* Agrega "..." si el texto es muy largo */
+        .SearchContainer.forum-item {
+            cursor: pointer; /* Cambiar el cursor a pointer */
+            transition: all 0.2s ease; /* Animación suave */
         }
-
-        #searchconteiner .forum-item:hover {
-            background-color: #444; /* Efecto al pasar el mouse */
+        
+        .SearchContainer.forum-item:hover {
+            text-decoration: underline; /* Subrayar al pasar el mouse */
         }
-
         /* Asegura que el nombre del foro sea visible y tenga espacio suficiente */
         .forum-name {
             font-size: 14px;
