@@ -457,6 +457,7 @@
         }
         
         /* Estilos de los elementos dentro del contenedor */
+        /* Asegura que cada foro/usuario tenga un tamaño adecuado */
         #searchconteiner .forum-item {
             cursor: pointer;
             padding: 8px; /* Espaciado interno */
@@ -469,12 +470,17 @@
             overflow: hidden;
             text-overflow: ellipsis; /* Agrega "..." si el texto es muy largo */
         }
-        
-        /* Efecto hover */
+
         #searchconteiner .forum-item:hover {
-            background-color: #444; /* Color al pasar el mouse */
-        }               
-        
+            background-color: #444; /* Efecto al pasar el mouse */
+        }
+
+        /* Asegura que el nombre del foro sea visible y tenga espacio suficiente */
+        .forum-name {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
         /* Ajustes a los usuarios */
         .user-item {
             display: flex;
@@ -486,15 +492,7 @@
             width: 100%;
             margin: 5px auto;
         }
-        
-        /* Imagen de perfil */
-        .profile-picture {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        
+
         /* Texto del nombre de usuario */
         .username {
             font-size: 14px;
