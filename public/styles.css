@@ -619,6 +619,7 @@
         width: 20px;
         height: 20px;
         position: absolute; /* Cambiado a absolute */
+        z-index: 9999;
         top: 7%; /* Ajusta este valor para moverlo más arriba */
         left: 50%;
         transform: translate(-50%, -50%);
