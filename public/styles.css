@@ -33,17 +33,17 @@
         }
 
         .posts::-webkit-scrollbar-track {
-            background: #ddd; /* Color del fondo de la barra */
+            background: #fff; /* Color del fondo de la barra */
             border-radius: 10px; /* Bordes redondeados */
         }
 
         .posts::-webkit-scrollbar-thumb {
-            background: #888; /* Color de la barra */
+            background: #333; /* Color de la barra */
             border-radius: 10px; /* Bordes redondeados */
         }
 
         .posts::-webkit-scrollbar-thumb:hover {
-            background: #555; /* Color cuando pasas el mouse */
+            background: #3f3f3f; /* Color cuando pasas el mouse */
         }
         
         /* Caja de publicación */
