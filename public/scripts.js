@@ -830,6 +830,9 @@ function loadUserForums() {
                     method: 'POST',
                     body: formData,
                 });
+
+                document.getElementById('loading').style.display = 'block';
+
                 const uploadData = await uploadResponse.json();
                 media = uploadData.secure_url;
                 mediaType = file.type;
@@ -909,6 +912,8 @@ function loadUserForums() {
             formData.append("file", file);
             formData.append("upload_preset", "matesito"); // Agregado para Cloudinary
     
+            document.getElementById('loading').style.display = 'block';
+
             try {
                 const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
                     method: 'POST',
@@ -974,6 +979,8 @@ function loadUserForums() {
             formData.append("file", file);
             formData.append("upload_preset", "matesito"); // Agregado para Cloudinary
     
+            document.getElementById('loading').style.display = 'block';
+
             try {
                 const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
                     method: 'POST',
