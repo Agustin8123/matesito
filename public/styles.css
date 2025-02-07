@@ -446,8 +446,12 @@
         .SearchContainer {
             display: flex;
             max-width: 230px;
+            max-height: 200px; /* Altura máxima antes de que aparezca el scroll */
+            overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
             height: auto;
             word-wrap: break-word;
+            padding: 5px; /* Espaciado interno */
+            border-radius: 5px; /* Bordes redondeados */
         }
 
         .SearchContainer.forum-item {
