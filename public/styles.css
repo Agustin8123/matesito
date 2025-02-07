@@ -444,49 +444,56 @@
         }
 
         .SearchContainer {
-            display: flex;
             max-width: 230px;
             max-height: 200px; /* Altura máxima antes de que aparezca el scroll */
             overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
+            overflow-x: hidden; /* Evita el desplazamiento horizontal */
             height: auto;
-            word-wrap: break-word;
             padding: 5px; /* Espaciado interno */
             border-radius: 5px; /* Bordes redondeados */
-        }
-
-        .SearchContainer.forum-item {
-            cursor: pointer; /* Cambiar el cursor a pointer */
-            transition: all 0.2s ease; /* Animación suave */
+            background-color: white; /* Fondo blanco para mejor visibilidad */
+            border: 1px solid #ccc; /* Borde para distinguir el contenedor */
         }
         
-        .SearchContainer.forum-item:hover {
+        /* Asegurar que los elementos dentro no afecten el scroll */
+        .SearchContainer .forum-item {
+            cursor: pointer; /* Cambiar el cursor a pointer */
+            transition: all 0.2s ease; /* Animación suave */
+            padding: 5px; /* Espaciado interno para separar elementos */
+        }
+        
+        .SearchContainer .forum-item:hover {
             text-decoration: underline; /* Subrayar al pasar el mouse */
         }
         
-
+        /* Ajustes a los usuarios */
         .user-item {
-            display: flex; /* Activa el modo flexbox */
-            flex-direction: column; /* Alinea elementos en una columna */
-            align-items: center; /* Centra verticalmente */
-            justify-content: center; /* Centra horizontalmente */
-            gap: 5px; /* Espaciado entre imagen y texto */
-            text-align: center; /* Asegura que el texto esté centrado */
-            width: 100px; /* Ajusta el ancho para mantener coherencia */
-            margin: 5px auto; /* Espaciado alrededor de cada usuario */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            text-align: center;
+            width: 100%;
+            margin: 5px auto;
         }
         
+        /* Imagen de perfil */
         .profile-picture {
-            width: 50px; /* Tamaño de la imagen */
-            height: 50px; /* Asegúrate de que sea cuadrada */
-            border-radius: 50%; /* Hace que la imagen sea circular */
-            object-fit: cover; /* Ajusta la imagen sin deformarla */
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
         }
         
+        /* Texto del nombre de usuario */
         .username {
-            font-size: 14px; /* Ajusta el tamaño del texto */
-            word-wrap: break-word; /* Ajusta texto largo para que no se salga */
-        }
-        
+            font-size: 14px;
+            overflow-wrap: break-word; /* Permite que los nombres largos se dividan en varias líneas */
+            word-break: break-word;
+            text-align: center;
+            max-width: 100%; /* Asegura que no se salga del contenedor */
+        }        
 
         .profile-picture {
             width: 40px;
