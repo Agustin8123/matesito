@@ -443,34 +443,37 @@
             margin-top: 5px;
         }
 
-        .SearchContainer {
+        #searchconteiner {
             display: flex;
-            flex-direction: column; /* Para apilar los resultados en vertical */
-            width: 230px; /* Fijar ancho exacto */
+            flex-direction: column; /* Acomoda los elementos en columna */
+            width: 230px; /* Ancho fijo */
             max-height: 200px; /* Altura máxima antes del scroll */
-            height: 200px; /* Fijar la altura para que el scroll se active */
             overflow-y: auto; /* Activa la barra de desplazamiento vertical */
-            overflow-x: hidden; /* Evita el desplazamiento horizontal */
+            overflow-x: hidden; /* Evita desplazamiento horizontal */
             padding: 5px; /* Espaciado interno */
             border-radius: 5px; /* Bordes redondeados */
             background-color: #333; /* Fondo oscuro */
             border: 1px solid #555; /* Borde sutil para visibilidad */
         }
         
-        /* Estilos de cada elemento dentro del contenedor */
-        .SearchContainer .forum-item {
+        /* Estilos de los elementos dentro del contenedor */
+        #searchconteiner .forum-item {
             cursor: pointer;
-            transition: all 0.2s ease;
-            padding: 10px; /* Espaciado interno */
+            padding: 8px; /* Espaciado interno */
             background-color: #3f3f3f; /* Fondo de cada elemento */
             border-bottom: 1px solid #555; /* Separación entre elementos */
-            color: white; /* Texto blanco para contraste */
+            color: white; /* Texto blanco */
+            width: 100%; /* Ajusta el ancho al 100% del contenedor */
+            box-sizing: border-box; /* Evita que padding aumente el tamaño */
+            white-space: nowrap; /* Evita que los nombres largos se corten en varias líneas */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Agrega "..." si el texto es muy largo */
         }
         
         /* Efecto hover */
-        .SearchContainer .forum-item:hover {
+        #searchconteiner .forum-item:hover {
             background-color: #444; /* Color al pasar el mouse */
-        }        
+        }               
         
         /* Ajustes a los usuarios */
         .user-item {
