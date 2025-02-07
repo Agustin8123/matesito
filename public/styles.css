@@ -444,26 +444,28 @@
         }
 
         .SearchContainer {
+            display: flex;
+            flex-direction: column; /* Para apilar los resultados en vertical */
             max-width: 230px;
-            max-height: 200px; /* Altura máxima antes de que aparezca el scroll */
-            overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
+            max-height: 200px; /* Altura máxima antes del scroll */
+            overflow-y: auto; /* Activa la barra de desplazamiento vertical */
             overflow-x: hidden; /* Evita el desplazamiento horizontal */
-            height: auto;
             padding: 5px; /* Espaciado interno */
             border-radius: 5px; /* Bordes redondeados */
-            background-color: white; /* Fondo blanco para mejor visibilidad */
-            border: 1px solid #ccc; /* Borde para distinguir el contenedor */
+            background-color: #333; /* Fondo blanco para visibilidad */
         }
         
-        /* Asegurar que los elementos dentro no afecten el scroll */
+        /* Estilos de cada elemento dentro del contenedor */
         .SearchContainer .forum-item {
-            cursor: pointer; /* Cambiar el cursor a pointer */
-            transition: all 0.2s ease; /* Animación suave */
-            padding: 5px; /* Espaciado interno para separar elementos */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 5px; /* Espaciado interno */
+            background-color: #3f3f3f; /* Fondo de cada elemento */
+            border-bottom: 1px solid #ddd; /* Separación entre elementos */
         }
         
         .SearchContainer .forum-item:hover {
-            text-decoration: underline; /* Subrayar al pasar el mouse */
+            background-color: #f0f0f0; /* Efecto al pasar el mouse */
         }
         
         /* Ajustes a los usuarios */
@@ -493,8 +495,8 @@
             word-break: break-word;
             text-align: center;
             max-width: 100%; /* Asegura que no se salga del contenedor */
-        }        
-
+        }
+        
         .profile-picture {
             width: 40px;
             height: 40px;
