@@ -66,7 +66,7 @@
     });
 
     function reloadPosts(){
-        loadposts(loadAll);
+        buttonsState();
     } 
 
     function reloadFG(){
@@ -1451,6 +1451,8 @@ let showSensitiveContent = false;
 function toggleOrden(button) {
     invertirOrden = !invertirOrden;
     button.textContent = invertirOrden ? 'Más nuevos abajo' : 'Más nuevos arriba';
+
+    reloadPosts();
 }
 
 function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId, invertirOrden) {
@@ -1966,10 +1968,9 @@ function loadUserGroups() {
     function scrollToBottom() {
         let containers = document.querySelectorAll(".posts");
         containers.forEach(container => {
-            container.scrollTop = container.scrollHeight;
+            container.scrollTop = invertirOrden ? container.scrollHeight : 0;
         });
-    }
-    
+    }    
 // Llamar a loadposts al cargar    página
 window.onload = verMant(mantenimiento);
 checkRememberedUser();
