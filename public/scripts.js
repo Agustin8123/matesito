@@ -15,6 +15,7 @@
 
     let selectedFile = null;
     let loadAll = false;
+    let invertirOrden = true;
 
     function ToggleVisibility(elementId) {
         const element = document.getElementById(elementId);
@@ -1218,7 +1219,7 @@ let showSensitiveContent = false;
 
                 if (content && username) {
                     // Ahora estamos pasando postId a la función
-                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, 'postList');
+                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, 'postList', invertirOrden);
                 } else {
                     console.warn('Post inválido omitido:', post);
                 }
@@ -1315,7 +1316,8 @@ let showSensitiveContent = false;
                     createdAt,
                     userId,
                     messageId,
-                    'messageList'
+                    'messageList', 
+                    invertirOrden
                 );
             });
         })
@@ -1376,7 +1378,8 @@ let showSensitiveContent = false;
                     createdAt,
                     userId,
                     messageId,
-                    'groupMessageList'
+                    'groupMessageList', 
+                    invertirOrden
                 );
             });
         })
@@ -1435,7 +1438,8 @@ let showSensitiveContent = false;
                     createdAt,
                     userId,
                     postId,
-                    'forumList'
+                    'forumList', 
+                    invertirOrden
                 );
             });
         })
@@ -1444,7 +1448,12 @@ let showSensitiveContent = false;
         });
 }
 
-  function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId) {
+function toggleOrden(button) {
+    invertirOrden = !invertirOrden;
+    button.textContent = invertirOrden ? 'Más nuevos abajo' : 'Más nuevos arriba';
+}
+
+function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId, invertirOrden) {
     const postList = document.getElementById(listId);
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
@@ -1561,7 +1570,12 @@ let showSensitiveContent = false;
         }
     }
 
-    postList.insertBefore(newpost, postList.firstChild);
+    // Agregar post al inicio o al final según la variable invertirOrden
+    if (invertirOrden) {
+        postList.insertBefore(newpost, postList.firstChild); // Añadir al inicio
+    } else {
+        postList.appendChild(newpost); // Añadir al final
+    }
 
     scrollToBottom();
 }
@@ -1622,7 +1636,7 @@ let showSensitiveContent = false;
                 // Filtrar contenido sensible si es necesario
                 if (!showSensitiveContent && sensitive === true) return;
                 if (content && username) {
-                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, 'profileList');
+                    addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, 'profileList', invertirOrden);
                 }
             });
         })

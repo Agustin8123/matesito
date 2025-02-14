@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Información</title>
+    <title>Ayuda</title>
     <link rel="icon" href="matesito-logo.png" type="image/png">
     <style>
         body {
@@ -150,8 +150,8 @@
                 <label for="versiones" class="button">Versiones</label>
                 <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='vers.html'">
 
-                <label for="Ayuda" class="button">Ayuda</label>
-                <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
+                <label for="acercade" class="button">Acerca de...</label>
+                <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='informacion.html'">
             </div>
 
             
@@ -160,45 +160,38 @@
 
     <div class="content" style="transform: translateX(20px);">
         <div class="version-box">
-            <h1>Sobre Matesito...</h1>
+            <h1 style="text-align: center;">¿Necesitas ayuda?</h1><br>
+            <h2>Quiero borrar un post, mensaje o cuenta</h2>
             <p>
-                hola, me llamo Agustin Coutte (Agustin8 para los amigos) y soy el creador y unico desarrollador de Matesito. Matesito surgió como una idea loca, un día simplemente pensé: "¿Será muy dificil hacer una red social?"
-                y acto seguido empecé a hacer una para responderme mi pregunta.<br>
-                Tengo que reconocer que fue mucho más difícil de lo que imaginaba. Pero, después de un largo tiempo, lo logré. Matesito es un proyecto al que le tengo un cariño especial, y aunque ahora mismo casi nadie lo conoce,
-                tengo la esperanza de que con el tiempo se forme una comunidad, aunque sea pequeña, que lo valore tanto como yo.<br>
-                Por ahora no tengo pensado dejar de actualizar matesito, tengo muchas ideas que quiero implementar, y estoy emocionado por hacerlo. No se si voy a poder hacer realidad todo, pero no lo pienso abandonar hasta que me sienta satisfecho.
+                Actualmente, Matesito no tiene estas opciones en la página, pero serán añadidas en un futuro no muy lejano. 
+                Mientras tanto, si deseas borrar algo puedes pedirlo al correo de soporte "matesito.soporte@gmail.com".
+            </p>
+            <h2>Olvidé mi contraseña y/o usuario</h2>
+            <p>
+                Debido a que Matesito no le pide a los usuarios su correo electrónico, no hay forma de que el usuario 
+                pueda por sí mismo recuperar su cuenta. Por esto, existen dos opciones:<br>
+                * Puedes simplemente crear otra cuenta.<br>
+                * Si realmente deseas recuperar tu cuenta existente, debes contactar al correo de soporte "matesito.soporte@gmail.com" 
+                adjuntando pruebas suficientes de que eres el legítimo dueño de esa cuenta.
+            </p>  
+            <h2>Quiero reportar un usuario o contenido</h2>
+            <p>
+                Si encontraste algo que crees que no debería estar en Matesito, puedes enviar un correo a "matesito.soporte@gmail.com" 
+                con una descripción del contenido y dónde se encuentra. El administrador tomará las acciones que se crean necesarias, 
+                y se te enviará una respuesta indicando qué acciones se tomaron, por qué se tomaron y un agradecimiento por contribuir 
+                a que Matesito sea algo bueno para todos.
+            </p>
+            <h2>Encontré un bug o error en la plataforma</h2>
+            <p>
+                Cualquier bug o error que encuentres, Matesito te agradecerá infinitamente si lo reportas al correo de soporte "matesito.soporte@gmail.com" con una descripción
+                del problema. De esta forma estás haciendo que el trabajo de desarrollo sea más fácil y rápido, además de que mejorarás la experiencia del resto de personas 
+                que usan Matesito.
+            </p>
+            <h2>Aclaraciones</h2>
+            <p>
+                Nunca compartas las credenciales de tu cuenta con nadie. Nadie, sea o no parte del equipo de Matesito, debe pedirte tu usuario o contraseña. Si alguien lo hace, avisa 
+                inmediatamente al correo de soporte "matesito.soporte@gmail.com".
                 <br><br>
-                Tengo un canal de difusión de WhatsApp en el que voy publicandoo novedades sobre Matesito, cosas las nuevas actualizaciones, avisos de mantenimiento y comunicados especiales. Puedes unirte a el canal mendiante este link o este codigo QR:<br>
-                <a href="https://whatsapp.com/channel/0029VauaHTO6xCSY8fonqp3q" 
-                    style="color: #9c0e31; text-decoration: underline; cursor: pointer; display: block; text-align: center; margin-top: 10px;" 
-                    target="_blank">
-                    https://whatsapp.com/channel/0029VauaHTO6xCSY8fonqp3q
-                </a>
-
-                
-                <img src="Qr.jpg" alt="Logo" style="border-radius: 15px; width: 400px; height: auto; display: block; margin: 0 auto; margin-top: 25px;">
-
-                <br>
-                Matesito utiliza los siguientes servicios de terceros:<br>
-                <h3>Render:</h3> 
-                <p>
-                    Render es una empresa que, entre otras cosas, brinda un muy buen alojamiento de servicios web. Es decir, 
-                    Matesito funciona en sus servidores. También es donde está alojada actualmente la base de datos 
-                    que guarda todos los textos que se suben en matesito. Actualmente está funcionando con el plan gratuito, y 
-                    esta es la razón por la que en la URL de Matesito dice: "onrender".
-                </p>
-                <h3>Cloudinary:</h3>
-                <p>
-                    Es una empresa que brinda un servicio para almacenar archivos, es donde se guardan todas las fotos, videos y audios que 
-                    se suben en Matesito. Actualmente está funcionando con el plan gratuito.
-                </p>
-                <h3>MicroReact:</h3> 
-                <p>
-                    Es el sistema de reacciones de Matesito, es de de código abierto y fue desarrollado por Thiago Rangel.<br>
-                    Matesito utiliza una versión modificada de MicroReact. Esta modificación consiste en simplemente funcionar con un contador
-                    interno de la API de Matesito, en lugar de el contador de Jason Cameron, Abacus, con el que funcionaba originalmente.<br>
-                    Puedes ver la página oficial de MicroReact <a href="https://microreact.glitch.me/?ref=tiagorangel-com" style="color: #9c0e31; text-decoration: underline; cursor: pointer;" target="_blank">aquí</a>.
-                </p>
             </p>
         </div>
 </body>

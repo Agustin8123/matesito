@@ -167,7 +167,7 @@
                     <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='vers.html'">
 
                     <label for="Ayuda" class="boton">Ayuda</label>
-                    <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="HelpAlert()">
+                    <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
 
                     <label for="Volver" class="botonV">Volver</label>
                     <input type="radio" id="Volver" name="nav" style="display:none;" onclick="toggleSubMenu()">
@@ -199,11 +199,11 @@
     
         <div class="contenedorBotones">
             <button id="toggleButton" class="button" onclick="toggleSensitiveContent()">Mostrar contenido sensible</button>
+            <button id="Loadpostsbutton" class="button" style="margin: 10px auto; display: block;" onclick="buttonsState();">Recargar posts</button>
+            <button id="loadAllPostsButton" class="button" style="margin: 10px auto; display: block;" onclick="togglePostLoad()">Cargar todos los posts</button>
         </div>
-    
-        <button id="Loadpostsbutton" class="button" style="margin: 10px auto; display: block;" onclick="buttonsState();">Recargar posts</button>
-        <button id="loadAllPostsButton" class="button" style="margin: 10px auto; display: block;" onclick="togglePostLoad()">Cargar todos los posts</button>
-    
+
+        <button class="button" style="margin: 10px auto; display: block;" onclick="toggleOrden(this)">Más nuevos abajo</button>
 
         <link rel="preload" href="microReact.html" as="document">
         <ul id="postList" class="posts"></ul>

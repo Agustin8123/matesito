@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminos y Politicas</title>
+    <link rel="icon" href="matesito-logo.png" type="image/png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
+        }
+
+        .header {
+            background-color: #800020; /* Fondo bordó */
+            color: white;
+            padding-top: 32px; /* Aumenta el espacio en la parte superior */
+            padding-bottom: 32px; /* Mantén el espacio en la parte inferior como está o ajústalo */
+            padding-left: 20px; /* Espacio izquierdo */
+            padding-right: 20px; /* Espacio derecho */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        button {
+            background-color: #800020;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: #9b243f; 
+        }
+
+        /* Estilo de botón genérico */
+        .button {
+            background-color: #ffffff;
+            border: none;
+            color: #9b243f;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .logo {
+            width: 50px; /* Ajusta el tamaño del logo */
+            height: auto;
+            margin-top: -2px;
+        }
+
+        .left-section {
+            display: flex; /* Agrupa el logo y el título */
+            align-items: center;
+            gap: 0px; /* Espaciado entre logo y texto */
+        }
+
+        .nav-buttons {
+            display: flex; /* Alinea los botones horizontalmente */
+            gap: 15px; /* Espaciado entre botones */
+            flex-grow: 1; /* Asegura que ocupe el espacio disponible */
+            justify-content: center; /* Centra los botones en el medio */
+            margin-left: -160px; /* Ajuste para mover los botones un poco a la izquierda */
+        }
+
+        .nav-buttons button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+
+        .nav-buttons button:hover {
+            text-decoration: underline; /* Subrayado al pasar el mouse */
+        }
+
+        .right-section button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .right-section button:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .content {
+            margin: 20px auto;
+            max-width: 750px;
+            padding: 20px;
+            align-self: center;
+            background-color: #262424;
+            color: #fffbfb;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .version-box {
+            background-color: rgba(255, 255, 255, 0.388);
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .version-box h2 {
+            margin-top: 0;
+        }
+
+        .version-box p {
+            font-size: 19px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="left-section">
+            <label onclick="location.href='inicio.html'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
+                <img src="matesito-logo.png" alt="Logo" class="logo">
+                <h1>atesito</h1>
+            </label>
+        </div>
+    
+        <div class="right-section">
+            <div class="dropdown-menu" id="dropdownMenu">       
+                <label for="versiones" class="button">Versiones</label>
+                <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='vers.html'">
+
+                <label for="acercade" class="button">Acerca de...</label>
+                <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='informacion.html'">
+
+                <label for="Ayuda" class="button">Ayuda</label>
+                <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
+            </div>
+
+            
+        </div>
+    </div>
+
+    <div class="content" style="transform: translateX(20px);">
+
+        <div style="text-align: center;">
+            <label for="pdf" class="button" style="display: inline-block;">Abrir PDF de los Términos</label>
+            <input type="radio" id="pdf" name="nav" style="display:none;" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">
+        </div>
+        
+        <div class="version-box">
+            <pre style="font-size: 14.5px;">
+                Términos y Condiciones de Uso de la Red Social "Matesito" 
+                            Última actualización: 21/01/25 
+
+1. Aceptación de los Términos 
+El uso de la red social "Matesito" implica la aceptación plena y sin reservas de los 
+presentes Términos y Condiciones. Si no está de acuerdo con alguno de los términos, 
+debe abstenerse de utilizar nuestra plataforma. 
+
+2. Definiciones 
+•    "Matesito": Plataforma web que permite la interacción entre usuarios mediante 
+publicaciones y mensajes. 
+•    "Usuario": Persona que accede, navega y utiliza los servicios de "Matesito". 
+•    "Contenido": Cualquier texto, imagen, video, audio u otro material que los usuarios 
+publiquen en "Matesito". 
+
+3. Uso Permitido 
+El Usuario se compromete a utilizar "Matesito" conforme a: 
+• Las leyes vigentes de la República Argentina. 
+• Los principios de buena fe, moral y orden público. 
+• Los presentes Términos y Condiciones. 
+
+4. Prohibiciones 
+Se prohíbe estrictamente el uso de "Matesito" para: 
+• Infringir leyes nacionales o internacionales, incluyendo, pero no limitándose a: 
+o La malversación de la imagen de personas. 
+o La publicación de contenido que incite al odio, violencia o discriminación. 
+o Cualquier actividad ilícita, como fraude, estafas o actividades relacionadas. 
+• Realizar acciones que afecten la experiencia de otros usuarios o el funcionamiento de 
+la plataforma. 
+
+5. Derechos de "Matesito" 
+"Matesito" se reserva el derecho de: 
+• Eliminar parcial o totalmente cuentas o contenido que infrinjan las leyes de la 
+República Argentina o los presentes Términos y Condiciones. 
+• Tomar medidas preventivas o correctivas, como la suspensión temporal o permanente 
+de cuentas, según sea necesario. 
+• Realizar modificaciones en la plataforma sin previo aviso. 
+"Matesito" no se hace responsable de las consecuencias derivadas de la publicación 
+de datos personales o sensibles por parte de los usuarios. La plataforma está diseñada 
+para fomentar el anonimato; cualquier información divulgada por los usuarios será 
+bajo su entera responsabilidad. 
+
+6. Responsabilidades del Usuario 
+El Usuario es responsable de: 
+• El contenido que publica en "Matesito". 
+• Respetar los derechos de propiedad intelectual, imagen y privacidad de terceros. 
+• Garantizar que su conducta en la plataforma no viole leyes ni estos términos. 
+
+6.1 Marcado de Contenido Sensible 
+Los usuarios están obligados a marcar como sensible cualquier contenido que pueda 
+resultar inapropiado, ofensivo o perturbador para otros usuarios. Esto incluye, pero no se 
+limita a, material explícito, violento o que pueda herir susceptibilidades. 
+El incumplimiento de esta norma podrá resultar en la eliminación de publicaciones y, en 
+casos graves o reiterados, en la suspensión o eliminación de la cuenta del usuario. 
+"Matesito" se reserva el derecho exclusivo de evaluar y determinar la naturaleza sensible 
+del contenido publicado. 
+
+7. Foros y Moderación 
+Los foros de "Matesito" no son moderados activamente, aunque los administradores 
+tienen la capacidad de ingresar a un foro a través de la red social y tomar acciones si 
+así lo requieren. 
+Aun así, se deben seguir respetando los Términos y Condiciones. Si un usuario o todo el 
+foro no respeta estos términos, debe ser reportado a través del correo de soporte de 
+"Matesito" o por otros medios para su correspondiente sanción. En el peor de los 
+casos, la sanción será la eliminación del usuario o foro. 
+Todo el contenido subido a un foro se almacena en los servidores de "Matesito". 
+
+8. Chats y Grupos Privados 
+"Matesito" almacena todo el contenido subido a chats y grupos privados en sus 
+servidores. Sin embargo, nunca se permitirá que nadie vea el contenido publicado en 
+chats o grupos privados, ya que son de naturaleza privada, a excepción de: 
+• Leyes o normativas aplicables. 
+• Autoridades judiciales o administrativas competentes. 
+• Situaciones donde sea necesario para garantizar la seguridad de los usuarios y 
+el cumplimiento de los Términos y Condiciones. 
+Los usuarios deben respetar los Términos y Condiciones, incluso en un ámbito privado. 
+En caso de que un usuario infrinja los Términos y Condiciones dentro de un ámbito 
+privado, este puede ser reportado, incluyendo pruebas de la infracción, al correo de 
+soporte u otros medios para su sanción. 
+
+9. Privacidad y Protección de Datos 
+"Matesito" tratará los datos personales conforme a la Ley N.º 25.326 de Protección de 
+Datos Personales de la República Argentina. Consulte nuestra Política de privacidad 
+para más información. 
+
+10. Limitación de Responsabilidad 
+"Matesito" no será responsable por: 
+• Contenidos generados por los usuarios. 
+• Daños o perjuicios que puedan surgir del uso indebido de la plataforma. 
+
+11. Modificaciones a los Términos 
+"Matesito" podrá modificar estos Términos y Condiciones en cualquier momento. Las 
+modificaciones entrarán en vigor desde su publicación en la plataforma. 
+
+12. Legislación Aplicable y Jurisdicción 
+Estos Términos y Condiciones se rigen por las leyes de la República Argentina. 
+Cualquier conflicto será resuelto por los tribunales competentes del lugar donde reside 
+"Matesito". 
+
+13. Contacto 
+Para consultas relacionadas con estos Términos y Condiciones, los usuarios pueden 
+contactarnos a través de la dirección de correo electrónico de soporte 
+“matesito.soporte@gmail.com”. 
+
+
+                          Política de Privacidad de "Matesito" 
+                             Última actualización: 21/01/25 
+
+En "Matesito", respetamos la privacidad de nuestros usuarios. Esta Política de Privacidad 
+describe cómo gestionamos la información proporcionada al utilizar nuestra plataforma. 
+
+1. Alcance 
+Esta Política se aplica al uso de la plataforma "Matesito" y regula el tratamiento de los 
+datos recopilados conforme a la Ley N.º 25.326 de Protección de Datos Personales de 
+la República Argentina. 
+
+2. Datos Recopilados 
+"Matesito" recopila únicamente:  
+• El nombre de usuario, la foto de perfil y la contraseña al momento de registrarse o 
+cambiar estos en la configuración de su cuenta. 
+• Las publicaciones realizadas por el usuario dentro de la plataforma. 
+• Los mensajes y contenidos enviados en los chats y grupos privados. 
+• La interacción del usuario con foros y reacciones a posts. 
+Nota: "Matesito" no recopila ni almacena otros datos personales o sensibles, como 
+información de pago, dirección, teléfono, entre otros. 
+
+3. Uso de los Datos 
+La información recopilada se utiliza exclusivamente para:  
+• Permitir el acceso y autenticación de los usuarios. 
+• Publicar y gestionar el contenido compartido por los usuarios en la plataforma. 
+• Administrar interacciones en foros, chats privados y grupos privados. 
+
+4. Anonimato 
+"Matesito" está diseñado para fomentar el anonimato. La publicación de datos 
+personales o sensibles es una decisión voluntaria de los usuarios y será bajo su entera 
+responsabilidad. 
+
+4.1 Obligación de Identificación de Contenido Sensible: 
+Aunque "Matesito" fomenta el anonimato y la libre expresión, los usuarios son 
+responsables de identificar y etiquetar correctamente contenido sensible al momento de 
+publicarlo. Esta medida busca proteger a la comunidad y garantizar una experiencia segura 
+para todos los usuarios. 
+
+5. Seguridad de los Datos 
+"Matesito" implementa medidas técnicas razonables para proteger las credenciales de 
+usuario y las publicaciones contra accesos no autorizados. Sin embargo, no podemos 
+garantizar una seguridad absoluta. La información publicada en chats privados, grupos 
+privados y foros está almacenada en nuestros servidores y se encuentra sujeta a las 
+políticas de seguridad de "Matesito". 
+
+6. Divulgación de Datos 
+"Matesito" no comparte ni divulga la información recopilada con terceros, excepto 
+cuando sea requerido por: 
+• Leyes o normativas aplicables. 
+• Autoridades judiciales o administrativas competentes. 
+• En situaciones donde sea necesario para garantizar la seguridad de los usuarios y el 
+cumplimiento de los Términos y Condiciones. 
+
+7. Derechos del Usuario 
+De acuerdo con la Ley N.º 25.326, los usuarios tienen derecho a:  
+• Acceder a su información (usuario, publicaciones, mensajes en chats y grupos 
+privados, y actividades en foros). 
+• Solicitar la eliminación de su cuenta, publicaciones y contenido en chats privados o 
+grupos privados. 
+• Solicitar la corrección de cualquier información incorrecta o incompleta relacionada 
+con su cuenta. 
+
+8. Modificaciones a esta Política 
+"Matesito" se reserva el derecho de modificar esta Política de Privacidad en cualquier 
+momento. Las actualizaciones se publicarán en la plataforma y entrarán en vigor 
+inmediatamente. Se recomienda a los usuarios revisar periódicamente esta Política para 
+estar al tanto de cualquier cambio. 
+
+9. Contacto 
+Para consultas relacionadas con esta Política de Privacidad, los usuarios pueden 
+contactarnos a través de la dirección de correo electrónico de soporte 
+“matesito.soporte@gmail.com”.
+            </pre>
+        </div>
+</body>
+</html>
+
