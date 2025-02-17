@@ -55,6 +55,14 @@
             border-radius: 5px;
         }
 
+        @media (max-width: 480px) {
+            .button {
+                margin-top: 10px;
+                margin-left: 17px;
+            }
+        }
+
+
         .logo {
             width: 50px; /* Ajusta el tamaño del logo */
             height: auto;
@@ -159,23 +167,44 @@
     <div class="content" style="transform: translateX(20px);">
         
         <div class="version-box">
-            <h2>Versión 1.2.8 (actual)</h2>
+            <h2>Versión 1.2.9 (actual)</h2>
             <p>
-                Mejoró la pestaña de Acerca de y agregó la pestaña de Ayuda y la pestaña de Terminos y Condiciones. Añadió el boton para elejir si cargar los post nuevos arriba o abajo. Solucionó un pequeño bug visual de la caja de escritura.
+                Solucionó los siguientes bugs visuales generales:<br>
+                Menú "Otros" aparecía un poco más bajo de lo que debía.<br>
+                El botón de mostrar contenido sensible estaba ligeramente desalineado.<br>
+                Al pasar el puntero sobre cualquier botón de color rojo, estos se volvían un color demasiado claro.<br>
+                La página se cargaba con un poco de zoom por defecto.<br><br>
+
+                Solucionó los siguientes bugs visuales en dispositivos móviles:<br>
+                La pestaña de Acerca De se cargaba estirada.<br>
+                La pestaña de Términos y Condiciones se cargaba estirada.<br><br>
+
+                Al presionar el botón del Chat General, el contenedor de Posts se duplicaba.<br>
+                Ahora todas las referencias a los Términos y Condiciones y Políticas de privacidad llevan a la respectiva pestaña, en lugar de al PDF.<br>
+                Se extendió el largo máximo del contenedor de posts.<br>
+                En el overlay de inicio de sesión el campo de usuario aparecía ligeramente desplazado hacia derecha.<br>
+                Se corrigieron faltas ortográficas en las pestañas de: versiones, Acerca De y Ayuda.
+            </p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.2.8</h2>
+            <p>
+                Mejoró la pestaña de Acerca de y agregó la pestaña de Ayuda y la pestaña de Términos y Condiciones. Añadió el botón para elegir si cargar los posts nuevos arriba o abajo. Solucionó un pequeño bug visual de la caja de escritura.
             </p>
         </div>
 
         <div class="version-box">
-            <h2>Versión 1.2.7 </h2>
-            <p>Se mejoró el buscador, ahora no se expande infinitamente, si no que tiene una barra deslizadora para los resultaados.<br>
-                Ahora el contenedor de posts tiene un largo maximo, si los posts superan ese largo le aparece una barra deslizadora, ademas ahora se cargan por defecto debajo de todo.
+            <h2>Versión 1.2.7</h2>
+            <p>Se mejoró el buscador, ahora no se expande infinitamente, sino que tiene una barra deslizadora para los resultados.<br>
+                Ahora el contenedor de posts tiene un largo máximo, si los posts superan ese largo, les aparece una barra deslizadora; además, ahora se cargan por defecto debajo de todo.
             </p>
         </div>
         
         <div class="version-box">
             <h2>Versión 1.2.6</h2>
             <p>Se mejoró el logo, y ahora se muestra también en la pestaña del navegador.<br>
-            se solucionó un pequeño bug visual en los botones de el contenedor principal.
+            Se solucionó un pequeño bug visual en los botones del contenedor principal.
             </p>
         </div>
 
@@ -183,37 +212,37 @@
             <h2>Versión 1.2.5</h2>
             <p>
                 En la descripción de los grupos, se muestra su dueño.<br>
-                Se soluciono el bug que hacia que se mostrara "Error: Cannot read properties of null (reading 'style')" como alerta, cada vez que un usuario sale de grupo.<br><br>
-                Se aumento el tamaño maximo de los archivos:<br>
+                Se solucionó el bug que hacía que se mostrara "Error: Cannot read properties of null (reading 'style')" como alerta, cada vez que un usuario sale de grupo.<br><br>
+                Se aumentó el tamaño máximo de los archivos:<br>
                 * 10MB para fotos y audios.<br>
                 * 20MB para videos.<br><br>
                 
-                Se añadio el simbolo de carga al publicar mensajes en foros, chats y grupos. Ahora el simbolo de carga no se nueve con la pantalla y se solucino el bug que hacia que apareciera debajo de el boton de menu en dispositivos moviles.
+                Se añadió el símbolo de carga al publicar mensajes en foros, chats y grupos. Ahora el símbolo de carga no se mueve con la pantalla y se solucionó el bug que hacía que apareciera debajo del botón de menú en dispositivos móviles.
             </p>
         </div>
 
         <div class="version-box">
             <h2>Versión 1.2.4</h2>
-            <p>Se encontró y solucionó un bug que impedia entrar a un foro desde el buscador.<br>
-                Ahora los nombres de cada foro son unicos. en la descripción del foro, se muestra el dueño de este.
+            <p>Se encontró y solucionó un bug que impedía entrar a un foro desde el buscador.<br>
+                Ahora los nombres de cada foro son únicos. En la descripción del foro, se muestra el dueño de este.
             </p>
         </div>
 
         <div class="version-box">
             <h2>Versión 1.2.3</h2>
-            <p>Se solucionó el bug que impedia usar el emoji triste en dispositivos moviles, cambiando la forma en la que se mostraba la hora de cada post.</p>
+            <p>Se solucionó el bug que impedía usar el emoji triste en dispositivos móviles, cambiando la forma en la que se mostraba la hora de cada post.</p>
         </div>
        
          <div class="version-box">
             <h2>Versión 1.2.2</h2>
-            <p>Se solucionó el bug que impedia la carga de archivos, en foros, grupos y chats.</p>
+            <p>Se solucionó el bug que impedía la carga de archivos, en foros, grupos y chats.</p>
         </div>
         
         <div class="version-box">
             <h2>Versión 1.2.1</h2>
             <p>Ahora se recargan las listas de Foros, Grupos y usuarios cada vez que se hace una interacción.<br>
-                Ahra se recargan los post cada vez que se reacciona<br>
-                Ahora, si está seleccionado "recordar mi sesión" en la pestaña de inicio de sesión, se iniciara sesion automaticamente. Se extendio el tiempo de recordar sesión a 1 semana.
+                Ahora se recargan los posts cada vez que se reacciona.<br>
+                Ahora, si está seleccionado "Recordar mi sesión" en la pestaña de inicio de sesión, se iniciará sesión automáticamente. Se extendió el tiempo de recordar sesión a 1 semana.
             </p>
         </div>
 
@@ -227,15 +256,15 @@
             Un menú en el header dedicado a interactuar con foros, usuarios y cargar el chat principal.<br>
             Un buscador para encontrar usuarios y foros.<br>
             La funcionalidad de seguir usuarios y foros.<br>
-            Reacciones con emojis a los post.<br><br>
+            Reacciones con emojis a los posts.<br><br>
             
             Se cambió:<br>
             Al hacer clic en el nombre de un usuario en cualquier post, aparecerá un submenú que permite ver los posts de solo ese usuario y seguirlo.<br>
             Al hacer clic en el texto de cualquier post, se cargará solo ese post y no se verá afectado por la actualización de posts general.<br>
             Se cambió la forma en la que funcionaban los botones de contenido sensible, recargar los posts y cargar todos los posts para adaptarlos a las funciones mencionadas anteriormente.<br>
-            El botón de el logo de la pagína ahora redirecciona directamente a inicio.html sin pasar por Iniciogv.html.<br>
-            ya no se carga ningun post hasta que se inicie sesión.<br>
-            Se eliminó la recarga de 20 segundos. Ahora solo se recarga cuando se publica un nuevo post o mensaje, dependiendo si el usuario está en un foro, chat, grupo o el contenedor de post general.<br>
+            El botón del logo de la página ahora redirecciona directamente a inicio.html sin pasar por Iniciogv.html.<br>
+            Ya no se carga ningún post hasta que se inicie sesión.<br>
+            Se eliminó la recarga de 20 segundos. Ahora solo se recarga cuando se publica un nuevo post o mensaje, dependiendo si el usuario está en un foro, chat, grupo o el contenedor de posts general.<br>
             Ahora hay un límite máximo de caracteres al crear el nombre de un usuario o foro.<br><br>
             
             Debido a los nuevos menús, se reforzó la lógica proveniente de la versión 1.1 que los manejaba.<br>

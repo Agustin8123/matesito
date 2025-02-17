@@ -159,9 +159,9 @@
                 <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='informacion.html'">
 
                 <label for="Otros" class="boton" onclick="toggleSubMenu()">Otros</label>
-                <div class="dropdown-menu" id="subMenu" style="display: none; position: absolute; left: 171px; margin-top: -82px;">
+                <div class="dropdown-menu" id="subMenu" style="display: none; position: absolute; left: 171px; margin-top: -122px;">
                     <label for="Politicas" class="boton">Políticas</label>
-                    <input type="radio" id="Politicas" name="nav" style="display:none;" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">
+                    <input type="radio" id="Politicas" name="nav" style="display:none;" onclick="location.href='Terminos.html'">
 
                     <label for="versiones" class="boton">Versiones</label>
                     <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='vers.html'">
@@ -198,7 +198,7 @@
         </div>
     
         <div class="contenedorBotones">
-            <button id="toggleButton" class="button" onclick="toggleSensitiveContent()">Mostrar contenido sensible</button>
+            <button id="toggleButton" class="button" style="margin: 10px auto; display: block;" onclick="toggleSensitiveContent()">Mostrar contenido sensible</button>
             <button id="Loadpostsbutton" class="button" style="margin: 10px auto; display: block;" onclick="buttonsState();">Recargar posts</button>
             <button id="loadAllPostsButton" class="button" style="margin: 10px auto; display: block;" onclick="togglePostLoad()">Cargar todos los posts</button>
         </div>
@@ -233,7 +233,7 @@
     <link rel="preload" href="eyeClose.png" as="image">
     <link rel="preload" href="eyeOpen.png" as="image">
     <div class="username-box">
-        <input type="text" id="usernameInput" placeholder="Nombre de Usuario">
+        <input type="text" id="usernameInput" style="margin-left: -25px;" placeholder="Nombre de Usuario">
         <input type="password" id="passwordInput" placeholder="Contraseña">
 
         <button type="button" id="togglePasswordBoton" onclick="togglePassword1()">
@@ -299,7 +299,7 @@
         <div class="terms-container">
             <input type="checkbox" id="acceptTermsCheckbox">
             <label for="acceptTermsCheckbox">
-                Acepto los <a href="Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf" target="_blank">términos y condiciones <br> y las políticas de privacidad</a>.
+                Acepto los <a href="Terminos.html" target="_blank">términos y condiciones <br> y las políticas de privacidad</a>.
             </label>
         </div>
 

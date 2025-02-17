@@ -6,10 +6,19 @@
 }
 
   function togglePosts() {
-    const profileList = document.getElementById('profileList');
+    const profileList = document.getElementById("profileList");
+    const unicPostList = document.getElementById("unicPostList");
+    const forumList = document.getElementById("forumList");
+    const messageList = document.getElementById("messageList");
+    const groupMessageList = document.getElementById("groupMessageList");
+
     const postList = document.getElementById('postList');
 
     profileList.style.display = 'none';
+    unicPostList.style.display = 'none';
+    forumList.style.display = 'none';
+    messageList.style.display = 'none';
+    groupMessageList.style.display = 'none';
     postList.style.display = 'block';
 }
 
