@@ -85,7 +85,11 @@
             padding: 10px;
         }
         
-        
+        @media (max-width: 480px) {
+            .posts {
+                max-height: 650px;
+            }
+        }
 
         /* Cada publicación */
         .post {
