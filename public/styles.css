@@ -14,7 +14,6 @@
             display: flex; /* Usa Flexbox */
             align-items: center; /* Alinea verticalmente */
             justify-content: space-between; /* Separa los elementos */
-            width: 100%; /* Asegura que ocupe todo el ancho */
         }
         
         .container {
@@ -72,7 +71,7 @@
         .posts {
             list-style: none;
             padding: 0;
-            max-height: 250px; /* Altura máxima antes de que aparezca el scroll */
+            max-height: 520px; /* Altura máxima antes de que aparezca el scroll */
             overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
             overflow-x: hidden; /* Evita el desplazamiento horizontal */
             background-color: #ffffff00;
@@ -80,6 +79,8 @@
             padding: 10px;
         }
         
+        
+
         /* Cada publicación */
         .post {
             padding: 10px;
@@ -123,6 +124,7 @@
             justify-content: center; /* Alineación horizontal */
             z-index: 1000;
         }
+
         .username-box, .user-select-box {
             background-color: #333;
             padding: 20px;
@@ -145,6 +147,7 @@
             border-radius: 10px;
             cursor: pointer;
         }
+
         .user-list {
             display: flex;
             justify-content: center;
@@ -187,7 +190,7 @@
         .header button {
             position: absolute;
             top: 20px;
-            right: 25px;
+            right: 60px;
             background-color: transparent;
             border: none;
             cursor: pointer;
@@ -234,7 +237,7 @@
         }
 
         button:hover {
-            background-color: #e4dada; 
+            background-color: #631025; 
         }
 
         /* Estilo de botón genérico */

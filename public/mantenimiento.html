@@ -55,6 +55,13 @@
             border-radius: 5px;
         }
 
+        @media (max-width: 480px) {
+            .button {
+                margin-top: 10px;
+                margin-left: 17px;
+            }
+        }
+
         .logo {
             width: 50px; /* Ajusta el tamaño del logo */
             height: auto;
@@ -149,8 +156,11 @@
             <label for="versiones" class="button">Versiones</label>
             <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='vers.html'">
 
-            <label for="Otros" class="button">Otros</label>
-            <input type="radio" id="Otros" name="nav" style="display:none;" onclick="location.href='Politicas de Privacidad y Terminos y Condiciones de Matesito.pdf'">
+            <label for="acercade" class="button">Acerca de...</label>
+            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='informacion.html'">
+
+            <label for="Ayuda" class="button">Ayuda</label>
+            <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
         </div>
     </div>
 

@@ -55,6 +55,13 @@
             border-radius: 5px;
         }
 
+        @media (max-width: 480px) {
+            .button {
+                margin-top: 10px;
+                margin-left: 17px;
+            }
+        }
+
         .logo {
             width: 50px; /* Ajusta el tamaño del logo */
             height: auto;
@@ -130,6 +137,12 @@
         .version-box p {
             font-size: 19px;
         }
+
+        a {
+            word-wrap: break-word;    /* Rompe palabras largas */
+            overflow-wrap: break-word; /* Asegura que las palabras se dividan correctamente */     
+            max-width: 100%;  /* Asegura que el <pre> no se expanda más allá de su contenedor */
+        }
     </style>
 </head>
 <body>
@@ -162,29 +175,27 @@
         <div class="version-box">
             <h1>Sobre Matesito...</h1>
             <p>
-                hola, me llamo Agustin Coutte (Agustin8 para los amigos) y soy el creador y unico desarrollador de Matesito. Matesito surgió como una idea loca, un día simplemente pensé: "¿Será muy dificil hacer una red social?"
+                Hola, me llamo Agustín Coutte (Agustin8 para los amigos) y soy el creador y único desarrollador de Matesito. Matesito surgió como una idea loca, un día simplemente pensé: "¿Será muy difícil hacer una red social?"
                 y acto seguido empecé a hacer una para responderme mi pregunta.<br>
                 Tengo que reconocer que fue mucho más difícil de lo que imaginaba. Pero, después de un largo tiempo, lo logré. Matesito es un proyecto al que le tengo un cariño especial, y aunque ahora mismo casi nadie lo conoce,
                 tengo la esperanza de que con el tiempo se forme una comunidad, aunque sea pequeña, que lo valore tanto como yo.<br>
-                Por ahora no tengo pensado dejar de actualizar matesito, tengo muchas ideas que quiero implementar, y estoy emocionado por hacerlo. No se si voy a poder hacer realidad todo, pero no lo pienso abandonar hasta que me sienta satisfecho.
+                Por ahora no tengo pensado dejar de actualizar Matesito, tengo muchas ideas que quiero implementar, y estoy emocionado por hacerlo. No sé si voy a poder hacer realidad todo, pero no lo pienso abandonar hasta que me sienta satisfecho.
                 <br><br>
-                Tengo un canal de difusión de WhatsApp en el que voy publicandoo novedades sobre Matesito, cosas las nuevas actualizaciones, avisos de mantenimiento y comunicados especiales. Puedes unirte a el canal mendiante este link o este codigo QR:<br>
+                Tengo un canal de difusión de WhatsApp en el que voy publicando novedades sobre Matesito, como las nuevas actualizaciones, avisos de mantenimiento y comunicados especiales. Puedes unirte al canal mediante este link o este código QR:<br>
                 <a href="https://whatsapp.com/channel/0029VauaHTO6xCSY8fonqp3q" 
                     style="color: #9c0e31; text-decoration: underline; cursor: pointer; display: block; text-align: center; margin-top: 10px;" 
                     target="_blank">
                     https://whatsapp.com/channel/0029VauaHTO6xCSY8fonqp3q
                 </a>
-
                 
-                <img src="Qr.jpg" alt="Logo" style="border-radius: 15px; width: 400px; height: auto; display: block; margin: 0 auto; margin-top: 25px;">
-
+                <img src="Qr.jpg" alt="Logo" style="border-radius: 15px; max-width: 100%; height: auto; display: block; margin: 25px auto;">
                 <br>
                 Matesito utiliza los siguientes servicios de terceros:<br>
                 <h3>Render:</h3> 
                 <p>
                     Render es una empresa que, entre otras cosas, brinda un muy buen alojamiento de servicios web. Es decir, 
                     Matesito funciona en sus servidores. También es donde está alojada actualmente la base de datos 
-                    que guarda todos los textos que se suben en matesito. Actualmente está funcionando con el plan gratuito, y 
+                    que guarda todos los textos que se suben en Matesito. Actualmente está funcionando con el plan gratuito, y 
                     esta es la razón por la que en la URL de Matesito dice: "onrender".
                 </p>
                 <h3>Cloudinary:</h3>
@@ -194,9 +205,9 @@
                 </p>
                 <h3>MicroReact:</h3> 
                 <p>
-                    Es el sistema de reacciones de Matesito, es de de código abierto y fue desarrollado por Thiago Rangel.<br>
+                    Es el sistema de reacciones de Matesito, es de código abierto y fue desarrollado por Thiago Rangel.<br>
                     Matesito utiliza una versión modificada de MicroReact. Esta modificación consiste en simplemente funcionar con un contador
-                    interno de la API de Matesito, en lugar de el contador de Jason Cameron, Abacus, con el que funcionaba originalmente.<br>
+                    interno de la API de Matesito, en lugar del contador de Jason Cameron, Abacus, con el que funcionaba originalmente.<br>
                     Puedes ver la página oficial de MicroReact <a href="https://microreact.glitch.me/?ref=tiagorangel-com" style="color: #9c0e31; text-decoration: underline; cursor: pointer;" target="_blank">aquí</a>.
                 </p>
             </p>
