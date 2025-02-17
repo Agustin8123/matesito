@@ -15,6 +15,12 @@
             align-items: center; /* Alinea verticalmente */
             justify-content: space-between; /* Separa los elementos */
         }
+
+        @media (max-width: 480px) {
+            .header {
+                width: 100%;
+            }
+        }
         
         .container {
             width: 100%;
@@ -253,6 +259,10 @@
             cursor: pointer;
             border-radius: 5px;
             margin-bottom: 4px;
+        }
+
+        .button:hover {
+            background-color: #e4dada !important; 
         }
 
         .contenedorBotones {
