@@ -46,7 +46,7 @@
                         <label for="Crearforo" class="boton">Crear Foro</label>
                             <input type="radio" id="Crearforo" name="nav" style="display:none;" onclick="createForumMenu()">
 
-                            <div id="createdForosContainer">
+                            <div id="createdForosContainer" class="foros-container">
                                 <!-- Los foros se renderizarán aquí -->
                             </div>    
                    </div>
@@ -59,7 +59,7 @@
                             <label for="Volver5" class="botonV">Volver</label>
                                 <input type="radio" id="Volver5" name="nav" style="display:none;" onclick="exploreForumMenu2()">
 
-                            <div id="forosContainer2">
+                            <div id="forosContainer2" class="foros-container">
                                 <!-- Los foros se renderizarán aquí -->
                             </div>
                         </div>
@@ -70,9 +70,11 @@
                         <div id="exploreforumMenu" class="dropdown-menu" style="left: 188px; margin-top: -156px;">
                             <label for="Volver4" class="botonV">Volver</label>
                                 <input type="radio" id="Volver4" name="nav" style="display:none;" onclick="exploreForumMenu()">
+                            <div>
 
-                            <div id="forosContainer">
-                                <!-- Los foros se renderizarán aquí -->
+                            </div>
+                            <div id="forosContainer" class="foros-container">
+                                <!--los foros se renderizaran aqui-->
                             </div>
                         </div>    
                     <label for="Volver3" class="botonV">Volver</label>
@@ -89,7 +91,7 @@
                             <label for="Volver8" class="botonV">Volver</label>
                             <input type="radio" id="Volver8" name="nav" style="display:none;" onclick="usercreatedGroupMenu()">
 
-                            <div id="createdGroupsContainer">
+                            <div id="createdGroupsContainer" class="foros-container">
                                 <!-- Los grupos se renderizarán aquí -->
                             </div>
                         </div>
@@ -100,7 +102,7 @@
                             <label for="Volver9" class="botonV">Volver</label>
                             <input type="radio" id="Volver9" name="nav" style="display:none;" onclick="userJoinedGroupMenu()">
 
-                            <div id="joinedGruposContainer">
+                            <div id="joinedGruposContainer" class="foros-container">
                                 <!-- Los grupos se renderizarán aquí -->
                             </div>
                         </div>
@@ -120,7 +122,7 @@
                    <div id="userSubMenu" class="dropdown-menu" style=" left: 188px; margin-top: -180px;">
                    <label for="Volver2" class="botonV">Volver</label>
                    <input type="radio" id="Volver2" name="nav" style="display:none;" onclick="toggleUserMenu()">
-                   <div id="usersContainer" style="min-height: 86px;">
+                   <div id="usersContainer" style="min-height: 86px;" class="foros-container">
                        <!-- Los usuarios se renderizarán        aquí -->
                    </div>
                 </div>
@@ -133,10 +135,18 @@
                 <input type="radio" id="search" name="nav" style="display:none;" onclick="toggleSearch()">
             <div id="SearchMenu" class="search-menu" style="display: none; left: 110px; top: 15px;">
                 <input type="text" id="searchInput" placeholder="Buscar..." oninput="searchMotor()" style="width: 223px;"></input> 
-                <div id="searchconteiner" class=".SearchContainer">
+                <div id="searchconteiner" class=".SearchContainer" class="foros-container">
                     <!--las busquedas se renderizan aqui-->
                 </div>    
             </div>
+
+            <label for="notif" class="icon campana" style="cursor: pointer; display: inline-block;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30" height="30">
+                    <path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path>
+                    <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
+                </svg>
+            </label>
+            <input type="radio" id="notif" name="nav" style="display: none;" onclick="toggleBell()">
         </div>
         
         <div class="right-section">
@@ -251,6 +261,15 @@
         <button onclick="loginUser()">Ingresar</button>
         <!-- Botón Volver -->
         <button onclick="goBackToInitial()">Volver</button>
+    </div>
+</div>
+
+<div class="overlay" id="notifMenu" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+    <div class="forum-box">
+        <div id="renderNotif" class="foros-container">
+            <!--Aquí se renderizaran las notificaciones-->
+        </div>
+        <button onclick="toggleBell()">Volver</button>
     </div>
 </div>
 

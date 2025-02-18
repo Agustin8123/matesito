@@ -166,7 +166,7 @@ function saveSession(username, password, rememberMe) {
     const password = document.getElementById('passwordInput').value.trim();
     const rememberMe = document.getElementById('rememberMe').checked;
 
-    fetch('https://matesito.onrender.com/login', {
+    fetch(' /login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -228,7 +228,7 @@ function checkRememberedUser() {
 
 
   function setActiveUser(username) {
-    fetch('https://matesito.onrender.com/getUserDetails', {
+    fetch(' /getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -335,7 +335,7 @@ function checkRememberedUser() {
         profileImage: profileImageURL,
     };
 
-    fetch('https://matesito.onrender.com/users', {
+    fetch(' /users', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -377,7 +377,7 @@ function createForum() {
         ownerId: parseInt(ownerId),
     };
 
-    fetch('https://matesito.onrender.com/foros', {
+    fetch(' /foros', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(forumData),
@@ -421,7 +421,7 @@ function createForum() {
     };
 
     // Enviar la solicitud al backend
-    fetch('https://matesito.onrender.com/grupos', {
+    fetch(' /grupos', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -457,7 +457,7 @@ function createForum() {
         return;
     }
 
-    fetch('https://matesito.onrender.com/unir-grupo', {
+    fetch(' /unir-grupo', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -485,7 +485,7 @@ function createForum() {
         return; // Si el usuario cancela, no hacemos nada
     }
 
-    fetch('https://matesito.onrender.com/salir-grupo', {
+    fetch(' /salir-grupo', {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -558,7 +558,7 @@ function loadForos() {
         forumId: forumId  // ID del foro que se pasa como parámetro
     };
 
-    fetch('https://matesito.onrender.com/joinForum', {
+    fetch(' /joinForum', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -586,7 +586,7 @@ function loadForos() {
         forumId: forumId  // ID del foro que se pasa como parámetro
     };
 
-    fetch('https://matesito.onrender.com/leaveForum', {
+    fetch(' /leaveForum', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -610,7 +610,7 @@ function loadForos() {
 function loadUserForums() {
     const userId = users[activeUser].id;
 
-    fetch(`https://matesito.onrender.com/userForums/${userId}`)
+    fetch(` /userForums/${userId}`)
         .then(response => response.json())
         .then(forums => {
             const container = document.getElementById('forosContainer2');
@@ -657,7 +657,7 @@ function loadUserForums() {
   function loadUserCreatedForums() {
     const userId = users[activeUser].id; // ID del usuario activo
 
-    fetch(`https://matesito.onrender.com/userCreatedForums/${userId}`)
+    fetch(` /userCreatedForums/${userId}`)
         .then(response => response.json())
         .then(forums => {
             const container = document.getElementById('createdForosContainer');
@@ -708,7 +708,7 @@ function loadUserForums() {
         return;
     }
 
-    fetch(`https://matesito.onrender.com/foros/${forumId}`, {
+    fetch(` /foros/${forumId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -853,7 +853,7 @@ function loadUserForums() {
 
         try {
             // Enviar el mensaje al servidor
-            const response = await fetch(`https://matesito.onrender.com/mensajes/${forumId}`, {
+            const response = await fetch(` /mensajes/${forumId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(messageData),
@@ -936,7 +936,7 @@ function loadUserForums() {
         document.getElementById('loading').style.display = 'block';
     
         try {
-            const response = await fetch(`https://matesito.onrender.com/mensajes/${chatId}`, {
+            const response = await fetch(` /mensajes/${chatId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(messageData),
@@ -1009,7 +1009,7 @@ function loadUserForums() {
         document.getElementById('loading').style.display = 'block';
 
         try {
-            const response = await fetch(`https://matesito.onrender.com/group/messages/${groupId}`, {
+            const response = await fetch(` /group/messages/${groupId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(messageData),
@@ -1072,7 +1072,7 @@ function loadUserForums() {
                 postData.media = data.secure_url;
                 postData.mediaType = selectedFile.type;
 
-                return fetch('https://matesito.onrender.com/posts', {
+                return fetch(' /posts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(postData),
@@ -1093,7 +1093,7 @@ function loadUserForums() {
             })
 
         } else {
-            fetch('https://matesito.onrender.com/posts', {
+            fetch(' /posts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(postData),
@@ -1199,7 +1199,7 @@ let showSensitiveContent = false;
 
     document.getElementById('postList').innerHTML = '';
 
-    fetch('https://matesito.onrender.com/posts')
+    fetch(' /posts')
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los posts: ${response.status}`);
@@ -1238,7 +1238,7 @@ let showSensitiveContent = false;
         return;
     }
 
-    fetch('https://matesito.onrender.com/createOrLoadPrivateChat', {
+    fetch(' /createOrLoadPrivateChat', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1277,7 +1277,7 @@ let showSensitiveContent = false;
     document.getElementById('messageList').innerHTML = ''; // Limpiar lista de mensajes
     const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
 
-    fetch(`https://matesito.onrender.com/chat/messages/${chatId}`)
+    fetch(` /chat/messages/${chatId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los mensajes: ${response.status}`);
@@ -1339,7 +1339,7 @@ let showSensitiveContent = false;
 
     document.getElementById('groupMessageList').innerHTML = ''; // Limpiar lista de mensajes
 
-    fetch(`https://matesito.onrender.com/group/messages/${groupId}/${activeUserId}`)
+    fetch(` /group/messages/${groupId}/${activeUserId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los mensajes: ${response.status}`);
@@ -1398,7 +1398,7 @@ let showSensitiveContent = false;
     activeGroup = '';
     activeForum = forumId;
 
-    fetch(`https://matesito.onrender.com/mensajes/${forumId}`)
+    fetch(` /mensajes/${forumId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los mensajes: ${response.status}`);
@@ -1527,7 +1527,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     </div>
     <div style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
        <iframe 
-        src="https://matesito.onrender.com/microReact.html?id=Matesito_${microReactId}" 
+        src=" /microReact.html?id=Matesito_${microReactId}" 
             style="width: 275px; height: 100px; border: none;" 
             frameborder="0" 
             loading="lazy" 
@@ -1623,7 +1623,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     activeChat = '';
 
     // Cargar los posts del usuario
-    fetch(`https://matesito.onrender.com/posts/user/${username}`)
+    fetch(` /posts/user/${username}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar los posts del usuario ${username}`);
@@ -1661,7 +1661,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         return;
     }
 
-    fetch('https://matesito.onrender.com/followUser', {
+    fetch(' /followUser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ followerId, followedId: userId })
@@ -1684,7 +1684,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 }
 
   function unfollowUser(followerId, followedId) {
-    fetch('https://matesito.onrender.com/unfollowUser', {
+    fetch(' /unfollowUser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ followerId, followedId })
@@ -1706,7 +1706,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
   function loadFollowedUsers() {
     const followerId = users[activeUser]?.id; // ID del usuario activo
 
-    fetch(`https://matesito.onrender.com/followedUsers/${followerId}`)
+    fetch(` /followedUsers/${followerId}`)
         .then(response => response.json())
         .then(users => {
             const container = document.getElementById('usersContainer');
@@ -1758,7 +1758,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 function loadUserGroups() {
     const userId = users[activeUser]?.id; // ID del usuario activo
 
-    fetch(`https://matesito.onrender.com/grupos-usuario/${userId}`)
+    fetch(` /grupos-usuario/${userId}`)
     .then(response => response.json())
     .then(groups => {
         const container = document.getElementById('joinedGruposContainer');
@@ -1820,7 +1820,7 @@ function loadUserGroups() {
   function loadCreatedGroups() {
     const userId = users[activeUser]?.id; // ID del usuario activo
 
-    fetch(`https://matesito.onrender.com/grupos-creados/${userId}`)
+    fetch(` /grupos-creados/${userId}`)
         .then(response => response.json())
         .then(groups => {
             const container = document.getElementById('createdGroupsContainer');
@@ -1879,7 +1879,7 @@ function loadUserGroups() {
   function deleteGroup(groupId) {
     const userId = users[activeUser]?.id; // ID del suario activo
 
-    fetch(`https://matesito.onrender.com/grupo/${groupId}/${userId}`, {
+    fetch(` /grupo/${groupId}/${userId}`, {
         method: 'DELETE',
     })
         .then(response => response.json())
@@ -1895,6 +1895,52 @@ function loadUserGroups() {
             console.error('Error al eliminar el grupo:', error);
             alert('Error al eliminar el grupo');
         });
+}
+
+async function obtenerNotificaciones() {
+    const userId = users[activeUser].id;
+    
+    try {
+        const response = await fetch(`/notificaciones/${userId}`);
+        const notificaciones = await response.json();
+        renderizarNotificaciones(notificaciones);
+    } catch (error) {
+        console.error('Error al obtener notificaciones:', error);
+    }
+}
+
+function renderizarNotificaciones(notificaciones) {
+    const contenedor = document.getElementById('renderNoti');
+    contenedor.innerHTML = '';
+    
+    if (notificaciones.length === 0) {
+        contenedor.innerHTML = '<p>No tienes notificaciones nuevas.</p>';
+        return;
+    }
+    
+    notificaciones.forEach(noti => {
+        const notiElemento = document.createElement('div');
+        notiElemento.classList.add('notificacion');
+        notiElemento.textContent = `Nueva notificación de tipo: ${noti.tipo}`;
+        notiElemento.dataset.id = noti.referencia_id;
+        
+        notiElemento.addEventListener('click', () => marcarComoLeida(noti.user_id, noti.referencia_id, notiElemento));
+        contenedor.appendChild(notiElemento);
+    });
+}
+
+async function marcarComoLeida(userId, referenciaId, elemento) {
+    try {
+        await fetch(`/notificaciones/${userId}/leer`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ referencia_id: referenciaId })
+        });
+        
+        elemento.remove(); // Eliminar del DOM tras marcar como leída
+    } catch (error) {
+        console.error('Error al marcar notificación como leída:', error);
+    }
 }
 
   function searchMotor() {

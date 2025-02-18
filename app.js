@@ -202,6 +202,14 @@ app.post('/mensajes/:forumId', async (req, res) => {
         // Actualizar el objeto de respuesta con el ID formateado
         mensaje.id = formattedId;
 
+        // Crear notificaciones para los participantes del foro
+        await db.query(
+            `INSERT INTO notificaciones (user_id, tipo, referencia_id)
+             SELECT user_id, 'mensaje_foro', $1 FROM participantes
+             WHERE forum_or_group_id = $2 AND is_group = FALSE AND user_id != $3`,
+            [mensaje.id, forumId, sender_id]
+        );
+
         io.emit('reloadPosts');
         res.status(201).json(mensaje);
     } catch (error) {
@@ -1205,6 +1213,13 @@ app.post('/group/messages/:groupId', async (req, res) => {
         // Actualizar el objeto de respuesta con el ID formateado
         mensaje.id = formattedId;
 
+        await db.query(
+            `INSERT INTO notificaciones (user_id, tipo, referencia_id)
+             SELECT user_id, 'mensaje_grupo', $1 FROM participantes
+             WHERE forum_or_group_id = $2 AND is_group = TRUE AND user_id != $3`,
+            [mensaje.id, groupId, sender_id]
+        );
+
         io.emit('reloadPosts');
         res.status(201).json(mensaje);
     } catch (error) {
@@ -1251,6 +1266,12 @@ app.post('/sendMessage', (req, res) => {
                 // Actualizar el objeto de respuesta con el ID formateado
                 mensaje.id = formattedId;
 
+                await db.query(
+                    `INSERT INTO notificaciones (user_id, tipo, referencia_id) 
+                     VALUES ($1, 'mensaje', $2);`,
+                    [receptor.rows[0].receptor, mensaje.rows[0].id]
+                );
+
                 io.emit('reloadPosts');
                 res.status(201).json(mensaje);
             } catch (updateError) {
@@ -1259,6 +1280,36 @@ app.post('/sendMessage', (req, res) => {
             }
         }
     );
+});
+
+app.get('/notificaciones/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+    try {
+        const notificaciones = await pool.query(
+            `SELECT * FROM notificaciones WHERE user_id = $1 AND leido = FALSE;`,
+            [user_id]
+        );
+        res.json(notificaciones.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener notificaciones' });
+    }
+});
+
+// Marcar notificaciones como leídas
+app.put('/notificaciones/:user_id/leer', async (req, res) => {
+    const { user_id } = req.params;
+    const { referencia_id } = req.body;
+    try {
+        await pool.query(
+            `UPDATE notificaciones SET leido = TRUE WHERE user_id = $1 AND referencia_id = $2;`,
+            [user_id, referencia_id]
+        );
+        res.json({ message: 'Notificaciones marcadas como leídas.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al marcar notificaciones como leídas' });
+    }
 });
 
 // Crear el servidor

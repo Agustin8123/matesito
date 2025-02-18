@@ -12,7 +12,7 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput1').value.trim();
 
-    fetch('https://matesito.onrender.com/login', {
+    fetch(' /login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -31,7 +31,7 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
 }
 
    function setActiveUser(username) {
-    fetch('https://matesito.onrender.com/getUserDetails', {
+    fetch(' /getUserDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -70,7 +70,7 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
         return;
     }
 
-    fetch('https://matesito.onrender.com/updateUsername', {
+    fetch(' /updateUsername', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentUsername: activeUser, newUsername }), // Cambié 'oldUsername' por 'currentUsername'
@@ -136,7 +136,7 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
         return;
     }
 
-    fetch('https://matesito.onrender.com/updatePassword', {
+    fetch(' /updatePassword', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -188,7 +188,7 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
 }
 
    function updateProfileImageInDatabase(newProfileImageURL) {
-    fetch('https://matesito.onrender.com/updateProfileImage', {
+    fetch(' /updateProfileImage', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

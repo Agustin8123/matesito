@@ -32,6 +32,26 @@
             border-radius: 10px;
         }
 
+        .foros-container {
+            max-height: 150px; /* Ajusta el valor según lo que necesites */
+            overflow-y: auto; /* Activa la barra deslizadora cuando el contenido sobrepasa el límite */
+            padding: 10px;
+        } 
+        
+        .foros-container::-webkit-scrollbar {
+            width: 8px; /* Grosor de la barra */
+        }
+
+        .foros-container::-webkit-scrollbar-track {
+            background: #d2d2d2; /* Color del fondo de la barra */
+            border-radius: 8px; /* Bordes redondeados */
+        }
+
+        .foros-container::-webkit-scrollbar-thumb {
+            background: #3f3f3f; /* Color de la barra */
+            border-radius: 8px; /* Bordes redondeados */
+        }
+
         /* Personalización de la barra de desplazamiento */
         .posts::-webkit-scrollbar {
             width: 8px; /* Grosor de la barra */
@@ -207,6 +227,12 @@
             border-radius: 50%;
             overflow: hidden;
             padding: 0;
+        }
+
+        @media (max-width: 480px) {
+            .header button {
+                right: 20px;  
+            }
         }
 
         .header button img {
