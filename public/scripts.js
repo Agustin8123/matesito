@@ -67,6 +67,7 @@
 
     function reloadPosts(){
         buttonsState();
+        obtenerNotificaciones();
     } 
 
     function reloadFG(){
@@ -1916,29 +1917,37 @@ function renderizarNotificaciones(notificaciones) {
 
     if (notificaciones.length === 0) {
         contenedor.innerHTML = '<p>No tienes notificaciones nuevas.</p>';
+        actualizarIndicadorNotificaciones(false);
         return;
     }
 
     notificaciones.forEach(noti => {
         const notiElemento = document.createElement('div');
-        notiElemento.classList.add('Nboton'); // Corregido, sin el punto '.'
+        notiElemento.classList.add('Nboton');
 
         let mensaje = '';
         if (noti.tipo === 'chat') {
             mensaje = `Tienes un nuevo mensaje de ${noti.nombre}`;
+            notiElemento.addEventListener('click', () => loadChatMessages(noti.chat_or_group_id, loadAll));
         } else if (noti.tipo === 'grupo') {
             mensaje = `Tienes nuevos mensajes del grupo ${noti.nombre}`;
+            notiElemento.addEventListener('click', () => loadGroupMessages(noti.chat_or_group_id, loadAll));
         } else if (noti.tipo === 'foro') {
             mensaje = `Hay una nueva publicación en el foro ${noti.nombre}`;
-        } else {
-            mensaje = 'Tienes una nueva notificación';
+            notiElemento.addEventListener('click', () => loadForumPosts(noti.referencia_id, loadAll));
         }
 
         notiElemento.textContent = mensaje;
         notiElemento.dataset.id = noti.referencia_id;
 
-        notiElemento.addEventListener('click', () => marcarComoLeida(userId, noti.id, notiElemento));
+        // Marcar la notificación como leída al hacer clic
+        notiElemento.addEventListener('click', async () => {
+            await marcarComoLeida(userId, noti.id, notiElemento);
+        });
+
         contenedor.appendChild(notiElemento);
+
+        actualizarIndicadorNotificaciones(true);
     });
 }
 
@@ -1951,9 +1960,21 @@ async function marcarComoLeida(userId, notiId, elemento) {
         });
 
         elemento.remove(); // Borra la notificación del DOM
+
+        // Verificar si quedan notificaciones en pantalla
+        const contenedor = document.getElementById('renderNotif');
+        if (contenedor.children.length === 0) {
+            contenedor.innerHTML = '<p>No tienes notificaciones nuevas.</p>';
+            actualizarIndicadorNotificaciones(false);
+        }
     } catch (error) {
         console.error('Error al eliminar notificación:', error);
     }
+}
+
+function actualizarIndicadorNotificaciones(hayNotificaciones) {
+    const punto = document.getElementById('puntoNotificacion');
+    punto.style.display = hayNotificaciones ? 'block' : 'none';
 }
 
   function searchMotor() {

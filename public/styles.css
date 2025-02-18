@@ -457,6 +457,10 @@
     margin-bottom: 6px;
 }
 
+.dot-hidden {
+    display: none;
+}
+
 .dropdown-menu {
     display: none; /* Oculto por defecto */
     position: absolute;
