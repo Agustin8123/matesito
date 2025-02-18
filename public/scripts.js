@@ -255,6 +255,7 @@ function checkRememberedUser() {
             updateUserButton();
             HideOverlays();
             loadposts(loadAll);
+            obtenerNotificaciones();
         } else {
             alert("Usuario no encontrado.");
         }
@@ -2080,6 +2081,4 @@ window.onload = function() {
     verMant(mantenimiento);
     checkRememberedUser();
     init();
-    wait(200);
-    obtenerNotificaciones();
 };
