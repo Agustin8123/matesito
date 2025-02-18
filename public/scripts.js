@@ -1936,22 +1936,22 @@ function renderizarNotificaciones(notificaciones) {
         notiElemento.textContent = mensaje;
         notiElemento.dataset.id = noti.referencia_id;
 
-        notiElemento.addEventListener('click', () => marcarComoLeida(noti.id, noti.referencia_id, notiElemento));
+        notiElemento.addEventListener('click', () => marcarComoLeida(userId, noti.id, notiElemento));
         contenedor.appendChild(notiElemento);
     });
 }
 
-async function marcarComoLeida(userId, notiId, elemento) { // Cambié referenciaId por notiId
+async function marcarComoLeida(userId, notiId, elemento) {
     try {
         await fetch(`/notificaciones/${userId}/leer`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: notiId }) // Asegurar que se envía el id correcto
+            body: JSON.stringify({ id: notiId }) // Ahora envía el ID correcto
         });
-        
-        elemento.remove();
+
+        elemento.remove(); // Borra la notificación del DOM
     } catch (error) {
-        console.error('Error al marcar notificación como leída:', error);
+        console.error('Error al eliminar notificación:', error);
     }
 }
 
