@@ -2080,5 +2080,6 @@ window.onload = function() {
     verMant(mantenimiento);
     checkRememberedUser();
     init();
+    wait(200);
     obtenerNotificaciones();
 };
