@@ -203,12 +203,70 @@ app.post('/mensajes/:forumId', async (req, res) => {
         mensaje.id = formattedId;
 
         // Crear notificaciones para los participantes del foro
-        await db.query(
-            `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
-             SELECT user_id, 'foro', $1, $2 FROM participantes
-             WHERE forum_or_group_id = $2 AND is_group = FALSE AND user_id != $3`,
-            [formattedId, forumId, sender_id]
-        );
+        app.post('/mensajes/:forumId', async (req, res) => {
+            const { forumId } = req.params; // Este es el chat_or_group_id
+            const { content, sensitive, sender_id, createdAt, media, mediaType, is_private } = req.body;
+        
+            try {
+                // Insertar mensaje y obtener el ID generado
+                const result = await db.query(
+                    `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private) 
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+                     RETURNING id, chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private`,
+                    [forumId, content, sensitive, sender_id, createdAt, media, mediaType, is_private]
+                );
+        
+                const mensaje = result.rows[0];
+        
+                // Crear el ID personalizado
+                const formattedId = `F-${mensaje.id}`;
+        
+                // Actualizar el campo id con el ID formateado
+                await db.query(
+                    `UPDATE mensajes SET id = $1 WHERE id = $2`,
+                    [formattedId, mensaje.id]
+                );
+        
+                // Actualizar el objeto de respuesta con el ID formateado
+                mensaje.id = formattedId;
+        
+                if (is_private) {
+                    // Si es un mensaje privado, crear notificación para el receptor del chat
+                    const receptor = await db.query(
+                        `SELECT CASE 
+                            WHEN user1_id = $1 THEN user2_id 
+                            ELSE user1_id 
+                        END AS receptor 
+                        FROM chats 
+                        WHERE id = $2`,
+                        [sender_id, forumId]
+                    );
+        
+                    if (receptor.rows.length > 0) {
+                        // Insertar la notificación para el receptor
+                        await db.query(
+                            `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id) 
+                             VALUES ($1, 'mensaje', $2, $3)`,
+                            [receptor.rows[0].receptor, formattedId, forumId]
+                        );
+                    }
+                } else {
+                    // Si es un mensaje de foro, crear notificación para los participantes del foro
+                    await db.query(
+                        `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
+                         SELECT user_id, 'foro', $1, $2 FROM participantes
+                         WHERE forum_or_group_id = $2 AND is_group = FALSE AND user_id != $3`,
+                        [formattedId, forumId, sender_id]
+                    );
+                }
+        
+                io.emit('reloadPosts');
+                res.status(201).json(mensaje);
+            } catch (error) {
+                console.error('Error al guardar el mensaje:', error);
+                res.status(500).json({ error: 'Error al guardar el mensaje' });
+            }
+        });        
 
         io.emit('reloadPosts');
         res.status(201).json(mensaje);
@@ -1226,74 +1284,6 @@ app.post('/group/messages/:groupId', async (req, res) => {
         console.error('Error al publicar el mensaje:', error);
         res.status(500).json({ error: 'Error al publicar el mensaje.' });
     }
-});
-
-// Enviar un mensaje
-app.post('/sendMessage', (req, res) => {
-    const { senderId, chatOrGroupId, content, isPrivate, media, mediaType } = req.body;
-
-    if (!senderId || !chatOrGroupId || !content) {
-        return res.status(400).json('Datos incompletos');
-    }
-
-    const query = `
-        INSERT INTO mensajes (content, media, media_type, sender_id, chat_or_group_id, is_private, created_at) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7) 
-        RETURNING id, content, media, media_type, sender_id, chat_or_group_id, is_private, created_at
-    `;
-
-    db.query(
-        query,
-        [content, media || null, mediaType || null, senderId, chatOrGroupId, isPrivate, new Date().toISOString()],
-        async (err, result) => {
-            if (err) {
-                console.error('Error al enviar el mensaje:', err);
-                return res.status(500).json('Error al enviar el mensaje');
-            }
-
-            const mensaje = result.rows[0];
-
-            // Crear el ID personalizado
-            const formattedId = `C-${mensaje.id}`;
-
-            // Actualizar el campo id con el ID formateado
-            try {
-                await db.query(
-                    `UPDATE mensajes SET id = $1 WHERE id = $2`,
-                    [formattedId, mensaje.id]
-                );
-
-                // Actualizar el objeto de respuesta con el ID formateado
-                mensaje.id = formattedId;
-
-                // Obtener el receptor del mensaje en base al chat o grupo
-                const receptor = await db.query(
-                    `SELECT CASE 
-                        WHEN user1_id = $1 THEN user2_id 
-                        ELSE user1_id 
-                    END AS receptor 
-                    FROM chats 
-                    WHERE id = $2`,
-                    [senderId, chatOrGroupId]
-                );
-
-                if (receptor.rows.length > 0) {
-                    // Insertar la notificación para el receptor
-                    await db.query(
-                        `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id) 
-                         VALUES ($1, 'mensaje', $2, $3)`,
-                        [receptor.rows[0].receptor, formattedId, chatOrGroupId]
-                    );
-                }
-
-                io.emit('reloadPosts');
-                res.status(201).json(mensaje);
-            } catch (updateError) {
-                console.error('Error al actualizar el ID del mensaje:', updateError);
-                res.status(500).json('Error al actualizar el ID del mensaje');
-            }
-        }
-    );
 });
 
 app.get('/notificaciones/:user_id', async (req, res) => {
