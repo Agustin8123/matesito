@@ -1336,8 +1336,6 @@ let showSensitiveContent = false;
 
     activeGroup = groupId;
 
-    console.log("id del grupo cargado: ", groupId);
-
     const activeUserId = users[activeUser].id;
 
     document.getElementById('groupMessageList').innerHTML = ''; // Limpiar lista de mensajes
@@ -1917,6 +1915,20 @@ async function obtenerNotificaciones() {
     }
 }
 
+async function obtenerNotificaciones() {
+    const userId = users[activeUser].id;
+    
+    try {
+        const response = await fetch(`/notificaciones/${userId}`);
+        const notificaciones = await response.json();
+        
+        renderizarNotificaciones(notificaciones);
+        actualizarIndicadorNotificaciones(notificaciones.length > 0);
+    } catch (error) {
+        console.error('Error al obtener notificaciones:', error);
+    }
+}
+
 function renderizarNotificaciones(notificaciones) {
     const userId = users[activeUser].id;
     const contenedor = document.getElementById('renderNotif');
@@ -1939,7 +1951,6 @@ function renderizarNotificaciones(notificaciones) {
         } else if (noti.tipo === 'grupo') {
             mensaje = `Tienes nuevos mensajes del grupo ${noti.nombre}`;
             notiElemento.addEventListener('click', () => loadGroupMessages(noti.chat_or_group_id, loadAll));
-            console.log("id del grupo: ", noti.chat_or_group_id);
         } else if (noti.tipo === 'foro') {
             mensaje = `Hay una nueva publicación en el foro ${noti.nombre}`;
             notiElemento.addEventListener('click', () => loadForumPosts(noti.referencia_id, loadAll));
@@ -1954,9 +1965,10 @@ function renderizarNotificaciones(notificaciones) {
         });
 
         contenedor.appendChild(notiElemento);
-
-        actualizarIndicadorNotificaciones(true);
     });
+
+    // Mueve la actualización del indicador fuera del forEach
+    actualizarIndicadorNotificaciones(notificaciones.length > 0);
 }
 
 async function marcarComoLeida(userId, notiId, elemento) {
@@ -1982,7 +1994,7 @@ async function marcarComoLeida(userId, notiId, elemento) {
 
 function actualizarIndicadorNotificaciones(hayNotificaciones) {
     const punto = document.getElementById('puntoNotificacion');
-    punto.style.display = hayNotificaciones ? 'block' : 'none';
+    punto.style.opacity = hayNotificaciones ? '1' : '0';
 }
 
   function searchMotor() {
