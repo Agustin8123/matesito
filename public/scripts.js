@@ -1910,7 +1910,7 @@ async function obtenerNotificaciones() {
 }
 
 function renderizarNotificaciones(notificaciones) {
-    const contenedor = document.getElementById('renderNoti');
+    const contenedor = document.getElementById('renderNotif');
     contenedor.innerHTML = '';
     
     if (notificaciones.length === 0) {
