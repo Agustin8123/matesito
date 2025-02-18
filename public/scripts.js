@@ -1907,12 +1907,12 @@ async function obtenerNotificaciones() {
         const response = await fetch(`/notificaciones/${userId}`);
         const notificaciones = await response.json();
         renderizarNotificaciones(notificaciones);
+
+        if (notificaciones.length > 0) {
+            actualizarIndicadorNotificaciones(true);
+        }
     } catch (error) {
         console.error('Error al obtener notificaciones:', error);
-    }
-
-    if (notificaciones.length > 0) {
-        actualizarIndicadorNotificaciones(true);
     }
 }
 
