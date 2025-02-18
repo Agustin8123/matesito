@@ -72,6 +72,11 @@
     toggleRightMenu();
 }
 
+  function toggleBell() {
+    toggleVisibility('notifMenu', 'flex');
+    obtenerNotificaciones();
+  }
+
   function joinGroupMenu() {
     toggleVisibility('joinGrupoMenu', 'flex');
     toggleRightMenu();
@@ -98,7 +103,7 @@
 
   function toggleDetails(menu, groupId) {
     toggleVisibility(menu);
-    fetch(`https://matesito.onrender.com/grupo/${groupId}`)
+    fetch(` /grupo/${groupId}`)
         .then(response => response.json())
         .then(group => {
             // Seleccionar el contenedor dinámico basado en el groupId
@@ -118,7 +123,7 @@
 
   function toggleDetails1(menu, groupId) {
     toggleVisibility(menu);
-    fetch(`https://matesito.onrender.com/grupo/${groupId}`)
+    fetch(` /grupo/${groupId}`)
         .then(response => response.json())
         .then(group => {
             // Seleccionar el contenedor dinámico basado en el groupId
