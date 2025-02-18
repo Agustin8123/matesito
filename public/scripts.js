@@ -1900,22 +1900,6 @@ function loadUserGroups() {
         });
 }
 
-async function obtenerNotificaciones() {
-    const userId = users[activeUser].id;
-    
-    try {
-        const response = await fetch(`/notificaciones/${userId}`);
-        const notificaciones = await response.json();
-
-        if (notificaciones.length > 0) {
-            actualizarIndicadorNotificaciones(true);
-        }
-
-        renderizarNotificaciones(notificaciones);
-    } catch (error) {
-        console.error('Error al obtener notificaciones:', error);
-    }
-}
 
 async function obtenerNotificaciones() {
     const userId = users[activeUser].id;
@@ -1947,6 +1931,13 @@ function renderizarNotificaciones(notificaciones) {
         notiElemento.classList.add('Nboton');
 
         let mensaje = '';
+        let idNotificacionLeida = false;
+
+        // Verificar si el chat_or_group_id corresponde a alguno de los activos
+        if (noti.chat_or_group_id === activeForum || noti.chat_or_group_id === activeChat || noti.chat_or_group_id === activeGroup) {
+            idNotificacionLeida = true; // Marcar como leída automáticamente
+        }
+
         if (noti.tipo === 'chat') {
             mensaje = `Tienes un nuevo mensaje de ${noti.nombre}`;
             notiElemento.addEventListener('click', () => loadChatMessages(noti.chat_or_group_id, loadAll));
@@ -1961,10 +1952,15 @@ function renderizarNotificaciones(notificaciones) {
         notiElemento.textContent = mensaje;
         notiElemento.dataset.id = noti.referencia_id;
 
-        // Marcar la notificación como leída al hacer clic
-        notiElemento.addEventListener('click', async () => {
-            await marcarComoLeida(userId, noti.id, notiElemento);
-        });
+        // Si la notificación debe ser marcada como leída automáticamente
+        if (idNotificacionLeida) {
+            marcarComoLeida(userId, noti.id, notiElemento);
+        } else {
+            // Marcar la notificación como leída al hacer clic
+            notiElemento.addEventListener('click', async () => {
+                await marcarComoLeida(userId, noti.id, notiElemento);
+            });
+        }
 
         contenedor.appendChild(notiElemento);
     });
@@ -1993,6 +1989,7 @@ async function marcarComoLeida(userId, notiId, elemento) {
         console.error('Error al eliminar notificación:', error);
     }
 }
+
 
 function actualizarIndicadorNotificaciones(hayNotificaciones) {
     const punto = document.getElementById('puntoNotificacion');
