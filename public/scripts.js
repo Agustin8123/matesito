@@ -1920,7 +1920,7 @@ function renderizarNotificaciones(notificaciones) {
 
     notificaciones.forEach(noti => {
         const notiElemento = document.createElement('div');
-        notiElemento.classList.add('boton'); // Corregido, sin el punto '.'
+        notiElemento.classList.add('Nboton'); // Corregido, sin el punto '.'
 
         let mensaje = '';
         if (noti.tipo === 'chat') {
@@ -1936,7 +1936,7 @@ function renderizarNotificaciones(notificaciones) {
         notiElemento.textContent = mensaje;
         notiElemento.dataset.id = noti.referencia_id;
 
-        notiElemento.addEventListener('click', () => marcarComoLeida(noti.id, notiElemento));
+        notiElemento.addEventListener('click', () => marcarComoLeida(noti.id, noti.referencia_id, notiElemento));
         contenedor.appendChild(notiElemento);
     });
 }
@@ -2028,8 +2028,10 @@ async function marcarComoLeida(userId, referenciaId, elemento) {
         containers.forEach(container => {
             container.scrollTop = invertirOrden ? container.scrollHeight : 0;
         });
-    }    
-// Llamar a loadposts al cargar    página
+    }
+        
+//al cargar página
 window.onload = verMant(mantenimiento);
-checkRememberedUser();
+window.onload = checkRememberedUser();
 window.onload = init();
+window.onload = obtenerNotificaciones();

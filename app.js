@@ -1172,8 +1172,8 @@ app.get('/group/messages/:groupId/:userId', async (req, res) => {
     }
 });
 
-app.post('/group/messages/:groupId', async (req, res) => { 
-    const groupId = parseInt(req.params.groupId, 10); // Convertir a número
+app.post('/group/messages/:groupId', async (req, res) => {
+    const { groupId } = req.params;
     const { content, sensitive, sender_id, media, mediaType } = req.body;
 
     try {

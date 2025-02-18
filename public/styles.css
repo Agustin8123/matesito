@@ -34,9 +34,11 @@
 
         .foros-container {
             max-height: 150px; /* Ajusta el valor según lo que necesites */
-            overflow-y: auto; /* Activa la barra deslizadora cuando el contenido sobrepasa el límite */
+            overflow-y: auto; /* Activa la barra deslizadora vertical */
+            overflow-x: hidden; /* Evita la barra de desplazamiento horizontal */
             padding: 10px;
-        } 
+            white-space: nowrap; /* Evita saltos de línea dentro de los elementos */
+        }        
         
         .foros-container::-webkit-scrollbar {
             width: 8px; /* Grosor de la barra */
@@ -504,6 +506,23 @@
             border-radius: 5px;
             margin-bottom: 4px;
             width: 90px;
+            word-wrap: break-word;
+        }
+
+        .Nboton {
+            background-color: #3f3f3f;
+            border: none;
+            color: #d2d2d2;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 4px;
+            width: 240px;
             word-wrap: break-word;
         }
 
