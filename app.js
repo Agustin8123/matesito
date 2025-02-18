@@ -205,7 +205,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
         // Crear notificaciones para los participantes del foro
         await db.query(
             `INSERT INTO notificaciones (user_id, tipo, referencia_id)
-             SELECT user_id, 'mensaje_foro', $1 FROM participantes
+             SELECT user_id, 'foro', $1 FROM participantes
              WHERE forum_or_group_id = $2 AND is_group = FALSE AND user_id != $3`,
             [mensaje.id, forumId, sender_id]
         );
@@ -1215,7 +1215,7 @@ app.post('/group/messages/:groupId', async (req, res) => {
 
         await db.query(
             `INSERT INTO notificaciones (user_id, tipo, referencia_id)
-             SELECT user_id, 'mensaje_grupo', $1 FROM participantes
+             SELECT user_id, 'grupo', $1 FROM participantes
              WHERE forum_or_group_id = $2 AND is_group = TRUE AND user_id != $3`,
             [mensaje.id, groupId, sender_id]
         );
