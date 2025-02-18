@@ -1361,19 +1361,18 @@ app.get('/notificaciones/:user_id', async (req, res) => {
     }
 });
 
-// Marcar notificaciones como leídas
 app.put('/notificaciones/:user_id/leer', async (req, res) => {
     const { user_id } = req.params;
-    const { referencia_id } = req.body;
+    const { id } = req.body; // Cambié referencia_id por id
     try {
         await db.query(
-            `UPDATE notificaciones SET leido = TRUE WHERE user_id = $1 AND id = $2;`,
-            [user_id, referencia_id]
+            `DELETE FROM notificaciones WHERE user_id = $1 AND id = $2;`,
+            [user_id, id]
         );
-        res.json({ message: 'Notificaciones marcadas como leídas.' });
+        res.json({ message: 'Notificación eliminada.' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al marcar notificaciones como leídas' });
+        console.error('Error al eliminar notificación:', error);
+        res.status(500).json({ error: 'Error al eliminar notificación' });
     }
 });
 
