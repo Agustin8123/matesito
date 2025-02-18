@@ -2076,7 +2076,9 @@ function actualizarIndicadorNotificaciones(hayNotificaciones) {
     }
         
 //al cargar página
-window.onload = verMant(mantenimiento);
-window.onload = checkRememberedUser();
-window.onload = init();
-window.onload = obtenerNotificaciones();
+window.onload = function() {
+    verMant(mantenimiento);
+    checkRememberedUser();
+    init();
+    obtenerNotificaciones();
+};
