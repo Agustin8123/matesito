@@ -1946,7 +1946,7 @@ function renderizarNotificaciones(notificaciones) {
             notiElemento.addEventListener('click', () => loadGroupMessages(noti.chat_or_group_id, loadAll));
         } else if (noti.tipo === 'foro') {
             mensaje = `Hay una nueva publicación en el foro ${noti.nombre}`;
-            notiElemento.addEventListener('click', () => loadForumPosts(noti.referencia_id, loadAll));
+            notiElemento.addEventListener('click', () => loadForumPosts(noti.chat_or_group_id, loadAll));
         }
 
         notiElemento.textContent = mensaje;
