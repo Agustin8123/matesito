@@ -1367,7 +1367,7 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
     const { referencia_id } = req.body;
     try {
         await db.query(
-            `UPDATE notificaciones SET leido = TRUE WHERE user_id = $1 AND referencia_id = $2;`,
+            `UPDATE notificaciones SET leido = TRUE WHERE user_id = $1 AND id = $2;`,
             [user_id, referencia_id]
         );
         res.json({ message: 'Notificaciones marcadas como leídas.' });

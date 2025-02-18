@@ -1941,15 +1941,15 @@ function renderizarNotificaciones(notificaciones) {
     });
 }
 
-async function marcarComoLeida(userId, referenciaId, elemento) {
+async function marcarComoLeida(userId, notiId, elemento) { // Cambié referenciaId por notiId
     try {
         await fetch(`/notificaciones/${userId}/leer`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ referencia_id: referenciaId })
+            body: JSON.stringify({ id: notiId }) // Asegurar que se envía el id correcto
         });
         
-        elemento.remove(); // Eliminar del DOM tras marcar como leída
+        elemento.remove();
     } catch (error) {
         console.error('Error al marcar notificación como leída:', error);
     }

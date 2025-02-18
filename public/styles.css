@@ -37,7 +37,6 @@
             overflow-y: auto; /* Activa la barra deslizadora vertical */
             overflow-x: hidden; /* Evita la barra de desplazamiento horizontal */
             padding: 10px;
-            white-space: nowrap; /* Evita saltos de línea dentro de los elementos */
         }        
         
         .foros-container::-webkit-scrollbar {
