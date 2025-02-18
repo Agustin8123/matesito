@@ -1910,6 +1910,7 @@ async function obtenerNotificaciones() {
 }
 
 function renderizarNotificaciones(notificaciones) {
+    const userId = users[activeUser].id;
     const contenedor = document.getElementById('renderNotif');
     contenedor.innerHTML = '';
 
