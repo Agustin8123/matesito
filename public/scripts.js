@@ -1994,8 +1994,11 @@ async function marcarComoLeida(userId, notiId, elemento) {
 
 function actualizarIndicadorNotificaciones(hayNotificaciones) {
     const punto = document.getElementById('puntoNotificacion');
-    punto.style.opacity = hayNotificaciones ? '1' : '0';
+    
+    // Usa visibility en lugar de display/opacity para evitar problemas con el label
+    punto.style.visibility = hayNotificaciones ? 'visible' : 'hidden';
 }
+
 
   function searchMotor() {
     const query = document.getElementById('searchInput').value;
