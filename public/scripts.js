@@ -67,7 +67,6 @@
 
     function reloadPosts(){
         buttonsState();
-        obtenerNotificaciones();
     } 
 
     function reloadFG(){
@@ -1160,6 +1159,8 @@ let showSensitiveContent = false;
         loadGroupMessages(activeGroup, loadAll);
         groupMessageList.innerHTML = '';
     }
+
+    obtenerNotificaciones();
 }
 
 // Función para alternar la configuración de contenido sensible
