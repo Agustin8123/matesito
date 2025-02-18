@@ -1920,7 +1920,7 @@ function renderizarNotificaciones(notificaciones) {
 
     notificaciones.forEach(noti => {
         const notiElemento = document.createElement('div');
-        notiElemento.classList.add('.boton');
+        notiElemento.classList.add('boton'); // Corregido, sin el punto '.'
 
         let mensaje = '';
         if (noti.tipo === 'chat') {
@@ -1940,7 +1940,6 @@ function renderizarNotificaciones(notificaciones) {
         contenedor.appendChild(notiElemento);
     });
 }
-
 
 async function marcarComoLeida(userId, referenciaId, elemento) {
     try {
