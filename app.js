@@ -1285,7 +1285,7 @@ app.post('/sendMessage', (req, res) => {
 app.get('/notificaciones/:user_id', async (req, res) => {
     const { user_id } = req.params;
     try {
-        const notificaciones = await pool.query(
+        const notificaciones = await db.query(
             `SELECT * FROM notificaciones WHERE user_id = $1 AND leido = FALSE;`,
             [user_id]
         );
@@ -1301,7 +1301,7 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
     const { user_id } = req.params;
     const { referencia_id } = req.body;
     try {
-        await pool.query(
+        await db.query(
             `UPDATE notificaciones SET leido = TRUE WHERE user_id = $1 AND referencia_id = $2;`,
             [user_id, referencia_id]
         );
