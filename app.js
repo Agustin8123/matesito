@@ -1298,21 +1298,63 @@ app.post('/sendMessage', (req, res) => {
 
 app.get('/notificaciones/:user_id', async (req, res) => {
     const { user_id } = req.params;
-    
+
     try {
         const notificaciones = await db.query(
-            `SELECT n.id, n.tipo, n.referencia_id, n.chat_or_group_id, 
-                CASE 
-                    WHEN n.tipo = 'chat' THEN (SELECT nombre FROM chats WHERE id = n.chat_or_group_id)
-                    WHEN n.tipo = 'grupo' THEN (SELECT nombre FROM grupos WHERE id = n.chat_or_group_id)
-                    WHEN n.tipo = 'foro' THEN (SELECT nombre FROM foros WHERE id = n.chat_or_group_id)
-                END AS nombre
+            `SELECT n.id, n.tipo, n.referencia_id, n.chat_or_group_id, n.leido
              FROM notificaciones n
              WHERE n.user_id = $1 AND n.leido = FALSE;`,
             [user_id]
         );
-        
-        res.json(notificaciones.rows);
+
+        const notiDetalles = await Promise.all(
+            notificaciones.rows.map(async (noti) => {
+                let nombre = 'Desconocido';
+
+                if (noti.tipo === 'foro') {
+                    // Obtener el nombre del foro
+                    const foro = await db.query(
+                        `SELECT name FROM foros WHERE id = $1`,
+                        [noti.chat_or_group_id]
+                    );
+                    if (foro.rows.length > 0) nombre = foro.rows[0].name;
+                } else if (noti.tipo === 'grupo') {
+                    // Obtener el nombre del grupo
+                    const grupo = await db.query(
+                        `SELECT name FROM grupos WHERE id = $1`,
+                        [noti.chat_or_group_id]
+                    );
+                    if (grupo.rows.length > 0) nombre = grupo.rows[0].name;
+                } else if (noti.tipo === 'chat') {
+                    // Obtener el nombre del otro usuario en el chat
+                    const chat = await db.query(
+                        `SELECT sender_id FROM mensajes WHERE id = $1`,
+                        [noti.referencia_id]
+                    );
+
+                    if (chat.rows.length > 0) {
+                        const senderId = chat.rows[0].sender_id;
+                        const otroUsuario = await db.query(
+                            `SELECT username FROM users WHERE id = $1`,
+                            [senderId]
+                        );
+
+                        if (otroUsuario.rows.length > 0) nombre = otroUsuario.rows[0].username;
+                    }
+                }
+
+                return {
+                    id: noti.id,
+                    tipo: noti.tipo,
+                    referencia_id: noti.referencia_id,
+                    chat_or_group_id: noti.chat_or_group_id,
+                    leido: noti.leido,
+                    nombre,
+                };
+            })
+        );
+
+        res.json(notiDetalles);
     } catch (error) {
         console.error('Error al obtener notificaciones:', error);
         res.status(500).json({ error: 'Error al obtener notificaciones' });
