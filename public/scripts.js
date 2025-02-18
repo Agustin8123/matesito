@@ -1336,6 +1336,8 @@ let showSensitiveContent = false;
 
     activeGroup = groupId;
 
+    console.log("id del grupo cargado: ", groupId);
+
     const activeUserId = users[activeUser].id;
 
     document.getElementById('groupMessageList').innerHTML = ''; // Limpiar lista de mensajes
@@ -1908,6 +1910,10 @@ async function obtenerNotificaciones() {
     } catch (error) {
         console.error('Error al obtener notificaciones:', error);
     }
+
+    if (notificaciones.length > 0) {
+        actualizarIndicadorNotificaciones(true);
+    }
 }
 
 function renderizarNotificaciones(notificaciones) {
@@ -1932,6 +1938,7 @@ function renderizarNotificaciones(notificaciones) {
         } else if (noti.tipo === 'grupo') {
             mensaje = `Tienes nuevos mensajes del grupo ${noti.nombre}`;
             notiElemento.addEventListener('click', () => loadGroupMessages(noti.chat_or_group_id, loadAll));
+            console.loog("id del grupo: ", noti.chat_or_group_id);
         } else if (noti.tipo === 'foro') {
             mensaje = `Hay una nueva publicación en el foro ${noti.nombre}`;
             notiElemento.addEventListener('click', () => loadForumPosts(noti.referencia_id, loadAll));
