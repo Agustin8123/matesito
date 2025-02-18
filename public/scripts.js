@@ -1906,11 +1906,12 @@ async function obtenerNotificaciones() {
     try {
         const response = await fetch(`/notificaciones/${userId}`);
         const notificaciones = await response.json();
-        renderizarNotificaciones(notificaciones);
 
         if (notificaciones.length > 0) {
             actualizarIndicadorNotificaciones(true);
         }
+
+        renderizarNotificaciones(notificaciones);
     } catch (error) {
         console.error('Error al obtener notificaciones:', error);
     }
@@ -1938,7 +1939,7 @@ function renderizarNotificaciones(notificaciones) {
         } else if (noti.tipo === 'grupo') {
             mensaje = `Tienes nuevos mensajes del grupo ${noti.nombre}`;
             notiElemento.addEventListener('click', () => loadGroupMessages(noti.chat_or_group_id, loadAll));
-            console.loog("id del grupo: ", noti.chat_or_group_id);
+            console.log("id del grupo: ", noti.chat_or_group_id);
         } else if (noti.tipo === 'foro') {
             mensaje = `Hay una nueva publicación en el foro ${noti.nombre}`;
             notiElemento.addEventListener('click', () => loadForumPosts(noti.referencia_id, loadAll));
