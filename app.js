@@ -1266,24 +1266,24 @@ app.post('/sendMessage', (req, res) => {
                 // Actualizar el objeto de respuesta con el ID formateado
                 mensaje.id = formattedId;
 
-                if (isPrivate) {
-                    const receptor = await db.query(
-                        `SELECT CASE 
-                            WHEN user1_id = $1 THEN user2_id 
-                            ELSE user1_id 
-                        END AS receptor 
-                        FROM chats 
-                        WHERE id = $2`,
-                        [senderId, chatOrGroupId]
+                // Obtener el receptor del mensaje en base al chat o grupo
+                const receptor = await db.query(
+                    `SELECT CASE 
+                        WHEN user1_id = $1 THEN user2_id 
+                        ELSE user1_id 
+                    END AS receptor 
+                    FROM chats 
+                    WHERE id = $2`,
+                    [senderId, chatOrGroupId]
+                );
+
+                if (receptor.rows.length > 0) {
+                    // Insertar la notificación para el receptor
+                    await db.query(
+                        `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id) 
+                         VALUES ($1, 'mensaje', $2, $3)`,
+                        [receptor.rows[0].receptor, formattedId, chatOrGroupId]
                     );
-        
-                    if (receptor.rows.length > 0) {
-                        await db.query(
-                            `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id) 
-                             VALUES ($1, 'mensaje', $2, $5)`,
-                            [receptor.rows[0].receptor, formattedId]
-                        );
-                    }
                 }
 
                 io.emit('reloadPosts');
