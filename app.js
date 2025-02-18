@@ -204,10 +204,10 @@ app.post('/mensajes/:forumId', async (req, res) => {
 
         // Crear notificaciones para los participantes del foro
         await db.query(
-            `INSERT INTO notificaciones (user_id, tipo, referencia_id)
-             SELECT user_id, 'foro', $1 FROM participantes
+            `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
+             SELECT user_id, 'foro', $1, $2 FROM participantes
              WHERE forum_or_group_id = $2 AND is_group = FALSE AND user_id != $3`,
-            [mensaje.id, forumId, sender_id]
+            [formattedId, forumId, sender_id]
         );
 
         io.emit('reloadPosts');
@@ -1214,10 +1214,10 @@ app.post('/group/messages/:groupId', async (req, res) => {
         mensaje.id = formattedId;
 
         await db.query(
-            `INSERT INTO notificaciones (user_id, tipo, referencia_id)
-             SELECT user_id, 'grupo', $1 FROM participantes
+            `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
+             SELECT user_id, 'grupo', $1, $2 FROM participantes
              WHERE forum_or_group_id = $2 AND is_group = TRUE AND user_id != $3`,
-            [mensaje.id, groupId, sender_id]
+            [formattedId, groupId, sender_id]
         );
 
         io.emit('reloadPosts');
@@ -1266,11 +1266,25 @@ app.post('/sendMessage', (req, res) => {
                 // Actualizar el objeto de respuesta con el ID formateado
                 mensaje.id = formattedId;
 
-                await db.query(
-                    `INSERT INTO notificaciones (user_id, tipo, referencia_id) 
-                     VALUES ($1, 'mensaje', $2);`,
-                    [receptor.rows[0].receptor, mensaje.rows[0].id]
-                );
+                if (isPrivate) {
+                    const receptor = await db.query(
+                        `SELECT CASE 
+                            WHEN user1_id = $1 THEN user2_id 
+                            ELSE user1_id 
+                        END AS receptor 
+                        FROM chats 
+                        WHERE id = $2`,
+                        [senderId, chatOrGroupId]
+                    );
+        
+                    if (receptor.rows.length > 0) {
+                        await db.query(
+                            `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id) 
+                             VALUES ($1, 'mensaje', $2, $5)`,
+                            [receptor.rows[0].receptor, formattedId]
+                        );
+                    }
+                }
 
                 io.emit('reloadPosts');
                 res.status(201).json(mensaje);
@@ -1284,14 +1298,23 @@ app.post('/sendMessage', (req, res) => {
 
 app.get('/notificaciones/:user_id', async (req, res) => {
     const { user_id } = req.params;
+    
     try {
         const notificaciones = await db.query(
-            `SELECT * FROM notificaciones WHERE user_id = $1 AND leido = FALSE;`,
+            `SELECT n.id, n.tipo, n.referencia_id, n.chat_or_group_id, 
+                CASE 
+                    WHEN n.tipo = 'chat' THEN (SELECT nombre FROM chats WHERE id = n.chat_or_group_id)
+                    WHEN n.tipo = 'grupo' THEN (SELECT nombre FROM grupos WHERE id = n.chat_or_group_id)
+                    WHEN n.tipo = 'foro' THEN (SELECT nombre FROM foros WHERE id = n.chat_or_group_id)
+                END AS nombre
+             FROM notificaciones n
+             WHERE n.user_id = $1 AND n.leido = FALSE;`,
             [user_id]
         );
+        
         res.json(notificaciones.rows);
     } catch (error) {
-        console.error(error);
+        console.error('Error al obtener notificaciones:', error);
         res.status(500).json({ error: 'Error al obtener notificaciones' });
     }
 });

@@ -1912,22 +1912,35 @@ async function obtenerNotificaciones() {
 function renderizarNotificaciones(notificaciones) {
     const contenedor = document.getElementById('renderNotif');
     contenedor.innerHTML = '';
-    
+
     if (notificaciones.length === 0) {
         contenedor.innerHTML = '<p>No tienes notificaciones nuevas.</p>';
         return;
     }
-    
+
     notificaciones.forEach(noti => {
         const notiElemento = document.createElement('div');
-        notiElemento.classList.add('notificacion');
-        notiElemento.textContent = `Nueva notificación de tipo: ${noti.tipo}`;
+        notiElemento.classList.add('.boton');
+
+        let mensaje = '';
+        if (noti.tipo === 'chat') {
+            mensaje = `Tienes un nuevo mensaje de ${noti.nombre}`;
+        } else if (noti.tipo === 'grupo') {
+            mensaje = `Tienes nuevos mensajes del grupo ${noti.nombre}`;
+        } else if (noti.tipo === 'foro') {
+            mensaje = `Hay una nueva publicación en el foro ${noti.nombre}`;
+        } else {
+            mensaje = 'Tienes una nueva notificación';
+        }
+
+        notiElemento.textContent = mensaje;
         notiElemento.dataset.id = noti.referencia_id;
-        
-        notiElemento.addEventListener('click', () => marcarComoLeida(noti.user_id, noti.referencia_id, notiElemento));
+
+        notiElemento.addEventListener('click', () => marcarComoLeida(noti.id, notiElemento));
         contenedor.appendChild(notiElemento);
     });
 }
+
 
 async function marcarComoLeida(userId, referenciaId, elemento) {
     try {
