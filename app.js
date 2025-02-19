@@ -1265,7 +1265,6 @@ app.get('/notificaciones/:user_id', async (req, res) => {
         const notiDetalles = await Promise.all(
             notificaciones.rows.map(async (noti) => {
                 let nombre = 'Desconocido';
-                let senderId = null;
 
                 if (noti.tipo === 'foro') {
                     // Obtener el nombre del foro
@@ -1287,7 +1286,7 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                         `SELECT name FROM users WHERE id = $1`,
                         [noti.chat_or_group_id]
                     );
-
+                    if (chat.rows.length > 0) nombre = chat.rows[0].name;
                 }
 
                 return {
