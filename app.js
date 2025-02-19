@@ -211,17 +211,17 @@ app.post('/mensajes/:forumId', async (req, res) => {
                 END AS receptor 
                 FROM chats 
                 WHERE id = $2`,
-                [sender_id, forumId]
+                [sender_id, forumId] // Asegúrate de pasar el forumId como segundo parámetro
             );
-
+            
             if (receptor.rows.length > 0) {
                 // Insertar la notificación para el receptor
                 await db.query(
-                    `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
+                    `INSERT INTO notificaciones (user_id, tipo, referencia_id, sender_id)
                      VALUES ($1, 'mensaje', $2, $3)`,
-                    [receptor.rows[0].receptor, formattedId, forumId]
+                    [receptor.rows[0].receptor, formattedId, sender_id]
                 );
-            }
+            }            
         } else {
             // Si no es privado (foro), crear notificaciones para los participantes del foro
             await db.query(
@@ -1264,6 +1264,7 @@ app.get('/notificaciones/:user_id', async (req, res) => {
         const notiDetalles = await Promise.all(
             notificaciones.rows.map(async (noti) => {
                 let nombre = 'Desconocido';
+                let senderId = null;
 
                 if (noti.tipo === 'foro') {
                     // Obtener el nombre del foro
@@ -1280,14 +1281,14 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     );
                     if (grupo.rows.length > 0) nombre = grupo.rows[0].name;
                 } else if (noti.tipo === 'chat') {
-                    // Obtener el nombre del otro usuario en el chat
+                    // Obtener el sender_id y nombre del otro usuario en el chat
                     const chat = await db.query(
                         `SELECT sender_id FROM mensajes WHERE id = $1`,
                         [noti.referencia_id]
                     );
 
                     if (chat.rows.length > 0) {
-                        const senderId = chat.rows[0].sender_id;
+                        senderId = chat.rows[0].sender_id;
                         const otroUsuario = await db.query(
                             `SELECT username FROM users WHERE id = $1`,
                             [senderId]
@@ -1304,6 +1305,7 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     chat_or_group_id: noti.chat_or_group_id,
                     leido: noti.leido,
                     nombre,
+                    sender_id: senderId,  // Enviar el sender_id al frontend
                 };
             })
         );
