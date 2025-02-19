@@ -191,7 +191,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
         const mensaje = result.rows[0];
 
         // Crear el ID personalizado
-        const formattedId = `F-${mensaje.id}`;
+        const formattedId = is_private ? `C-${mensaje.id}` : `F-${mensaje.id}`;
 
         // Actualizar el campo id con el ID formateado
         await db.query(
@@ -202,71 +202,35 @@ app.post('/mensajes/:forumId', async (req, res) => {
         // Actualizar el objeto de respuesta con el ID formateado
         mensaje.id = formattedId;
 
-        // Crear notificaciones para los participantes del foro
-        app.post('/mensajes/:forumId', async (req, res) => {
-            const { forumId } = req.params; // Este es el chat_or_group_id
-            const { content, sensitive, sender_id, createdAt, media, mediaType, is_private } = req.body;
-        
-            try {
-                // Insertar mensaje y obtener el ID generado
-                const result = await db.query(
-                    `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private) 
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-                     RETURNING id, chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private`,
-                    [forumId, content, sensitive, sender_id, createdAt, media, mediaType, is_private]
-                );
-        
-                const mensaje = result.rows[0];
-        
-                // Crear el ID personalizado
-                const formattedId = `F-${mensaje.id}`;
-        
-                // Actualizar el campo id con el ID formateado
+        if (is_private) {
+            // Si es privado (chat), crear notificación para el receptor
+            const receptor = await db.query(
+                `SELECT CASE 
+                    WHEN user1_id = $1 THEN user2_id 
+                    ELSE user1_id 
+                END AS receptor 
+                FROM chats 
+                WHERE id = $2`,
+                [sender_id, forumId]
+            );
+
+            if (receptor.rows.length > 0) {
+                // Insertar la notificación para el receptor
                 await db.query(
-                    `UPDATE mensajes SET id = $1 WHERE id = $2`,
-                    [formattedId, mensaje.id]
+                    `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
+                     VALUES ($1, 'mensaje', $2, $3)`,
+                    [receptor.rows[0].receptor, formattedId, forumId]
                 );
-        
-                // Actualizar el objeto de respuesta con el ID formateado
-                mensaje.id = formattedId;
-        
-                if (is_private) {
-                    // Si es un mensaje privado, crear notificación para el receptor del chat
-                    const receptor = await db.query(
-                        `SELECT CASE 
-                            WHEN user1_id = $1 THEN user2_id 
-                            ELSE user1_id 
-                        END AS receptor 
-                        FROM chats 
-                        WHERE id = $2`,
-                        [sender_id, forumId]
-                    );
-        
-                    if (receptor.rows.length > 0) {
-                        // Insertar la notificación para el receptor
-                        await db.query(
-                            `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id) 
-                             VALUES ($1, 'mensaje', $2, $3)`,
-                            [receptor.rows[0].receptor, formattedId, forumId]
-                        );
-                    }
-                } else {
-                    // Si es un mensaje de foro, crear notificación para los participantes del foro
-                    await db.query(
-                        `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
-                         SELECT user_id, 'foro', $1, $2 FROM participantes
-                         WHERE forum_or_group_id = $2 AND is_group = FALSE AND user_id != $3`,
-                        [formattedId, forumId, sender_id]
-                    );
-                }
-        
-                io.emit('reloadPosts');
-                res.status(201).json(mensaje);
-            } catch (error) {
-                console.error('Error al guardar el mensaje:', error);
-                res.status(500).json({ error: 'Error al guardar el mensaje' });
             }
-        });        
+        } else {
+            // Si no es privado (foro), crear notificaciones para los participantes del foro
+            await db.query(
+                `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
+                 SELECT user_id, 'foro', $1, $2 FROM participantes
+                 WHERE forum_or_group_id = $2 AND is_group = FALSE AND user_id != $3`,
+                [formattedId, forumId, sender_id]
+            );
+        }
 
         io.emit('reloadPosts');
         res.status(201).json(mensaje);
