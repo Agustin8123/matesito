@@ -1943,7 +1943,7 @@ function renderizarNotificaciones(notificaciones) {
 
         if (noti.tipo === 'chat') {
             mensaje = `Tienes un nuevo mensaje de ${nombre}`;
-            notiElemento.addEventListener('click', () => createOrLoadChat(noti.senderId));
+            notiElemento.addEventListener('click', () => createOrLoadChat(noti.chat_or_group_id));
         } else if (noti.tipo === 'grupo') {
             mensaje = `Tienes nuevos mensajes del grupo ${nombre}`;
             notiElemento.addEventListener('click', () => loadGroupMessages(noti.chat_or_group_id, loadAll));
