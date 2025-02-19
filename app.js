@@ -217,7 +217,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
                 // Insertar la notificación para el receptor
                 await db.query(
                     `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
-                    VALUES ($1, 'mensaje', $2, $)`,
+                    VALUES ($1, 'mensaje', $2, $3)`,
                     [
                         receptor.rows[0].receptor, formattedId, sender_id            
                     ]
