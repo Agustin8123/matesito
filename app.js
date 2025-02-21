@@ -1282,7 +1282,7 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     // Obtener nombre sender
                     const sender = await db.query(
                         `SELECT u.name FROM users u 
-                         JOIN mensajes m ON u.id = m.sender_id 
+                         JOIN mensajes m ON u.id = m.chat_or_group_id 
                          WHERE m.id = $1`,
                         [noti.chat_or_group_id]
                     );
