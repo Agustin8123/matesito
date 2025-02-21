@@ -1280,7 +1280,7 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     if (grupo.rows.length > 0) nombre = grupo.rows[0].name;
                 } else if (noti.tipo === 'chat') {             
                     const sender = await db.query(
-                        `SELECT username FROM grupos WHERE id = $1`,
+                        `SELECT username FROM users WHERE id = $1`,
                         [noti.chat_or_group_id]
                     );                                 
                     if (sender.rows.length > 0) nombre = sender.rows[0].username;

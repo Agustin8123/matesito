@@ -1941,9 +1941,6 @@ function renderizarNotificaciones(notificaciones) {
             idNotificacionLeida = true; // Marcar como leída automáticamente
         }
 
-        // Asegúrate de que 'nombre' siempre tenga un valor
-        const nombre = noti.nombre || 'Desconocido';
-
         if (noti.tipo === 'mensaje') {
             mensaje = `Tienes un nuevo mensaje de ${nombre}`;
             notiElemento.addEventListener('click', () => createOrLoadChat(noti.chat_or_group_id));
