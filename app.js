@@ -218,7 +218,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
                 await db.query(
                     `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
                      VALUES ($1, 'mensaje', $2, $3)`,
-                    [receptor.rows[0].receptor, formattedId, forumId]
+                    [receptor.rows[0].receptor, formattedId, sender_id]
                 );                
             }     
         } else {
@@ -1284,7 +1284,7 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                         `SELECT u.name FROM users u 
                          JOIN mensajes m ON u.id = m.sender_id 
                          WHERE m.id = $1`,
-                        [noti.referencia_id]
+                        [noti.chat_or_group_id]
                     );
                     if (sender.rows.length > 0) nombre = sender.rows[0].name;                    
                 }
