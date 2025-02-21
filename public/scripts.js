@@ -1235,6 +1235,7 @@ let showSensitiveContent = false;
 
   function createOrLoadChat(user2Id) {
     const user1Id = users[activeUser].id;
+    console.log("cargando chat con id:", user2Id);
 
     if (!user1Id || !user2Id) {
         alert('IDs de usuario incompletos');
