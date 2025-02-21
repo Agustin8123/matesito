@@ -1908,6 +1908,7 @@ async function obtenerNotificaciones() {
         const response = await fetch(`/notificaciones/${userId}`);
         const notificaciones = await response.json();
         
+        console.log("Notificaciones recibidas:", notificaciones);
         renderizarNotificaciones(notificaciones);
         actualizarIndicadorNotificaciones(notificaciones.length > 0);
     } catch (error) {

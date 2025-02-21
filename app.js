@@ -1282,11 +1282,15 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     // Obtener nombre sender
                     const sender = await db.query(
                         `SELECT name FROM users WHERE id = $1`,
-                        [noti.chat_or_group_id]
-                    );              
-                    if (sender.rows.length > 0) nombre = sender.rows[0].name;                        
+                        [Number(noti.chat_or_group_id)]
+                    );                                 
+                    console.log("Resultado consulta sender:", sender.rows); // <-- Agrega esto
+                    if (sender.rows.length > 0) {
+                        nombre = sender.rows[0].name;
+                        console.log("Nombre asignado:", nombre); // <-- Y esto
+                    }                       
                 }
-
+                console.log("Enviando notificación con nombre:", nombre); // <-- Agrega esto
                 return {
                     id: noti.id,
                     tipo: noti.tipo,
@@ -1294,7 +1298,7 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     chat_or_group_id: noti.chat_or_group_id,
                     leido: noti.leido,
                     nombre,
-                };
+                };                
             })
         );
 
