@@ -1286,8 +1286,7 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     );                                 
                     console.log("Resultado consulta sender:", sender.rows); // <-- Agrega esto
                     if (sender.rows.length > 0) {
-                        nombre = sender.rows[0].name;
-                        console.log("Nombre asignado:", nombre); // <-- Y esto
+                        nombre = sender.rows[0].username;
                     }                       
                 }
                 console.log("Enviando notificación con nombre:", nombre); // <-- Agrega esto
