@@ -1281,12 +1281,9 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                 } else if (noti.tipo === 'chat') {
                     // Obtener nombre sender
                     const sender = await db.query(
-                        `SELECT u.name FROM users u 
-                         JOIN mensajes m ON u.id = m.chat_or_group_id 
-                         WHERE m.id = $1`,
+                        `SELECT name FROM users WHERE id = $1`,
                         [noti.chat_or_group_id]
-                    );
-                    if (sender.rows.length > 0) nombre = sender.rows[0].name;                    
+                    );                                      
                 }
 
                 return {
