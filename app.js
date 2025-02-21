@@ -1262,7 +1262,7 @@ app.get('/notificaciones/:user_id', async (req, res) => {
 
         const notiDetalles = await Promise.all(
             notificaciones.rows.map(async (noti) => {
-                let nombre = 'Desconocido';
+                let nombre;
 
                 if (noti.tipo === 'foro') {
                     // Obtener el nombre del foro
