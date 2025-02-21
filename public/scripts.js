@@ -1941,15 +1941,18 @@ function renderizarNotificaciones(notificaciones) {
             idNotificacionLeida = true; // Marcar como leída automáticamente
         }
 
+        const nombre = noti.nombre;
+        const chat_or_group_id = noti.chat_or_group_id;
+
         if (noti.tipo === 'mensaje') {
             mensaje = `Tienes un nuevo mensaje de ${nombre}`;
-            notiElemento.addEventListener('click', () => createOrLoadChat(noti.chat_or_group_id));
+            notiElemento.addEventListener('click', () => createOrLoadChat(chat_or_group_id));
         } else if (noti.tipo === 'grupo') {
             mensaje = `Tienes nuevos mensajes del grupo ${nombre}`;
-            notiElemento.addEventListener('click', () => loadGroupMessages(noti.chat_or_group_id, loadAll));
+            notiElemento.addEventListener('click', () => loadGroupMessages(chat_or_group_id, loadAll));
         } else if (noti.tipo === 'foro') {
             mensaje = `Hay una nueva publicación en el foro ${nombre}`;
-            notiElemento.addEventListener('click', () => loadForumPosts(noti.chat_or_group_id, loadAll));
+            notiElemento.addEventListener('click', () => loadForumPosts(chat_or_group_id, loadAll));
         } else {
             mensaje = `Tienes un notiicación que no existe, felicidades`;
         }
