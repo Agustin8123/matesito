@@ -1279,16 +1279,25 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     );
                     if (grupo.rows.length > 0) nombre = grupo.rows[0].name;
                 } else if (noti.tipo === 'chat') {
-                    // Obtener nombre sender
+                    console.log("ID que se usa en la consulta:", noti.chat_or_group_id); 
+                
                     const sender = await db.query(
                         `SELECT username FROM users WHERE id = $1`,
-                            [Number(noti.chat_or_group_id.trim())]
+                        [noti.chat_or_group_id]
                     );                                 
-                    console.log("Resultado consulta sender:", sender.rows); // <-- Agrega esto
+                
+                    console.log("Resultado consulta sender:", sender.rows); 
+                
                     if (sender.rows.length > 0) {
-                        nombre = sender.rows[0].username;
-                    }                       
+                        console.log("Valor de sender.rows[0]:", sender.rows[0]); // Muestra el objeto completo
+                
+                        nombre = sender.rows[0].username; // Asegúrate de que sea `username`
+                        console.log("Nombre asignado:", nombre);
+                    } else {
+                        console.log("No se encontró usuario con ese ID");
+                    }
                 }
+                
                 console.log("Enviando notificación con nombre:", nombre); // <-- Agrega esto
                 return {
                     id: noti.id,
