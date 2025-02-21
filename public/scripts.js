@@ -22,6 +22,15 @@
         element.style.display = 'block';
     }
     
+    function closeSesion() {
+        users = {};
+        activeUser = '';
+
+        updateUserButton();
+        document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        document.cookie = `password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    }
+
     // Función para ocultar múltiples menús
     function HideMenus(...menuIds) {
         menuIds.forEach(menuId => {
@@ -156,7 +165,6 @@ function saveSession(username, password, rememberMe) {
     } else {
         document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
         document.cookie = `password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-        console.log("Sesión eliminada.");
     }
 }
 

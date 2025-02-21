@@ -218,6 +218,12 @@
             margin-top: 10px; /* Espacio superior */
         }
 
+        @media (max-width: 480px) {
+            .preview-media {
+                width: 383px;;
+            }
+        }
+
         .header button {
             position: absolute;
             top: 20px;
