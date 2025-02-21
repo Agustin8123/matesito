@@ -1283,7 +1283,8 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     const sender = await db.query(
                         `SELECT name FROM users WHERE id = $1`,
                         [noti.chat_or_group_id]
-                    );                                      
+                    );              
+                    if (sender.rows.length > 0) nombre = sender.rows[0].name;                        
                 }
 
                 return {
