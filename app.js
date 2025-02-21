@@ -217,11 +217,9 @@ app.post('/mensajes/:forumId', async (req, res) => {
                 // Insertar la notificación para el receptor
                 await db.query(
                     `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
-                    VALUES ($1, 'mensaje', $2, $3)`,
-                    [
-                        receptor.rows[0].receptor, formattedId, sender_id            
-                    ]
-                );
+                     VALUES ($1, 'mensaje', $2, $3)`,
+                    [receptor.rows[0].receptor, formattedId, forumId]
+                );                
             }     
         } else {
             // Si no es privado (foro), crear notificaciones para los participantes del foro
@@ -1282,11 +1280,13 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     if (grupo.rows.length > 0) nombre = grupo.rows[0].name;
                 } else if (noti.tipo === 'chat') {
                     // Obtener nombre sender
-                    const chat = await db.query(
-                        `SELECT name FROM users WHERE id = $1`,
-                        [noti.chat_or_group_id]
+                    const sender = await db.query(
+                        `SELECT u.name FROM users u 
+                         JOIN mensajes m ON u.id = m.sender_id 
+                         WHERE m.id = $1`,
+                        [noti.referencia_id]
                     );
-                    if (chat.rows.length > 0) nombre = chat.rows[0].name;
+                    if (sender.rows.length > 0) nombre = sender.rows[0].name;                    
                 }
 
                 return {
