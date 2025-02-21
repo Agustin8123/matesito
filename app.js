@@ -1281,7 +1281,7 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                 } else if (noti.tipo === 'chat') {
                     // Obtener nombre sender
                     const sender = await db.query(
-                        `SELECT name FROM users WHERE id = $1`,
+                        `SELECT username FROM users WHERE id = $1`,
                         [Number(noti.chat_or_group_id)]
                     );                                 
                     console.log("Resultado consulta sender:", sender.rows); // <-- Agrega esto
