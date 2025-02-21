@@ -1945,7 +1945,7 @@ function renderizarNotificaciones(notificaciones) {
         const nombre = noti.nombre || 'Desconocido';
 
         if (noti.tipo === 'chat') {
-            mensaje = `Tienes un nuevo mensaje de un chat`;
+            mensaje = `Tienes un nuevo mensaje de ${nombre}`;
             notiElemento.addEventListener('click', () => createOrLoadChat(noti.chat_or_group_id));
         } else if (noti.tipo === 'grupo') {
             mensaje = `Tienes nuevos mensajes del grupo ${nombre}`;
@@ -1953,6 +1953,8 @@ function renderizarNotificaciones(notificaciones) {
         } else if (noti.tipo === 'foro') {
             mensaje = `Hay una nueva publicación en el foro ${nombre}`;
             notiElemento.addEventListener('click', () => loadForumPosts(noti.chat_or_group_id, loadAll));
+        } else {
+            mensaje = `Tienes un notiicación que no existe, felicidades`;
         }
 
         notiElemento.textContent = mensaje;
