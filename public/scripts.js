@@ -1927,6 +1927,7 @@ function renderizarNotificaciones(notificaciones) {
     }
 
     notificaciones.forEach(noti => {
+        console.log(noti);
         const notiElemento = document.createElement('div');
         notiElemento.classList.add('Nboton');
 
@@ -1954,6 +1955,7 @@ function renderizarNotificaciones(notificaciones) {
 
         notiElemento.textContent = mensaje;
         notiElemento.dataset.id = noti.referencia_id;
+        console.log(notiElemento);
 
         // Si la notificación debe ser marcada como leída automáticamente
         if (idNotificacionLeida) {
