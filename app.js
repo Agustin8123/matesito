@@ -26,8 +26,8 @@ db.connect()
   .then(() => console.log('Conexión a la base de datos PostgreSQL exitosa'))
   .catch(err => console.error('Error al conectar a la base de datos:', err));
 
-  // Ruta para obtener el número de reacciones
-app.get('/get/microreact--reactions/:id', async (req, res) => {
+ // Obtener la cantidad de reacciones
+ app.get('/get/microreact--reactions/:id', async (req, res) => {
     const { id } = req.params;
     const reaction = req.query.reaction;
   
@@ -49,9 +49,9 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
       console.error(err);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  });
+  });  
   
-  // Ruta para actualizar el contador de reacciones
+  // Actualizar el contador de reacciones
   app.post('/hit/microreact--reactions/:id/:reaction', async (req, res) => {
     const { id, reaction } = req.params;
     const { decrement } = req.body;
@@ -103,7 +103,7 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
       console.error(err);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  });  
+  });   
 
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
