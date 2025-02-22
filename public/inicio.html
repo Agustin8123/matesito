@@ -332,9 +332,11 @@
     </div>
 </div>
 <script src="scripts.js"></script>
+<script src="McRcScript.js"></script>
 <script src="scripts2.js"></script>
 <script src="/socket.io/socket.io.js"></script>
   <script>
+    document.addEventListener("DOMContentLoaded", () => {
     const socket = io();
 
     socket.on('reloadPosts', () => {
@@ -344,9 +346,15 @@
     socket.on('reloadFG', () => {
         reloadFG();
     });
+
     socket.on('reloadMr', () => {
-        reloadMr();
+        if (typeof reloadMr === "function") {
+            reloadMr();
+        } else {
+            console.error("reloadMr no está definido todavía.");
+        }
     });
+});
   </script>
 </body>
 </html>
