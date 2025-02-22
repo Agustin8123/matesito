@@ -117,3 +117,21 @@ if (font) {
 const styleEl = document.createElement("style");
 styleEl.textContent = css;
 document.body.appendChild(styleEl);
+
+async function reloadMr() {
+  reactions.forEach(async function (reaction) {
+      const list = document.querySelector(`[data-list-id="${reaction}"]`);
+
+      if (!list) return;
+
+      try {
+          const response = await fetch(
+              `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(reaction)}`
+          );
+          const data = await response.json();
+          list.innerText = data.value || 0;
+      } catch {
+          list.innerText = "0";
+      }
+  });
+}
