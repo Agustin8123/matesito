@@ -1659,6 +1659,24 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         });
 }
 
+async function reloadMr() {
+    reactions.forEach(async function (reaction) {
+        const list = document.querySelector(`[data-list-id="${reaction}"]`);
+
+        if (!list) return;
+
+        try {
+            const response = await fetch(
+                `/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(reaction)}`
+            );
+            const data = await response.json();
+            list.innerText = data.value || 0;
+        } catch {
+            list.innerText = "0";
+        }
+    });
+}
+
 // Función para seguir al usuario
   function followUser(userId) {
     const followerId = users[activeUser].id; // El ID del usuario que está siguiendo
