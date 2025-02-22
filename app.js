@@ -77,7 +77,7 @@ db.connect()
         }
 
         // Emitimos el evento solo una vez, después de que se haya hecho un cambio
-        io.emit('reloadPosts');
+        io.emit('reloadMr');
 
         res.status(200).json({ value: newCount });
 
