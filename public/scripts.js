@@ -1532,13 +1532,14 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             <span class="post-time">${localTime}</span>
         </div>
     </div>
+    <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
     <div class="user-profile-box" id="${uniqueId}" style="display:none; margin-bottom: 8px">
         <button onclick="viewProfile('${username}')">Ver perfil</button>
         <button onclick="followUser(${userId})">Seguir</button>
     </div>
     ${contentHTML}
     <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
-    <div id="reactions-${microReactId}" style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px; display: none;">
+    <div id="reactions-${microReactId}" style="display: none; width:100%; display:flex; align-items:center; justify-content:center; margin-top:10px;">
         <iframe 
             src="/microReact.html?id=Matesito_${microReactId}" 
             style="width: 275px; height: 100px; border: none;" 
@@ -1596,11 +1597,9 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 }
 
 function toggleReactions(postId) {
-    const reactionsDiv = document.getElementById(`reactions-${postId}`);
-    if (reactionsDiv.style.display === "none") {
-        reactionsDiv.style.display = "flex";
-    } else {
-        reactionsDiv.style.display = "none";
+    const reactionsContainer = document.getElementById(`reactions-${postId}`);
+    if (reactionsContainer) {
+        reactionsContainer.style.display = reactionsContainer.style.display === 'none' ? 'flex' : 'none';
     }
 }
 
