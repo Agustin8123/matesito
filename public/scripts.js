@@ -1523,6 +1523,16 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     const uniqueId = `userProfileBox_${userId}_${Math.random().toString(36).substr(2, 9)}`;
     const microReactId = `post-${postId}`;
 
+    newpost.setAttribute('data-reactions', '0'); // Inicialmente 0, luego se actualizará
+    newpost.setAttribute('data-createdAt', createdAt); // Para conservar el orden por fecha
+
+    fetch(`/get/microreact--reactions/${postId}?reaction=all`)
+    .then(response => response.json())
+    .then(data => {
+        newpost.setAttribute('data-reactions', data.value || 0);
+    })
+    .catch(error => console.error('Error al obtener reacciones:', error));
+
     // HTML del post con MicroReact
     newpost.innerHTML = `
     <div class="post-header">
@@ -1538,8 +1548,9 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     </div>
     ${contentHTML}
     <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
-     <div id="reactions-${microReactId}" 
-         style="position: absolute; left: -9999px; opacity: 0; transition: opacity 0.3s ease; width: 100%; align-items: center; justify-content: center; margin-top: 10px;">
+      <div id="reactions-${microReactId}" 
+         style="opacity: 0; display: none; transition: opacity 0.3s ease; width: 100%; align-items: center; justify-content: center; margin-top: 10px;"
+         data-loaded="false">
         <iframe 
             src="/microReact.html?id=Matesito_${microReactId}" 
             style="width: 275px; height: 100px; border: none;" 
@@ -1596,28 +1607,57 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     scrollToBottom();
 }
 
+let ordenarPorReacciones = false;
+
+function toggleOrdenReacciones(button) {
+    ordenarPorReacciones = !ordenarPorReacciones;
+    ordenarPosts();
+    button.textContent = ordenarPorReacciones ? "Más reacciones abajo" : "Más reacciones arriba";
+}
+
+function ordenarPosts() {
+    const postList = document.getElementById("postList");
+    const posts = Array.from(postList.children);
+
+    posts.sort((a, b) => {
+        if (ordenarPorReacciones) {
+            const reactionsA = parseInt(a.getAttribute("data-reactions")) || 0;
+            const reactionsB = parseInt(b.getAttribute("data-reactions")) || 0;
+            return reactionsB - reactionsA; // Más reacciones arriba
+        } else {
+            const timeA = new Date(a.getAttribute("data-createdAt")).getTime();
+            const timeB = new Date(b.getAttribute("data-createdAt")).getTime();
+            return invertirOrden ? timeB - timeA : timeA - timeB;
+        }
+    });
+
+    posts.forEach(post => postList.appendChild(post)); // Reordenar en el DOM
+}
+
 function toggleReactions(postId) {
     const reactionsContainer = document.getElementById(`reactions-${postId}`);
 
     if (reactionsContainer) {
-        if (reactionsContainer.dataset.loaded !== "true") {
-            // Primera vez que se muestra, lo traemos a la pantalla
-            reactionsContainer.style.position = "relative"; // Lo movemos a su lugar
-            reactionsContainer.style.left = "0"; 
-            reactionsContainer.dataset.loaded = "true"; // Marcamos como cargado
-        }
-
-        // Alternar visibilidad
-        if (reactionsContainer.style.opacity === "0") {
-            reactionsContainer.style.display = "flex"; 
+        if (reactionsContainer.dataset.loaded === "false") {
+            // Primera vez que se muestra
+            reactionsContainer.style.display = "flex"; // Se hace visible
             setTimeout(() => {
-                reactionsContainer.style.opacity = "1";
+                reactionsContainer.style.opacity = "1"; // Se muestra suavemente
             }, 50);
+            reactionsContainer.dataset.loaded = "true"; // Marcamos como cargado
         } else {
-            reactionsContainer.style.opacity = "0";
-            setTimeout(() => {
-                reactionsContainer.style.display = "none";
-            }, 300);
+            // Alternar visibilidad
+            if (reactionsContainer.style.opacity === "0") {
+                reactionsContainer.style.display = "flex"; 
+                setTimeout(() => {
+                    reactionsContainer.style.opacity = "1";
+                }, 50);
+            } else {
+                reactionsContainer.style.opacity = "0";
+                setTimeout(() => {
+                    reactionsContainer.style.display = "none";
+                }, 300); // Esperamos la transición antes de ocultarlo
+            }
         }
     }
 }
