@@ -1532,21 +1532,22 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             <span class="post-time">${localTime}</span>
         </div>
     </div>
-    ${contentHTML}
     <div class="user-profile-box" id="${uniqueId}" style="display:none;">
         <button onclick="viewProfile('${username}')">Ver perfil</button>
         <button onclick="followUser(${userId})">Seguir</button>
     </div>
-    <div style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
-       <iframe 
-        src=" /microReact.html?id=Matesito_${microReactId}" 
+    ${contentHTML}
+    <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
+    <div id="reactions-${microReactId}" style="display: none; width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
+        <iframe 
+            src="/microReact.html?id=Matesito_${microReactId}" 
             style="width: 275px; height: 100px; border: none;" 
             frameborder="0" 
             loading="lazy" 
             title="Deja una reacción">
         </iframe>
     </div>
-`;
+    `;
 
     // Añadir eventos de clic solo a los elementos interactivos
     newpost.querySelectorAll('.clickable').forEach(element => {
@@ -1592,6 +1593,15 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     }
 
     scrollToBottom();
+}
+
+function toggleReactions(postId) {
+    const reactionsDiv = document.getElementById(`reactions-${postId}`);
+    if (reactionsDiv.style.display === "none") {
+        reactionsDiv.style.display = "flex";
+    } else {
+        reactionsDiv.style.display = "none";
+    }
 }
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
