@@ -17,40 +17,35 @@ if (!id) {
   );
 }
 
-let previousReaction = null;  // Guardar la reacción anterior
 
-reactions.forEach(async function (reaction) {
+
+reactions.forEach(async    function (reaction) {
+  // Suponiendo que ya tienes la conexión de Socket.IO configurada
   const el = document.querySelector(`[data-reaction-id="${reaction}"]`);
   const list = document.querySelector(`[data-list-id="${reaction}"]`);
 
   if (!el || !list) {
-    document.body.innerHTML = `<div style="background-color:red;color:white;font-size:11.6px;padding:3px;font-family:monospace;overflow: auto;width: 262px;height: 80px;"><b>MicroReact ERROR [for website owner]:</b> Reaction ID ${reaction.replace(/</g, "&lt;").replace(/>/g, "&gt;")} not found. Check <a href="microreact.glitch.me" style="color:white;font-weight: bold;">the docs</a> for usage.<br><br>Please check your MicroReact iframe's URL and verify that it's reaction ids are only 1, 2, 3, 4 or 5 and are not separated. Example: "15". Default: "12345"</div>`;
-    throw new Error("MicroReact ERROR: Reaction ID does not exist.");
+    document.body.innerHTML = `<div style="background-color:red;color:white;font-size:11.6px;padding:3px;font-family:monospace;overflow: auto;width: 262px;height: 80px;"><b>MicroReact ERROR [for website owner]:</b> Reaction ID ${reaction
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")} not found. Check <a href="microreact.glitch.me" style="color:white;font-weight: bold;">the docs</a> for usage.<br><br>Please check your MicroReact iframe's URL and verify that it's reaction ids are only 1, 2, 3, 4 or 5 and are not separated. Example: "15". Default: "12345"</div>`;
+    throw new Error("MicroReact ERROR: Reaction ID does not exist. More details inside the iframe.");
     return;
   }
 
+  // Mostrar el botón y la lista
   el.style.display = "block";
   list.style.display = "block";
 
+  // Al hacer clic en una reacción
   el.addEventListener("click", function (evt) {
-    // Restar la cuenta de la reacción anterior si existe
-    if (previousReaction) {
-      fetch(`https://${API_BASE}/hit/microreact--reactions/${encodeURIComponent(id)}/${previousReaction}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ decrement: true })
-      }).then(response => response.json())
-        .then(data => {
-          // Actualizar la UI después de restar la reacción anterior
-          console.log('Reacción anterior restada');
-        }).catch(error => console.error('Error al restar la reacción:', error));
-    }
-
-    // Actualizar la cuenta de la nueva reacción
+    // Realiza la solicitud de actualización
     fetch(`https://${API_BASE}/hit/microreact--reactions/${encodeURIComponent(id)}/${reaction}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" }
+      headers: {
+        "Content-Type": "application/json",
+      },
     }).then(response => {
+      // Animación de la reacción
       el.style.opacity = "0";
       el.style.transform = "scale(0.8) rotate(20deg)";
       list.style.opacity = "0";
@@ -59,6 +54,7 @@ reactions.forEach(async function (reaction) {
       let originalText = el.innerText;
 
       setTimeout(async function () {
+        // Actualizar la lista de reacciones
         list.style.opacity = "1";
         list.style.marginBottom = "0px";
         el.style.opacity = ".7";
@@ -74,7 +70,7 @@ reactions.forEach(async function (reaction) {
           list.innerText = json.value || 0;
         } catch (error) {
           console.error("Error al obtener las reacciones:", error);
-          list.innerText = "0"; 
+          list.innerText = "0"; // En caso de error, se muestra 0
         }
       }, 250);
 
@@ -99,10 +95,39 @@ reactions.forEach(async function (reaction) {
           }
         });
       }
+    }).catch(error => {
+      console.error("Error al realizar la solicitud de reacción:", error);
+    });
+  });
 
-      // Guardar la nueva reacción como la reacción actual
-      previousReaction = reaction;
-    }).catch(error => console.error("Error al realizar la solicitud de reacción:", error));
+  // Obtener el número de reacciones iniciales
+  try {
+    const reactionData = await fetch(
+      `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(reaction)}`
+    );
+    const json = await reactionData.json();
+    list.innerText = json.value || 0;
+  } catch {
+    list.innerText = "0"; // En caso de error, se muestra 0
+  }
+
+  // Escuchar la respuesta del servidor para realizar alguna acción posterior
+  socket.on('reactionUpdated', async (data) => {
+    if (data.id === id && data.reaction === reaction) {
+      // Procesa la respuesta del servidor y actualiza el número de reacciones
+      console.log("Respuesta del servidor recibida:", data);
+
+      // Recargar el número de reacciones después de la respuesta
+      try {
+        const reactionData = await fetch(
+          `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(reaction)}`
+        );
+        const json = await reactionData.json();
+        list.innerText = json.value || 0;
+      } catch {
+        list.innerText = "0"; // En caso de error, se muestra 0
+      }
+    }
   });
 });
 
