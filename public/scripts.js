@@ -1532,14 +1532,13 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             <span class="post-time">${localTime}</span>
         </div>
     </div>
-    <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
     <div class="user-profile-box" id="${uniqueId}" style="display:none; margin-bottom: 8px">
         <button onclick="viewProfile('${username}')">Ver perfil</button>
         <button onclick="followUser(${userId})">Seguir</button>
     </div>
     ${contentHTML}
     <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
-    <div id="reactions-${microReactId}" style="display: none; width:100%; display:flex; align-items:center; justify-content:center; margin-top:10px;">
+    <div id="reactions-${microReactId}"width:100%; display:flex; align-items:center; justify-content:center; margin-top:10px;  style="display: none; ">
         <iframe 
             src="/microReact.html?id=Matesito_${microReactId}" 
             style="width: 275px; height: 100px; border: none;" 
