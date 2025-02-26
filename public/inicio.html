@@ -217,9 +217,11 @@
             <button id="loadAllPostsButton" class="button" style="margin: 10px auto; display: block;" onclick="togglePostLoad()">Cargar todos los posts</button>
         </div>
 
-        <button class="button" style="margin: 10px auto; display: block;" onclick="toggleOrden(this)">Más nuevos abajo</button>
-        <button class="button" style="margin: 10px auto; display: block;" onclick="toggleOrdenReacciones(this)">Más reacciones arriba</button>
-
+        <div class="contenedorBotones">
+            <button class="button" style="margin: 10px auto; display: block;" onclick="toggleOrden(this)">Más nuevos abajo</button>
+            <button class="button" style="margin: 10px auto; display: block;" onclick="toggleOrdenReacciones(this)">Más reacciones arriba</button>    
+        </div>
+        
         <ul id="postList" class="posts"></ul>
         <ul id="profileList" class="posts"></ul>
         <ul id="unicPostList" class="posts"></ul>
