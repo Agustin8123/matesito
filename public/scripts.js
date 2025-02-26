@@ -1477,6 +1477,8 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     const newpost = document.createElement('li');
     newpost.className = 'post';
 
+    newpost.dataset.postId = postId; // Asignar el postId al elemento post
+
     // Convertir fecha a hora local
     const localTime = createdAt ? new Date(createdAt).toLocaleString() : '';
 
@@ -1522,16 +1524,6 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     // Crear un id único para la caja de usuario y para el widget de MicroReact
     const uniqueId = `userProfileBox_${userId}_${Math.random().toString(36).substr(2, 9)}`;
     const microReactId = `post-${postId}`;
-
-    newpost.setAttribute('data-reactions', '0'); // Inicialmente 0, luego se actualizará
-    newpost.setAttribute('data-createdAt', createdAt); // Para conservar el orden por fecha
-
-    fetch(`/get/microreact--reactions/${postId}?reaction=all`)
-    .then(response => response.json())
-    .then(data => {
-        newpost.setAttribute('data-reactions', data.value || 0);
-    })
-    .catch(error => console.error('Error al obtener reacciones:', error));
 
     // HTML del post con MicroReact
     newpost.innerHTML = `
@@ -1607,33 +1599,6 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     scrollToBottom();
 }
 
-let ordenarPorReacciones = false;
-
-function toggleOrdenReacciones(button) {
-    ordenarPorReacciones = !ordenarPorReacciones;
-    ordenarPosts();
-    button.textContent = ordenarPorReacciones ? "Más reacciones abajo" : "Más reacciones arriba";
-}
-
-function ordenarPosts() {
-    const postList = document.getElementById("postList");
-    const posts = Array.from(postList.children);
-
-    posts.sort((a, b) => {
-        if (ordenarPorReacciones) {
-            const reactionsA = parseInt(a.getAttribute("data-reactions")) || 0;
-            const reactionsB = parseInt(b.getAttribute("data-reactions")) || 0;
-            return reactionsB - reactionsA; // Más reacciones arriba
-        } else {
-            const timeA = new Date(a.getAttribute("data-createdAt")).getTime();
-            const timeB = new Date(b.getAttribute("data-createdAt")).getTime();
-            return invertirOrden ? timeB - timeA : timeA - timeB;
-        }
-    });
-
-    posts.forEach(post => postList.appendChild(post)); // Reordenar en el DOM
-}
-
 function toggleReactions(postId) {
     const reactionsContainer = document.getElementById(`reactions-${postId}`);
 
@@ -1659,6 +1624,72 @@ function toggleReactions(postId) {
                 }, 300); // Esperamos la transición antes de ocultarlo
             }
         }
+    }
+}
+
+function toggleReactionsForAllPosts() {
+    // Obtener todos los posts
+    const posts = document.querySelectorAll('.post'); 
+
+    // Recorrer cada post
+    posts.forEach(post => {
+        // Obtener el microReactId de cada post
+        const microReactId = post.querySelector('.toggle-reactions')?.getAttribute('onclick')?.match(/'([^']+)'/)[1];
+
+        // Si se encuentra un microReactId, llamar a toggleReactions
+        if (microReactId) {
+            toggleReactions(microReactId);
+        }
+    });
+}
+
+// Función para ordenar los posts por más reacciones
+let ordenReacciones = false;  // Para controlar si los posts están ordenados por reacciones
+
+function toggleOrden(button) {
+    ordenReacciones = !ordenReacciones;
+    button.innerHTML = ordenReacciones ? "Más reacciones arriba" : "Más nuevos abajo";
+    
+    // Llamar a la función para actualizar el orden de los posts
+    sortPostsByReactions();
+}
+
+// Función para ordenar los posts por reacciones
+function sortPostsByReactions() {
+    const postList = document.getElementById('postList');
+    const posts = Array.from(postList.getElementsByClassName('post'));
+
+    if (ordenReacciones) {
+        // Obtener el número de reacciones de cada post
+        Promise.all(posts.map(async (post) => {
+            const postId = post.dataset.postId;
+            const reactionsCount = await getReactionsCount(postId);  // Función para obtener las reacciones
+            return { post, reactionsCount };
+        }))
+        .then(postReactions => {
+            // Ordenar los posts por el número de reacciones
+            postReactions.sort((a, b) => b.reactionsCount - a.reactionsCount);
+
+            // Reinsertar los posts ordenados
+            postReactions.forEach(({ post }) => {
+                postList.appendChild(post); // Mover el post dentro de la lista
+            });
+        });
+    } else {
+        // Si no se ordenan por reacciones, revertir al orden original (más recientes abajo)
+        posts.forEach(post => postList.appendChild(post));  // Reinsertar los posts en el orden original
+    }
+}
+
+// Función para obtener el número de reacciones de un post desde el backend
+async function getReactionsCount(postId) {
+    try {
+        const response = await fetch(`/get/microreact--reactions/${postId}`);
+        const data = await response.json();
+        return data.value || 0;
+    } catch (error) {
+        console.error("Error al obtener el número de reacciones:", error);
+        return 0;
     }
 }
 
