@@ -1538,7 +1538,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     </div>
     ${contentHTML}
     <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
-    <div id="reactions-${microReactId}"width:100%; display:flex; align-items:center; justify-content:center; margin-top:10px;  style="display: none; ">
+    <div id="reactions-${microReactId}" style="visibility: hidden; position: absolute; width: 0; height: 0; display: flex; align-items: center; justify-content: center; margin-top: 10px;">
         <iframe 
             src="/microReact.html?id=Matesito_${microReactId}" 
             style="width: 275px; height: 100px; border: none;" 
@@ -1598,7 +1598,17 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 function toggleReactions(postId) {
     const reactionsContainer = document.getElementById(`reactions-${postId}`);
     if (reactionsContainer) {
-        reactionsContainer.style.display = reactionsContainer.style.display === 'none' ? 'flex' : 'none';
+        if (reactionsContainer.dataset.loaded === "false") {
+            // Si es la primera vez que se muestra, lo hacemos visible
+            reactionsContainer.style.visibility = "visible";
+            reactionsContainer.style.position = "static";
+            reactionsContainer.style.width = "100%";
+            reactionsContainer.style.height = "auto";
+            reactionsContainer.dataset.loaded = "true"; // Marcamos como cargado
+        } else {
+            // Alternar entre mostrar u ocultar
+            reactionsContainer.style.display = reactionsContainer.style.display === "none" ? "flex" : "none";
+        }
     }
 }
 
