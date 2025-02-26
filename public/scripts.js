@@ -1539,8 +1539,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     ${contentHTML}
     <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
      <div id="reactions-${microReactId}" 
-         style="opacity: 0; display: none; transition: opacity 0.3s ease; width: 100%; align-items: center; justify-content: center; margin-top: 10px;"
-         data-loaded="false">
+         style="position: absolute; left: -9999px; opacity: 0; transition: opacity 0.3s ease; width: 100%; align-items: center; justify-content: center; margin-top: 10px;">
         <iframe 
             src="/microReact.html?id=Matesito_${microReactId}" 
             style="width: 275px; height: 100px; border: none;" 
@@ -1601,26 +1600,24 @@ function toggleReactions(postId) {
     const reactionsContainer = document.getElementById(`reactions-${postId}`);
 
     if (reactionsContainer) {
-        if (reactionsContainer.dataset.loaded === "false") {
-            // Primera vez que se muestra
-            reactionsContainer.style.display = "flex"; // Se hace visible
-            setTimeout(() => {
-                reactionsContainer.style.opacity = "1"; // Se muestra suavemente
-            }, 50);
+        if (reactionsContainer.dataset.loaded !== "true") {
+            // Primera vez que se muestra, lo traemos a la pantalla
+            reactionsContainer.style.position = "relative"; // Lo movemos a su lugar
+            reactionsContainer.style.left = "0"; 
             reactionsContainer.dataset.loaded = "true"; // Marcamos como cargado
+        }
+
+        // Alternar visibilidad
+        if (reactionsContainer.style.opacity === "0") {
+            reactionsContainer.style.display = "flex"; 
+            setTimeout(() => {
+                reactionsContainer.style.opacity = "1";
+            }, 50);
         } else {
-            // Alternar visibilidad
-            if (reactionsContainer.style.opacity === "0") {
-                reactionsContainer.style.display = "flex"; 
-                setTimeout(() => {
-                    reactionsContainer.style.opacity = "1";
-                }, 50);
-            } else {
-                reactionsContainer.style.opacity = "0";
-                setTimeout(() => {
-                    reactionsContainer.style.display = "none";
-                }, 300); // Esperamos la transición antes de ocultarlo
-            }
+            reactionsContainer.style.opacity = "0";
+            setTimeout(() => {
+                reactionsContainer.style.display = "none";
+            }, 300);
         }
     }
 }
