@@ -1646,7 +1646,7 @@ function toggleReactionsForAllPosts() {
 // Función para ordenar los posts por más reacciones
 let ordenReacciones = false;  // Para controlar si los posts están ordenados por reacciones
 
-function toggleOrden(button) {
+function toggleOrdenR(button) {
     ordenReacciones = !ordenReacciones;
     button.innerHTML = ordenReacciones ? "Más reacciones arriba" : "Más nuevos abajo";
     
