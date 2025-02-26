@@ -1532,13 +1532,13 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             <span class="post-time">${localTime}</span>
         </div>
     </div>
-    <div class="user-profile-box" id="${uniqueId}" style="display:none;">
+    <div class="user-profile-box" id="${uniqueId}" style="display:none; margin-bottom: 8px">
         <button onclick="viewProfile('${username}')">Ver perfil</button>
         <button onclick="followUser(${userId})">Seguir</button>
     </div>
     ${contentHTML}
     <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
-    <div id="reactions-${microReactId}" style="display: none; width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
+    <div id="reactions-${microReactId}" style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px; display: none;">
         <iframe 
             src="/microReact.html?id=Matesito_${microReactId}" 
             style="width: 275px; height: 100px; border: none;" 
@@ -1605,17 +1605,13 @@ function toggleReactions(postId) {
 }
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
-  function toggleUserProfileBox(uniqueId) {
-    // Ocultar todas las cajas de perfil
-    const allProfileBoxes = document.querySelectorAll('.user-profile-box');
-    allProfileBoxes.forEach(box => box.style.display = 'none');
-
-    // Mostrar u ocultar la caja correspondiente
+function toggleUserProfileBox(uniqueId) {
     const userProfileBox = document.getElementById(uniqueId);
     if (userProfileBox) {
         userProfileBox.style.display = userProfileBox.style.display === 'none' ? 'block' : 'none';
     }
 }
+
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
   function viewProfile(username, loadAll) {
