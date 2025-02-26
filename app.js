@@ -26,8 +26,7 @@ db.connect()
   .then(() => console.log('Conexión a la base de datos PostgreSQL exitosa'))
   .catch(err => console.error('Error al conectar a la base de datos:', err));
 
- // Obtener la cantidad de reacciones
- app.get('/get/microreact--reactions/:id', async (req, res) => {
+  app.get('/get/microreact--reactions/:id', async (req, res) => {
     const { id } = req.params;
     const reaction = req.query.reaction;
   
@@ -52,59 +51,66 @@ db.connect()
   });  
   
   // Actualizar el contador de reacciones
-  app.post('/hit/microreact--reactions/:id/:reaction', async (req, res) => {
-    const { id, reaction } = req.params;
-    const { decrement } = req.body;
+  // Ruta para obtener el número de reacciones
+app.get('/get/microreact--reactions/:id', async (req, res) => {
+    const { id } = req.params;
+    const reaction = req.query.reaction;
+  
+    if (!reaction) {
+      return res.status(400).json({ error: 'Reaction parameter is missing' });
+    }
   
     try {
-      if (decrement) {
-        // Restar una reacción de la anterior
-        const result = await db.query(
-          'UPDATE reactions SET count = count - 1 WHERE id = $1 AND reaction_id = $2 RETURNING count',
-          [id, reaction]
-        );
+      const result = await db.query(
+        `SELECT SUM(count) AS total_count 
+         FROM reactions 
+         WHERE id LIKE $1 || '%' AND reaction_id = $2`,
+        [id, reaction]
+      );
   
-        let newCount;
-        if (result.rows.length === 0) {
-          newCount = 0; // Si no existe, el valor será 0
-        } else {
-          newCount = result.rows[0].count;
-        }
-  
-        // Emitir el evento de actualización a través de Socket.IO
-        io.emit('reactionUpdated', { id, reaction, count: newCount });
-  
-        return res.status(200).json({ value: newCount });
-      } else {
-        // Incrementar la cuenta de la reacción como antes
-        const result = await db.query(
-          'UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2 RETURNING count',
-          [id, reaction]
-        );
-  
-        let newCount;
-        if (result.rows.length === 0) {
-          // Si no existía, insertamos una nueva fila
-          const insertResult = await db.query(
-            'INSERT INTO reactions (id, reaction_id, count) VALUES ($1, $2, 1) RETURNING count',
-            [id, reaction]
-          );
-          newCount = insertResult.rows[0].count;
-        } else {
-          newCount = result.rows[0].count;
-        }
-  
-        // Emitir el evento de actualización a través de Socket.IO
-        io.emit('reactionUpdated', { id, reaction, count: newCount });
-  
-        return res.status(200).json({ value: newCount });
-      }
+      const totalCount = result.rows[0].total_count || 0; // Manejo si el resultado es `null`
+      res.status(200).json({ value: totalCount });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  });   
-
+  });
+  
+  // Ruta para actualizar el contador de reacciones
+  app.post('/hit/microreact--reactions/:id/:reaction', async (req, res) => {
+    const { id, reaction } = req.params;
+  
+    try {
+      // Intentamos actualizar el contador en la base de datos
+      const result = await db.query(
+        'UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2 RETURNING count',
+        [id, reaction]
+      );
+  
+      let newCount;
+  
+      if (result.rows.length === 0) {
+        // Si no existía, insertamos una nueva fila
+        const insertResult = await db.query(
+          'INSERT INTO reactions (id, reaction_id, count) VALUES ($1, $2, 1) RETURNING count',
+          [id, reaction]
+        );
+        newCount = insertResult.rows[0].count;
+      } else {
+        newCount = result.rows[0].count;
+      }
+  
+      // Emitir el evento de actualización a través de Socket.IO
+      io.emit('reactionUpdated', { id, reaction, count: newCount }); // Emite a todos los clientes
+  
+      // Responder con el nuevo conteo
+      res.status(200).json({ value: newCount });
+  
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });  
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
     const { username, password, profileImage } = req.body;
