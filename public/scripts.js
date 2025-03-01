@@ -1526,27 +1526,30 @@ const microReactId = `post-${postId}`;
 
 // HTML del post con MicroReact
 newpost.innerHTML = `
-<div class="post-header">
-    ${profilePicHTML}
-    <div class="post-user-info">
-        <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${username}:</span>
-        <span class="post-time">${localTime}</span>
+    <div class="post-header">
+        ${profilePicHTML}
+        <div class="post-user-info">
+            <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${username}:</span>
+            <span class="post-time">${localTime}</span>
+        </div>
     </div>
-</div>
-${contentHTML}
-<div class="user-profile-box" id="${uniqueId}" style="display:none;">
-    <button onclick="viewProfile('${username}')">Ver perfil</button>
-    <button onclick="followUser(${userId})">Seguir</button>
-</div>
-<div style="width:100%;display:flex;align-items:center;justify-content:center;margin-top:10px;">
-   <iframe 
-    src=" /microReact.html?id=Matesito_${microReactId}" 
-        style="width: 275px; height: 100px; border: none;" 
-        frameborder="0" 
-        loading="lazy" 
-        title="Deja una reacción">
-    </iframe>
-</div>
+    <div class="user-profile-box" id="${uniqueId}" style="display:none; margin-bottom: 8px">
+        <button onclick="viewProfile('${username}')">Ver perfil</button>
+        <button onclick="followUser(${userId})">Seguir</button>
+    </div>
+    ${contentHTML}
+    <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
+    <div id="reactions-${microReactId}" 
+         style="opacity: 0; display: none; transition: opacity 0.3s ease; width: 100%; align-items: center; justify-content: center; margin-top: 10px;"
+         data-loaded="false">
+        <iframe 
+            src="/microReact.html?id=Matesito_${microReactId}" 
+            style="width: 275px; height: 100px; border: none;" 
+            frameborder="0" 
+            loading="lazy" 
+            title="Deja una reacción">
+        </iframe>
+    </div>
 `;
 
 // Añadir eventos de clic solo a los elementos interactivos
@@ -1593,6 +1596,34 @@ if (invertirOrden) {
 }
 
 scrollToBottom();
+}
+
+function toggleReactions(postId) {
+    const reactionsContainer = document.getElementById(`reactions-${postId}`);
+
+    if (reactionsContainer) {
+        if (reactionsContainer.dataset.loaded === "false") {
+            // Primera vez que se muestra
+            reactionsContainer.style.display = "flex"; // Se hace visible
+            setTimeout(() => {
+                reactionsContainer.style.opacity = "1"; // Se muestra suavemente
+            }, 50);
+            reactionsContainer.dataset.loaded = "true"; // Marcamos como cargado
+        } else {
+            // Alternar visibilidad
+            if (reactionsContainer.style.opacity === "0") {
+                reactionsContainer.style.display = "flex"; 
+                setTimeout(() => {
+                    reactionsContainer.style.opacity = "1";
+                }, 50);
+            } else {
+                reactionsContainer.style.opacity = "0";
+                setTimeout(() => {
+                    reactionsContainer.style.display = "none";
+                }, 300); // Esperamos la transición antes de ocultarlo
+            }
+        }
+    }
 }
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
