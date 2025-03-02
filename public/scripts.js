@@ -1617,19 +1617,32 @@ async function renderPostsOrdenados(listId, invertirOrden, totals) {
     const postList = document.getElementById(listId);
     
     try {
-        let sortedPosts = [...postsArray].sort((a, b) => {
-            // Generar clave completa para coincidir con el API
-            const claveA = `Matesito_post-${a.postId}`;
-            const claveB = `Matesito_post-${b.postId}`;
-            
-            const totalA = parseInt(totals[claveA] || 0);
-            const totalB = parseInt(totals[claveB] || 0);
-            
-            return totalB - totalA; // Orden descendente
-        });
+        let sortedPosts = [...postsArray];
+
+        if (ordenarReacciones) {
+            // Ordenar por cantidad de reacciones
+            sortedPosts.sort((a, b) => {
+                const claveA = `Matesito_post-${a.postId}`;
+                const claveB = `Matesito_post-${b.postId}`;
+
+                const totalA = parseInt(totals[claveA] || 0);
+                const totalB = parseInt(totals[claveB] || 0);
+
+                return totalB - totalA; // Orden descendente (más reacciones primero)
+            });
+        } else {
+            // Ordenar por fecha de creación (más nuevos primero)
+            sortedPosts.sort((a, b) => {
+                const dateA = new Date(a.postElement.querySelector(".post-time").textContent);
+                const dateB = new Date(b.postElement.querySelector(".post-time").textContent);
+
+                return dateB - dateA; // Orden descendente (más nuevos primero)
+            });
+        }
 
         if (invertirOrden) sortedPosts.reverse();
 
+        // Renderizar los posts ordenados
         const fragment = document.createDocumentFragment();
         sortedPosts.forEach(({ postElement }) => {
             fragment.appendChild(postElement);
