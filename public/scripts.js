@@ -1732,10 +1732,10 @@ fetch(` /posts/user/${username}`)
     .then(posts => {
         const postsToRender = loadAll ? posts : posts.slice(0, 12);
 
-        postsToRender.forEach((post, index) => {
+        postsToRender.forEach((posts, index) => {
             const esUltimoPost = index === postsToRender.length - 1;
             
-            const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = post;
+            const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = posts;
             addpostToList(
                 content, media, mediaType, username, 
                 profilePicture, sensitive, createdAt, 
