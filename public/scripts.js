@@ -239,46 +239,51 @@ const userImage = users[activeUser] && users[activeUser].profileImage
 userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
 }
 
-
 function setActiveUser(username) {
-fetch(' /getUserDetails', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username }),
-})
-.then(response => response.json())
-.then(data => {
-    if (data.id) {
-        // Guardar detalles del usuario activo
-        activeUser = username;
-        if (!users[username]) {
-            users[username] = {}; // Asegurarse de que el usuario exista en la estructura
+    fetch('/getUserDetails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.id) {
+            // Guardar detalles del usuario activo
+            activeUser = username;
+            if (!users[username]) {
+                users[username] = {}; // Asegurar que el usuario exista en la estructura
+            }
+
+            // Guardar el ID del usuario
+            users[username].id = data.id;
+
+            // Guardar la imagen de perfil (o usar una por defecto)
+            users[username].profileImage = data.profileImage || 'default-avatar.png';
+
+            // Guardar el ID en las cookies
+            document.cookie = `userID=${data.id}; path=/;`;
+
+            // Actualizar la UI
+            hideUserSelectOverlay();
+            document.getElementById('appContainer').style.display = 'block';
+            updateUserButton();
+            HideOverlays();
+            loadposts(loadAll);
+            obtenerNotificaciones();
+        } else {
+            alert("Usuario no encontrado.");
         }
-
-        // Guardar el ID del usuario
-        users[username].id = data.id;
-
-        // Guardar la imagen de perfil (o usar una por defecto)
-        users[username].profileImage = data.profileImage || 'default-avatar.png'; 
-
-        // Actualizar la UI
-        hideUserSelectOverlay();
-        document.getElementById('appContainer').style.display = 'block';
-        updateUserButton();
-        HideOverlays();
-        loadposts(loadAll);
-        obtenerNotificaciones();
-    } else {
-        alert("Usuario no encontrado.");
-    }
-})
-.catch(error => {
-    console.error("Error al obtener los detalles del usuario:", error);
-    alert("Error al obtener los detalles del usuario.");
-});
+    })
+    .catch(error => {
+        console.error("Error al obtener los detalles del usuario:", error);
+        alert("Error al obtener los detalles del usuario.");
+    });
 }
 
-
+// Borrar la cookie cuando se cierra la pestaña o el navegador
+window.addEventListener('beforeunload', () => {
+    document.cookie = "userID=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+});
 
 function showUserSelectOverlay() {
 document.getElementById('initialOverlay').style.display = 'flex';
@@ -855,7 +860,6 @@ async function sendForumMessage(forumId) {
             // Añadir los datos de media al mensaje
             messageData.media = media;
             messageData.mediaType = mediaType;
-            console.log(media);
         } catch (error) {
             console.error('Error al subir el archivo:', error);
             alert('Error al subir el archivo.');
@@ -1251,7 +1255,6 @@ fetch(' /posts')
 
 function createOrLoadChat(user2Id) {
 const user1Id = users[activeUser].id;
-console.log("cargando chat con id:", user2Id);
 
 if (!user1Id || !user2Id) {
     alert('IDs de usuario incompletos');
@@ -1511,7 +1514,6 @@ function toggleOrdenR(button) {
 async function cargarTotalesDeReacciones() {
     try {
         const response = await fetch('/api/reactions/totals');
-        console.log("totales:", response);
         return await response.json();
     } catch (error) {
         console.error('Error al cargar los totales de reacciones:', error);
@@ -1605,7 +1607,6 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     postsArray.push({ postElement: newpost, postId });
 
     if (esUltimoPost) {
-        console.log("Todos los posts han sido agregados. Cargando totales...");
         await cargarTotalesYOrdenar(listId, invertirOrden);
     }
     scrollTo();
@@ -1662,9 +1663,7 @@ async function renderPostsOrdenados(listId, invertirOrden, totals) {
 
 async function cargarTotalesYOrdenar(listId, invertirOrden) {
     try {
-        console.log("Llamando a cargarTotalesDeReacciones...");
         const totals = await cargarTotalesDeReacciones();
-        console.log("Totales obtenidos:", totals);
         await renderPostsOrdenados(listId, invertirOrden, totals);
     } catch (error) {
         console.error("Error al cargar y ordenar posts:", error);
@@ -2026,7 +2025,6 @@ try {
     const response = await fetch(`/notificaciones/${userId}`);
     const notificaciones = await response.json();
     
-    console.log("Notificaciones recibidas:", notificaciones);
     renderizarNotificaciones(notificaciones);
     actualizarIndicadorNotificaciones(notificaciones.length > 0);
 } catch (error) {
@@ -2046,7 +2044,6 @@ if (notificaciones.length === 0) {
 }
 
 notificaciones.forEach(noti => {
-    console.log(noti);
     const notiElemento = document.createElement('div');
     notiElemento.classList.add('Nboton');
 
@@ -2076,7 +2073,6 @@ notificaciones.forEach(noti => {
 
     notiElemento.textContent = mensaje;
     notiElemento.dataset.id = noti.referencia_id;
-    console.log(notiElemento);
 
     // Si la notificación debe ser marcada como leída automáticamente
     if (idNotificacionLeida) {
