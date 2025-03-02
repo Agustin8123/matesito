@@ -1624,26 +1624,31 @@ async function renderPostsOrdenados(listId, invertirOrden) {
     try {
         const totals = await cargarTotalesDeReacciones();
         
-        // 1. Ordenar COPIA del array para no afectar el original
-        const sortedPosts = [...postsArray].sort((a, b) => {
+        // 1. Ordenar por reacciones (mayor a menor)
+        let sortedPosts = [...postsArray].sort((a, b) => {
             return (totals[b.postId] || 0) - (totals[a.postId] || 0);
         });
 
-        // 2. Crear fragmento para actualización atómica
+        // 2. Aplicar inversión si está activado
+        if (invertirOrden) {
+            sortedPosts = sortedPosts.reverse(); // Invertir el orden
+        }
+
+        // 3. Crear fragmento
         const fragment = document.createDocumentFragment();
         
         sortedPosts.forEach(({ postElement }) => {
-            fragment.appendChild(postElement.cloneNode(true)); // Clonar para evitar conflictos
+            fragment.appendChild(postElement.cloneNode(true));
         });
 
-        // 3. Reemplazar contenido de manera síncrona
+        // 4. Actualizar DOM
         postList.innerHTML = '';
         postList.appendChild(fragment);
 
-        // 4. Mantener postsArray para posibles reordenamientos
+        // 5. Mantener estado actualizado
         postsArray = sortedPosts.map(post => ({
             ...post,
-            postElement: post.postElement.cloneNode(true) // Actualizar referencias
+            postElement: post.postElement.cloneNode(true)
         }));
 
     } catch (error) {
