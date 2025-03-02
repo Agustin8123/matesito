@@ -114,6 +114,24 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
     }
   });  
 
+  app.get('/api/reactions/totals', async (req, res) => {
+    try {
+        const result = await db.query(`
+            SELECT id, SUM(count) AS total
+            FROM reactions
+            GROUP BY id
+        `);
+        const totals = {};
+        result.rows.forEach(row => {
+            totals[row.id] = row.total; // Guardar totales en un objeto { postId: total }
+        });
+        res.json(totals);
+    } catch (error) {
+        console.error('Error obteniendo totales de reacciones:', error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
     const { username, password, profileImage } = req.body;
