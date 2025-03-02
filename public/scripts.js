@@ -1629,7 +1629,7 @@ async function renderPostsOrdenados(listId, invertirOrden, totals) {
         
         // 1. Ordenar por reacciones (mayor a menor)
         let sortedPosts = [...postsArray].sort((a, b) => {
-            return (totals[b.postId] || 0) - (totals[a.postId] || 0);
+            return (parseInt(totals[b.postId] || "0", 10)) - (parseInt(totals[a.postId] || "0", 10));
         });
 
         // 2. Aplicar inversión si está activado
