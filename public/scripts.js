@@ -1532,7 +1532,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         ? `<img src="${profilePicture}" alt="Foto de perfil de ${username}" class="profile-picture">`
         : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
 
-    // Media del post (imagen/video/audio)
+    // Media del post
     let mediaHTML = '';
     if (media && mediaType) {
         if (mediaType.startsWith('image/')) {
@@ -1555,7 +1555,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     }
 
     // Contenido sensible
-    let contentHTML = sensitive === true
+    let contentHTML = sensitive
         ? `<div class="sensitive-content">
                 <p>⚠ Este contenido ha sido marcado como sensible</p>
                 <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Mostrar contenido</button>
@@ -1566,7 +1566,6 @@ async function addpostToList(content, media, mediaType, username, profilePicture
             </div>`
         : `<div class="post-content clickable">${content}${mediaHTML}</div>`;
 
-    // Crear un id único para la caja de usuario y para el widget de MicroReact
     const uniqueId = `userProfileBox_${userId}_${Math.random().toString(36).substr(2, 9)}`;
     const microReactId = `post-${postId}`;
 
@@ -1598,61 +1597,42 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         </div>
     `;
 
-    if (ordenarReacciones) {
-        postsArray.push({ postElement: newpost, postId });
-        
-        // Esperar hasta que el último post sea agregado antes de ordenar
-        if (esUltimoPost) {
-            console.log("Se han agregado todos los posts. Cargando totales...");
-            await cargarTotalesYOrdenar(listId, invertirOrden);
-        }
-    } else {
-        // Agregar directamente si no hay ordenamiento
-        if (invertirOrden) {
-            postList.insertBefore(newpost, postList.firstChild);
-        } else {
-            postList.appendChild(newpost);
-        }
-    }
+    postsArray.push({ postElement: newpost, postId });
 
-    scrollToBottom();
+    if (esUltimoPost) {
+        console.log("Todos los posts han sido agregados. Cargando totales...");
+        await cargarTotalesYOrdenar(listId, invertirOrden);
+    }
 }
 
-// Función para renderizar posts ordenados
 async function renderPostsOrdenados(listId, invertirOrden, totals) {
-    if (!ordenarReacciones || isSortingInProgress) return;
+    if (isSortingInProgress) return;
 
     isSortingInProgress = true;
     const postList = document.getElementById(listId);
     
     try {
-        
         // 1. Ordenar por reacciones (mayor a menor)
         let sortedPosts = [...postsArray].sort((a, b) => {
             return (parseInt(totals[b.postId] || "0", 10)) - (parseInt(totals[a.postId] || "0", 10));
         });
 
-        // 2. Aplicar inversión si está activado
         if (invertirOrden) {
-            sortedPosts = sortedPosts.reverse(); // Invertir el orden
+            sortedPosts.reverse();
         }
 
-        // 3. Crear fragmento
+        // 2. Crear un fragmento con los posts ordenados
         const fragment = document.createDocumentFragment();
-        
         sortedPosts.forEach(({ postElement }) => {
-            fragment.appendChild(postElement.cloneNode(true));
+            fragment.appendChild(postElement);
         });
 
-        // 4. Actualizar DOM
+        // 3. Actualizar DOM
         postList.innerHTML = '';
         postList.appendChild(fragment);
 
-        // 5. Mantener estado actualizado
-        postsArray = sortedPosts.map(post => ({
-            ...post,
-            postElement: post.postElement.cloneNode(true)
-        }));
+        // 4. Actualizar postsArray sin clonar
+        postsArray = sortedPosts;
 
     } catch (error) {
         console.error('Error al ordenar:', error);
@@ -1671,7 +1651,6 @@ async function cargarTotalesYOrdenar(listId, invertirOrden) {
         console.error("Error al cargar y ordenar posts:", error);
     }
 }
-
 
 function toggleReactions(postId) {
     const reactionsContainer = document.getElementById(`reactions-${postId}`);
