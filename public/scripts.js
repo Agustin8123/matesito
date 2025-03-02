@@ -17,6 +17,8 @@ let mantenimiento = false;
 let selectedFile = null;
 let loadAll = false;
 let invertirOrden = true;
+let ordenarReacciones = true; // Cambia esto según necesites
+let postsArray = []; // Guardará los posts temporalmente
 
 function ToggleVisibility(elementId) {
     const element = document.getElementById(elementId);
@@ -1468,134 +1470,162 @@ button.textContent = invertirOrden ? 'Más nuevos abajo' : 'Más nuevos arriba';
 reloadPosts();
 }
 
-function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId, invertirOrden) {
-const postList = document.getElementById(listId);
-if (!postList) {
-    console.error(`No se encontró el contenedor con id "${listId}".`);
-    return;
-}
-
-const newpost = document.createElement('li');
-newpost.className = 'post';
-
-// Convertir fecha a hora local
-const localTime = createdAt ? new Date(createdAt).toLocaleString() : '';
-
-// Imagen del perfil
-const profilePicHTML = profilePicture
-    ? `<img src="${profilePicture}" alt="Foto de perfil de ${username}" class="profile-picture">`
-    : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
-
-// Media del post (imagen/video/audio)
-let mediaHTML = '';
-if (media && mediaType) {
-    if (mediaType.startsWith('image/')) {
-        mediaHTML = `<div><img src="${media}" alt="Imagen subida por ${username}" class="preview-media clickable"></div>`;
-    } else if (mediaType.startsWith('video/')) {
-        mediaHTML = `<div>
-                        <video controls class="preview-media clickable">
-                            <source src="${media}" type="${mediaType}">
-                            Tu navegador no soporta la reproducción de video.
-                        </video>
-                     </div>`;
-    } else if (mediaType.startsWith('audio/')) {
-        mediaHTML = `<div>
-                        <audio controls class="preview-media clickable">
-                            <source src="${media}" type="${mediaType}">
-                            Tu navegador no soporta la reproducción de audio.
-                        </audio>
-                     </div>`;
+async function cargarTotalesDeReacciones() {
+    try {
+        const response = await fetch('/api/reactions/totals');
+        return await response.json();
+    } catch (error) {
+        console.error('Error al cargar los totales de reacciones:', error);
+        return {};
     }
 }
 
-// Contenido sensible
-let contentHTML = sensitive === true
-    ? `<div class="sensitive-content">
-            <p>⚠ Este contenido ha sido marcado como sensible</p>
-            <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Mostrar contenido</button>
-            <div class="hidden-content clickable" style="display:none;">
-                ${content}
-                ${mediaHTML}
-            </div>
-       </div>`
-    : `<div class="post-content clickable">${content}${mediaHTML}</div>`;
+async function addPostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId, invertirOrden) {
+    const postList = document.getElementById(listId);
+    if (!postList) {
+        console.error(`No se encontró el contenedor con id "${listId}".`);
+        return;
+    }
 
-// Crear un id único para la caja de usuario y para el widget de MicroReact
-const uniqueId = `userProfileBox_${userId}_${Math.random().toString(36).substr(2, 9)}`;
-const microReactId = `post-${postId}`;
+    const newpost = document.createElement('li');
+    newpost.className = 'post';
 
-// HTML del post con MicroReact
-newpost.innerHTML = `
-    <div class="post-header">
-        ${profilePicHTML}
-        <div class="post-user-info">
-            <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${username}:</span>
-            <span class="post-time">${localTime}</span>
-        </div>
-    </div>
-    <div class="user-profile-box" id="${uniqueId}" style="display:none; margin-bottom: 8px">
-        <button onclick="viewProfile('${username}')">Ver perfil</button>
-        <button onclick="followUser(${userId})">Seguir</button>
-    </div>
-    ${contentHTML}
-    <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
-    <div id="reactions-${microReactId}" 
-         style="opacity: 0; display: none; transition: opacity 0.3s ease; width: 100%; align-items: center; justify-content: center; margin-top: 10px;"
-         data-loaded="false">
-        <iframe 
-            src="/microReact.html?id=Matesito_${microReactId}" 
-            style="width: 275px; height: 100px; border: none;" 
-            frameborder="0" 
-            loading="lazy" 
-            title="Deja una reacción">
-        </iframe>
-    </div>
-`;
+    // Convertir fecha a hora local
+    const localTime = createdAt ? new Date(createdAt).toLocaleString() : '';
 
-// Añadir eventos de clic solo a los elementos interactivos
-newpost.querySelectorAll('.clickable').forEach(element => {
-    element.style.cursor = 'pointer'; // Cambiar cursor al pasar por encima
-    element.addEventListener('click', () => {
-        const unicPostList = document.getElementById('unicPostList');
-        const postList = document.getElementById('postList');
-        const profileList = document.getElementById('profileList');
-        const messageList = document.getElementById('messageList');
-        const forumList = document.getElementById('forumList');
-        const groupMessageList = document.getElementById('groupMessageList');
+    // Imagen del perfil
+    const profilePicHTML = profilePicture
+        ? `<img src="${profilePicture}" alt="Foto de perfil de ${username}" class="profile-picture">`
+        : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
 
-        // Si unicPostList existe, eliminar el post previo y añadir el nuevo
-        if (unicPostList) {
-            unicPostList.innerHTML = ''; // Limpiar la lista
-            unicPostList.appendChild(newpost); // Mover el nuevo post a la lista única
-            localStorage.setItem('fixedPost', newpost.innerHTML);
-            unicPostList.style.display = 'block';
+    // Media del post (imagen/video/audio)
+    let mediaHTML = '';
+    if (media && mediaType) {
+        if (mediaType.startsWith('image/')) {
+            mediaHTML = `<div><img src="${media}" alt="Imagen subida por ${username}" class="preview-media clickable"></div>`;
+        } else if (mediaType.startsWith('video/')) {
+            mediaHTML = `<div>
+                            <video controls class="preview-media clickable">
+                                <source src="${media}" type="${mediaType}">
+                                Tu navegador no soporta la reproducción de video.
+                            </video>
+                        </div>`;
+        } else if (mediaType.startsWith('audio/')) {
+            mediaHTML = `<div>
+                            <audio controls class="preview-media clickable">
+                                <source src="${media}" type="${mediaType}">
+                                Tu navegador no soporta la reproducción de audio.
+                            </audio>
+                        </div>`;
         }
+    }
 
-        // Ocultar otras listas
-        if (forumList) forumList.style.display = 'none';
-        if (postList) postList.style.display = 'none';
-        if (profileList) profileList.style.display = 'none';
-        if (messageList) messageList.style.display = 'none';
-        if (groupMessageList) groupMessageList.style.display = 'none';
-    });
-});
+    // Contenido sensible
+    let contentHTML = sensitive === true
+        ? `<div class="sensitive-content">
+                <p>⚠ Este contenido ha sido marcado como sensible</p>
+                <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Mostrar contenido</button>
+                <div class="hidden-content clickable" style="display:none;">
+                    ${content}
+                    ${mediaHTML}
+                </div>
+            </div>`
+        : `<div class="post-content clickable">${content}${mediaHTML}</div>`;
 
-// Verificar si hay un post "fijo" al cargar la lista de posts
-if (localStorage.getItem('fixedPost')) {
-    const unicPostList = document.getElementById('unicPostList');
-    if (unicPostList) {
-        unicPostList.innerHTML = localStorage.getItem('fixedPost'); // Mostrar el post "fijo"
+    // Crear un id único para la caja de usuario y para el widget de MicroReact
+    const uniqueId = `userProfileBox_${userId}_${Math.random().toString(36).substr(2, 9)}`;
+    const microReactId = `post-${postId}`;
+
+    // HTML del post
+    newpost.innerHTML = `
+        <div class="post-header">
+            ${profilePicHTML}
+            <div class="post-user-info">
+                <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${username}:</span>
+                <span class="post-time">${localTime}</span>
+            </div>
+        </div>
+        <div class="user-profile-box" id="${uniqueId}" style="display:none; margin-bottom: 8px">
+            <button onclick="viewProfile('${username}')">Ver perfil</button>
+            <button onclick="followUser(${userId})">Seguir</button>
+        </div>
+        ${contentHTML}
+        <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
+        <div id="reactions-${microReactId}" 
+            style="opacity: 0; display: none; transition: opacity 0.3s ease; width: 100%; align-items: center; justify-content: center; margin-top: 10px;"
+            data-loaded="false">
+            <iframe 
+                src="/microReact.html?id=Matesito_${microReactId}" 
+                style="width: 275px; height: 100px; border: none;" 
+                frameborder="0" 
+                loading="lazy" 
+                title="Deja una reacción">
+            </iframe>
+        </div>
+    `;
+
+    // Si ordenarReacciones está activado, guardamos el post en el array temporal
+    // Si ordenarReacciones está activado, guardamos el post en el array temporal
+if (ordenarReacciones) {
+    postsArray.push({ postElement: newpost, postId });
+} else {
+    // Si no, lo agregamos directamente a la lista respetando invertirOrden
+    if (invertirOrden) {
+        postList.insertBefore(newpost, postList.firstChild);
+    } else {
+        postList.appendChild(newpost);
     }
 }
 
-// Agregar post al inicio o al final según la variable invertirOrden
-if (invertirOrden) {
-    postList.insertBefore(newpost, postList.firstChild); // Añadir al inicio
-} else {
-    postList.appendChild(newpost); // Añadir al final
+    // Si ya se cargaron todas las reacciones, ordenar y agregar los posts a la lista
+    if (ordenarReacciones && postsArray.length === totalPostsToRender) {
+        fetch('/api/reactions/totals')
+            .then(response => response.json())
+            .then(totals => {
+                // Ordenar los posts por número de reacciones
+                postsArray.sort((a, b) => (totals[b.postId] || 0) - (totals[a.postId] || 0));
+
+                // Insertar los posts en la lista respetando invertirOrden
+                postsArray.forEach(({ postElement }) => {
+                    if (invertirOrden) {
+                        postList.insertBefore(postElement, postList.firstChild);
+                    } else {
+                        postList.appendChild(postElement);
+                    }
+                });
+
+                postsArray = []; // Limpiar el array después de ordenar e insertar
+            })
+            .catch(error => console.error('Error al obtener totales de reacciones:', error));
+    }
+
+    scrollToBottom();
 }
 
-scrollToBottom();
+// Función para renderizar posts ordenados
+async function renderPostsOrdenados(listId) {
+    if (!ordenarReacciones) return; // No hacer nada si no se activó la opción
+
+    const postList = document.getElementById(listId);
+    if (!postList) {
+        console.error(`No se encontró el contenedor con id "${listId}".`);
+        return;
+    }
+
+    // Obtener totales de reacciones
+    const totals = await cargarTotalesDeReacciones();
+
+    // Ordenar los posts en base al total de reacciones (descendente)
+    postsArray.sort((a, b) => (totals[b.postId] || 0) - (totals[a.postId] || 0));
+
+    // Limpiar y reinsertar los posts en el orden correcto
+    postList.innerHTML = '';
+    postsArray.forEach(({ postElement }) => {
+        postList.appendChild(postElement);
+    });
+
+    // Limpiar el array temporal después de renderizar
+    postsArray = [];
 }
 
 function toggleReactions(postId) {
