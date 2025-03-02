@@ -103,7 +103,8 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
                 await db.query('UPDATE reactions SET count = count - 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
                 // Obtener el nuevo conteo después de la eliminación
                 const newCount = await db.query('SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2', [id, reaction]);
-                io.emit('reactionUpdated', { id, reaction, count: newCount.rows[0].count });
+                const updatedCount = newCount.rows.length > 0 ? newCount.rows[0].count : 0; // Verificar si existe el conteo
+                io.emit('reactionUpdated', { id, reaction, count: updatedCount });
                 return res.status(200).json({ message: 'Reaction removed' });
             } else {
                 // Si reaccionó con otra, la cambiamos
@@ -112,16 +113,28 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
                 await db.query('UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
                 // Obtener el nuevo conteo después de la actualización
                 const newCount = await db.query('SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2', [id, reaction]);
-                io.emit('reactionUpdated', { id, reaction, count: newCount.rows[0].count });
+                const updatedCount = newCount.rows.length > 0 ? newCount.rows[0].count : 0; // Verificar si existe el conteo
+                io.emit('reactionUpdated', { id, reaction, count: updatedCount });
                 return res.status(200).json({ message: 'Reaction updated' });
             }
         } else {
             // Si no ha reaccionado antes, la agregamos
             await db.query('INSERT INTO user_reactions (user_id, post_id, reaction_id) VALUES ($1, $2, $3)', [userId, id, reaction]);
-            await db.query('UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
+            
+            // Verificar si existe el conteo de la reacción en la tabla 'reactions'
+            const reactionCount = await db.query('SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2', [id, reaction]);
+            if (reactionCount.rows.length === 0) {
+                // Si no existe, insertamos una nueva entrada con conteo inicial de 1
+                await db.query('INSERT INTO reactions (id, reaction_id, count) VALUES ($1, $2, 1)', [id, reaction]);
+            } else {
+                // Si existe, simplemente incrementamos el conteo
+                await db.query('UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
+            }
+            
             // Obtener el nuevo conteo después de la adición
             const newCount = await db.query('SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2', [id, reaction]);
-            io.emit('reactionUpdated', { id, reaction, count: newCount.rows[0].count });
+            const updatedCount = newCount.rows.length > 0 ? newCount.rows[0].count : 0; // Verificar si existe el conteo
+            io.emit('reactionUpdated', { id, reaction, count: updatedCount });
             return res.status(200).json({ message: 'Reaction added' });
         }
     } catch (err) {
@@ -129,6 +142,8 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
 
   app.get('/api/reactions/totals', async (req, res) => {
     try {
