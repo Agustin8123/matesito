@@ -11,7 +11,7 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
    function loginUser() {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput1').value.trim();
-
+    
     fetch(' /login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
