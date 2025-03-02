@@ -30,28 +30,29 @@ db.connect()
  // Obtener la cantidad de reacciones
  app.get('/get/microreact--reactions/:id', async (req, res) => {
     const { id } = req.params;
-    const reaction = req.query.reaction;
-  
-    if (!reaction) {
-      return res.status(400).json({ error: 'Reaction parameter is missing' });
-    }
   
     try {
-      const result = await db.query(
-        `SELECT SUM(count) AS total_count 
-         FROM reactions 
-         WHERE id LIKE $1 || '%' AND reaction_id = $2`,
-        [id, reaction]
-      );
-  
-      const totalCount = result.rows[0].total_count || 0; // Manejo si el resultado es `null`
-      res.status(200).json({ value: totalCount });
+        // Obtener todas las reacciones asociadas al post
+        const result = await db.query(
+            `SELECT reaction_id, count FROM reactions WHERE id = $1`,
+            [id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'No reactions found for this post' });
+        }
+
+        const reactions = result.rows.map(row => ({
+            reaction_id: row.reaction_id,
+            count: row.count || 0, // Asegurar que el conteo no sea null
+        }));
+
+        res.status(200).json({ reactions });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-  });  
-  
+});
   // Actualizar el contador de reacciones
   // Ruta para obtener el número de reacciones
   app.post('/hit/microreact--reactions/:id/:reaction', async (req, res) => {
@@ -102,33 +103,6 @@ db.connect()
             io.emit('reloadReactions', { id });
             return res.status(200).json({ message: 'Reaction added' });
         }
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-// Ruta para obtener todas las reacciones del post
-app.get('/get/microreact--reactions/:id', async (req, res) => {
-    const { id } = req.params;
-  
-    try {
-        // Obtener todas las reacciones asociadas al post
-        const result = await db.query(
-            `SELECT reaction_id, count FROM reactions WHERE id = $1`,
-            [id]
-        );
-        
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'No reactions found for this post' });
-        }
-
-        const reactions = result.rows.map(row => ({
-            reaction_id: row.reaction_id,
-            count: row.count || 0, // Asegurar que el conteo no sea null
-        }));
-
-        res.status(200).json({ reactions });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
