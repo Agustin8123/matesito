@@ -1611,7 +1611,6 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     }
 
     scrollToBottom();
-    renderPostsOrdenados(listId, invertirOrden);
 }
 
 // Función para renderizar posts ordenados
