@@ -1514,7 +1514,7 @@ async function cargarTotalesDeReacciones() {
     }
 }
 
-async function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId, invertirOrden, esUltimoPost = false) {
+async function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId, invertirOrden, esUltimoPost) {
     const postList = document.getElementById(listId);
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
