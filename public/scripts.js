@@ -1227,17 +1227,19 @@ fetch(' /posts')
 
         // Determinar cuántos posts renderizar
         const postsToRender = loadAll ? reversedPosts : reversedPosts.slice(0, 12);
-        postsToRender.forEach(post => {
+        postsToRender.forEach(post, index => {
             const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = post;
-
-            // Filtrar contenido sensible correctamente
+            const esUltimoPost = index === postsToRender.length - 1; // Determinar si es último
+    
             if (!showSensitiveContent && sensitive === true) return;
-
+    
             if (content && username) {
-                // Ahora estamos pasando postId a la función
-                addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, 'postList', invertirOrden);
-            } else {
-                console.warn('Post inválido omitido:', post);
+                addpostToList(
+                    content, media, mediaType, username, 
+                    profilePicture, sensitive, createdAt, 
+                    userId, postId, 'postList', invertirOrden,
+                    esUltimoPost // ⬅️ Parámetro añadido
+                );
             }
         });
     })
@@ -1321,6 +1323,7 @@ fetch(` /chat/messages/${chatId}`)
 
             // Filtrar contenido sensible si es necesario
             if (!showSensitiveContent && sensitive === true) return;
+            const esUltimoPost = index === messagesToRender.length - 1;
 
             // Agregar mensaje a la lista
             addpostToList(
@@ -1334,7 +1337,8 @@ fetch(` /chat/messages/${chatId}`)
                 userId,
                 messageId,
                 'messageList', 
-                invertirOrden
+                invertirOrden,
+                esUltimoPost
             );
         });
     })
@@ -1383,8 +1387,8 @@ fetch(` /group/messages/${groupId}/${activeUserId}`)
 
             // Filtrar contenido sensible si es necesario
             if (!showSensitiveContent && sensitive === true) return;
-
-            // Agregar mensaje a la lista
+            const esUltimoPost = index === messagesToRender.length - 1;
+        
             addpostToList(
                 content,
                 media || null,
@@ -1396,7 +1400,8 @@ fetch(` /group/messages/${groupId}/${activeUserId}`)
                 userId,
                 messageId,
                 'groupMessageList', 
-                invertirOrden
+                invertirOrden,
+                esUltimoPost
             );
         });
     })
@@ -1443,8 +1448,8 @@ fetch(` /mensajes/${forumId}`)
 
             // Filtrar contenido sensible si es necesario
             if (!showSensitiveContent && sensitive === true) return;
-
-            // Agregar mensaje a la lista
+            const esUltimoPost = index === messagesToRender.length - 1;
+        
             addpostToList(
                 content,
                 media || null,
@@ -1456,7 +1461,8 @@ fetch(` /mensajes/${forumId}`)
                 userId,
                 postId,
                 'forumList', 
-                invertirOrden
+                invertirOrden,
+                esUltimoPost
             );
         });
     })
@@ -1504,7 +1510,7 @@ async function cargarTotalesDeReacciones() {
     }
 }
 
-async function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId, invertirOrden) {
+async function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId, invertirOrden, esUltimoPost = false) {
     const postList = document.getElementById(listId);
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
@@ -1726,13 +1732,16 @@ fetch(` /posts/user/${username}`)
     .then(posts => {
         const postsToRender = loadAll ? posts : posts.slice(0, 12);
 
-        postsToRender.forEach(post => {
+        postsToRender.forEach((post, index) => {
+            const esUltimoPost = index === postsToRender.length - 1;
+            
             const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = post;
-            // Filtrar contenido sensible si es necesario
-            if (!showSensitiveContent && sensitive === true) return;
-            if (content && username) {
-                addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, 'profileList', invertirOrden);
-            }
+            addpostToList(
+                content, media, mediaType, username, 
+                profilePicture, sensitive, createdAt, 
+                userId, postId, 'profileList', invertirOrden,
+                esUltimoPost 
+            );
         });
     })
     .catch(error => {
