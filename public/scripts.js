@@ -1227,7 +1227,7 @@ fetch(' /posts')
 
         // Determinar cuántos posts renderizar
         const postsToRender = loadAll ? reversedPosts : reversedPosts.slice(0, 12);
-        postsToRender.forEach(post, index => {
+        postsToRender.forEach((post, index) => {
             const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = post;
             const esUltimoPost = index === postsToRender.length - 1; // Determinar si es último
     
@@ -1732,10 +1732,10 @@ fetch(` /posts/user/${username}`)
     .then(posts => {
         const postsToRender = loadAll ? posts : posts.slice(0, 12);
 
-        postsToRender.forEach((posts, index) => {
+        postsToRender.forEach((post, index) => {
             const esUltimoPost = index === postsToRender.length - 1;
             
-            const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = posts;
+            const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = post;
             addpostToList(
                 content, media, mediaType, username, 
                 profilePicture, sensitive, createdAt, 
