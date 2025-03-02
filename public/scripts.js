@@ -1612,26 +1612,26 @@ async function renderPostsOrdenados(listId, invertirOrden, totals) {
     const postList = document.getElementById(listId);
     
     try {
-        // 1. Ordenar por reacciones (mayor a menor)
         let sortedPosts = [...postsArray].sort((a, b) => {
-            return (parseInt(totals[b.postId] || "0", 10)) - (parseInt(totals[a.postId] || "0", 10));
+            // Generar clave completa para coincidir con el API
+            const claveA = `Matesito_post-${a.postId}`;
+            const claveB = `Matesito_post-${b.postId}`;
+            
+            const totalA = parseInt(totals[claveA] || 0);
+            const totalB = parseInt(totals[claveB] || 0);
+            
+            return totalB - totalA; // Orden descendente
         });
 
-        if (invertirOrden) {
-            sortedPosts.reverse();
-        }
+        if (invertirOrden) sortedPosts.reverse();
 
-        // 2. Crear un fragmento con los posts ordenados
         const fragment = document.createDocumentFragment();
         sortedPosts.forEach(({ postElement }) => {
             fragment.appendChild(postElement);
         });
 
-        // 3. Actualizar DOM
         postList.innerHTML = '';
         postList.appendChild(fragment);
-
-        // 4. Actualizar postsArray sin clonar
         postsArray = sortedPosts;
 
     } catch (error) {
