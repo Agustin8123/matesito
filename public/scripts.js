@@ -1590,7 +1590,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         postsArray.push({ postElement: newpost, postId });
         
         // Si ya tenemos todos los posts cargados, ordenar y agregarlos
-        if (postsArray.length === totalPostsToRender) {
+        if (postsArray) {
             fetch('/api/reactions/totals')
                 .then(response => response.json())
                 .then(totals => {
