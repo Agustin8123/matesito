@@ -18,6 +18,8 @@ let selectedFile = null;
 let loadAll = false;
 let invertirOrden = true;
 let ordenarReacciones = false;
+
+let isSortingInProgress = false;
 let postsArray = []; // Guardará los posts temporalmente
 
 function ToggleVisibility(elementId) {
@@ -1587,8 +1589,12 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     `;
 
     if (ordenarReacciones) {
-        // Guardar en el array temporal sin renderizar
         postsArray.push({ postElement: newpost, postId });
+        
+        // Si es el último post, iniciar ordenamiento
+        if (esUltimoPost) { // ¡Debes agregar esta condición desde tu lógica!
+            await renderPostsOrdenados(listId, invertirOrden);
+        }
     } else {
         // Agregar directamente si no hay ordenamiento
         if (invertirOrden) {
@@ -1599,40 +1605,45 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     }
 
     scrollToBottom();
-    renderPostsOrdenados(listId, invertirOrden)
+    renderPostsOrdenados(listId, invertirOrden);
 }
 
 // Función para renderizar posts ordenados
 async function renderPostsOrdenados(listId, invertirOrden) {
-    if (!ordenarReacciones || postsArray.length === 0) return;
+    if (!ordenarReacciones || isSortingInProgress) return;
 
+    isSortingInProgress = true;
     const postList = document.getElementById(listId);
-    if (!postList) {
-        console.error(`No se encontró el contenedor con id "${listId}".`);
-        return;
-    }
-
+    
     try {
         const totals = await cargarTotalesDeReacciones();
         
-        // Ordenar posts por reacciones (mayor a menor)
-        postsArray.sort((a, b) => (totals[b.postId] || 0) - (totals[a.postId] || 0));
-        
-        // Limpiar contenedor
-        postList.innerHTML = '';
-        
-        // Insertar posts ordenados
-        postsArray.forEach(({ postElement }) => {
-            if (invertirOrden) {
-                postList.insertBefore(postElement, postList.firstChild);
-            } else {
-                postList.appendChild(postElement);
-            }
+        // 1. Ordenar COPIA del array para no afectar el original
+        const sortedPosts = [...postsArray].sort((a, b) => {
+            return (totals[b.postId] || 0) - (totals[a.postId] || 0);
         });
+
+        // 2. Crear fragmento para actualización atómica
+        const fragment = document.createDocumentFragment();
         
-        postsArray = []; // Resetear array
+        sortedPosts.forEach(({ postElement }) => {
+            fragment.appendChild(postElement.cloneNode(true)); // Clonar para evitar conflictos
+        });
+
+        // 3. Reemplazar contenido de manera síncrona
+        postList.innerHTML = '';
+        postList.appendChild(fragment);
+
+        // 4. Mantener postsArray para posibles reordenamientos
+        postsArray = sortedPosts.map(post => ({
+            ...post,
+            postElement: post.postElement.cloneNode(true) // Actualizar referencias
+        }));
+
     } catch (error) {
-        console.error('Error al renderizar posts ordenados:', error);
+        console.error('Error al ordenar:', error);
+    } finally {
+        isSortingInProgress = false;
     }
 }
 
