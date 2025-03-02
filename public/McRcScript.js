@@ -127,10 +127,11 @@ reactions.forEach(async function (reaction) {
     const { id } = data;
     try {
         const reactionData = await fetch(
-          `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(reaction)}`
+            `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}`
         );
         const json = await reactionData.json();
 
+        // Iterar sobre todas las reacciones para actualizarlas
         if (json.reactions && json.reactions.length > 0) {
             json.reactions.forEach((reaction) => {
                 const listItem = document.querySelector(`#reaction-${reaction.reaction_id}`);
@@ -142,8 +143,7 @@ reactions.forEach(async function (reaction) {
     } catch {
         console.error("Failed to load reaction counts");
     }
-  });
-
+});
 });
 
 let css = "";
