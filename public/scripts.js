@@ -1608,6 +1608,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         console.log("Todos los posts han sido agregados. Cargando totales...");
         await cargarTotalesYOrdenar(listId, invertirOrden);
     }
+    scrollTo();
 }
 
 async function renderPostsOrdenados(listId, invertirOrden, totals) {
@@ -2192,7 +2193,7 @@ await wait(200);
 toggleVisibility('postList');
 }
 
-function scrollToBottom() {
+function scrollTo() {
     let containers = document.querySelectorAll(".posts");
     containers.forEach(container => {
         container.scrollTop = invertirOrden ? container.scrollHeight : 0;
