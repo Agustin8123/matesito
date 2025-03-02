@@ -115,7 +115,7 @@ reactions.forEach(async function (reaction) {
 
   try {
       const reactionData = await fetch(
-          `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(reaction)}`
+        `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(reaction)}`
       );
       const json = await reactionData.json();
       list.innerText = json.value || 0;
@@ -126,7 +126,9 @@ reactions.forEach(async function (reaction) {
   socket.on('reloadReactions', async (data) => {
     const { id } = data;
     try {
-        const reactionData = await fetch(`https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}`);
+        const reactionData = await fetch(
+          `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(reaction)}`
+        );
         const json = await reactionData.json();
 
         if (json.reactions && json.reactions.length > 0) {
