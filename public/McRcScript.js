@@ -123,7 +123,8 @@ reactions.forEach(async function (reaction) {
       list.innerText = "0";
   }
 
-  socket.on('reloadReactions', async () => {
+  socket.on('reloadReactions', async (data) => {
+    const { id } = data;
     try {
         const reactionData = await fetch(`https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}`);
         const json = await reactionData.json();
