@@ -17,7 +17,7 @@ let mantenimiento = false;
 let selectedFile = null;
 let loadAll = false;
 let invertirOrden = true;
-let ordenarReacciones = true; // Cambia esto según necesites
+let ordenarReacciones = false;
 let postsArray = []; // Guardará los posts temporalmente
 
 function ToggleVisibility(elementId) {
@@ -1464,10 +1464,31 @@ fetch(` /mensajes/${forumId}`)
 }
 
 function toggleOrden(button) {
-invertirOrden = !invertirOrden;
-button.textContent = invertirOrden ? 'Más nuevos abajo' : 'Más nuevos arriba';
+    const btr = document.getElementById('btr').value.trim();
+    invertirOrden = !invertirOrden;
 
-reloadPosts();
+    if (ordenarReacciones) {
+        button.textContent = invertirOrden ? 'Más reacciones abajo' : 'Más reacciones arriba';
+        btr.textContent = ordenarReacciones ? 'Ordenar por reacciones' : 'Ordenado por reacciones';
+    } else {
+        button.textContent = invertirOrden ? 'Más nuevos abajo' : 'Más nuevos arriba';
+    }
+
+    reloadPosts();
+}
+
+function toggleOrdenR(button) {
+    const btr = document.getElementById('btr').value.trim();
+    ordenarReacciones = !ordenarReacciones;
+
+    if (ordenarReacciones) {
+        button.textContent = invertirOrden ? 'Más reacciones abajo' : 'Más reacciones arriba';
+        btr.textContent = ordenarReacciones ? 'Ordenar por reacciones' : 'Ordenado por reacciones';
+    } else {
+        button.textContent = invertirOrden ? 'Más nuevos abajo' : 'Más nuevos arriba';
+    }
+
+    reloadPosts();
 }
 
 async function cargarTotalesDeReacciones() {
@@ -1480,7 +1501,7 @@ async function cargarTotalesDeReacciones() {
     }
 }
 
-async function addPostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId, invertirOrden) {
+async function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId, invertirOrden) {
     const postList = document.getElementById(listId);
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
