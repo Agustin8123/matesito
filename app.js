@@ -104,7 +104,7 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
                 // Obtener el nuevo conteo después de la eliminación
                 const newCount = await db.query('SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2', [id, reaction]);
                 const updatedCount = newCount.rows.length > 0 ? newCount.rows[0].count : 0; // Verificar si existe el conteo
-                io.emit('reactionUpdated', { id, reaction, count: updatedCount });
+                io.emit('reloadReactions');
                 return res.status(200).json({ message: 'Reaction removed' });
             } else {
                 // Si reaccionó con otra, la cambiamos
@@ -114,7 +114,7 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
                 // Obtener el nuevo conteo después de la actualización
                 const newCount = await db.query('SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2', [id, reaction]);
                 const updatedCount = newCount.rows.length > 0 ? newCount.rows[0].count : 0; // Verificar si existe el conteo
-                io.emit('reactionUpdated', { id, reaction, count: updatedCount });
+                io.emit('reloadReactions');
                 return res.status(200).json({ message: 'Reaction updated' });
             }
         } else {
@@ -134,7 +134,7 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
             // Obtener el nuevo conteo después de la adición
             const newCount = await db.query('SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2', [id, reaction]);
             const updatedCount = newCount.rows.length > 0 ? newCount.rows[0].count : 0; // Verificar si existe el conteo
-            io.emit('reactionUpdated', { id, reaction, count: updatedCount });
+            io.emit('reloadReactions');
             return res.status(200).json({ message: 'Reaction added' });
         }
     } catch (err) {
@@ -142,8 +142,6 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
-
 
   app.get('/api/reactions/totals', async (req, res) => {
     try {
