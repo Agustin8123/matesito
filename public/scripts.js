@@ -1495,7 +1495,7 @@ function toggleOrdenR(button) {
     }
 
     // Actualizar el texto del botón principal
-    const ordenButton = document.getElementById('orden-button');
+    const ordenButton = document.getElementById('bto');
     if (ordenButton) {
         ordenButton.textContent = ordenarReacciones
             ? (invertirOrden ? 'Más reacciones abajo' : 'Más reacciones arriba')
