@@ -1585,39 +1585,38 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         </div>
     `;
 
-    // Si ordenarReacciones está activado, guardamos el post en el array temporal
-    // Si ordenarReacciones está activado, guardamos el post en el array temporal
-if (ordenarReacciones) {
-    postsArray.push({ postElement: newpost, postId });
-} else {
-    // Si no, lo agregamos directamente a la lista respetando invertirOrden
-    if (invertirOrden) {
-        postList.insertBefore(newpost, postList.firstChild);
+    if (ordenarReacciones) {
+        // Si ordenarReacciones está activado, solo guardamos el post en el array temporal y no lo agregamos a la lista aún
+        postsArray.push({ postElement: newpost, postId });
+        
+        // Si ya tenemos todos los posts cargados, ordenar y agregarlos
+        if (postsArray.length === totalPostsToRender) {
+            fetch('/api/reactions/totals')
+                .then(response => response.json())
+                .then(totals => {
+                    // Ordenar los posts por número de reacciones
+                    postsArray.sort((a, b) => (totals[b.postId] || 0) - (totals[a.postId] || 0));
+
+                    // Insertar los posts en la lista respetando invertirOrden
+                    postsArray.forEach(({ postElement }) => {
+                        if (invertirOrden) {
+                            postList.insertBefore(postElement, postList.firstChild);
+                        } else {
+                            postList.appendChild(postElement);
+                        }
+                    });
+
+                    postsArray = []; // Limpiar el array después de ordenar e insertar
+                })
+                .catch(error => console.error('Error al obtener totales de reacciones:', error));
+        }
     } else {
-        postList.appendChild(newpost);
-    }
-}
-
-    // Si ya se cargaron todas las reacciones, ordenar y agregar los posts a la lista
-    if (ordenarReacciones && postsArray.length === totalPostsToRender) {
-        fetch('/api/reactions/totals')
-            .then(response => response.json())
-            .then(totals => {
-                // Ordenar los posts por número de reacciones
-                postsArray.sort((a, b) => (totals[b.postId] || 0) - (totals[a.postId] || 0));
-
-                // Insertar los posts en la lista respetando invertirOrden
-                postsArray.forEach(({ postElement }) => {
-                    if (invertirOrden) {
-                        postList.insertBefore(postElement, postList.firstChild);
-                    } else {
-                        postList.appendChild(postElement);
-                    }
-                });
-
-                postsArray = []; // Limpiar el array después de ordenar e insertar
-            })
-            .catch(error => console.error('Error al obtener totales de reacciones:', error));
+        // Si ordenarReacciones está desactivado, agregar directamente a la lista respetando invertirOrden
+        if (invertirOrden) {
+            postList.insertBefore(newpost, postList.firstChild);
+        } else {
+            postList.appendChild(newpost);
+        }
     }
 
     scrollToBottom();
