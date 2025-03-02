@@ -123,19 +123,25 @@ reactions.forEach(async function (reaction) {
       list.innerText = "0";
   }
 
-  socket.on('reactionUpdated', async (data) => {
-      if (data.id === id && data.reaction === reaction) {
-          try {
-              const reactionData = await fetch(
-                  `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(reaction)}`
-              );
-              const json = await reactionData.json();
-              list.innerText = json.value || 0;
-          } catch {
-              list.innerText = "0";
-          }
-      }
+  socket.on('reloadReactions', async (data) => {
+    const { id } = data;
+    try {
+        const reactionData = await fetch(`https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}`);
+        const json = await reactionData.json();
+
+        if (json.reactions && json.reactions.length > 0) {
+            json.reactions.forEach((reaction) => {
+                const listItem = document.querySelector(`#reaction-${reaction.reaction_id}`);
+                if (listItem) {
+                    listItem.innerText = reaction.count;
+                }
+            });
+        }
+    } catch {
+        console.error("Failed to load reaction counts");
+    }
   });
+
 });
 
 let css = "";
