@@ -1506,6 +1506,7 @@ function toggleOrdenR(button) {
 async function cargarTotalesDeReacciones() {
     try {
         const response = await fetch('/api/reactions/totals');
+        console.log("totales:", response);
         return await response.json();
     } catch (error) {
         console.error('Error al cargar los totales de reacciones:', error);
@@ -1600,9 +1601,10 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     if (ordenarReacciones) {
         postsArray.push({ postElement: newpost, postId });
         
-        // Si es el último post, iniciar ordenamiento
-        if (esUltimoPost) { // ¡Debes agregar esta condición desde tu lógica!
-            await renderPostsOrdenados(listId, invertirOrden);
+        // Esperar hasta que el último post sea agregado antes de ordenar
+        if (esUltimoPost) {
+            console.log("Se han agregado todos los posts. Cargando totales...");
+            await cargarTotalesYOrdenar(listId, invertirOrden);
         }
     } else {
         // Agregar directamente si no hay ordenamiento
@@ -1617,14 +1619,13 @@ async function addpostToList(content, media, mediaType, username, profilePicture
 }
 
 // Función para renderizar posts ordenados
-async function renderPostsOrdenados(listId, invertirOrden) {
+async function renderPostsOrdenados(listId, invertirOrden, totals) {
     if (!ordenarReacciones || isSortingInProgress) return;
 
     isSortingInProgress = true;
     const postList = document.getElementById(listId);
     
     try {
-        const totals = await cargarTotalesDeReacciones();
         
         // 1. Ordenar por reacciones (mayor a menor)
         let sortedPosts = [...postsArray].sort((a, b) => {
@@ -1659,6 +1660,18 @@ async function renderPostsOrdenados(listId, invertirOrden) {
         isSortingInProgress = false;
     }
 }
+
+async function cargarTotalesYOrdenar(listId, invertirOrden) {
+    try {
+        console.log("Llamando a cargarTotalesDeReacciones...");
+        const totals = await cargarTotalesDeReacciones();
+        console.log("Totales obtenidos:", totals);
+        await renderPostsOrdenados(listId, invertirOrden, totals);
+    } catch (error) {
+        console.error("Error al cargar y ordenar posts:", error);
+    }
+}
+
 
 function toggleReactions(postId) {
     const reactionsContainer = document.getElementById(`reactions-${postId}`);
