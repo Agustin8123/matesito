@@ -1206,6 +1206,7 @@ function loadposts(loadAll) {
 const unicPostList = document.getElementById('unicPostList');
 unicPostList.style.display = 'none';
 
+postsArray = [];
 
 activeForum = '';
 activeChat = '';
@@ -1292,6 +1293,7 @@ function loadChatMessages(chatId, loadAll) {
 showOnlyMenu(messageList, forumList, postList, messageList, groupMessageList, profileList);
 activeForum = '';
 activeGroup = '';
+postsArray = [];
 
 document.getElementById('messageList').innerHTML = ''; // Limpiar lista de mensajes
 const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
@@ -1353,6 +1355,7 @@ const unicPostList = document.getElementById('unicPostList'); unicPostList.style
 
 activeForum = '';
 activeChat = '';
+postsArray = [];
 
 activeGroup = groupId;
 
@@ -1703,6 +1706,7 @@ function viewProfile(username, loadAll) {
 // Obtener referencias a los contenedores
 const profileList = document.getElementById('profileList');
 const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
+postsArray = [];
 
 // Guardar el username actual en un input oculto
 let currentProfileUsername = document.getElementById('currentProfileUsername');
