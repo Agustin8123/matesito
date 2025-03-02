@@ -1587,32 +1587,10 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     `;
 
     if (ordenarReacciones) {
-        // Si ordenarReacciones está activado, solo guardamos el post en el array temporal y no lo agregamos a la lista aún
+        // Guardar en el array temporal sin renderizar
         postsArray.push({ postElement: newpost, postId });
-        
-        // Si ya tenemos todos los posts cargados, ordenar y agregarlos
-        if (postsArray) {
-            fetch('/api/reactions/totals')
-                .then(response => response.json())
-                .then(totals => {
-                    // Ordenar los posts por número de reacciones
-                    postsArray.sort((a, b) => (totals[b.postId] || 0) - (totals[a.postId] || 0));
-
-                    // Insertar los posts en la lista respetando invertirOrden
-                    postsArray.forEach(({ postElement }) => {
-                        if (invertirOrden) {
-                            postList.insertBefore(postElement, postList.firstChild);
-                        } else {
-                            postList.appendChild(postElement);
-                        }
-                    });
-
-                    postsArray = []; // Limpiar el array después de ordenar e insertar
-                })
-                .catch(error => console.error('Error al obtener totales de reacciones:', error));
-        }
     } else {
-        // Si ordenarReacciones está desactivado, agregar directamente a la lista respetando invertirOrden
+        // Agregar directamente si no hay ordenamiento
         if (invertirOrden) {
             postList.insertBefore(newpost, postList.firstChild);
         } else {
@@ -1621,11 +1599,12 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     }
 
     scrollToBottom();
+    renderPostsOrdenados(listId, invertirOrden)
 }
 
 // Función para renderizar posts ordenados
-async function renderPostsOrdenados(listId) {
-    if (!ordenarReacciones) return; // No hacer nada si no se activó la opción
+async function renderPostsOrdenados(listId, invertirOrden) {
+    if (!ordenarReacciones || postsArray.length === 0) return;
 
     const postList = document.getElementById(listId);
     if (!postList) {
@@ -1633,20 +1612,28 @@ async function renderPostsOrdenados(listId) {
         return;
     }
 
-    // Obtener totales de reacciones
-    const totals = await cargarTotalesDeReacciones();
-
-    // Ordenar los posts en base al total de reacciones (descendente)
-    postsArray.sort((a, b) => (totals[b.postId] || 0) - (totals[a.postId] || 0));
-
-    // Limpiar y reinsertar los posts en el orden correcto
-    postList.innerHTML = '';
-    postsArray.forEach(({ postElement }) => {
-        postList.appendChild(postElement);
-    });
-
-    // Limpiar el array temporal después de renderizar
-    postsArray = [];
+    try {
+        const totals = await cargarTotalesDeReacciones();
+        
+        // Ordenar posts por reacciones (mayor a menor)
+        postsArray.sort((a, b) => (totals[b.postId] || 0) - (totals[a.postId] || 0));
+        
+        // Limpiar contenedor
+        postList.innerHTML = '';
+        
+        // Insertar posts ordenados
+        postsArray.forEach(({ postElement }) => {
+            if (invertirOrden) {
+                postList.insertBefore(postElement, postList.firstChild);
+            } else {
+                postList.appendChild(postElement);
+            }
+        });
+        
+        postsArray = []; // Resetear array
+    } catch (error) {
+        console.error('Error al renderizar posts ordenados:', error);
+    }
 }
 
 function toggleReactions(postId) {
