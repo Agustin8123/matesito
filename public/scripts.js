@@ -1489,6 +1489,11 @@ function toggleOrden(button) {
 function toggleOrdenR(button) {
     ordenarReacciones = !ordenarReacciones; // Alternar el estado de ordenar por reacciones
 
+    // Si se activa ordenar por reacciones, asegurarse de que se mantiene el orden coherente
+    if (ordenarReacciones) {
+        invertirOrden = false; // Poner por defecto "Más reacciones arriba"
+    }
+
     // Actualizar el texto del botón principal
     const ordenButton = document.getElementById('orden-button');
     if (ordenButton) {
