@@ -1749,7 +1749,7 @@ fetch(` /posts/user/${username}`)
     });
 }
 
-// Función para seguir al usuario
+// Función para seguir al usuaris
 function followUser(userId) {
 const followerId = users[activeUser].id; // El ID del usuario que está siguiendo
 
