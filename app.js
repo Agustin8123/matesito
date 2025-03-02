@@ -101,31 +101,35 @@ app.get('/get/microreact--reactions/:id', async (req, res) => {
                 // Si ya reaccionó con la misma, la eliminamos
                 await db.query('DELETE FROM user_reactions WHERE user_id = $1 AND post_id = $2', [userId, id]);
                 await db.query('UPDATE reactions SET count = count - 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
+                // Obtener el nuevo conteo después de la eliminación
+                const newCount = await db.query('SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2', [id, reaction]);
+                io.emit('reactionUpdated', { id, reaction, count: newCount.rows[0].count });
                 return res.status(200).json({ message: 'Reaction removed' });
             } else {
                 // Si reaccionó con otra, la cambiamos
                 await db.query('UPDATE user_reactions SET reaction_id = $1 WHERE user_id = $2 AND post_id = $3', [reaction, userId, id]);
                 await db.query('UPDATE reactions SET count = count - 1 WHERE id = $1 AND reaction_id = $2', [id, previousReaction]);
                 await db.query('UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
+                // Obtener el nuevo conteo después de la actualización
+                const newCount = await db.query('SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2', [id, reaction]);
+                io.emit('reactionUpdated', { id, reaction, count: newCount.rows[0].count });
                 return res.status(200).json({ message: 'Reaction updated' });
             }
         } else {
             // Si no ha reaccionado antes, la agregamos
             await db.query('INSERT INTO user_reactions (user_id, post_id, reaction_id) VALUES ($1, $2, $3)', [userId, id, reaction]);
             await db.query('UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
+            // Obtener el nuevo conteo después de la adición
+            const newCount = await db.query('SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2', [id, reaction]);
+            io.emit('reactionUpdated', { id, reaction, count: newCount.rows[0].count });
             return res.status(200).json({ message: 'Reaction added' });
         }
-        // Emitir el evento de actualización a través de Socket.IO
-      io.emit('reactionUpdated', { id, reaction, count: newCount }); // Emite a todos los clientes// Responder con el nuevo conteo
-      res.status(200).json({ value: newCount });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-
- 
   app.get('/api/reactions/totals', async (req, res) => {
     try {
         const result = await db.query(`
