@@ -1464,31 +1464,32 @@ fetch(` /mensajes/${forumId}`)
 }
 
 function toggleOrden(button) {
-    const btr = document.getElementById('btr').value.trim();
     invertirOrden = !invertirOrden;
 
     if (ordenarReacciones) {
         button.textContent = invertirOrden ? 'Más reacciones abajo' : 'Más reacciones arriba';
-        btr.textContent = ordenarReacciones ? 'Ordenar por reacciones' : 'Ordenado por reacciones';
     } else {
         button.textContent = invertirOrden ? 'Más nuevos abajo' : 'Más nuevos arriba';
     }
 
-    reloadPosts();
+    reloadPosts(); // Recargar los posts con la nueva configuración
 }
 
 function toggleOrdenR(button) {
-    const btr = document.getElementById('btr').value.trim();
-    ordenarReacciones = !ordenarReacciones;
+    ordenarReacciones = !ordenarReacciones; // Alternar el estado de ordenar por reacciones
 
-    if (ordenarReacciones) {
-        button.textContent = invertirOrden ? 'Más reacciones abajo' : 'Más reacciones arriba';
-        btr.textContent = ordenarReacciones ? 'Ordenar por reacciones' : 'Ordenado por reacciones';
-    } else {
-        button.textContent = invertirOrden ? 'Más nuevos abajo' : 'Más nuevos arriba';
+    // Actualizar el texto del botón principal
+    const ordenButton = document.getElementById('orden-button');
+    if (ordenButton) {
+        ordenButton.textContent = ordenarReacciones
+            ? (invertirOrden ? 'Más reacciones abajo' : 'Más reacciones arriba')
+            : (invertirOrden ? 'Más nuevos abajo' : 'Más nuevos arriba');
     }
 
-    reloadPosts();
+    // Actualizar el texto del botón que alterna ordenar por reacciones
+    button.textContent = ordenarReacciones ? 'Ordenado por reacciones' : 'Ordenar por reacciones';
+
+    reloadPosts(); // Volver a cargar los posts aplicando la nueva configuración
 }
 
 async function cargarTotalesDeReacciones() {
