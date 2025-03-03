@@ -127,7 +127,7 @@ reactions.forEach(async function (reaction) {
     const { id } = data;
     try {
         const reactionData = await fetch(
-            `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}`
+            `https://${API_BASE}/get/microreact--reactionss/${encodeURIComponent(id)}`
         );
         const json = await reactionData.json();
 
