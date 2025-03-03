@@ -22,7 +22,7 @@ const bgColor = decodeURIComponent(params.get("bgColor") || "") || false;
 const font = decodeURIComponent(params.get("font") || "") || false;
 
 const API_BASE =
-decodeURIComponent(params.get("api_base") || "") || "matesitotest.onrender.com";
+decodeURIComponent(params.get("api_base") || "") || "matesito.onrender.com";
 
 if (!id) {
   document.body.innerHTML = `<div style="background-color:red;color:white;font-size:11.6px;padding:3px;font-family:monospace;overflow: auto;width: 262px;height: 80px;"><b>MicroReact ERROR [for website owner]:</b> No unique identifier set in URL parameters. Check <a href="microreact.glitch.me" style="color:white;font-weight: bold;">the docs</a> for usage.<br><br>Please check your MicroReact iframe's URL and verify that it has the URL parameter "id"</div>`;
