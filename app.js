@@ -108,7 +108,32 @@ db.connect()
     }
 });
 
-// Ruta para obtener todas 
+// Ruta para obtener todas las reacciones del post
+app.get('/get/microreact--reactionss/:id', async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+        // Obtener todas las reacciones asociadas al post
+        const result = await db.query(
+            `SELECT reaction_id, count FROM reactions WHERE id = $1`,
+            [id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'No reactions found for this post' });
+        }
+
+        const reactions = result.rows.map(row => ({
+            reaction_id: row.reaction_id,
+            count: row.count || 0, // Asegurar que el conteo no sea null
+        }));
+
+        res.status(200).json({ reactions });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
   app.get('/api/reactions/totals', async (req, res) => {
     try {
