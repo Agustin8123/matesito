@@ -12,7 +12,7 @@ const groupMessageList = 'groupMessageList';
 const profileList = 'profileList';
 const unicPostList = 'unicPostList';  
 
-let mantenimiento = true;
+let mantenimiento = false;
 
 let selectedFile = null;
 let loadAll = false;
