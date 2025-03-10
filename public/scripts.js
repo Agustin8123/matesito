@@ -1034,7 +1034,6 @@ async function sendGroupMessage(groupId) {
         });
 
         if (response.ok) {
-            const responseData = await response.json();
             document.getElementById('postContent').value = '';
             if (fileInput) fileInput.value = '';
             alert('Mensaje enviado con éxito');
@@ -1102,8 +1101,9 @@ async function sendGroupMessage(groupId) {
             document.getElementById('postMedia').value = '';
             selectedFile = null;
             document.getElementById('loading').style.display = 'none';
+            document.getElementById('postContent').value = '';
             alert('Tu post se ha enviado correctamente');
-            ;togglePosts();
+            togglePosts();
         })
         .catch(error => {
             console.error('Error al subir el archivo o enviar el post:', error);
