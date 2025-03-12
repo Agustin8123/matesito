@@ -1331,7 +1331,7 @@ fetch(` /chat/messages/${chatId}`)
 
         const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
 
-        messagesToRender.forEach(message => {
+        messagesToRender.forEach((message, index) => {
             const {
                 content,
                 media,
@@ -1396,7 +1396,7 @@ fetch(` /group/messages/${groupId}/${activeUserId}`)
 
         const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
 
-        messagesToRender.forEach(message => {
+        messagesToRender.forEach((message, index) => {
             const {
                 content,
                 media,
@@ -1457,7 +1457,7 @@ fetch(` /mensajes/${forumId}`)
 
         const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
 
-        messagesToRender.forEach(message => {
+        messagesToRender.forEach((message, index) => {
             const {
                 content,
                 media,
