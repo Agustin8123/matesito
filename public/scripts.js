@@ -1,7 +1,7 @@
 
 let users = {};  // Objeto para almacenar los usuarios y contrase
 let activeUser = '';  // Variable para el usuario activo
-let activeForum = '';
+let activeForum = 0;
 let activeChat = '';
 let activeGroup = '';
 
@@ -1230,7 +1230,7 @@ unicPostList.style.display = 'none';
 
 postsArray = [];
 
-activeForum = '';
+activeForum = 0;
 activeChat = '';
 activeGroup = '';
 
@@ -1312,7 +1312,7 @@ fetch(' /createOrLoadPrivateChat', {
 
 function loadChatMessages(chatId, loadAll) {
 showOnlyMenu(messageList, forumList, postList, messageList, groupMessageList, profileList);
-activeForum = '';
+activeForum = 0;
 activeGroup = '';
 postsArray = [];
 
@@ -1374,7 +1374,7 @@ function loadGroupMessages(groupId, loadAll) {
 showOnlyMenu(groupMessageList, forumList, postList, messageList, groupMessageList, profileList);
 const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
 
-activeForum = '';
+activeForum = 0;
 activeChat = '';
 postsArray = [];
 
@@ -1489,6 +1489,8 @@ fetch(` /mensajes/${forumId}`)
                 invertirOrden,
                 esUltimoPost
             );
+
+            console.log(message);
         });
     })
     .catch(error => {
@@ -1754,7 +1756,7 @@ profileList.innerHTML = '';
 
 // Mostrar el contenedor de perfil y ocultar el de publicaciones
 showOnlyMenu('profileList', forumList, postList, messageList, groupMessageList, profileList);
-activeForum = '';
+activeForum = 0;
 activeGroup = '';
 activeChat = '';
 
