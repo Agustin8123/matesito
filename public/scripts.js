@@ -16,7 +16,7 @@ let mantenimiento = false;
 
 let selectedFile = null;
 let loadAll = false;
-let invertirOrden = true;
+let invertirOrden = false;
 let ordenarReacciones = false;
 
 let isSortingInProgress = false;
@@ -1144,6 +1144,24 @@ document.getElementById('initialOverlay').style.display = 'flex';
 
 let showSensitiveContent = false;
 
+function reloadFPosts() {
+    if (activeForum != '') {
+        loadForumPosts(activeForum, loadAll);
+    }
+}
+
+function reloadGPosts() {
+    if (activeGroup != '') {
+        loadGroupMessages(activeGroup, loadAll);
+    }
+}
+
+function reloadCPosts() {
+    if (activeChat != '') {
+        loadChatMessages(activeChat, loadAll);
+    }
+}
+
 function buttonsState() {
 // Obtener referencias a los contenedores directamente dentro de la función
 const profileList = document.getElementById('profileList');
@@ -1200,7 +1218,7 @@ loadAll = !loadAll; // Alternar estado
 const button = document.getElementById('loadAllPostsButton');
 
 // Cambiar texto del botón basado en el estado
-button.textContent = loadAll ? 'Mostrar solo los últimos 12 posts' : 'Cargar todos los posts';
+button.textContent = loadAll ? 'últimos 12 posts' : 'Todos los posts';
 
 // Llamar a buttonsState para recargar los posts según el estado actual
 buttonsState();

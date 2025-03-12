@@ -297,7 +297,11 @@ app.post('/mensajes/:forumId', async (req, res) => {
             );
         }
 
-        io.emit('reloadPosts');
+        if (is_private) {
+            io.emit('reloadCPosts');
+        } else {
+            io.emit('reloadFPosts');
+        }
         res.status(201).json(mensaje);
     } catch (error) {
         console.error('Error al guardar el mensaje:', error);
@@ -879,7 +883,6 @@ app.delete('/foros/:forumId', (req, res) => {
     });
 });
 
-// Unirse a un foro
 app.post('/joinForum', (req, res) => {
     const { userId, forumId } = req.body;
 
@@ -1307,7 +1310,7 @@ app.post('/group/messages/:groupId', async (req, res) => {
             [formattedId, groupId, sender_id]
         );
 
-        io.emit('reloadPosts');
+        io.emit('reloadGPosts');
         res.status(201).json(mensaje);
     } catch (error) {
         console.error('Error al publicar el mensaje:', error);
