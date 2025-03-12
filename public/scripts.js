@@ -110,7 +110,7 @@ document.getElementById('usernameOverlay').style.display = 'none';
 
 function verMant(valor) {
 if (valor === true) {
-    window.location.href = 'mantenimiento.html';
+    window.location.href = 'mantenimiento';
 }
 }
 
