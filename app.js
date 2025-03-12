@@ -310,7 +310,11 @@ app.post('/mensajes/:forumId', async (req, res) => {
 });
 
   app.get('/mensajes/:forumId', async (req, res) => {
-    const { forumId } = req.params;
+    const forumId = parseInt(req.params.forumId, 10); // Convierte a número entero
+
+    if (isNaN(forumId)) {
+        return res.status(400).json({ error: 'ID del foro no válido' });
+    }
 
     try {
         const result = await db.query(
