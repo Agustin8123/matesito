@@ -1458,7 +1458,7 @@ fetch(` /mensajes/${forumId}`)
 
         const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
 
-        messagesToRender.forEach((message, index) => {
+        messagesToRender.forEach((message, indeX) => {
             const {
                 content,
                 media,
@@ -1473,7 +1473,7 @@ fetch(` /mensajes/${forumId}`)
 
             // Filtrar contenido sensible si es necesario
             if (!showSensitiveContent && sensitive === true) return;
-            const esUltimoPost = index === messagesToRender.length - 1;
+            const esUltimoPost = indeX === messagesToRender.length - 1;
         
             addpostToList(
                 content,
