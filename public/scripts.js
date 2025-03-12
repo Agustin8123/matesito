@@ -1444,6 +1444,7 @@ const unicPostList = document.getElementById('unicPostList'); unicPostList.style
 activeChat = '';
 activeGroup = '';
 activeForum = forumId;
+postsArray = [];
 
 fetch(` /mensajes/${forumId}`)
     .then(response => {
