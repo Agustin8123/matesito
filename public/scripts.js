@@ -1437,6 +1437,7 @@ fetch(` /group/messages/${groupId}/${activeUserId}`)
 function loadForumPosts(forumId, loadAll) {
 showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList, profileList);
 
+console.log (forumId);
 document.getElementById('forumList').innerHTML = ''; // Limpiar lista de posts
 const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
 
