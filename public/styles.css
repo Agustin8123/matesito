@@ -34,7 +34,7 @@
         
         @media (max-width: 480px) {
             .container {
-               max-width: 450px;
+               width: 450px;
             }
         }
 
