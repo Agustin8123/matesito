@@ -1393,6 +1393,8 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
     }
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('/:page', (req, res) => {
     res.sendFile(__dirname + `/public/${req.params.page}.html`);
 });
@@ -1416,7 +1418,4 @@ io.on('connection', (socket) => {
     console.log('Un cliente se ha desconectado');
   });
 });
-
-app.use(express.static(path.join(__dirname, 'public')));
-
 // Iniciar el servidor
