@@ -1393,6 +1393,10 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
     }
 });
 
+app.get('/:page', (req, res) => {
+    res.sendFile(__dirname + `/public/${req.params.page}.html`);
+});
+
 // Crear el servidor
 const server = app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
