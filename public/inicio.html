@@ -218,7 +218,7 @@
         </div>
 
         <div class="contenedorBotones">
-            <button id="bto" class="button" style="margin: 10px auto; display: block;" onclick="toggleOrden(this);">Más nuevos abajo</button>
+            <button id="bto" class="button" style="margin: 10px auto; display: block;" onclick="toggleOrden(this);">Más nuevos arriba</button>
             <button class="button" style="margin: 10px auto; display: block;" onclick="toggleOrdenR(this); ">Más reacciones</button>    
         </div>
         
@@ -340,7 +340,19 @@
     const socket = io();
 
     socket.on('reloadPosts', () => {
-        buttonsState();
+        loadposts(loadAll);
+    });
+
+    socket.on('reloadFPosts', () => {
+        reloadFPosts();
+    });
+
+    socket.on('reloadGPosts', () => {
+        reloadGPosts();
+    });
+
+    socket.on('reloadCPosts', () => {
+        reloadCPosts();
     });
 
     socket.on('reloadFG', () => {
