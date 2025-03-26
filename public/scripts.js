@@ -1729,11 +1729,11 @@ if (uniqueId === activeMenuId)
     userProfileBox.style.display = 'none';
 } else {
 
-if (userProfileBox) {
+if (activeMenuId ==! uniqueId) {
     const allProfileBoxes = document.querySelectorAll('.user-profile-box');
     allProfileBoxes.forEach(box => box.style.display = 'none');
 
-    userProfileBox.style.display = userProfileBox.style.display === 'none' ? 'block' : 'none';
+    userProfileBox.style.display = 'block';
 }}}
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
