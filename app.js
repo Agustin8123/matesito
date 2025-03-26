@@ -1395,8 +1395,15 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/:page', (req, res) => {
-    res.sendFile(__dirname + `/public/${req.params.page}.html`);
+app.get('/:page?', (req, res) => {
+    let page = req.params.page || 'inicio'; // Si no hay parámetro, usar 'inicio'
+    let filePath = path.join(__dirname, 'public', `${page}.html`);
+
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            res.sendFile(path.join(__dirname, 'public', 'error.html')); // Si no existe, cargar error.html
+        }
+    });
 });
 
 // Crear el servidor
