@@ -4,6 +4,7 @@ let activeUser = '';  // Variable para el usuario activo
 let activeForum = 0;
 let activeChat = '';
 let activeGroup = '';
+let activeMenuId = '';
 
 const forumList = 'forumList';
 const postList = 'postList';
@@ -1601,9 +1602,8 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     // HTML del post
     newpost.innerHTML = `
         <div class="post-header">
-            ${profilePicHTML}
             <div class="post-user-info">
-                <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${username}${profilePicHTML}:</span>
+                <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${profilePicHTML}${username}:</span>
                 <span class="post-time">${localTime}</span>
             </div>
         </div>
