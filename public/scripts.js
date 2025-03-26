@@ -1603,7 +1603,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         <div class="post-header">
             ${profilePicHTML}
             <div class="post-user-info">
-                <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${username}:</span>
+                <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${username}${profilePicHTML}:</span>
                 <span class="post-time">${localTime}</span>
             </div>
         </div>
@@ -1722,16 +1722,19 @@ function toggleReactions(postId) {
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
 function toggleUserProfileBox(uniqueId) {
-// Ocultar todas las cajas de perfil
-const allProfileBoxes = document.querySelectorAll('.user-profile-box');
-allProfileBoxes.forEach(box => box.style.display = 'none');
 
-// Mostrar u ocultar la caja correspondiente
 const userProfileBox = document.getElementById(uniqueId);
+if (uniqueId === activeMenuId)
+{
+    userProfileBox.style.display = 'none';
+} else {
+
 if (userProfileBox) {
+    const allProfileBoxes = document.querySelectorAll('.user-profile-box');
+    allProfileBoxes.forEach(box => box.style.display = 'none');
+
     userProfileBox.style.display = userProfileBox.style.display === 'none' ? 'block' : 'none';
-}
-}
+}}}
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
 function viewProfile(username, loadAll) {
