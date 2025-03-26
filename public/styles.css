@@ -31,6 +31,12 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
+        
+        @media (max-width: 480px) {
+            .container {
+               width: 450px;
+            }
+        }
 
         .foros-container {
             max-height: 150px; /* Ajusta el valor según lo que necesites */
