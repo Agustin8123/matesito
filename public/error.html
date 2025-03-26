@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mantenimiento en curso</title>
+    <title>Pagína no existente</title>
     <link rel="icon" href="matesito-logo.png" type="image/png">
     <style>
         body {
@@ -112,8 +112,11 @@
             text-decoration: underline;
         }
 
-        h1 {
+        .texto {
             margin: 0;
+            text-align: center;
+            font-size: 60px;
+            font-weight: bold;
         }
 
         .content {
@@ -124,6 +127,7 @@
             color: #fffbfb;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
         .version-box {
@@ -170,8 +174,14 @@
     </div>
 
     <div class="content">
+        <h1 class="texto">ERROR 404</h1>
         <div class="version-box">
-            <p><b>Actualmente la página se encuentra en mantenimiento.<br><br> Por favor, vuelva más tarde.</b></p>
+            <p>Mmm... no podemos encontrar lo que estas buscando, intenta otra cosa.</p>
         </div>
+        <div>
+            <label for="inicio" class="button">Inicio</label>
+            <input type="radio" id="inicio" name="nav" style="display:none;" onclick="location.href='inicio'">
+        </div> 
+    </div>       
 </body>
 </html>
