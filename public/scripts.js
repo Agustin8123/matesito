@@ -1722,19 +1722,23 @@ function toggleReactions(postId) {
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
 function toggleUserProfileBox(uniqueId) {
+    const userProfileBox = document.getElementById(uniqueId);
 
-const userProfileBox = document.getElementById(uniqueId);
-if (uniqueId === activeMenuId)
-{
-    userProfileBox.style.display = 'none';
-} else {
+    if (activeMenuId === uniqueId) {
+        // Si el mismo menú está abierto, se cierra
+        userProfileBox.style.display = 'none';
+        activeMenuId = null;
+    } else {
+        // Cierra todos los menús abiertos antes de abrir el nuevo
+        document.querySelectorAll('.user-profile-box').forEach(box => {
+            box.style.display = 'none';
+        });
 
-if (activeMenuId ==! uniqueId) {
-    const allProfileBoxes = document.querySelectorAll('.user-profile-box');
-    allProfileBoxes.forEach(box => box.style.display = 'none');
-
-    userProfileBox.style.display = 'block';
-}}}
+        // Abre el nuevo menú
+        userProfileBox.style.display = 'block';
+        activeMenuId = uniqueId;
+    }
+}
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
 function viewProfile(username, loadAll) {
