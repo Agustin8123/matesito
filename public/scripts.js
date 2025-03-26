@@ -2225,6 +2225,26 @@ function scrollTo() {
     });
 }
     
+document.addEventListener("click", function(event) {
+    // Lista de todos los dropdowns
+    let dropdowns = document.querySelectorAll(".dropdown-menu");
+
+    let clickedInsideDropdown = false;
+
+    dropdowns.forEach(function(dropdown) {
+        if (dropdown.contains(event.target)) {
+            clickedInsideDropdown = true;
+        }
+    });
+
+    // Si el clic no fue dentro de un dropdown, ocultamos todos
+    if (!clickedInsideDropdown) {
+        dropdowns.forEach(function(dropdown) {
+            dropdown.style.display = "none";
+        });
+    }
+});
+
 //al cargar página
 window.onload = function() {
 verMant(mantenimiento);
