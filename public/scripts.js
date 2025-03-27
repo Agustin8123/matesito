@@ -2225,6 +2225,24 @@ function scrollTo() {
     });
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    const forosContainer = document.querySelector(".foros-container");
+    const boton = document.querySelector(".boton");
+
+    function actualizarEstiloBoton() {
+        if (forosContainer.scrollHeight > 150) {
+            boton.style.width = "80px";
+        } else {
+            boton.style.width = "95px";
+        }
+    }
+
+    // Llamar a la función cuando el contenido cambia
+    actualizarEstiloBoton();
+    forosContainer.addEventListener("scroll", actualizarEstiloBoton);
+    window.addEventListener("resize", actualizarEstiloBoton);
+});
+
 //al cargar página
 window.onload = function() {
 verMant(mantenimiento);
