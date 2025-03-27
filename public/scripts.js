@@ -2231,9 +2231,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function actualizarEstiloBoton() {
         if (forosContainer.scrollHeight > 150) {
-            boton.style.width = "80px";
+            boton.style.width = "75px";
         } else {
-            boton.style.width = "95px";
+            boton.style.width = "90px";
         }
     }
 
