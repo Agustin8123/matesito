@@ -2227,20 +2227,27 @@ function scrollTo() {
 
 document.addEventListener("DOMContentLoaded", function () {
     const forosContainer = document.querySelector(".foros-container");
-    const boton = document.querySelector(".boton");
+    const botones = document.querySelectorAll(".boton"); // Si hay más de un botón
 
     function actualizarEstiloBoton() {
-        if (forosContainer.scrollHeight > 150) {
-            boton.style.width = "75px";
-        } else {
-            boton.style.width = "90px";
-        }
+        const alturaContenido = forosContainer.scrollHeight;
+        console.log("Altura del contenido:", alturaContenido);
+        
+        botones.forEach(boton => {
+            boton.style.width = alturaContenido > 150 ? "75px" : "90px";
+        });
     }
 
-    // Llamar a la función cuando el contenido cambia
-    actualizarEstiloBoton();
+    // Ver cambios en el contenido de `.foros-container`
+    const observer = new MutationObserver(actualizarEstiloBoton);
+    observer.observe(forosContainer, { childList: true, subtree: true });
+
+    // También verificar en scroll y resize
     forosContainer.addEventListener("scroll", actualizarEstiloBoton);
     window.addEventListener("resize", actualizarEstiloBoton);
+
+    // Llamar a la función al inicio
+    actualizarEstiloBoton();
 });
 
 //al cargar página
