@@ -2234,7 +2234,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Altura del contenido:", alturaContenido);
         
         botones.forEach(boton => {
-            boton.style.width = alturaContenido > 150 ? "75px" : "90px";
+            boton.style.width = alturaContenido >= 150 ? "75px" : "90px";
         });
     }
 
