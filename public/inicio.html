@@ -39,43 +39,42 @@
                     <label for="myForos" class="boton">Mis Foros</label>
                         <input type="radio" id="myForos" name="nav" style="display:none;" onclick="toggleMyForumMenu(); loadUserCreatedForums();">
                     <div id="myForumMenu" class="dropdown-menu" style="left: 188px; margin-top: -41px;">
-
-                        <label for="Volver6" class="botonV">Volver</label>
-                                <input type="radio" id="Volver6" name="nav" style="display:none;" onclick="toggleMyForumMenu()">
-                                
+        
                         <label for="Crearforo" class="boton">Crear Foro</label>
                             <input type="radio" id="Crearforo" name="nav" style="display:none;" onclick="createForumMenu()">
 
                             <div id="createdForosContainer" class="foros-container" style="margin-left: -10px;">
                                 <!-- Los foros se renderizarán aquí -->
-                            </div>    
+                            </div>
+                            
+                        <label for="Volver6" class="botonV">Volver</label>
+                            <input type="radio" id="Volver6" name="nav" style="display:none;" onclick="toggleMyForumMenu()">
+                    
                    </div>
                    
 
                     <!--ver foros seguidos-->
                     <label for="forosseguidos" class="boton">Foros Seguidos</label>
                         <input type="radio" id="forosseguidos" name="nav" style="display:none;" onclick="exploreForumMenu2()">
-                        <div id="exploreforumMenu2" class="dropdown-menu" style="left: 188px; margin-top: -99px;">
-                            <label for="Volver5" class="botonV">Volver</label>
-                                <input type="radio" id="Volver5" name="nav" style="display:none;" onclick="exploreForumMenu2()">
-
+                        <div id="exploreforumMenu2" class="dropdown-menu" style="left: 188px; margin-top: -99px;">  
                             <div id="forosContainer2" class="foros-container" style="margin-left: -10px;">
                                 <!-- Los foros se renderizarán aquí -->
                             </div>
+
+                            <label for="Volver5" class="botonV">Volver</label>
+                                <input type="radio" id="Volver5" name="nav" style="display:none;" onclick="exploreForumMenu2()">
+
                         </div>
 
                     <!--explorar foros-->
                     <label for="explorarforos" class="boton">Explorar Foros</label>
                         <input type="radio" id="explorarforos" name="nav" style="display:none;" onclick="exploreForumMenu()">
                         <div id="exploreforumMenu" class="dropdown-menu" style="left: 188px; margin-top: -156px;">
-                            <label for="Volver4" class="botonV">Volver</label>
-                                <input type="radio" id="Volver4" name="nav" style="display:none;" onclick="exploreForumMenu()">
-                            <div>
-
-                            </div>
                             <div id="forosContainer" class="foros-container" style="margin-left: -10px;">
                                 <!--los foros se renderizaran aqui-->
                             </div>
+                            <label for="Volver4" class="botonV">Volver</label>
+                                <input type="radio" id="Volver4" name="nav" style="display:none;" onclick="exploreForumMenu()">
                         </div>    
                     <label for="Volver3" class="botonV">Volver</label>
                         <input type="radio" id="Volver3" name="nav" style="display:none;" onclick="toggleForumMenu()">
@@ -88,23 +87,23 @@
                         <label for="userCreated" class="boton">Administración de grupos</label>
                             <input type="radio" id="userCreated" name="nav" style="display:none;" onclick="usercreatedGroupMenu(); loadCreatedGroups();">  
                         <div id="userCreatedMenu" class="dropdown-menu" style="left: 188px; top: -20px;"> 
-                            <label for="Volver8" class="botonV">Volver</label>
-                            <input type="radio" id="Volver8" name="nav" style="display:none;" onclick="usercreatedGroupMenu()">
-
                             <div id="createdGroupsContainer" class="foros-container" style="margin-left: -10px;">
                                 <!-- Los grupos se renderizarán aquí -->
                             </div>
+                            <label for="Volver8" class="botonV">Volver</label>
+                                <input type="radio" id="Volver8" name="nav" style="display:none;" onclick="usercreatedGroupMenu()">
+
                         </div>
 
                         <label for="userJoined" class="boton">Ver mis grupos</label>
                             <input type="radio" id="userJoined" name="nav" style="display:none;" onclick="userJoinedGroupMenu(); loadUserGroups()">  
                         <div id="userJoinedMenu" class="dropdown-menu" style="left: 188px; top: -20px;"> 
-                            <label for="Volver9" class="botonV">Volver</label>
-                            <input type="radio" id="Volver9" name="nav" style="display:none;" onclick="userJoinedGroupMenu()">
-
                             <div id="joinedGruposContainer" class="foros-container" style="margin-left: -10px;">
                                 <!-- Los grupos se renderizarán aquí -->
                             </div>
+                            <label for="Volver9" class="botonV">Volver</label>
+                                <input type="radio" id="Volver9" name="nav" style="display:none;" onclick="userJoinedGroupMenu()">
+
                         </div>
 
                         <label for="Creargrupo" class="boton">Crear grupo</label>
@@ -120,11 +119,11 @@
                    <label for="Seguidos" class="boton">Usuarios Seguidos</label>
                    <input type="radio" id="Seguidos" name="nav" style="display:none;" onclick="toggleUserMenu()"> 
                    <div id="userSubMenu" class="dropdown-menu" style=" left: 188px; margin-top: -180px;">
-                   <label for="Volver2" class="botonV">Volver</label>
-                   <input type="radio" id="Volver2" name="nav" style="display:none;" onclick="toggleUserMenu()">
                    <div id="usersContainer" style="min-height: 86px; margin-left: -10px" class="foros-container">
                        <!-- Los usuarios se renderizarán aquí -->
                    </div>
+                   <label for="Volver2" class="botonV">Volver</label>
+                   <input type="radio" id="Volver2" name="nav" style="display:none;" onclick="toggleUserMenu()">
                 </div>
                 
                 <label for="Cerrar1" class="botonV">Cerrar</label>

@@ -2224,41 +2224,6 @@ function scrollTo() {
         container.scrollTop = invertirOrden ? container.scrollHeight : 0;
     });
 }
-    
-document.addEventListener("click", function(event) {
-    let dropdowns = document.querySelectorAll(".dropdown-menu");
-    let clickedInsideDropdown = false;
-    let clickedLabel = null;
-
-    // Verificar si el clic fue dentro de un dropdown
-    dropdowns.forEach(function(dropdown) {
-        if (dropdown.contains(event.target)) {
-            clickedInsideDropdown = true;
-        }
-    });
-
-    // Verificar si el clic fue en un label con clase "boton" o "botonV"
-    let dropdownLabels = document.querySelectorAll(".boton, .botonV");
-    dropdownLabels.forEach(function(label) {
-        if (label.contains(event.target)) {
-            clickedLabel = label;
-        }
-    });
-
-    // Si el clic fue fuera de dropdowns y labels, ocultamos todos los dropdowns
-    if (!clickedInsideDropdown && !clickedLabel) {
-        dropdowns.forEach(function(dropdown) {
-            dropdown.style.display = "none";
-        });
-    } else if (clickedLabel) {
-        // Buscar el dropdown correspondiente al label clickeado
-        let dropdownMenu = clickedLabel.nextElementSibling;
-        if (dropdownMenu && dropdownMenu.classList.contains("dropdown-menu")) {
-            // Alternar visibilidad
-            dropdownMenu.style.display = (dropdownMenu.style.display === "block") ? "none" : "block";
-        }
-    }
-});
 
 //al cargar página
 window.onload = function() {
