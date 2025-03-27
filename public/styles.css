@@ -46,7 +46,7 @@
         }        
         
         .foros-container::-webkit-scrollbar {
-            width: 8px; /* Grosor de la barra */
+            width: 6px; /* Grosor de la barra */
         }
 
         .foros-container::-webkit-scrollbar-track {
