@@ -123,39 +123,21 @@ reactions.forEach(async function (reaction) {
       list.innerText = "0";
   }
 
-  socket.on('reloadReactions', async (data) => {
-    const { id, previousReaction, newReaction } = data;
-    
-    console.log(`Recibido evento: ${JSON.stringify(data)}`);
-
+  socket.on("reloadReactions", async ({ id }) => {
     try {
-        const response = await fetch(`https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}`);
-        const json = await response.json();
+        const response = await fetch(`https://${API_BASE}/get/microreact--reactionss/${encodeURIComponent(id)}`);
+        const data = await response.json();
 
-        if (json.reactions) {
-            console.log("Reacciones actualizadas:", json.reactions);
-
-            // Actualizar solo las reacciones afectadas
-            if (previousReaction) {
-                const prevCountElement = document.querySelector(`#${id}-${previousReaction}`);
-                if (prevCountElement) {
-                    prevCountElement.textContent = json.reactions[previousReaction] || 0;
-                } else {
-                    console.warn(`No se encontró el elemento para ${previousReaction}`);
+        if (data.reactions) {
+            data.reactions.forEach(({ reaction_id, count }) => {
+                const list = document.querySelector(`[data-list-id="${reaction_id}"]`);
+                if (list) {
+                    list.innerText = count || 0;
                 }
-            }
-
-            if (newReaction) {
-                const newCountElement = document.querySelector(`#${id}-${newReaction}`);
-                if (newCountElement) {
-                    newCountElement.textContent = json.reactions[newReaction] || 0;
-                } else {
-                    console.warn(`No se encontró el elemento para ${newReaction}`);
-                }
-            }
+            });
         }
     } catch (error) {
-        console.error("Error al actualizar reacciones:", error);
+        console.error("Error al actualizar las reacciones:", error);
     }
 });
 });

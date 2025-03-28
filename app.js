@@ -99,7 +99,7 @@ db.connect()
                 // Si existe, simplemente incrementamos el conteo
                 await db.query('UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
             }
-            console.log(`Post ${id} - Cambio de reacción: ${previousReaction} ➝ ${reaction}`);
+            io.emit('reloadReactions', { id });
             io.emit('reloadReactions', { id, previousReaction, newReaction: reaction });
             return res.status(200).json({ message: 'Reaction added' });
         }
