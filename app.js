@@ -100,7 +100,6 @@ db.connect()
                 await db.query('UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
             }
             io.emit('reloadReactions', { id });
-            io.emit('reloadReactions', { id, previousReaction, newReaction: reaction });
             return res.status(200).json({ message: 'Reaction added' });
         }
     } catch (err) {
