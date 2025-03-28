@@ -125,33 +125,37 @@ reactions.forEach(async function (reaction) {
 
   socket.on('reloadReactions', async (data) => {
     const { id, previousReaction, newReaction } = data;
+    
+    console.log(`Recibido evento: ${JSON.stringify(data)}`);
 
     try {
-        // Recargar contador de la reacción eliminada
-        if (previousReaction) {
-            const oldReactionData = await fetch(
-                `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(previousReaction)}`
-            );
-            const oldJson = await oldReactionData.json();
-            const oldListItem = document.querySelector(`[data-list-id="${previousReaction}"]`);
-            if (oldListItem) {
-                oldListItem.innerText = oldJson.value || 0;
-            }
-        }
+        const response = await fetch(`https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}`);
+        const json = await response.json();
 
-        // Recargar contador de la nueva reacción
-        if (newReaction) {
-            const newReactionData = await fetch(
-                `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(newReaction)}`
-            );
-            const newJson = await newReactionData.json();
-            const newListItem = document.querySelector(`[data-list-id="${newReaction}"]`);
-            if (newListItem) {
-                newListItem.innerText = newJson.value || 0;
+        if (json.reactions) {
+            console.log("Reacciones actualizadas:", json.reactions);
+
+            // Actualizar solo las reacciones afectadas
+            if (previousReaction) {
+                const prevCountElement = document.querySelector(`#${id}-${previousReaction}`);
+                if (prevCountElement) {
+                    prevCountElement.textContent = json.reactions[previousReaction] || 0;
+                } else {
+                    console.warn(`No se encontró el elemento para ${previousReaction}`);
+                }
+            }
+
+            if (newReaction) {
+                const newCountElement = document.querySelector(`#${id}-${newReaction}`);
+                if (newCountElement) {
+                    newCountElement.textContent = json.reactions[newReaction] || 0;
+                } else {
+                    console.warn(`No se encontró el elemento para ${newReaction}`);
+                }
             }
         }
     } catch (error) {
-        console.error("Error al recargar las reacciones:", error);
+        console.error("Error al actualizar reacciones:", error);
     }
 });
 });
