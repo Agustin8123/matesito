@@ -22,7 +22,7 @@ const bgColor = decodeURIComponent(params.get("bgColor") || "") || false;
 const font = decodeURIComponent(params.get("font") || "") || false;
 
 const API_BASE =
-decodeURIComponent(params.get("api_base") || "") || "matesitotest.onrender.com";
+decodeURIComponent(params.get("api_base") || "") || "matesito.onrender.com";
 
 if (!id) {
   document.body.innerHTML = `<div style="background-color:red;color:white;font-size:11.6px;padding:3px;font-family:monospace;overflow: auto;width: 262px;height: 80px;"><b>MicroReact ERROR [for website owner]:</b> No unique identifier set in URL parameters. Check <a href="microreact.glitch.me" style="color:white;font-weight: bold;">the docs</a> for usage.<br><br>Please check your MicroReact iframe's URL and verify that it has the URL parameter "id"</div>`;
@@ -82,7 +82,7 @@ reactions.forEach(async function (reaction) {
                   list.innerText = json.value || 0;
               } catch (error) {
                   console.error("Error al obtener las reacciones:", error);
-                  list.innerText = "error";
+                  list.innerText = "0";
               }
           }, 250);
 
@@ -123,21 +123,25 @@ reactions.forEach(async function (reaction) {
       list.innerText = "0";
   }
 
-  socket.on("reloadReactions", async ({ id }) => {
+  socket.on('reloadReactions', async (data) => {
+    const { id } = data;
     try {
-        const response = await fetch(`https://${API_BASE}/get/microreact--reactionss/${encodeURIComponent(id)}`);
-        const data = await response.json();
+        const reactionData = await fetch(
+            `https://${API_BASE}/get/microreact--reactionss/${encodeURIComponent(id)}`
+        );
+        const json = await reactionData.json();
 
-        if (data.reactions) {
-            data.reactions.forEach(({ reaction_id, count }) => {
-                const list = document.querySelector(`[data-list-id="${reaction_id}"]`);
-                if (list) {
-                    list.innerText = count || 0;
+        // Iterar sobre todas las reacciones para actualizarlas
+        if (json.reactions && json.reactions.length > 0) {
+            json.reactions.forEach((reaction) => {
+                const listItem = document.querySelector(`#reaction-${reaction.reaction_id}`);
+                if (listItem) {
+                    listItem.innerText = reaction.count;
                 }
             });
         }
-    } catch (error) {
-        console.error("Error al actualizar las reacciones:", error);
+    } catch {
+        console.error("Failed to load reaction counts");
     }
 });
 });
