@@ -82,7 +82,7 @@ reactions.forEach(async function (reaction) {
                   list.innerText = json.value || 0;
               } catch (error) {
                   console.error("Error al obtener las reacciones:", error);
-                  list.innerText = "0";
+                  list.innerText = "error";
               }
           }, 250);
 
@@ -124,24 +124,34 @@ reactions.forEach(async function (reaction) {
   }
 
   socket.on('reloadReactions', async (data) => {
-    const { id } = data;
-    try {
-        const reactionData = await fetch(
-            `https://${API_BASE}/get/microreact--reactionss/${encodeURIComponent(id)}`
-        );
-        const json = await reactionData.json();
+    const { id, previousReaction, newReaction } = data;
 
-        // Iterar sobre todas las reacciones para actualizarlas
-        if (json.reactions && json.reactions.length > 0) {
-            json.reactions.forEach((reaction) => {
-                const listItem = document.querySelector(`#reaction-${reaction.reaction_id}`);
-                if (listItem) {
-                    listItem.innerText = reaction.count;
-                }
-            });
+    try {
+        // Recargar contador de la reacción eliminada
+        if (previousReaction) {
+            const oldReactionData = await fetch(
+                `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(previousReaction)}`
+            );
+            const oldJson = await oldReactionData.json();
+            const oldListItem = document.querySelector(`[data-list-id="${previousReaction}"]`);
+            if (oldListItem) {
+                oldListItem.innerText = oldJson.value || 0;
+            }
         }
-    } catch {
-        console.error("Failed to load reaction counts");
+
+        // Recargar contador de la nueva reacción
+        if (newReaction) {
+            const newReactionData = await fetch(
+                `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${encodeURIComponent(newReaction)}`
+            );
+            const newJson = await newReactionData.json();
+            const newListItem = document.querySelector(`[data-list-id="${newReaction}"]`);
+            if (newListItem) {
+                newListItem.innerText = newJson.value || 0;
+            }
+        }
+    } catch (error) {
+        console.error("Error al recargar las reacciones:", error);
     }
 });
 });
