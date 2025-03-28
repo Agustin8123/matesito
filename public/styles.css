@@ -523,6 +523,7 @@
             margin-bottom: 4px;
             width: 90px;
             word-wrap: break-word;
+            width: calc(100% - 10px);
         }
 
         .Nboton {
