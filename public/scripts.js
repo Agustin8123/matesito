@@ -1570,7 +1570,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
             <div class="media-container">
                 <img src="${media}" alt="Imagen subida por ${username}" class="preview-media clickable">
                 <button class="fullscreen-btn" onclick="openFullscreen(this.previousElementSibling)">⛶</button>
-            </div>`;
+            </div>`; 
         } else if (mediaType.startsWith('video/')) {
             mediaHTML = `<div>
                             <video controls class="preview-media clickable">
@@ -1598,7 +1598,10 @@ async function addpostToList(content, media, mediaType, username, profilePicture
                     ${mediaHTML}
                 </div>
             </div>`
-        : `<div class="post-content clickable">${content}${mediaHTML}</div>`;
+            : `<div class="post-content clickable">
+            <div class="post-text">${content}</div>
+            ${mediaHTML}
+        </div>`;
 
     const uniqueId = `userProfileBox_${userId}_${Math.random().toString(36).substr(2, 9)}`;
     const microReactId = `post-${postId}`;
