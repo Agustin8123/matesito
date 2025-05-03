@@ -168,6 +168,16 @@
     }
 }
 
+function openFullscreen(element) {
+  if (element.requestFullscreen) {
+      element.requestFullscreen();
+  } else if (element.webkitRequestFullscreen) { /* Safari */
+      element.webkitRequestFullscreen();
+  } else if (element.msRequestFullscreen) { /* IE11 */
+      element.msRequestFullscreen();
+  }
+}
+
 // Overlay inicial
   function Acept() {
     document.getElementById('initialOverlay').style.display = 'flex';
