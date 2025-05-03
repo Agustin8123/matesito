@@ -304,7 +304,7 @@ const password = passwordInput.value.trim();
 
 // Validar longitud del nombre de usuario
 if (username.length > 25) {
-    alert('El nombre de usuario no puede tener más de 30 caracteres.');
+    alert('El nombre de usuario no puede tener más de 25 caracteres.');
     return;
 }
 
@@ -319,6 +319,8 @@ if (!document.getElementById('acceptTermsCheckbox').checked) {
 }
 
 let profileImageURL = 'default-avatar.png'; // Imagen predeterminada
+const descriptionInput = document.getElementById('newUserDescription');
+const description = descriptionInput.value.trim();
 
 if (profileImageInput.files && profileImageInput.files[0]) {
     const formData = new FormData();
@@ -332,49 +334,52 @@ if (profileImageInput.files && profileImageInput.files[0]) {
     .then(response => response.json())
     .then(data => {
         profileImageURL = data.secure_url; // URL de la imagen subida
-        createUserInDatabase(username, password, profileImageURL);
+        createUserInDatabase(username, password, profileImageURL, description);
     })
     .catch(error => {
         console.error('Error al subir la imagen:', error);
         alert('No se pudo subir la imagen de perfil. Inténtalo de nuevo.');
     });
 } else {
-    createUserInDatabase(username, password, profileImageURL);
+    createUserInDatabase(username, password, profileImageURL, description);
 }
 
 usernameInput.value = '';
 passwordInput.value = '';
-profileImageInput.value = ''; // Deseleccionar el archivo
+profileImageInput.value = '';
+descriptionInput.value = '';
 }
 
 
-function createUserInDatabase(username, password, profileImageURL) {
-const userData = {
-    username,
-    password,
-    profileImage: profileImageURL,
-};
+function createUserInDatabase(username, password, profileImageURL, description) {
+    const userData = {
+        username,
+        password,
+        profileImage: profileImageURL,
+        description: description || null // Si está vacío, mandalo como null
+    };
 
-fetch(' /users', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(userData),
-})
-.then(response => response.json())
-.then(data => {
-    if (data.id) {
-        setActiveUser(username); // Establecer al nuevo usuario como activo
-    } else {
-        alert('error al crear el usuario');
-    }
-})
-.catch(error => {
-    console.error('Error al crear el usuario:', error);
-    alert('Hubo un error al crear el usuario.');
-});
+    fetch('/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.id) {
+            setActiveUser(username);
+        } else {
+            alert('error al crear el usuario');
+        }
+    })
+    .catch(error => {
+        console.error('Error al crear el usuario:', error);
+        alert('Hubo un error al crear el usuario.');
+    });
 }
+
 
 function createForum() {
 const forumName = document.getElementById('forumName').value.trim();

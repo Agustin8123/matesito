@@ -45,7 +45,9 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
                 users[username] = {}; // Asegurarse de que el usuario exista en la estructura
             }
             users[username].profileImage = data.profileImage || 'default-avatar.png'; // Guardar la URL de la imagen
-            
+            users[username].description = data.description || '';
+            document.getElementById('userDescription').value = users[username].description;
+
             // Actualizar la UI
             hideUserSelectOverlay();
         } else {
@@ -158,6 +160,36 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
     .catch(error => console.error('Error al actualizar la contraseña:', error));
 }
 
+function updateDescription() {
+    const newDescription = document.getElementById('userDescription').value.trim();
+
+    if (!newDescription) {
+        alert('La descripción no puede estar vacía.');
+        return;
+    }
+
+    fetch('/updateDescription', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            username: activeUser, 
+            description: newDescription 
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Descripción actualizada con éxito.');
+            document.getElementById('userDescription').value = '';
+        } else {
+            alert(data.message || 'Error al actualizar la descripción.');
+        }
+    })
+    .catch(error => {
+        console.error('Error al actualizar la descripción:', error);
+        alert('No se pudo actualizar la descripción.');
+    });
+}
 
    function updateProfileImage() {
     const profileImageInput = document.getElementById('profileImage');
