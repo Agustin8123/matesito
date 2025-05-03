@@ -1566,7 +1566,11 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     let mediaHTML = '';
     if (media && mediaType) {
         if (mediaType.startsWith('image/')) {
-            mediaHTML = `<div><img src="${media}" alt="Imagen subida por ${username}" class="preview-media clickable"></div>`;
+            mediaHTML = `
+            <div class="media-container">
+                <img src="${media}" alt="Imagen subida por ${username}" class="preview-media clickable">
+                <button class="fullscreen-btn" onclick="openFullscreen(this.previousElementSibling)">⛶</button>
+            </div>`;
         } else if (mediaType.startsWith('video/')) {
             mediaHTML = `<div>
                             <video controls class="preview-media clickable">

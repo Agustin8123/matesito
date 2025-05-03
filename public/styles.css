@@ -891,6 +891,28 @@
                 background-color: #a10033; /* Color más claro al pasar el mouse */
             }
 
+            .media-container {
+                position: relative;
+                display: inline-block;
+            }
+            
+            .fullscreen-btn {
+                position: absolute;
+                bottom: 8px;
+                right: 8px;
+                background-color: rgba(0, 0, 0, 0.6);
+                border: none;
+                color: white;
+                padding: 4px 6px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+            }
+            
+            .fullscreen-btn:hover {
+                background-color: rgba(0, 0, 0, 0.8);
+            }
+
 /* para la configuracion de cuentas*/
 
 .user-settings {
