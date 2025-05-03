@@ -913,6 +913,11 @@
                 background-color: rgba(0, 0, 0, 0.8);
             }
 
+            .post-text {
+                margin-bottom: 8px;
+                display: block;
+            }
+
 /* para la configuracion de cuentas*/
 
 .user-settings {
