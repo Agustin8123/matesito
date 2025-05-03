@@ -155,17 +155,17 @@ app.get('/get/microreact--reactionss/:id', async (req, res) => {
 
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
-    const { username, password, profileImage } = req.body;
-    const hashedPassword = await bcryptjs.hash(password, 10); // Cifrar la contraseña
+    const { username, password, profileImage, description } = req.body;
+    const hashedPassword = await bcryptjs.hash(password, 10);
 
-    const query = 'INSERT INTO users (username, password, image) VALUES ($1, $2, $3) RETURNING id'; // Usamos RETURNING id para obtener el id insertado
-    db.query(query, [username, hashedPassword, profileImage || 'default-avatar.png'], (err, result) => {
+    const query = 'INSERT INTO users (username, password, image, description) VALUES ($1, $2, $3, $4) RETURNING id';
+    db.query(query, [username, hashedPassword, profileImage || 'default-avatar.png', description || null], (err, result) => {
         if (err) {
-            console.error("Error al insertar usuario:", err);  // Log del error
-            res.status(500).json({ error: 'Error al crear el usuario' });  // Responder como JSON
+            console.error("Error al insertar usuario:", err);
+            res.status(500).json({ error: 'Error al crear el usuario' });
         } else {
-            const userId = result.rows[0].id; // Obtener el id desde result.rows[0].id
-            res.status(201).json({ id: userId, username });  // Devolver el id y el username
+            const userId = result.rows[0].id;
+            res.status(201).json({ id: userId, username });
         }
     });
 });
@@ -432,7 +432,8 @@ app.post('/getUserDetails', (req, res) => {
             res.status(200).json({
                 id: user.id,  // Agregado: devolver también el id
                 username: user.username,
-                profileImage: user.image || 'default-avatar.png'
+                profileImage: user.image || 'default-avatar.png',
+                description: user.description || ''
             });
         } else {
             res.status(404).json({ message: 'Usuario no encontrado' });
@@ -458,6 +459,28 @@ app.put('/updateProfileImage', (req, res) => {
             res.status(200).json({ success: true, message: 'Imagen de perfil actualizada con éxito' });
         } else {
             res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+    });
+});
+
+app.put('/updateDescription', (req, res) => {
+    const { username, description } = req.body;
+
+    if (!username || !description) {
+        return res.status(400).json({ success: false, message: 'Faltan datos.' });
+    }
+
+    const query = 'UPDATE users SET description = $1 WHERE username = $2';
+    db.query(query, [description, username], (err, result) => {
+        if (err) {
+            console.error('Error al actualizar la descripción:', err);
+            return res.status(500).json({ success: false, message: 'Error del servidor.' });
+        }
+
+        if (result.rowCount > 0) {
+            res.status(200).json({ success: true });
+        } else {
+            res.status(404).json({ success: false, message: 'Usuario no encontrado.' });
         }
     });
 });
