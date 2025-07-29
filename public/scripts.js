@@ -1775,6 +1775,7 @@ function viewProfile(username) {
     // Mostrar la sección de perfil
     const profileHeader = document.getElementById('profileHeader');
     profileHeader.style.display = 'block';
+    document.getElementById('profileList').innerHTML = '';
     
     // Obtener detalles del usuario
     fetch('/getUserDetails', {
