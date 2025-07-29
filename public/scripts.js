@@ -837,7 +837,7 @@ async function sendForumMessage(forumId) {
         content,
         sensitive: isSensitive ? 1 : 0,
         sender_id: users[activeUser].id,
-        createdAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
         chat_or_group_id: forumId,
         is_private: false,
     };
@@ -924,7 +924,7 @@ async function sendChatMessage(chatId) {
         content,
         sensitive: isSensitive ? 1 : 0,
         sender_id: users[activeUser].id,
-        createdAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
         chat_or_group_id: chatId,
         is_private: true,
     };
@@ -1075,7 +1075,7 @@ async function sendGroupMessage(groupId) {
         username: activeUser,
         content: postContent,
         sensitive: isSensitive ? 1 : 0,
-        createdAt: new Date().toISOString(), // Hora en formato UTC
+        created_at: new Date().toISOString(), // Hora en formato UTC
     };
 
     // Mostrar el símbolo de carga
@@ -1257,7 +1257,7 @@ fetch(' /posts')
         // Determinar cuántos posts renderizar
         const postsToRender = loadAll ? reversedPosts : reversedPosts.slice(0, 12);
         postsToRender.forEach((post, index) => {
-            const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = post;
+            const { content, media, mediaType, username, profilePicture, sensitive, created_at, userId, postId } = post;
             const esUltimoPost = index === postsToRender.length - 1; // Determinar si es último
     
             if (!showSensitiveContent && sensitive === true) return;
@@ -1265,7 +1265,7 @@ fetch(' /posts')
             if (content && username) {
                 addpostToList(
                     content, media, mediaType, username, 
-                    profilePicture, sensitive, createdAt, 
+                    profilePicture, sensitive, created_at, 
                     userId, postId, 'postList', invertirOrden,
                     esUltimoPost // ⬅️ Parámetro añadido
                 );
@@ -1343,7 +1343,7 @@ fetch(` /chat/messages/${chatId}`)
                 media,
                 media_type: mediaType,
                 sensitive,
-                created_at: createdAt,
+                created_at: created_at,
                 sender_id: userId,
                 username,
                 image: profilePicture,
@@ -1362,7 +1362,7 @@ fetch(` /chat/messages/${chatId}`)
                 username || `Usuario ${userId}`,
                 profilePicture || '/default-profile.png',
                 sensitive,
-                createdAt,
+                created_at,
                 userId,
                 messageId,
                 'messageList', 
@@ -1408,7 +1408,7 @@ fetch(` /group/messages/${groupId}/${activeUserId}`)
                 media,
                 media_type: mediaType,
                 sensitive,
-                created_at: createdAt,
+                created_at: created_at,
                 sender_id: userId,
                 username,
                 image: profilePicture,
@@ -1426,7 +1426,7 @@ fetch(` /group/messages/${groupId}/${activeUserId}`)
                 username || `Usuario ${userId}`,
                 profilePicture || '/default-profile.png',
                 sensitive,
-                createdAt,
+                created_at,
                 userId,
                 messageId,
                 'groupMessageList', 
@@ -1471,7 +1471,7 @@ fetch(` /mensajes/${forumId}`)
                 media,
                 media_type: mediaType,
                 sensitive,
-                created_at: createdAt,
+                created_at: created_at,
                 sender_id: userId,
                 username,
                 image: profilePicture,
@@ -1489,7 +1489,7 @@ fetch(` /mensajes/${forumId}`)
                 username || `Usuario ${userId}`,
                 profilePicture || '/default-profile.png',
                 sensitive,
-                createdAt,
+                created_at,
                 userId,
                 postId,
                 'forumList', 
@@ -1549,7 +1549,7 @@ async function cargarTotalesDeReacciones() {
     }
 }
 
-async function addpostToList(content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId, listId, invertirOrden, esUltimoPost) {
+async function addpostToList(content, media, mediaType, username, profilePicture, sensitive, created_at, userId, postId, listId, invertirOrden, esUltimoPost) {
     const postList = document.getElementById(listId);
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
@@ -1560,7 +1560,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     newpost.className = 'post';
 
     // Convertir fecha a hora local
-    const localTime = createdAt ? new Date(createdAt).toLocaleString() : '';
+    const localTime = created_at ? new Date(created_at).toLocaleString() : '';
 
     // Imagen del perfil
     const profilePicHTML = profilePicture
@@ -1794,10 +1794,10 @@ fetch(` /posts/user/${username}`)
         postsToRender.forEach((post, index) => {
             const esUltimoPost = index === postsToRender.length - 1;
             
-            const { content, media, mediaType, username, profilePicture, sensitive, createdAt, userId, postId } = post;
+            const { content, media, mediaType, username, profilePicture, sensitive, created_at, userId, postId } = post;
             addpostToList(
                 content, media, mediaType, username, 
-                profilePicture, sensitive, createdAt, 
+                profilePicture, sensitive, created_at, 
                 userId, postId, 'profileList', invertirOrden,
                 esUltimoPost 
             );

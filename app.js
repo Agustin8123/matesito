@@ -210,7 +210,7 @@ app.post('/posts', (req, res) => {
         return res.status(400).json('Faltan datos requeridos');
     }
 
-    const checkQuery = 'SELECT * FROM posts WHERE username = $1 ORDER BY createdAt DESC LIMIT 1';
+    const checkQuery = 'SELECT * FROM posts WHERE username = $1 ORDER BY created_at DESC LIMIT 1';
     db.query(checkQuery, [username], (err, result) => {
         if (err) {
             console.error('Error al verificar post previo:', err);
@@ -224,7 +224,7 @@ app.post('/posts', (req, res) => {
 
         const isSensitive = !!sensitive; // Convierte cualquier valor "truthy" en true, y "falsy" en false
         const query = `
-        INSERT INTO posts (username, content, media, mediatype, sensitive, createdAt) 
+        INSERT INTO posts (username, content, media, mediatype, sensitive, created_at) 
         VALUES ($1, $2, $3, $4, $5, $6) 
         RETURNING id`;
 
@@ -243,7 +243,7 @@ app.post('/posts', (req, res) => {
 
 app.post('/mensajes/:forumId', async (req, res) => {
     const { forumId } = req.params; // Este es el chat_or_group_id
-    const { content, sensitive, sender_id, createdAt, media, mediaType, is_private } = req.body;
+    const { content, sensitive, sender_id, created_at, media, mediaType, is_private } = req.body;
 
     try {
         // Insertar mensaje y obtener el ID generado
@@ -251,7 +251,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
             `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private) 
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
              RETURNING id, chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private`,
-            [forumId, content, sensitive, sender_id, createdAt, media, mediaType, is_private]
+            [forumId, content, sensitive, sender_id, created_at, media, mediaType, is_private]
         );
 
         const mensaje = result.rows[0];
@@ -348,11 +348,11 @@ app.post('/mensajes/:forumId', async (req, res) => {
 app.get('/posts', (req, res) => {
     const query = `
         SELECT 
-        t.id AS postId, t.username, t.content, t.media, t.mediatype, t.createdAt, t.sensitive,
+        t.id AS postId, t.username, t.content, t.media, t.mediatype, t.created_at, t.sensitive,
         u.id AS userId, u.image AS profilePicture
         FROM posts t
         JOIN users u ON t.username = u.username
-        ORDER BY t.createdAt DESC
+        ORDER BY t.created_at DESC
     `;
     
     db.query(query, (err, results) => {
@@ -369,7 +369,7 @@ app.get('/posts', (req, res) => {
             content: post.content,
             media: post.media || null,
             mediaType: post.mediatype || null,
-            createdAt: post.createdat,
+            created_at: post.created_at,
             profilePicture: post.profilepicture || null,
             sensitive: !!post.sensitive // Asegúrate de que sea un booleano
         }));
@@ -383,12 +383,12 @@ app.get('/posts/user/:username', (req, res) => {
     const { username } = req.params;
     const query = `
         SELECT 
-        t.id AS postId, t.username, t.content, t.media, t.mediatype, t.createdAt, t.sensitive,
+        t.id AS postId, t.username, t.content, t.media, t.mediatype, t.created_at, t.sensitive,
         u.id AS userId, u.image AS profilePicture
         FROM posts t
         JOIN users u ON t.username = u.username
         WHERE t.username = $1
-        ORDER BY t.createdAt DESC
+        ORDER BY t.created_at DESC
     `;
     
     db.query(query, [username], (err, results) => {
@@ -404,7 +404,7 @@ app.get('/posts/user/:username', (req, res) => {
             content: post.content,
             media: post.media || null,
             mediaType: post.mediatype || null,
-            createdAt: post.createdat,
+            created_at: post.created_at,
             profilePicture: post.profilepicture || null,
             sensitive: !!post.sensitive // Asegúrate de que sea un booleano
         }));
