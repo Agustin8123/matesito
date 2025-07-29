@@ -192,7 +192,7 @@
     </div>
 
     <div class="container" id="appContainer">
-        <div class="post-box">
+        <div class="post-box" style="display:none;">
             <textarea id="postContent" rows="3" placeholder="¿Qué estás pensando?" inputmode="text" lang="es"></textarea>
             <!-- Checkbox para marcar contenido sensible -->
             <label>
@@ -209,6 +209,17 @@
             <!-- Botón para enviar el post -->
             <button class="button" onclick="wherePost()">Cebar (publicar)</button>
         </div>
+
+        <div class="profile-header" id="profileHeader" style="display:block;">
+        <div class="profile-info">
+            <img id="profileImage" src="" alt="Foto de perfil" class="profile-picture-large">
+            <div>
+                <h2 id="profileUsername">Usuario</h2>
+                <p id="profileDescription">descripción</p>
+            </div>
+        </div>
+
+    </div>
     
         <div class="contenedorBotones">
             <button id="toggleButton" class="button" style="margin: 10px auto; display: block;" onclick="toggleSensitiveContent()">Mostrar contenido sensible</button>
@@ -219,6 +230,10 @@
         <div class="contenedorBotones">
             <button id="bto" class="button" style="margin: 10px auto; display: block;" onclick="toggleOrden(this);">Más nuevos arriba</button>
             <button class="button" style="margin: 10px auto; display: block;" onclick="toggleOrdenR(this); ">Más reacciones</button>    
+        </div>
+
+        <div class="contenedorBotones">
+            <button class="button" onclick="backToPosts()">Volver a publicaciones</button>
         </div>
         
         <ul id="postList" class="posts"></ul>
