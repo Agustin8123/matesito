@@ -1612,7 +1612,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     const microReactId = `post-${postId}`;
 
     // HTML del post
-    newpost.innerHTML = `
+     newpost.innerHTML = `
         <div class="post-header">
             <div class="post-user-info">
                 <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${profilePicHTML}${username}:</span>
@@ -1753,59 +1753,73 @@ function toggleUserProfileBox(uniqueId) {
 }
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
-function viewProfile(username, loadAll) {
-// Obtener referencias a los contenedores
-const profileList = document.getElementById('profileList');
-const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
-postsArray = [];
-
-// Guardar el username actual en un input oculto
-let currentProfileUsername = document.getElementById('currentProfileUsername');
-if (!currentProfileUsername) {
-    currentProfileUsername = document.createElement('input');
-    currentProfileUsername.type = 'hidden';
-    currentProfileUsername.id = 'currentProfileUsername';
-    document.body.appendChild(currentProfileUsername);
-}
-
-
-currentProfileUsername.value = username;
-
-// Limpiar el contenido de la lista de perfil
-profileList.innerHTML = '';
-
-// Mostrar el contenedor de perfil y ocultar el de publicaciones
-showOnlyMenu('profileList', forumList, postList, messageList, groupMessageList, profileList);
-activeForum = 0;
-activeGroup = '';
-activeChat = '';
-
-// Cargar los posts del usuario
-fetch(` /posts/user/${username}`)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Error al cargar los posts del usuario ${username}`);
-        }
-        return response.json();
+function viewProfile(username) {
+    // Ocultar la caja de publicaciones
+    document.getElementById('postBox').style.display = 'none';
+    
+    // Mostrar la sección de perfil
+    const profileHeader = document.getElementById('profileHeader');
+    profileHeader.style.display = 'block';
+    
+    // Obtener detalles del usuario
+    fetch('/getUserDetails', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: username })
     })
-    .then(posts => {
-        const postsToRender = loadAll ? posts : posts.slice(0, 12);
-
-        postsToRender.forEach((post, index) => {
-            const esUltimoPost = index === postsToRender.length - 1;
-            
-            const { content, media, mediaType, username, profilePicture, sensitive, created_at, userId, postId } = post;
-            addpostToList(
-                content, media, mediaType, username, 
-                profilePicture, sensitive, created_at, 
-                userId, postId, 'profileList', invertirOrden,
-                esUltimoPost 
-            );
-        });
+    .then(response => response.json())
+    .then(userDetails => {
+        // Actualizar la información del perfil
+        document.getElementById('profileImage').src = userDetails.profileImage;
+        document.getElementById('profileUsername').textContent = userDetails.username;
+        document.getElementById('profileDescription').textContent = userDetails.description || 'Sin descripción';
+        
+        // Cargar los posts del usuario
+        const profileList = document.getElementById('profileList');
+        profileList.innerHTML = '';
+        
+        fetch(`/posts/user/${username}`)
+            .then(response => response.json())
+            .then(posts => {
+                posts.forEach((post, index) => {
+                    const esUltimoPost = index === posts.length - 1;
+                    addpostToList(
+                        post.content, 
+                        post.media, 
+                        post.mediaType, 
+                        post.username, 
+                        post.profilePicture, 
+                        post.sensitive, 
+                        post.created_at, 
+                        post.userId, 
+                        post.postId, 
+                        'profileList', 
+                        invertirOrden,
+                        esUltimoPost
+                    );
+                });
+            });
     })
     .catch(error => {
-        console.error("Error al cargar los posts del usuario:", error);
+        console.error("Error al cargar detalles del usuario:", error);
     });
+    
+    // Mostrar solo la lista de perfil
+    showOnlyMenu('profileList');
+}
+
+// Función para volver a las publicaciones
+function backToPosts() {
+    // Ocultar sección de perfil
+    document.getElementById('profileHeader').style.display = 'none';
+    
+    // Mostrar caja de publicaciones
+    document.getElementById('postBox').style.display = 'block';
+    
+    // Volver a cargar los posts principales
+    loadPosts();
 }
 
 // Función para seguir al usuaris
