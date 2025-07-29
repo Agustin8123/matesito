@@ -1757,9 +1757,7 @@ function viewProfile(username) {
     // Ocultar la caja de publicaciones
     document.getElementById('postBox').style.display = 'none';
     
-    // Mostrar la sección de perfil
-    const profileHeader = document.getElementById('profileHeader');
-    profileHeader.style.display = 'block';
+    showOnlyMenu(profileList, forumList, postList, messageList, groupMessageList, postList);
     
     // Obtener detalles del usuario
     fetch('/getUserDetails', {
