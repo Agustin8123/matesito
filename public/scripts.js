@@ -66,9 +66,24 @@ function hideMenus(...menuIds) {
     });
 }
 
-  function showOnlyMenu(menuIdToShow, ...allMenuIds) {
-    HideMenus(...allMenuIds);
-    ToggleVisibility(menuIdToShow, 'block');
+function showOnlyMenu(activeId) {
+    // Obtener todos los contenedores
+    const containers = [
+        'postList', 
+        'profileList', 
+        'unicPostList', 
+        'forumList', 
+        'messageList', 
+        'groupMessageList'
+    ];
+    
+    // Ocultar todos excepto el activo
+    containers.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = id === activeId ? 'block' : 'none';
+        }
+    });
 }
 
 
@@ -1240,7 +1255,7 @@ activeForum = 0;
 activeChat = '';
 activeGroup = '';
 
-showOnlyMenu(postList, forumList, postList, messageList, groupMessageList, profileList);
+showOnlyMenu('postList');
 
 document.getElementById('postList').innerHTML = '';
 
@@ -1317,7 +1332,7 @@ fetch(' /createOrLoadPrivateChat', {
 }
 
 function loadChatMessages(chatId, loadAll) {
-showOnlyMenu(messageList, forumList, postList, messageList, groupMessageList, profileList);
+showOnlyMenu(messageList);
 activeForum = 0;
 activeGroup = '';
 postsArray = [];
@@ -1377,7 +1392,7 @@ fetch(` /chat/messages/${chatId}`)
 }
 
 function loadGroupMessages(groupId, loadAll) {
-showOnlyMenu(groupMessageList, forumList, postList, messageList, groupMessageList, profileList);
+showOnlyMenu(groupMessageList);
 const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
 
 activeForum = 0;
@@ -1441,7 +1456,7 @@ fetch(` /group/messages/${groupId}/${activeUserId}`)
 }
 
 function loadForumPosts(forumId, loadAll) {
-showOnlyMenu(forumList, forumList, postList, messageList, groupMessageList, profileList);
+showOnlyMenu(forumList);
 
 console.log (forumId);
 document.getElementById('forumList').innerHTML = ''; // Limpiar lista de posts
@@ -1757,7 +1772,9 @@ function viewProfile(username) {
     // Ocultar la caja de publicaciones
     document.getElementById('postBox').style.display = 'none';
     
-    showOnlyMenu(profileList, forumList, postList, messageList, groupMessageList, postList);
+    // Mostrar la sección de perfil
+    const profileHeader = document.getElementById('profileHeader');
+    profileHeader.style.display = 'block';
     
     // Obtener detalles del usuario
     fetch('/getUserDetails', {
@@ -1804,7 +1821,7 @@ function viewProfile(username) {
         console.error("Error al cargar detalles del usuario:", error);
     });
     
-    // Mostrar solo la lista de perfil
+    // Mostrar solo la lista de perfil y ocultar todas las demás
     showOnlyMenu('profileList');
 }
 
