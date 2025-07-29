@@ -192,7 +192,7 @@
     </div>
 
     <div class="container" id="appContainer">
-        <div class="post-box" style="display:none;">
+        <div class="post-box" id="postBox">
             <textarea id="postContent" rows="3" placeholder="¿Qué estás pensando?" inputmode="text" lang="es"></textarea>
             <!-- Checkbox para marcar contenido sensible -->
             <label>
@@ -210,7 +210,7 @@
             <button class="button" onclick="wherePost()">Cebar (publicar)</button>
         </div>
 
-        <div class="profile-header" id="profileHeader" style="display:block;">
+        <div class="profile-header" id="profileHeader" style="display:none;">
         <div class="profile-info">
             <img id="profileImage" src="" alt="Foto de perfil" class="profile-picture-large">
             <div>
