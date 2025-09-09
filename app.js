@@ -154,11 +154,11 @@ app.get('/get/microreact--reactionss/:id', async (req, res) => {
 });
 
 // Crear nuevo usuario
-app.post('/users', async (req, res) => {
+app.post('/public.users', async (req, res) => {
     const { username, password, profileImage, description } = req.body;
     const hashedPassword = await bcryptjs.hash(password, 10);
 
-    const query = 'INSERT INTO users (username, password, image, description) VALUES ($1, $2, $3, $4) RETURNING id';
+    const query = 'INSERT INTO public.users (username, password, image, description) VALUES ($1, $2, $3, $4) RETURNING id';
     db.query(query, [username, hashedPassword, profileImage || 'default-avatar.png', description || null], (err, result) => {
         if (err) {
             console.error("Error al insertar usuario:", err);
@@ -174,7 +174,7 @@ app.post('/users', async (req, res) => {
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
-    const query = 'SELECT * FROM users WHERE username = $1';
+    const query = 'SELECT * FROM public.users WHERE username = $1';
     db.query(query, [username], async (err, results) => {
         if (err) {
             console.error('Error al buscar el usuario:', err);
@@ -331,7 +331,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
                 u.username, 
                 u.image
             FROM mensajes m
-            INNER JOIN users u ON m.sender_id = u.id
+            INNER JOIN public.users u ON m.sender_id = u.id
             WHERE m.chat_or_group_id = $1
             ORDER BY m.created_at ASC`,
             [forumId]
@@ -351,7 +351,7 @@ app.get('/posts', (req, res) => {
         t.id AS postId, t.username, t.content, t.media, t.mediatype, t.created_at, t.sensitive,
         u.id AS userId, u.image AS profilePicture
         FROM posts t
-        JOIN users u ON t.username = u.username
+        JOIN public.users u ON t.username = u.username
         ORDER BY t.created_at DESC
     `;
     
@@ -386,7 +386,7 @@ app.get('/posts/user/:username', (req, res) => {
         t.id AS postId, t.username, t.content, t.media, t.mediatype, t.created_at, t.sensitive,
         u.id AS userId, u.image AS profilePicture
         FROM posts t
-        JOIN users u ON t.username = u.username
+        JOIN public.users u ON t.username = u.username
         WHERE t.username = $1
         ORDER BY t.created_at DESC
     `;
@@ -420,7 +420,7 @@ const path = require('path');
 app.post('/getUserDetails', (req, res) => {
     const { username } = req.body;
 
-    const query = 'SELECT * FROM users WHERE username = $1';
+    const query = 'SELECT * FROM public.users WHERE username = $1';
     db.query(query, [username], (err, results) => {
         if (err) {
             console.error('Error en la consulta /getUserDetails:', err);
@@ -448,7 +448,7 @@ app.put('/updateProfileImage', (req, res) => {
         return res.status(400).json({ error: 'Datos incompletos' });
     }
 
-    const query = 'UPDATE users SET image = $1 WHERE username = $2';
+    const query = 'UPDATE public.users SET image = $1 WHERE username = $2';
     db.query(query, [profileImage, username], (err, result) => {
         if (err) {
             console.error('Error al actualizar la imagen de perfil:', err);
@@ -470,7 +470,7 @@ app.put('/updateDescription', (req, res) => {
         return res.status(400).json({ success: false, message: 'Faltan datos.' });
     }
 
-    const query = 'UPDATE users SET description = $1 WHERE username = $2';
+    const query = 'UPDATE public.users SET description = $1 WHERE username = $2';
     db.query(query, [description, username], (err, result) => {
         if (err) {
             console.error('Error al actualizar la descripción:', err);
@@ -493,7 +493,7 @@ app.put('/updateUsername', (req, res) => {
         return res.status(400).json({ error: 'Datos incompletos' });
     }
 
-    const query = 'UPDATE users SET username = $1 WHERE username = $2';
+    const query = 'UPDATE public.users SET username = $1 WHERE username = $2';
     db.query(query, [newUsername, currentUsername], (err, result) => {
         if (err) {
             console.error('Error al actualizar el nombre de usuario:', err);
@@ -516,7 +516,7 @@ app.put('/updatePassword', async (req, res) => {
         return res.status(400).json({ error: 'Datos incompletos' });
     }
 
-    const query = 'SELECT password FROM users WHERE username = $1';
+    const query = 'SELECT password FROM public.users WHERE username = $1';
     db.query(query, [username], async (err, results) => {
         if (err) {
             console.error('Error al buscar la contraseña actual:', err);
@@ -535,7 +535,7 @@ app.put('/updatePassword', async (req, res) => {
         }
 
         const hashedPassword = await bcryptjs.hash(newPassword, 10);
-        const updateQuery = 'UPDATE users SET password = $1 WHERE username = $2';
+        const updateQuery = 'UPDATE public.users SET password = $1 WHERE username = $2';
         db.query(updateQuery, [hashedPassword, username], (err, result) => {
             if (err) {
                 console.error('Error al actualizar la contraseña:', err);
@@ -588,9 +588,9 @@ app.post('/foros', (req, res) => {
 
 app.get('/foros', (req, res) => {
     const query = `
-        SELECT foros.id, foros.name, foros.description, users.username AS owner_name
+        SELECT foros.id, foros.name, foros.description, public.users.username AS owner_name
         FROM foros
-        JOIN users ON foros.owner_id = users.id
+        JOIN public.users ON foros.owner_id = public.users.id
         ORDER BY foros.name;
     `;
 
@@ -823,7 +823,7 @@ app.get('/grupos-usuario/:userId', async (req, res) => {
             SELECT g.id, g.name, g.description, g.invite_code, g.created_at, u.username AS owner_name
             FROM grupos g
             INNER JOIN participantes p ON g.id = p.forum_or_group_id
-            INNER JOIN users u ON g.owner_id = u.id
+            INNER JOIN public.users u ON g.owner_id = u.id
             WHERE p.user_id = $1 AND p.is_group = TRUE
             ORDER BY g.created_at DESC
             `,
@@ -983,7 +983,7 @@ app.get('/userForums/:userId', (req, res) => {
         SELECT f.id, f.name, f.description, u.username AS owner_name
         FROM foros f
         INNER JOIN participantes p ON f.id = p.forum_or_group_id
-        INNER JOIN users u ON f.owner_id = u.id
+        INNER JOIN public.users u ON f.owner_id = u.id
         WHERE p.user_id = $1 AND p.is_group = false
     `;
 
@@ -1029,7 +1029,7 @@ app.post('/followUser', (req, res) => {
     });
 });
 
-app.get('/followedUsers/:followerId', (req, res) => {
+app.get('/followedpublic.users/:followerId', (req, res) => {
     const { followerId } = req.params;
 
     if (!followerId) {
@@ -1038,7 +1038,7 @@ app.get('/followedUsers/:followerId', (req, res) => {
 
     const query = `
         SELECT u.id, u.username, u.id, u.image AS profilePicture
-        FROM users u
+        FROM public.users u
         INNER JOIN seguir s ON u.id = s.followed_id
         WHERE s.follower_id = $1
     `;
@@ -1102,9 +1102,9 @@ app.get('/search', (req, res) => {
     `;
     
     // Buscando usuarios por nombre de usuario
-    const usersQuery = `
+    const public.usersQuery = `
         SELECT id, username, image
-        FROM users
+        FROM public.users
         WHERE username ILIKE $1
         ORDER BY username;
     `;
@@ -1116,7 +1116,7 @@ app.get('/search', (req, res) => {
             return res.status(500).json({ error: 'Error al obtener los foros' });
         }
 
-        db.query(usersQuery, [`%${query}%`], (err, userResults) => {
+        db.query(public.usersQuery, [`%${query}%`], (err, userResults) => {
             if (err) {
                 console.error('Error al obtener los usuarios:', err);
                 return res.status(500).json({ error: 'Error al obtener los usuarios' });
@@ -1226,7 +1226,7 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
                 u.username, 
                 u.image
             FROM mensajes m
-            INNER JOIN users u ON m.sender_id = u.id
+            INNER JOIN public.users u ON m.sender_id = u.id
             WHERE m.chat_or_group_id = $1
             ORDER BY m.created_at ASC`,
             [chatId]
@@ -1257,7 +1257,7 @@ app.get('/group/messages/:groupId/:userId', async (req, res) => {
                 u.username, 
                 u.image
             FROM mensajes m
-            INNER JOIN users u ON m.sender_id = u.id
+            INNER JOIN public.users u ON m.sender_id = u.id
             WHERE m.chat_or_group_id = $1
             AND m.is_private = FALSE
             AND (
@@ -1376,7 +1376,7 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     if (grupo.rows.length > 0) nombre = grupo.rows[0].name;
                 } else if (noti.tipo === 'mensaje') {             
                     const sender = await db.query(
-                        `SELECT username FROM users WHERE id = $1`,
+                        `SELECT username FROM public.users WHERE id = $1`,
                         [noti.chat_or_group_id]
                     );                                 
                     if (sender.rows.length > 0) nombre = sender.rows[0].username;
