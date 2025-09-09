@@ -1102,7 +1102,7 @@ app.get('/search', (req, res) => {
     `;
     
     // Buscando usuarios por nombre de usuario
-    const public.usersQuery = `
+    const usersQuery = `
         SELECT id, username, image
         FROM public.users
         WHERE username ILIKE $1
