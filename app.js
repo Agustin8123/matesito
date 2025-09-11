@@ -13,10 +13,10 @@ const port = 3000;
 app.use(express.json()); // Para recibir datos JSON
 
 const db = new Client({
-    host: 'dpg-d2vpgb2li9vc73896p4g-a.oregon-postgres.render.com', // Solo el host
+    host: '192.168.1.248', // Solo el host
     user: 'root', // Usuario
-    password: 'pJxSPUpEIxVhbauvmVb6y1h0sIBe0Mck', // Contraseña
-    database: 'matesito_8', // Base de datos
+    password: 'agustin2', // Contraseña
+    database: 'matesito_8s', // Base de datos
     port: 5432, // Puerto
     ssl: { rejectUnauthorized: false } // Asegura conexión segura
 });
