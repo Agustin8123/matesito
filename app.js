@@ -13,7 +13,7 @@ const port = 3000;
 app.use(express.json()); // Para recibir datos JSON
 
 const db = new Client({
-    host: '192.168.1.248', // Solo el host
+    host: 'localhost', // Solo el host
     user: 'root', // Usuario
     password: 'agustin2', // Contraseña
     database: 'matesito_8s', // Base de datos
