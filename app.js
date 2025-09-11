@@ -154,7 +154,7 @@ app.get('/get/microreact--reactionss/:id', async (req, res) => {
 });
 
 // Crear nuevo usuario
-app.post('/public.users', async (req, res) => {
+app.post('/users', async (req, res) => {
     const { username, password, profileImage, description } = req.body;
     const hashedPassword = await bcryptjs.hash(password, 10);
 
