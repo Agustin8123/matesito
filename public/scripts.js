@@ -1068,6 +1068,20 @@ async function sendGroupMessage(groupId) {
         alert('Error al enviar el mensaje.');
         document.getElementById('loading').style.display = 'none';
     }
+}
+
+const espacios = false;
+
+function testspaces() {
+    const postContent = document.getElementById('postContent').value;
+    
+    if (/^\s*$/.test(postContent)) {
+        espacios = true;
+        console.log(espacios);
+    } else {
+        espacios = false;
+    }
+    
     
 }
 
