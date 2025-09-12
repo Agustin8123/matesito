@@ -1085,7 +1085,7 @@ async function sendGroupMessage(groupId) {
         return;
     }
 
-    if (/^[ \t]*$/.test(postContent)) {
+    if (/^[ \t]*$/.test(postContent) === true) {
         alert("No se puede enviar un post vacío.");
         return;
     }
