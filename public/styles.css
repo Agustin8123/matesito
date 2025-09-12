@@ -1,16 +1,15 @@
- body {
-            font-family: Arial, sans-serif;
-            background-color: #333;
+body {
+            font-family: "Instrument Sans", sans-serif;
+            background-color: #0A0A0A;
             margin: 0;
             padding: 0;
             color: #ffffff;
         }
         
-        
         .header {
-            background-color: #800020; /* Fondo bordó */
+            background-color: #252525; /* Fondo del header */
             color: white;
-            padding: 10px 20px;
+            padding: 20px 20px;
             display: flex; /* Usa Flexbox */
             align-items: center; /* Alinea verticalmente */
             justify-content: space-between; /* Separa los elementos */
@@ -51,10 +50,10 @@
             width: 100%;
             max-width: 600px;
             margin: 20px auto;
-            background-color: #800020;
-            padding: 20px;
+            background-color: #252525;
+            padding: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+            border-radius: 15px;
         }
         
         @media (max-width: 480px) {
@@ -108,20 +107,20 @@
         }
         
         .post-box textarea {
-            width: 95%;
+
             padding: 10px;
             border: 1px solid #333;
-            border-radius: 10px;
+            border-radius: 16px;
             resize: none;
             background-color: #ffffff;
         }
         
         .post-box button {
             background-color: #ffffff;
-            color: #800020;
+            color: #C43335;
             border: none;
             padding: 10px;
-            border-radius: 10px;
+            border-radius: 32px;
             cursor: pointer;
             margin-top: 15px;
         }
@@ -190,24 +189,24 @@
 
         .username-box, .user-select-box {
             background-color: #333;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 32px;
+            border-radius: 16px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
         .username-box input, .user-select-box input {
-            padding: 10px;
+            padding: 15px;
             width: 80%;
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 10px;
         }
         .username-box button, .user-select-box button {
-            background-color: #800020; /* Color bordó */
-            color: white;
+            background-color: #ffffff; /* Color bordó */
+            color: rgb(0, 0, 0);
             border: none;
             padding: 10px;
-            border-radius: 10px;
+            border-radius: 32px;
             cursor: pointer;
         }
 
@@ -235,7 +234,7 @@
             color: #333;
         }
         .user-item.active .profile-pic {
-            border: 2px solid #800020; /* Color bordó */
+            border: 2px solid #C43335; /* Color bordó */
         }
         .user-item .username {
             display: block;
@@ -257,8 +256,9 @@
         }
 
         .header button {
+            font-family: "Instrument Sans", sans-serif;
             position: absolute;
-            top: 20px;
+            top: 7px;
             right: 60px;
             background-color: transparent;
             border: none;
@@ -283,27 +283,40 @@
         }
 
         .initial-box {
-            background-color: #333;
+            background-color: #3333337a;
+            backdrop-filter: blur(64px);
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 16px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
+            width: 80%;
+        }
+    
+        .post-initial-box {
+            background-color: #3333337a;
+            backdrop-filter: blur(64px);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: auto;
         }
 
        .initial-box button {
-            background-color: #800020;
-            color: white;
+            background-color: #ffffff;
+            color: rgb(0, 0, 0);
             border: none;
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 32px;
             cursor: pointer;
             margin: 5px;
+            font-family: "Instrument Sans", sans-serif;
         }
 
 
         button {
-            background-color: #800020;
-            color: white;
+            background-color: #ffffff;
+            color: rgb(0, 0, 0);
             border: none;
             padding: 8px;
             border-radius: 3px;
@@ -312,7 +325,7 @@
         }
 
         button:hover {
-            background-color: #631025; 
+            background-color: #ffdae3; 
         }
 
         /* Estilo de botón genérico */
@@ -326,7 +339,7 @@
             display: inline-block;
             font-size: 14px;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 32px;
             margin-bottom: 4px;
         }
 
@@ -353,7 +366,7 @@
         }
 
         .logo {
-            width: 50px; /* Ajusta el tamaño del logo */
+            width: 200px; /* Ajusta el tamaño del logo */
             height: auto;
             margin-top: -2px;
         }
@@ -400,7 +413,7 @@
 
 .mid-section {
     position: absolute;        /* Fija el elemento en la pantalla */
-    left: 190px;               /* Lo coloca en la esquina derecha */
+    left: 250px;               /* Lo coloca en la esquina derecha */
     top: 60;                 /* Lo coloca en la parte superior de la pantalla */
     z-index: 1000;
 }
@@ -486,7 +499,7 @@
 
 /* Ajustamos el margen del checkbox para acercarlo al texto */
 .rem-container input[type="checkbox"] {
-    margin-right: -125px; /* Reducir el margen entre el checkbox y el texto */
+    margin-right: -115px; /* Reducir el margen entre el checkbox y el texto */
 }
 
 /* Estilo para el texto */
@@ -647,6 +660,7 @@
             align-items: center;
             justify-content: space-between; /* Distribuye el nombre a la izquierda y la hora a la derecha */
             width: 100%;
+            height: 120%;
         }
         
         .username {
@@ -756,7 +770,7 @@
         .loader-background {
             width: 40px; /* Más grande que el loader */
             height: 40px;
-            background-color: #800020;
+            background-color: #C43335;
             border-radius: 50%;
             position: absolute;
             top: 50%;
@@ -870,7 +884,7 @@
             
             /* Botones */
             .forum-box button {
-                background-color: #800020; /* Color bordó */
+                background-color: #C43335; /* Color bordó */
                 color: white;
                 border: none;
                 padding: 10px;
@@ -904,12 +918,13 @@
             }
             
             .foro button {
-                background-color: #800020; /* Color bordó */
+                background-color: #C43335; /* Color bordó */
                 color: white;
                 border: none;
-                padding: 10px 20px;
+                padding: 0px 20px;
                 border-radius: 10px;
                 cursor: pointer;
+                font-family: "Instrument Sans", sans-serif;
             }
             
             .foro button:hover {
