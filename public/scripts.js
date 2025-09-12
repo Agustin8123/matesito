@@ -1085,10 +1085,10 @@ async function sendGroupMessage(groupId) {
         return;
     }
 
-    if (/^\s*$/.test(postContent)) {
+    if (postContent.trim() === "") {
         alert("No se puede enviar un post vacío.");
         return;
-    }
+    }   
 
     const postData = {
         username: activeUser,
