@@ -1071,9 +1071,14 @@ async function sendGroupMessage(groupId) {
     
 }
 
-  function postpost() {
+ function postpost() {
     const postContent = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
+
+    if (!postContent || !postContent.trim()) {
+        alert("No se puede enviar un post vacío.");
+        return;
+    }
 
     if (containsForbiddenWords(postContent)) {
         alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
@@ -1085,16 +1090,11 @@ async function sendGroupMessage(groupId) {
         return;
     }
 
-    if (postContent.trim() === "") {
-        alert("No se puede enviar un post vacío.");
-        return;
-    }   
-
     const postData = {
         username: activeUser,
         content: postContent,
         sensitive: isSensitive ? 1 : 0,
-        created_at: new Date().toISOString(), // Hora en formato UTC
+        created_at: new Date().toISOString(),
     };
 
     // Mostrar el símbolo de carga
@@ -1147,7 +1147,7 @@ async function sendGroupMessage(groupId) {
             document.getElementById('postContent').value = '';
             selectedFile = null;
             alert('Tu post se ha enviado correctamente');
-            ;togglePosts();
+            togglePosts();
         })
         .catch(error => {
             console.error('Error al enviar el post:', error);
@@ -1158,7 +1158,7 @@ async function sendGroupMessage(groupId) {
             document.getElementById('loading').style.display = 'none';
         });
     }
-}    
+}   
 
 function goBackToInitial() {
 document.getElementById('usernameOverlay').style.display = 'none';
