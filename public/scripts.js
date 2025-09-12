@@ -1073,7 +1073,7 @@ async function sendGroupMessage(groupId) {
  function postpost() {
     const postContent = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
-
+    const proccesedContent = postContent.trim()
     if (containsForbiddenWords(postContent)) {
         alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
         return;
@@ -1084,6 +1084,10 @@ async function sendGroupMessage(groupId) {
         return;
     }
 
+    if (proccesedContent.length === 0){
+        alert("No podes cebar un post vacio.");
+        return;
+    }
     const postData = {
         username: activeUser,
         content: postContent,
