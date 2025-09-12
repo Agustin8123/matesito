@@ -12,6 +12,13 @@ const port = 3000;
 
 app.use(express.json()); // Para recibir datos JSON
 
+app.use('/scripts.js', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
 const db = new Client({
     host: 'localhost', // Solo el host
     user: 'root', // Usuario
