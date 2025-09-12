@@ -334,8 +334,6 @@ if (!document.getElementById('acceptTermsCheckbox').checked) {
 }
 
 let profileImageURL = 'default-avatar.png'; // Imagen predeterminada
-const descriptionInput = document.getElementById('newUserDescription');
-const description = descriptionInput.value.trim();
 
 if (profileImageInput.files && profileImageInput.files[0]) {
     const formData = new FormData();
@@ -349,14 +347,14 @@ if (profileImageInput.files && profileImageInput.files[0]) {
     .then(response => response.json())
     .then(data => {
         profileImageURL = data.secure_url; // URL de la imagen subida
-        createUserInDatabase(username, password, profileImageURL, description);
+        createUserInDatabase(username, password, profileImageURL, "No hay descripción todavia.");
     })
     .catch(error => {
         console.error('Error al subir la imagen:', error);
         alert('No se pudo subir la imagen de perfil. Inténtalo de nuevo.');
     });
 } else {
-    createUserInDatabase(username, password, profileImageURL, description);
+    createUserInDatabase(username, password, profileImageURL, "No hay descripción todavia.");
 }
 
 usernameInput.value = '';
