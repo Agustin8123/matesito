@@ -53,7 +53,7 @@ body {
             background-color: #252525;
             padding: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
+            border-radius: 21px;
         }
         
         @media (max-width: 480px) {
