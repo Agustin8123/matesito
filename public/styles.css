@@ -19,6 +19,17 @@ body {
             .header {
                 width: 450px;
             }
+            .left-section .logo{
+                width: 20px;
+                content:url("matesito-logo-small.png");
+                
+            }
+            .header .mid-section {
+                left: 60px;
+            }
+            .header button{
+                right: 5%
+            }
         }
         
         /* Estilos para la sección de perfil */
@@ -268,11 +279,7 @@ body {
             padding: 0;
         }
 
-        @media (max-width: 480px) {
-            .header button {
-                right: 20px;  
-            }
-        }
+
 
         .header button img {
             width: 40px;

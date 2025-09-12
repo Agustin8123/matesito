@@ -4,27 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ayuda</title>
+     <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
     <link rel="icon" href="matesito-logo.png" type="image/png">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #333;
-            margin: 0;
-            padding: 0;
-            color: #ffffff;
-        }
-
-        .header {
-            background-color: #800020; /* Fondo bordó */
-            color: white;
-            padding-top: 32px; /* Aumenta el espacio en la parte superior */
-            padding-bottom: 32px; /* Mantén el espacio en la parte inferior como está o ajústalo */
-            padding-left: 20px; /* Espacio izquierdo */
-            padding-right: 20px; /* Espacio derecho */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
     
         @media (max-width: 480px) {
             .header {
@@ -32,33 +17,6 @@
             }
         }
         
-        button {
-            background-color: #800020;
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-
-        button:hover {
-            background-color: #9b243f; 
-        }
-
-        /* Estilo de botón genérico */
-        .button {
-            background-color: #ffffff;
-            border: none;
-            color: #9b243f;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
 
         @media (max-width: 480px) {
             .button {
@@ -67,11 +25,6 @@
             }
         }
 
-        .logo {
-            width: 50px; /* Ajusta el tamaño del logo */
-            height: auto;
-            margin-top: -2px;
-        }
 
         .left-section {
             display: flex; /* Agrupa el logo y el título */
@@ -121,18 +74,15 @@
             max-width: 750px;
             padding: 20px;
             align-self: center;
-            background-color: #262424;
-            color: #fffbfb;
-            border-radius: 10px;
+            border-radius: 64px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .version-box {
-            background-color: rgba(255, 255, 255, 0.388);
+            background-color: rgba(82, 82, 82, 0.388);
             padding: 20px;
             margin: 15px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 16px;
         }
 
         .version-box h2 {
@@ -150,7 +100,6 @@
         <div class="left-section">
             <label onclick="location.href='index'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
                 <img src="matesito-logo.png" alt="Logo" class="logo">
-                <h1>atesito</h1>
             </label>
         </div>
     

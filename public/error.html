@@ -4,27 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pagína no existente</title>
-    <link rel="icon" href="matesito-logo.png" type="image/png">
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">    
+ <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #333;
-            margin: 0;
-            padding: 0;
-            color: #ffffff;
-        }
 
-        .header {
-            background-color: #800020; /* Fondo bordó */
-            color: white;
-            padding-top: 32px; /* Aumenta el espacio en la parte superior */
-            padding-bottom: 32px; /* Mantén el espacio en la parte inferior como está o ajústalo */
-            padding-left: 20px; /* Espacio izquierdo */
-            padding-right: 20px; /* Espacio derecho */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+  
 
         @media (max-width: 480px) {
             .header {
@@ -32,33 +19,7 @@
             }
         }
 
-        button {
-            background-color: #800020;
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-top: 8px;
-        }
 
-        button:hover {
-            background-color: #9b243f; 
-        }
-
-        /* Estilo de botón genérico */
-        .button {
-            background-color: #ffffff;
-            border: none;
-            color: #9b243f;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
 
         @media (max-width: 480px) {
             .button {
@@ -67,11 +28,6 @@
             }
         }
 
-        .logo {
-            width: 50px; /* Ajusta el tamaño del logo */
-            height: auto;
-            margin-top: -2px;
-        }
 
         .left-section {
             display: flex; /* Agrupa el logo y el título */
@@ -131,10 +87,8 @@
         }
 
         .version-box {
-            background-color: rgba(255, 255, 255, 0.388);
             padding: 20px;
             margin: 15px 0;
-            border: 1px solid #ccc;
             border-radius: 5px;
             width: 94.5%; /* Aumenta el ancho del contenedor */
             max-width: 800px; /* Limita el ancho máximo */
@@ -147,6 +101,10 @@
         .version-box p {
             font-size: 38px;
         }
+        .image_error{
+            width: 50%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -155,11 +113,10 @@
     <div class="header">
         <div class="left-section">
             <img src="matesito-logo.png" alt="Logo" class="logo">
-            <h1>atesito</h1>
-        </div>
+            </div>
     
         <div class="nav-buttons">
-            <label for="index" class="button">index</label>
+            <label for="index" class="button">Inicio</label>
             <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index'">
     
             <label for="versiones" class="button">Versiones</label>
@@ -174,12 +131,13 @@
     </div>
 
     <div class="content">
+        <img class="image_error"src="error_404.svg" alt="Error 404">
         <h1 class="texto">ERROR 404</h1>
         <div class="version-box">
-            <p>Mmm... no podemos encontrar lo que estas buscando, intenta otra cosa.</p>
+            <p>Mmm... no podemos encontrar lo que estas buscando o la pagina ya no esta disponible. Intenta con otra cosa.</p>
         </div>
         <div>
-            <label for="index" class="button">index</label>
+            <label for="index" class="button">Volver al Inicio</label>
             <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index'">
         </div> 
     </div>       
