@@ -7,6 +7,9 @@
 
     <link rel="icon" href="matesito-logo.png" type="image/png">
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
 </head>
 <body>
     <link rel="preload" href="scripts.js" as="script">
@@ -15,7 +18,6 @@
         <div class="left-section">
             <label onclick="location.href='index'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
                 <img src="matesito-logo.png" alt="Logo" class="logo">
-                <h1>atesito</h1>
             </label>
         </div>
     
@@ -257,7 +259,7 @@
 </div>
     <!-- Contenedor principal de la aplicación -->
 <div class="overlay" id="initialOverlay">
-    <div class="initial-box">
+    <div class="initial-box post-initial-box">
         <button onclick="useExistingUser()">Usar Usuario Existente</button>
         <button onclick="createNewUser()">Crear Nuevo Usuario</button>
     </div>
@@ -334,9 +336,6 @@
         <button type="button" id="togglePasswordButton" onclick="togglePassword()">
             <img src="eyeClose.png" alt="Ver/Ocultar Contraseña">
         </button>
-
-        <textarea id="newUserDescription" placeholder="Descripción (opcional)" rows="3" style="resize: none;"></textarea>
-
         <label for="newProfileImage" class="custom-file-upload button">
             Seleccionar imagen de perfil
         </label>
