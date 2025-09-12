@@ -1071,7 +1071,6 @@ async function sendGroupMessage(groupId) {
     
 }
 
-
   function postpost() {
     const postContent = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
@@ -1083,6 +1082,11 @@ async function sendGroupMessage(groupId) {
 
     if (postContent === lastpostContent) {
         alert("No puedes enviar un post igual al anterior.");
+        return;
+    }
+
+    if (/^[ \t]*$/.test(postContent)) {
+        alert("No se puede enviar un post vacío.");
         return;
     }
 
