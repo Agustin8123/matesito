@@ -1089,10 +1089,7 @@ function testspaces() {
     const postContent = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
 
-    if (!postContent || !postContent.trim()) {
-        alert("No se puede enviar un post vacío.");
-        return;
-    }
+    testspaces();
 
     if (containsForbiddenWords(postContent)) {
         alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
@@ -1101,6 +1098,11 @@ function testspaces() {
 
     if (postContent === lastpostContent) {
         alert("No puedes enviar un post igual al anterior.");
+        return;
+    }
+
+    if (espacios === true) {
+        alert("No se puede enviar un post vacío.");
         return;
     }
 
