@@ -1070,26 +1070,9 @@ async function sendGroupMessage(groupId) {
     }
 }
 
-const espacios = false;
-
-function testspaces() {
-    const postContent = document.getElementById('postContent').value;
-    
-    if (/^\s*$/.test(postContent)) {
-        espacios = true;
-        console.log(espacios);
-    } else {
-        espacios = false;
-    }
-    
-    
-}
-
  function postpost() {
     const postContent = document.getElementById('postContent').value;
     const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
-
-    testspaces();
 
     if (containsForbiddenWords(postContent)) {
         alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
@@ -1098,11 +1081,6 @@ function testspaces() {
 
     if (postContent === lastpostContent) {
         alert("No puedes enviar un post igual al anterior.");
-        return;
-    }
-
-    if (espacios === true) {
-        alert("No se puede enviar un post vacío.");
         return;
     }
 
