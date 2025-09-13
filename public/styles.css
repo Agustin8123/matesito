@@ -16,11 +16,6 @@ body {
         }
 
         @media (max-width: 480px) {
-            .header {
-                width: 100%;
-                max-width: 100%;
-            }
-
             .left-section .logo{
                 width: 20px;
                 content:url("matesito-logo-small.png");
