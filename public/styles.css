@@ -141,13 +141,13 @@ body {
             padding: 10px;
         }
         
-        @media (max-width: 480px) {
+        @media (max-width: 510px) {
             .posts {
                 max-height: 700px;
             }
 
             .container {
-                max-width: 450px;
+                max-width: 410px;
             }
         }
 
