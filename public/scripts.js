@@ -249,7 +249,7 @@ const userButton = document.querySelector('#userButton');
 // Usar la imagen del usuario activo, o una predeterminada si no existe
 const userImage = users[activeUser] && users[activeUser].profileImage
     ? users[activeUser].profileImage
-    : 'default-avatar.png'; // Imagen predeterminada
+    : 'resources/SVG/default-avatar.svg'; // Imagen predeterminada
 
 // Configurar el botón con la imagen y el nombre del usuario
 userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
@@ -274,7 +274,7 @@ function setActiveUser(username) {
             users[username].id = data.id;
 
             // Guardar la imagen de perfil (o usar una por defecto)
-            users[username].profileImage = data.profileImage || 'default-avatar.png';
+            users[username].profileImage = data.profileImage || 'resources/SVG/default-avatar.svg';
 
             // Guardar el ID en las cookies
             document.cookie = `userID=${data.id}; path=/;`;
@@ -333,7 +333,7 @@ if (!document.getElementById('acceptTermsCheckbox').checked) {
     return;
 }
 
-let profileImageURL = 'default-avatar.png'; // Imagen predeterminada
+let profileImageURL = 'resources/SVG/default-avatar.svg'; // Imagen predeterminada
 
 if (profileImageInput.files && profileImageInput.files[0]) {
     const formData = new FormData();

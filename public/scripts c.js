@@ -44,7 +44,7 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
             if (!users[username]) {
                 users[username] = {}; // Asegurarse de que el usuario exista en la estructura
             }
-            users[username].profileImage = data.profileImage || 'default-avatar.png'; // Guardar la URL de la imagen
+            users[username].profileImage = data.profileImage || 'resources/SVG/default-avatar.svg'; // Guardar la URL de la imagen
             users[username].description = data.description || '';
             document.getElementById('userDescription').value = users[username].description;
 
