@@ -171,7 +171,7 @@ body {
             cursor: pointer;  /* Cambia el puntero al pasar por encima */
             transition: text-decoration 0.2s ease;  /* Suaviza la transición del subrayado */
             font-weight: bold;
-            margin-right: 5px;
+            margin-top: -10px;
         }
         
         .username:hover {
