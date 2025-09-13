@@ -263,8 +263,10 @@ body {
 
         @media (max-width: 480px) {
             .preview-media {
-                width: 383px;
+                width: 100%;
+                max-width: 400px; /* se adapta y nunca pasa de 400 */
             }
+
         }
 
         .header button {
