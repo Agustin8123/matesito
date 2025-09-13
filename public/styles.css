@@ -992,12 +992,5 @@ body {
     background: #3f3f3f;
 }
 
-html, body {
-  max-width: 100% !important;
 
-}
-
-* {
-  max-width: 100% !important;
-}
 
