@@ -1630,7 +1630,10 @@ async function addpostToList(content, media, mediaType, username, profilePicture
      newpost.innerHTML = `
         <div class="post-header">
             <div class="post-user-info">
-                <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">${profilePicHTML}${username}:</span>
+                <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">
+                ${profilePicHTML}
+                <span class="username-text">${username}</span>
+            </span>
                 <span class="post-time">${localTime}</span>
             </div>
         </div>
