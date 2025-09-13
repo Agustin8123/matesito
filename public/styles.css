@@ -174,7 +174,7 @@ body {
         .username {
             cursor: pointer;  /* Cambia el puntero al pasar por encima */
             transition: text-decoration 0.2s ease;  /* Suaviza la transición del subrayado */
-            font-size: 1px;
+            font-size: 16px;
             overflow-wrap: break-word; /* Permite que los nombres largos se dividan en varias líneas */
             word-break: break-word;
             text-align: center;
