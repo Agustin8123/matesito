@@ -991,3 +991,20 @@ body {
 .settings-item button:hover {
     background: #3f3f3f;
 }
+
+@media (max-width: 480px) {
+  .mid-section {
+    position: relative !important;
+    left: 0 !important;
+    margin: 0 auto !important;
+  }
+
+  .logo {
+    max-width: 120px !important;
+    height: auto !important;
+  }
+
+  .header {
+    flex-wrap: wrap !important;
+  }
+}
