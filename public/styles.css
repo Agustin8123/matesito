@@ -649,6 +649,14 @@ body {
             margin-right: 10px;
             object-fit: cover;
         }
+        
+        .post-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Distribuye el nombre a la izquierda y la hora a la derecha */
+            width: 100%;
+            height: 100%;
+        }
 
         #togglePasswordButton {
             background: none;
