@@ -627,7 +627,7 @@
 
         /* Texto del nombre de usuario */
         .username {
-            font-size: 14px;
+            font-size: 16px;
             overflow-wrap: break-word; /* Permite que los nombres largos se dividan en varias líneas */
             word-break: break-word;
             text-align: center;
