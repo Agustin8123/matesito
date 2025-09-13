@@ -30,7 +30,7 @@ body {
             .header .mid-section {
                 left: 60px;
             }
-            
+
             .header button{
                 right: 5%
             }
@@ -263,7 +263,7 @@ body {
 
         @media (max-width: 480px) {
             .preview-media {
-                width: 383px;;
+                width: 383px;
             }
         }
 
