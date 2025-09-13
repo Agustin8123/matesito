@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matesito</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="matesito-logo.png" type="image/png">
+    <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
 </head>
 <body>
     <div class="header">
         <div class="left-section">
             <label onclick="location.href='index'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
-                <img src="matesito-logo.png" alt="Logo" class="logo">
+                <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo">
             </label>
         </div>
     </div>
@@ -24,8 +24,8 @@
 </div>
 
 <div class="container" id="appContainer" style="display: none;">
-    <link rel="preload" href="eyeClose.png" as="image">
-    <link rel="preload" href="eyeOpen.png" as="image">
+    <link rel="preload" href="resources/PNG/eyeClose.png" as="image">
+    <link rel="preload" href="resources/PNG/eyeOpen.png" as="image">
     <div class="user-settings">
         <h2>Configuración de Usuario</h2>
     
@@ -43,14 +43,14 @@
             <input type="password" id="currentPassword" placeholder="Contraseña actual">
           
             <button type="button" id="togglePasswordButton" style="margin-top: -150px; transform: translateY(25%); margin-left: 0px;" onclick="togglePassword()">
-                <img src="eyeClose.png" alt="Ver/Ocultar Contraseña">
+                <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
             </button>
 
             <label for="newPassword">Nueva Contraseña</label>
             <input type="password" id="newPassword" placeholder="Nueva contraseña">
 
             <button type="button" id="togglePasswordBoton" style="margin-top: -150px; transform: translateY(-14%); margin-left: 0px;" onclick="togglePassword1()">
-                <img src="eyeClose.png" alt="Ver/Ocultar Contraseña">
+                <img src="resources/PNG/eyeOpen.png" alt="Ver/Ocultar Contraseña">
             </button>
 
             <button style="margin-left: 170px;" onclick="updatePassword()">Cambiar Contraseña</button>
@@ -72,13 +72,13 @@
 </div>
 
 <div class="overlay" id="usernameOverlay" style="display: none;">
-    <link rel="preload" href="eyeClose.png" as="image">
-    <link rel="preload" href="eyeOpen.png" as="image">
+    <link rel="preload" href="resources/eyeClose.png" as="image">
+    <link rel="preload" href="resources/PNG/eyeOpen.png" as="image">
     <div class="username-box">
         <input type="text" id="usernameInput" style="margin-left: -25px;" placeholder="Nombre de Usuario">
         <input type="password" id="passwordInput1" placeholder="Contraseña">
         <button type="button" id="toggleBotonPassword" onclick="togglePassword2()">
-            <img src="eyeClose.png" alt="Ver/Ocultar Contraseña">
+            <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
         </button>
 
         <button onclick="loginUser()">Ingresar</button>

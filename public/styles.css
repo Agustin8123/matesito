@@ -23,7 +23,7 @@ body {
 
             .left-section .logo{
                 width: 20px;
-                content:url("matesito-logo-small.png");
+                content:url("resources/PNG/matesito-logo-small.png");
                 
             }
 
@@ -821,9 +821,9 @@ body {
 
             .icone.lupa {
                 display: inline-block;  /* Hacemos que se comporte como un elemento en línea */
-                width: 12px;  /* Tamaño más pequeño */
-                height: 12px;  /* Tamaño más pequeño */
-                border: 2px solid black;  /* Borde más delgado */
+                width: 34px;  /* Tamaño más pequeño */
+                height: 34px;  /* Tamaño más pequeño */
+                border: 0px solid black;  /* Borde más delgado */
                 border-radius: 50%;  /* Asegura que sea redondo */
                 position: relative;
                 vertical-align: middle;  /* Alineación vertical centrada */
@@ -988,4 +988,11 @@ body {
 
 .settings-item button:hover {
     background: #3f3f3f;
+}
+
+
+#iconoNotificacion {
+    margin-left: 10px; margin-bottom: -14px; position: relative;
+    width: 30px;
+    height: auto;
 }
