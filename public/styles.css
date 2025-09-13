@@ -170,12 +170,19 @@ body {
         .username {
             cursor: pointer;  /* Cambia el puntero al pasar por encima */
             transition: text-decoration 0.2s ease;  /* Suaviza la transición del subrayado */
-            font-weight: bold;
-            margin-top: -10px;
+            font-size: 14px;
+            overflow-wrap: break-word; /* Permite que los nombres largos se dividan en varias líneas */
+            word-break: break-word;
+            text-align: center;
+            max-width: 100%; /* Asegura que no se salga del contenedor */
         }
         
         .username:hover {
             text-decoration: underline;  /* Subraya el texto al pasar el puntero */
+        }
+
+        .username-text {
+            margin-top: -10px;
         }
         
 
@@ -638,15 +645,6 @@ body {
             width: 100%;
             margin: 5px auto;
         }
-
-        /* Texto del nombre de usuario */
-        .username {
-            font-size: 14px;
-            overflow-wrap: break-word; /* Permite que los nombres largos se dividan en varias líneas */
-            word-break: break-word;
-            text-align: center;
-            max-width: 100%; /* Asegura que no se salga del contenedor */
-        }
         
         .profile-picture {
             width: 40px;
@@ -662,10 +660,6 @@ body {
             justify-content: space-between; /* Distribuye el nombre a la izquierda y la hora a la derecha */
             width: 100%;
             height: 120%;
-        }
-        
-        .username {
-            font-weight: bold;
         }
 
         #togglePasswordButton {
