@@ -6,7 +6,7 @@
 
     <title>Matesito</title>
 
-    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com"> 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
     <div class="header">
         <div class="left-section">
             <label onclick="location.href='index'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
-                <img src="matesito-logo.png" alt="Logo" class="logo">
+                <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo">
             </label>
         </div>
     
@@ -133,7 +133,7 @@
                 <input type="radio" id="Cerrar1" name="nav" style="display:none;" onclick="toggleRightMenu()">
             </div>
 
-            <label for="search" class="icone lupa" style="margin-left: 10px;margin-top: 0px;"></label>
+            <img src="resources/SVG/search.svg" onclick="toggleSearch()" for="search" class="icone lupa" style="margin-left: 10px;margin-top: 0px;"></label>
                 <input type="radio" id="search" name="nav" style="display:none;" onclick="toggleSearch()">
             <div id="SearchMenu" class="search-menu" style="display: none; left: 110px; top: 15px;">
                 <input type="text" id="searchInput" placeholder="Buscar..." oninput="searchMotor()" style="width: 223px;"></input> 
@@ -143,16 +143,9 @@
             </div>
 
             <label for="notif" class="icon campana" style="cursor: pointer; display: inline-block;">
-                <svg id="iconoNotificacion" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30" height="30" style="margin-left: 10px; margin-bottom: -14px; position: relative;">
-                    <path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path>
-                    <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
-                
-                    <!-- Puntito de notificación -->
-                    <circle id="puntoNotificacion" cx="20" cy="4" r="3" fill="red" stroke="black" stroke-width="1"
-                    style="visibility: hidden; transition: visibility 0.3s ease-in-out;"/>
-                </svg>                
+                <img src="resources/SVG/notifications.svg" alt="Notificaciones" id="iconoNotificacion">
             </label>
-            <input type="radio" id="notif" name="nav" style="display: none;" onclick="toggleBell()">
+            <input type="radio" id="notif" name="nav" style="display: none;" onclick="toggleBell()">    
         </div>
         
         <div class="right-section">
@@ -268,14 +261,14 @@
 
 <!-- Overlay de Usuario Existente -->
 <div class="overlay" id="usernameOverlay" style="display: none;">
-    <link rel="preload" href="eyeClose.png" as="image">
-    <link rel="preload" href="eyeOpen.png" as="image">
+    <link rel="preload" href="resources/PNG/eyeClose.png" as="image">
+    <link rel="preload" href="resources/PNG/eyeOpen.png" as="image">
     <div class="username-box">
         <input type="text" id="usernameInput" style="margin-left: -25px;" placeholder="Nombre de Usuario">
         <input type="password" id="passwordInput" placeholder="Contraseña">
 
         <button type="button" id="togglePasswordBoton" onclick="togglePassword1()">
-            <img src="eyeClose.png" alt="Ver/Ocultar Contraseña">
+            <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
         </button>
         
         <!-- Casilla para recordar la sesión -->
@@ -328,14 +321,14 @@
 </div>
 
 <div class="overlay" id="userSelectOverlay" style="display: none;">
-    <link rel="preload" href="eyeClose.png" as="image">
-    <link rel="preload" href="eyeOpen.png" as="image">
+    <link rel="preload" href="resources/PNG/eyeClose.png" as="image">
+    <link rel="preload" href="resources/PNG/eyeOpen.png" as="image">
     <div class="user-select-box">
         <input type="text" id="newUsernameInput" placeholder="Nuevo usuario">
         <input type="password" id="newPasswordInput" placeholder="Contraseña">
         
         <button type="button" id="togglePasswordButton" onclick="togglePassword()">
-            <img src="eyeClose.png" alt="Ver/Ocultar Contraseña">
+            <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
         </button>
         <label for="newProfileImage" class="custom-file-upload button">
             Seleccionar imagen de perfil
