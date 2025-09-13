@@ -151,6 +151,12 @@ body {
             }
         }
 
+        @media (max-width: 385px) {
+            .container {
+                max-width: 325px;
+            }
+        }
+
         /* Cada publicación */
         .post {
             padding: 15px;
