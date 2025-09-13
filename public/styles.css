@@ -149,9 +149,8 @@ body {
 
         /* Cada publicación */
         .post {
-            padding: 10px;
-            border-bottom: 1px solid #ddd; /* Línea divisoria entre posts */
-            border-radius: 5px;
+            padding: 15px;
+            border-radius: 12px;
             background-color: #f5f5f5;
             margin-bottom: 10px;
         }
