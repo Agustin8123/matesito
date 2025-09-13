@@ -2,15 +2,16 @@
 <html lang="es-AR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script>
 window.addEventListener('load', () => {
-    let viewport = document.querySelector('meta[name="viewport"]');
-    if (!viewport) {
-        viewport = document.createElement('meta');
-        viewport.name = 'viewport';
-        document.head.appendChild(viewport);
-    }
+    const viewport = document.querySelector('meta[name="viewport"]');
+    // Ajusta el ancho de la página al tamaño de la ventana
+    const scale = window.innerWidth / document.body.scrollWidth;
+    viewport.setAttribute('content', `width=device-width, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`);
+});
+</script>
+
     viewport.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
 });
 </script>
