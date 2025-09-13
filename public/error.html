@@ -10,16 +10,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
     <style>
-
-  
-
         @media (max-width: 480px) {
             .header {
                 width: 450px;
             }
         }
 
+        button {
+            background-color: #800020;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
 
+        button:hover {
+            background-color: #9b243f; 
+        }
+
+        /* Estilo de botón genérico */
+        .button {
+            background-color: #ffffff;
+            border: none;
+            color: #9b243f;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
+        }
 
         @media (max-width: 480px) {
             .button {
@@ -27,7 +49,6 @@
                 margin-left: 17px;
             }
         }
-
 
         .left-section {
             display: flex; /* Agrupa el logo y el título */
@@ -43,17 +64,22 @@
             margin-left: -160px; /* Ajuste para mover los botones un poco a la izquierda */
         }
 
-        .nav-buttons button {
+        .right-section button {
             background-color: transparent;
             border: none;
             color: white;
             cursor: pointer;
-            font-size: 16px;
-            padding: 5px 10px;
+            font-size: 14px;
         }
 
-        .nav-buttons button:hover {
-            text-decoration: underline; /* Subrayado al pasar el mouse */
+        .right-section button:hover {
+            text-decoration: underline;
+        }
+
+        .left-section {
+            display: flex; /* Agrupa el logo y el título */
+            align-items: center;
+            gap: 0px; /* Espaciado entre logo y texto */
         }
 
         .right-section button {
@@ -112,18 +138,20 @@
     
     <div class="header">
         <div class="left-section">
-            <img src="matesito-logo.png" alt="Logo" class="logo">
-            </div>
+            <label onclick="location.href='index'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
+                <img src="matesito-logo.png" alt="Logo" class="logo">
+            </label>
+        </div>
     
-        <div class="nav-buttons">
-            <label for="index" class="button">Inicio</label>
-            <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index'">
-    
+        <div class="right-section">
+                        <label for="Acerca De" class="button">Acerca De</label>
+            <input type="radio" id="Acerca De" name="nav" style="display:none;" onclick="location.href='informacion'">
+
             <label for="versiones" class="button">Versiones</label>
             <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='versiones'">
 
-            <label for="acercade" class="button">Acerca de...</label>
-            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='informacion'">
+            <label for="acercade" class="button">Terminos</label>
+            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='Terminos'">
 
             <label for="Ayuda" class="button">Ayuda</label>
             <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda'">
