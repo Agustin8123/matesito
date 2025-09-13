@@ -15,7 +15,7 @@ body {
             justify-content: space-between; /* Separa los elementos */
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 510px) {
             .left-section .logo{
                 width: 20px;
                 content:url("resources/PNG/matesito-logo-small.png");
@@ -147,7 +147,7 @@ body {
             }
 
             .container {
-                max-width: 410px;
+                max-width: 385px;
             }
         }
 
@@ -259,7 +259,7 @@ body {
             margin-top: 10px; /* Espacio superior */
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 510px) {
             .preview-media {
                 width: 100%;
                 max-width: 400px; /* se adapta y nunca pasa de 400 */
@@ -729,7 +729,7 @@ body {
         }
         
         /* Para dispositivos móviles */
-        @media (max-width: 480px) {
+        @media (max-width: 510px) {
             .post-header {
                 flex-direction: column; /* Coloca los elementos en columna */
                 align-items: flex-start; /* Alinea el contenido a la izquierda */
