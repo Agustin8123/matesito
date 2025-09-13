@@ -30,7 +30,7 @@ body {
             .header .mid-section {
                 left: 60px;
             }
-            
+
             .header button{
                 right: 5%
             }
@@ -174,7 +174,7 @@ body {
         .username {
             cursor: pointer;  /* Cambia el puntero al pasar por encima */
             transition: text-decoration 0.2s ease;  /* Suaviza la transición del subrayado */
-            font-size: 14px;
+            font-size: 16px;
             overflow-wrap: break-word; /* Permite que los nombres largos se dividan en varias líneas */
             word-break: break-word;
             text-align: center;
@@ -263,8 +263,10 @@ body {
 
         @media (max-width: 480px) {
             .preview-media {
-                width: 383px;;
+                width: 100%;
+                max-width: 400px; /* se adapta y nunca pasa de 400 */
             }
+
         }
 
         .header button {
@@ -345,7 +347,7 @@ body {
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
             border-radius: 32px;
             margin-bottom: 4px;
@@ -452,7 +454,7 @@ body {
     border: none;
     color: white;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     margin-right: -35px;
 }
 
@@ -563,7 +565,7 @@ body {
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
             margin-bottom: 4px;
@@ -580,7 +582,7 @@ body {
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
             margin-bottom: 4px;
@@ -597,7 +599,7 @@ body {
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
             margin-bottom: 4px;
@@ -630,7 +632,7 @@ body {
         }
         /* Asegura que el nombre del foro sea visible y tenga espacio suficiente */
         .forum-name {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
         }
 
@@ -865,7 +867,7 @@ body {
                 border-radius: 10px;
                 background-color: #fff;
                 color: #333;
-                font-size: 14px;
+                font-size: 16px;
                 resize: none; /* Evita redimensionar el textarea */
             }
             
@@ -877,7 +879,7 @@ body {
                 padding: 10px;
                 border-radius: 10px;
                 cursor: pointer;
-                font-size: 14px;
+                font-size: 16px;
                 transition: background 0.3s ease;
             }
             
@@ -933,7 +935,7 @@ body {
                 padding: 4px 6px;
                 border-radius: 4px;
                 cursor: pointer;
-                font-size: 14px;
+                font-size: 16px;
             }
             
             .fullscreen-btn:hover {
