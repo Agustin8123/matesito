@@ -710,7 +710,7 @@ body {
             background-color: #dddddd2b;
         }
         
-        .post-user-info {
+        .post-user-info, .username {
             display: flex;
             flex-direction: row;
             align-items: center;
