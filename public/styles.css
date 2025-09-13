@@ -61,7 +61,7 @@ body {
             max-width: 600px;
             margin: 20px auto;
             background-color: #252525;
-            padding: 40px;
+            padding: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 21px;
         }
@@ -144,6 +144,10 @@ body {
         @media (max-width: 480px) {
             .posts {
                 max-height: 700px;
+            }
+
+            .container {
+                max-width: 450;
             }
         }
 
