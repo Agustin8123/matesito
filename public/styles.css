@@ -160,7 +160,7 @@ body {
         /* Cada publicación */
         .post {
             padding: 15px;
-            border-radius: 12px;
+            border-radius: 15px;
             background-color: #f5f5f5;
             margin-bottom: 10px;
         }
@@ -333,9 +333,9 @@ body {
             color: rgb(0, 0, 0);
             border: none;
             padding: 8px;
-            border-radius: 3px;
+            border-radius: 24px;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 1px;
         }
 
         button:hover {
@@ -713,11 +713,10 @@ body {
 
         .post {
             position: relative;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #dddddd2b;
-            border-radius: 5px;
-            background-color: #dddddd2b;
+            padding: 12px;
+            /* margin-bottom: 15px; */
+            border-radius: 16px;
+            background-color: #363636;
         }
         
         .post-user-info, .username {
