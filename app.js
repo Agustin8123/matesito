@@ -1,5 +1,5 @@
 const express = require('express');
-
+const Server = require('socket.io');
 const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
 
@@ -1436,14 +1436,12 @@ app.get('/:page?', (req, res) => {
 });
 
 // Crear el servidor
-const server = app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
+const server = http.createServer(app);
+
+// Inicializar Socket.IO en el servidor
+const io = new Server(server, {
+    cors: { origin: "*" }
 });
-
-
-const socketIo = io('http://localhost:3000'); 
-// Iniciar Socket.IO en el servidor
-const io = socketIo(server);
 
 // Cuando un cliente se conecta
 io.on('connection', (socket) => {
@@ -1456,4 +1454,6 @@ io.on('connection', (socket) => {
     console.log('Un cliente se ha desconectado');
   });
 });
-// Iniciar el servidor
+server.listen(port, () => {
+    console.log(`Servidor corriendo en http://localhost:${port}`);
+});
