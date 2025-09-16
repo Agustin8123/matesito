@@ -2189,9 +2189,12 @@ try {
 
 function actualizarIndicadorNotificaciones(hayNotificaciones) {
 const punto = document.getElementById('puntoNotificacion');
-
 // Usa visibility en lugar de display/opacity para evitar problemas con el label
-punto.style.visibility = hayNotificaciones ? 'visible' : 'hidden';
+if (hayNotificaciones){
+    punto.src = "resources/SVG/notifications_new.svg";
+}else{
+    punto.src = "resources/SVG/notifications.svg";
+}
 }
 
 
