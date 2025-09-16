@@ -9,7 +9,7 @@ require('dotenv').config();
 const app = express();
 const port = 3000;
 
-app.use(express.json()); // Para recibir datos JSON
+app.use(express.json()); // Para recibir datos JSONdd
 
 app.use('/scripts.js', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
