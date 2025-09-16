@@ -5,6 +5,7 @@ const bcryptjs = require('bcryptjs');
 
 const http = require('http');
 const socketIo = require('socket.io');
+const { nanoid } = require('nanoid');
 
 require('dotenv').config();
 const app = express();
@@ -253,19 +254,18 @@ app.post('/mensajes/:forumId', async (req, res) => {
     const { content, sensitive, sender_id, created_at, media, mediaType, is_private } = req.body;
 
     try {
-        // Insertar mensaje y obtener el ID generado
-        const result = await db.query(
-        `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-        RETURNING id, chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private`,
-        [forumId, content, sensitive, sender_id, created_at, media, mediaType, is_private]
-        );
+        // Crear ID con letra antes de insertar
+        const prefix = is_private ? 'C-' : 'F-'; 
+        const newId = prefix + nanoid(); // nanoid o cualquier generador de ID único
+
+        // Insertar usando el ID ya con letra
+        const result = await db.query(`
+        INSERT INTO mensajes (id, chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        RETURNING *
+        `, [newId, groupId, sender_id, content, sensitive, media, mediaType, is_private]);
 
         const mensaje = result.rows[0];
-
-        // el prefijo lo manejás solo en tu app
-        const formattedId = is_private ? `C-${mensaje.id}` : `F-${mensaje.id}`;
-
 
         // Actualizar el campo id con el ID formateado
         await db.query(
@@ -1317,23 +1317,18 @@ app.post('/group/messages/:groupId', async (req, res) => {
         }
 
         // Insertar el mensaje en la base de datos
+        const prefix = 'G-'; // Para mensajes de grupo
+        const newId = prefix + nanoid(); // o cualquier generador único como nanoid()
+
+        // Insertar el mensaje con el ID ya con la letra
         const result = await db.query(`
-        INSERT INTO mensajes (chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, FALSE, NOW())
-        RETURNING id, chat_or_group_id, content, sensitive, sender_id, media, media_type, created_at
-        `, [groupId, sender_id, content, sensitive, media, mediaType]);
+        INSERT INTO mensajes (
+            id, chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, FALSE, NOW())
+        RETURNING *
+        `, [newId, groupId, sender_id, content, sensitive, media, mediaType]);
 
-        const mensaje = result.rows[0];
-        mensaje.id = `G-${mensaje.id}`; // Solo para mostrar
-
-        // Actualizar el campo id con el ID formateado
-        await db.query(
-            `UPDATE mensajes SET id = $1 WHERE id = $2`,
-            [formattedId, mensaje.id]
-        );
-
-        // Actualizar el objeto de respuesta con el ID formateado
-        mensaje.id = formattedId;
+        const mensaje = result.rows[0]; // 
 
         await db.query(
             `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
