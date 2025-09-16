@@ -3,7 +3,7 @@ import pkg from 'pg';
 const { Client } = pkg;
 import bcryptjs from 'bcryptjs';
 import http from 'http';
-import { Server } from 'socket.io';
+import { socketIo } from 'socket.io';
 import { nanoid } from 'nanoid';
 import dotenv from 'dotenv';
 import path from 'path';
