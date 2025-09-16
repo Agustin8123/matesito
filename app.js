@@ -1,13 +1,12 @@
-const express = require('express');
-
-const { Client } = require('pg');
-const bcryptjs = require('bcryptjs');
-
-const http = require('http');
-const socketIo = require('socket.io');
+import express from 'express';
+import { Client } from 'pg';
+import bcryptjs from 'bcryptjs';
+import http from 'http';
+import { Server } from 'socket.io';
 import { nanoid } from 'nanoid';
+import dotenv from 'dotenv';
 
-require('dotenv').config();
+dotenv.config();
 const app = express();
 const port = 3000;
 
