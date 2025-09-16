@@ -1,5 +1,5 @@
 const express = require('express');
-const Server = require('socket.io');
+const { Server } = require('socket.io');
 const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
 
