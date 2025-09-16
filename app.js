@@ -3,7 +3,7 @@ import pkg from 'pg';
 const { Client } = pkg;
 import bcryptjs from 'bcryptjs';
 import http from 'http';
-import { socketIo } from 'socket.io';
+import { Server } from 'socket.io';
 import { nanoid } from 'nanoid';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -11,9 +11,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
-
 const __dirname = path.dirname(__filename);
 
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, { cors: { origin: "*" } });
 
 dotenv.config();
 const app = express();
@@ -1438,9 +1439,6 @@ app.get('/:page?', (req, res) => {
 const server = app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
 });
-
-// Iniciar Socket.IO en el servidor
-const io = socketIo(server);
 
 // Cuando un cliente se conecta
 io.on('connection', (socket) => {
