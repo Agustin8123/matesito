@@ -13,9 +13,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const httpServer = http.createServer(app);
-const io = new Server(httpServer, { cors: { origin: "*" } });
-
 dotenv.config();
 const app = express();
 const port = 3000;
@@ -1439,6 +1436,9 @@ app.get('/:page?', (req, res) => {
 const server = app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
 });
+
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, { cors: { origin: "*" } });
 
 // Cuando un cliente se conecta
 io.on('connection', (socket) => {
