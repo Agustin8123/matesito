@@ -5,7 +5,7 @@ const bcryptjs = require('bcryptjs');
 
 const http = require('http');
 const socketIo = require('socket.io');
-const { nanoid } = require('nanoid');
+import { nanoid } from 'nanoid';
 
 require('dotenv').config();
 const app = express();
@@ -1124,7 +1124,7 @@ app.get('/search', (req, res) => {
             return res.status(500).json({ error: 'Error al obtener los foros' });
         }
 
-        db.query(public.usersQuery, [`%${query}%`], (err, userResults) => {
+        db.query(usersQuery, [`%${query}%`], (err, userResults) => {
             if (err) {
                 console.error('Error al obtener los usuarios:', err);
                 return res.status(500).json({ error: 'Error al obtener los usuarios' });
