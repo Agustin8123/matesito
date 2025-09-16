@@ -4,7 +4,6 @@ const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
 
 const http = require('http');
-const socketIo = io('https://matesito.com.ar'); 
 
 require('dotenv').config();
 const app = express();
@@ -1441,6 +1440,8 @@ const server = app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
 });
 
+
+const socketIo = io('http://localhost:3000'); 
 // Iniciar Socket.IO en el servidor
 const io = socketIo(server);
 
