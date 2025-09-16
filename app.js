@@ -1,19 +1,12 @@
-import express from 'express';
-import pkg from 'pg';
-const { Client } = pkg;
-import bcryptjs from 'bcryptjs';
-import http from 'http';
-import { Server } from 'socket.io';
-import { nanoid } from 'nanoid';
-import dotenv from 'dotenv';
-import path from 'path';
+const express = require('express');
 
-import { fileURLToPath } from 'url';
+const { Client } = require('pg');
+const bcryptjs = require('bcryptjs');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const http = require('http');
+const socketIo = require('socket.io');
 
-dotenv.config();
+require('dotenv').config();
 const app = express();
 const port = 3000;
 
@@ -260,18 +253,18 @@ app.post('/mensajes/:forumId', async (req, res) => {
     const { content, sensitive, sender_id, created_at, media, mediaType, is_private } = req.body;
 
     try {
-        // Crear ID con letra antes de insertar
-        const prefix = is_private ? 'C-' : 'F-'; 
-        const newId = prefix + nanoid(); // nanoid o cualquier generador de ID único
-
-        // Insertar usando el ID ya con letra
-        const result = await db.query(`
-        INSERT INTO mensajes (id, chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-        RETURNING *
-        `, [newId, groupId, sender_id, content, sensitive, media, mediaType, is_private]);
+        // Insertar mensaje y obtener el ID generado
+        const result = await db.query(
+            `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+             RETURNING id, chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private`,
+            [forumId, content, sensitive, sender_id, created_at, media, mediaType, is_private]
+        );
 
         const mensaje = result.rows[0];
+
+        // Crear el ID personalizado
+        const formattedId = is_private ? `C-${mensaje.id}` : `F-${mensaje.id}`;
 
         // Actualizar el campo id con el ID formateado
         await db.query(
@@ -426,6 +419,9 @@ app.get('/posts/user/:username', (req, res) => {
         res.status(200).json(posts);
     });
 });
+
+
+const path = require('path');
 
 // Ruta para obtener los detalles del usuario
 app.post('/getUserDetails', (req, res) => {
@@ -1127,7 +1123,7 @@ app.get('/search', (req, res) => {
             return res.status(500).json({ error: 'Error al obtener los foros' });
         }
 
-        db.query(usersQuery, [`%${query}%`], (err, userResults) => {
+        db.query(public.usersQuery, [`%${query}%`], (err, userResults) => {
             if (err) {
                 console.error('Error al obtener los usuarios:', err);
                 return res.status(500).json({ error: 'Error al obtener los usuarios' });
@@ -1320,18 +1316,26 @@ app.post('/group/messages/:groupId', async (req, res) => {
         }
 
         // Insertar el mensaje en la base de datos
-        const prefix = 'G-'; // Para mensajes de grupo
-        const newId = prefix + nanoid(); // o cualquier generador único como nanoid()
+        const result = await db.query(
+            `INSERT INTO mensajes (chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at)
+             VALUES ($1, $2, $3, $4, $5, $6, FALSE, NOW())
+             RETURNING id, chat_or_group_id, content, sensitive, sender_id, media, media_type, created_at`,
+            [groupId, sender_id, content, sensitive, media, mediaType]
+        );
 
-        // Insertar el mensaje con el ID ya con la letra
-        const result = await db.query(`
-        INSERT INTO mensajes (
-            id, chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, FALSE, NOW())
-        RETURNING *
-        `, [newId, groupId, sender_id, content, sensitive, media, mediaType]);
+        const mensaje = result.rows[0];
 
-        const mensaje = result.rows[0]; // 
+        // Crear el ID personalizado
+        const formattedId = `G-${mensaje.id}`;
+
+        // Actualizar el campo id con el ID formateado
+        await db.query(
+            `UPDATE mensajes SET id = $1 WHERE id = $2`,
+            [formattedId, mensaje.id]
+        );
+
+        // Actualizar el objeto de respuesta con el ID formateado
+        mensaje.id = formattedId;
 
         await db.query(
             `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
@@ -1437,8 +1441,8 @@ const server = app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
 });
 
-const httpServer = http.createServer(app);
-const io = new Server(httpServer, { cors: { origin: "*" } });
+// Iniciar Socket.IO en el servidor
+const io = socketIo(server);
 
 // Cuando un cliente se conecta
 io.on('connection', (socket) => {
