@@ -255,16 +255,17 @@ app.post('/mensajes/:forumId', async (req, res) => {
     try {
         // Insertar mensaje y obtener el ID generado
         const result = await db.query(
-            `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-             RETURNING id, chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private`,
-            [forumId, content, sensitive, sender_id, created_at, media, mediaType, is_private]
+        `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+        RETURNING id, chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private`,
+        [forumId, content, sensitive, sender_id, created_at, media, mediaType, is_private]
         );
 
         const mensaje = result.rows[0];
 
-        // Crear el ID personalizado
+        // el prefijo lo manejás solo en tu app
         const formattedId = is_private ? `C-${mensaje.id}` : `F-${mensaje.id}`;
+
 
         // Actualizar el campo id con el ID formateado
         await db.query(
@@ -1316,17 +1317,14 @@ app.post('/group/messages/:groupId', async (req, res) => {
         }
 
         // Insertar el mensaje en la base de datos
-        const result = await db.query(
-            `INSERT INTO mensajes (chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at)
-             VALUES ($1, $2, $3, $4, $5, $6, FALSE, NOW())
-             RETURNING id, chat_or_group_id, content, sensitive, sender_id, media, media_type, created_at`,
-            [groupId, sender_id, content, sensitive, media, mediaType]
-        );
+        const result = await db.query(`
+        INSERT INTO mensajes (chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, FALSE, NOW())
+        RETURNING id, chat_or_group_id, content, sensitive, sender_id, media, media_type, created_at
+        `, [groupId, sender_id, content, sensitive, media, mediaType]);
 
         const mensaje = result.rows[0];
-
-        // Crear el ID personalizado
-        const formattedId = `G-${mensaje.id}`;
+        mensaje.id = `G-${mensaje.id}`; // Solo para mostrar
 
         // Actualizar el campo id con el ID formateado
         await db.query(
