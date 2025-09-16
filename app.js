@@ -1036,7 +1036,7 @@ app.post('/followUser', (req, res) => {
     });
 });
 
-app.get('/followedpublic.users/:followerId', (req, res) => {
+app.get('/followedUsers/:followerId', (req, res) => {
     const { followerId } = req.params;
 
     if (!followerId) {
