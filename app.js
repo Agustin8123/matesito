@@ -338,7 +338,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
                 u.username, 
                 u.image
             FROM mensajes m
-            INNER JOIN public.users u ON m.sender_id = u.id
+            INNER JOIN users u ON m.sender_id = u.id
             WHERE m.chat_or_group_id = $1
             ORDER BY m.created_at ASC`,
             [forumId]
@@ -1233,7 +1233,7 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
                 u.username, 
                 u.image
             FROM mensajes m
-            INNER JOIN public.users u ON m.sender_id = u.id
+            INNER JOIN users u ON m.sender_id = u.id
             WHERE m.chat_or_group_id = $1
             ORDER BY m.created_at ASC`,
             [chatId]
@@ -1264,7 +1264,7 @@ app.get('/group/messages/:groupId/:userId', async (req, res) => {
                 u.username, 
                 u.image
             FROM mensajes m
-            INNER JOIN public.users u ON m.sender_id = u.id
+            INNER JOIN users u ON m.sender_id = u.id
             WHERE m.chat_or_group_id = $1
             AND m.is_private = FALSE
             AND (

@@ -890,7 +890,7 @@ async function sendForumMessage(forumId) {
 
     try {
         // Enviar el mensaje al servidor
-        const response = await fetch(` /mensajes/${forumId}`, {
+        const response = await fetch(`/mensajes/${forumId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(messageData),
@@ -973,7 +973,7 @@ async function sendChatMessage(chatId) {
     document.getElementById('loading').style.display = 'block';
 
     try {
-        const response = await fetch(` /mensajes/${chatId}`, {
+        const response = await fetch(`/mensajes/${chatId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(messageData),
@@ -1467,7 +1467,7 @@ activeGroup = '';
 activeForum = forumId;
 postsArray = [];
 
-fetch(` /mensajes/${forumId}`)
+fetch(`/mensajes/${forumId}`)
     .then(response => {
         if (!response.ok) {
             throw new Error(`Error al cargar los mensajes: ${response.status}`);
