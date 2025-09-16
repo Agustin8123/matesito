@@ -2,7 +2,6 @@
   "name": "matesito",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "node app.js"
   },
@@ -16,7 +15,6 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "nanoid": "^5.1.5",
     "pg": "^8.13.1",
     "socket.io": "^4.8.1"
   }
