@@ -6,6 +6,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { nanoid } from 'nanoid';
 import dotenv from 'dotenv';
+import path from 'path';
 
 dotenv.config();
 const app = express();
@@ -420,9 +421,6 @@ app.get('/posts/user/:username', (req, res) => {
         res.status(200).json(posts);
     });
 });
-
-
-const path = require('path');
 
 // Ruta para obtener los detalles del usuario
 app.post('/getUserDetails', (req, res) => {
