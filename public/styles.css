@@ -29,6 +29,10 @@ body {
             .header button{
                 right: 5%
             }
+
+            .initial-box h2 {
+                font-size: 20px;
+        }
         }
         
         /* Estilos para la sección de perfil */
@@ -202,6 +206,8 @@ body {
             justify-content: center; /* Alineación horizontal */
             z-index: 1000;
         }
+
+
 
         .username-box, .user-select-box {
             background-color: #333;
