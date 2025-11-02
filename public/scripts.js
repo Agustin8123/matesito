@@ -1,40 +1,152 @@
-// ===== VARIABLES GLOBALES =====
-let activeUser = '';
-let selectedFile = null;
-const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'merca', 'falopa', 'cocaína', 'kok4', 'c0ca', 'cocaína', 'marihuana', 'weed', 'hierba', 'porro', 'mota', 'cannabis', '4:20', 'maría', '420', 'hachís', 'thc', 'éxtasis', 'éxt4sis', 'xtc', 'mdma', 'éxtasis', 'lsd', 'ácido', 'trips', 'lsd', 'd.r.o.g.a', 'dro@g@', 'DrOgA', 'dRoJA'];
+// ===== SISTEMA DE AUTH COMPLETO =====
+function showRegister() {
+    document.getElementById('velkommen').style.display = 'none';
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('register').style.display = 'flex';
+}
 
-// ===== SISTEMA DE AUTENTICACIÓN =====
 function useExistingUser() {
     document.getElementById('velkommen').style.display = 'none';
+    document.getElementById('register').style.display = 'none';
     document.getElementById('login').style.display = 'flex';
 }
 
 function goBackToWelcome() {
     document.getElementById('login').style.display = 'none';
+    document.getElementById('register').style.display = 'none';
     document.getElementById('velkommen').style.display = 'flex';
 }
 
-// Función para manejar el login
-function loginUser() {
-    const username = "usuario_ejemplo"; // Temporal - luego conectarás con tu backend
-    const password = "password"; // Temporal
+function togglePasswordVisibility(inputId, button) {
+    const input = document.getElementById(inputId);
+    const img = button.querySelector('img');
     
-    // Aquí iría tu lógica de autenticación real
-    setActiveUser(username);
-    closeAuthPopup();
+    if (input.type === 'password') {
+        input.type = 'text';
+        img.src = 'res/eye-open.svg';
+        img.alt = 'Ocultar contraseña';
+    } else {
+        input.type = 'password';
+        img.src = 'res/eye-closed.svg';
+        img.alt = 'Ver contraseña';
+    }
 }
 
-function setActiveUser(username) {
-    activeUser = username;
-    closeAuthPopup();
-    // Aquí puedes agregar más lógica cuando un usuario inicia sesión
-    console.log('Usuario activo:', activeUser);
+// Función de registro
+async function registerUser() {
+    const username = document.getElementById('registerUsername').value.trim();
+    const password = document.getElementById('registerPassword').value.trim();
+    const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
+    const acceptTerms = document.getElementById('acceptTerms').checked;
+
+    // Validaciones
+    if (!username || !password || !confirmPassword) {
+        alert('Por favor completa todos los campos');
+        return;
+    }
+
+    if (username.length > 25) {
+        alert('El usuario no puede tener más de 25 caracteres');
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        alert('Las contraseñas no coinciden');
+        return;
+    }
+
+    if (!acceptTerms) {
+        alert('Debes aceptar los términos y condiciones');
+        return;
+    }
+
+    try {
+        const response = await fetch('/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Registro exitoso - iniciar sesión automáticamente
+            await loginUserDirect(username, password);
+        } else {
+            alert(data.error || 'Error en el registro');
+        }
+    } catch (error) {
+        console.error('Error en registro:', error);
+        alert('Error de conexión');
+    }
+}
+
+// Función de login
+async function loginUser() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+
+    if (!username || !password) {
+        alert('Por favor completa todos los campos');
+        return;
+    }
+
+    await loginUserDirect(username, password);
+}
+
+// Función de login directo
+async function loginUserDirect(username, password) {
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Login exitoso
+            setActiveUser(data.username);
+            closeAuthPopup();
+        } else {
+            alert(data.error || 'Error en el login');
+        }
+    } catch (error) {
+        console.error('Error en login:', error);
+        alert('Error de conexión');
+    }
 }
 
 function closeAuthPopup() {
     document.querySelector('.authpopup').style.display = 'none';
     document.querySelector('.right-side').style.display = 'flex';
 }
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar si hay usuario guardado (para futuras sesiones)
+    const savedUser = localStorage.getItem('activeUser');
+    if (savedUser) {
+        setActiveUser(savedUser);
+        closeAuthPopup();
+    }
+    
+    // Event listeners para inputs (enter key)
+    const authInputs = document.querySelectorAll('.authInput');
+    authInputs.forEach(input => {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const formId = this.closest('.loginContainer').id;
+                if (formId === 'login') {
+                    loginUser();
+                } else if (formId === 'register') {
+                    registerUser();
+                }
+            }
+        });
+    });
+});
 
 // ===== SISTEMA DE POSTS =====
 function autoResize(textarea) {
