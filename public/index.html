@@ -1,116 +1,381 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es-AR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matesito | Inicio</title>
-    <link rel="stylesheet" href="index.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Matesito</title>
+
+    <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <script src="scriptPiola.js"></script>
-    <script src="scripts.js"></script>
-    <script src="scripts2.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="sidebar">
-        <div class="top">
-            <button class="logoButton"><img class="logo non-selectable"src="res/logo.svg" alt="" srcset=""></button>
-            <button class="sidebarButton"><img class="sidebarButtonImage non-selectable" src="res/sidebar-mini.svg" alt="Minimizar sidebar"></button>
-        </div>
-        <nav class="sidebar-nav non-selectable">
-            <a href="#" class="sidebar-nav-element active">
-                <img src="res/sidebar-icons/home.svg" alt="" class="nav-ic non-selectable">
-                <span class="nav-text">Inicio</span>
-            </a>
-            <a href="#" class="sidebar-nav-element">
-                <img src="res/sidebar-icons/followers.svg" alt="" class="nav-ic non-selectable">
-                <span class="nav-text">Siguiendo</span>
-            </a>
-            <a href="#" class="sidebar-nav-element">
-                <img src="res/sidebar-icons/chats.svg" alt="" class="nav-ic">
-                <span class="nav-text">Chats</span>
-            </a>
-            <a href="#" class="sidebar-nav-element">
-                <img src="res/sidebar-icons/notifications.svg" alt="" class="nav-ic">
-                <span class="nav-text">Notificaciones</span>
-            </a>
-            <a href="#" class="sidebar-nav-element">
-                <img src="res/sidebar-icons/foros.svg" alt="" class="nav-ic">
-                <span class="nav-text">Foros</span>
-            </a>
-        </nav>
-    </div>
-    <div class="right-side">
-        <div class="dialogPostContainer">
-            <div class="authorContainer">
-                <img class="avatarPost" src="res/default-avatar.svg" alt="Avatar">
-                <span class="authorName">Example202</span>
-            </div>
-            <textarea name="hola" id="textpost" class="textpost" placeholder="¿Qué vas a cebar?"></textarea>
-            <div class="buttonsSec">
-                <button class="post-button">
-                    <img src="res/image.svg" alt="">
-                    <span class="label-button-post">Imagen</span>
-                </button>
-                <button class="post-button-min">
-                    <img src="res/gif.svg" alt="">
-                </button>
-                <button class="post-button-min">
-                    <img src="res/pool.svg" alt="">
-                </button>
-                <button class="post-button-min">
-                    <img src="res/hamburguesa-con-queso-amigo.svg" alt="">
-                </button>
-                <button class="post-button post-button-send">
-                    <span class="label-button-post send-text">Cebar</span>
-                </button>
-            </div>
-        </div>
-         <div class="postContainer">
-            <div class="authorContainer">
-                <img class="avatarPost" src="res/default-avatar.svg" alt="Avatar">
-                <span class="authorName">Example202</span>
-            </div>
-            <span class="postText">prueba</span>
-            <div class="buttonsSec">
-                <button class="post-button">
-                    <img src="res/react.svg" alt="">
-                    <span class="label-button-post">Reaccionar</span>
-                </button>
-                </button>
-            </div>
-        </div>
-    </div>
-    <img src="res/default-avatar.svg" alt="Avatar" class="floatingAvatar">
+    <link rel="preload" href="scripts.js" as="script">
 
-    <div class="authpopup">
-        <div class="foreground">
-            <div class="loginContainer" id="velkommen">
-                <img src="res/login.png" alt="" class="loginImage">
+    <div class="header">
+        <div class="left-section">
+            <label onclick="location.href='index'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
+                <img src="resources/PNG/mate-hallowhen.jpg" alt="Logo" class="logo">
+            </label>
+        </div>
+    
+        <div class="loader-container" id="loading" style="display: none;">
+            <div class="loader-background"></div>
+            <div class="loader"></div>
+        </div>
+        
+
+        <div class="mid-section">
+            <label class="button" onclick="toggleRightMenu()">Menu</label>
+            <div class="dropdown-menu"  id="rightMenu" style="left: 160px; margin-top: 5px;">
+                <label for="General" class="boton">Chat General</label>
+                <input type="radio" id="General" name="nav" style="display:none;" onclick="reloadPosts(), togglePosts()">
+                <label for="Recetas" class="boton">Cocina</label>
+                <input type="radio" id="Recetas" name="nav" style="display:none;" onclick="location.href='recetas'">
+                
+                <label for="Foros" class="boton">Foros</label>
+                    <input type="radio" id="Foros" name="nav" style="display:none;" onclick="toggleForumMenu()"> 
+                <div id="forumSubMenu" class="dropdown-menu" style="left: 188px; margin-top: -82px;">
+                   
+                    <label for="myForos" class="boton">Mis Foros</label>
+                        <input type="radio" id="myForos" name="nav" style="display:none;" onclick="toggleMyForumMenu(); loadUserCreatedForums();">
+                    <div id="myForumMenu" class="dropdown-menu" style="left: 188px; margin-top: -41px;">
+        
+                        <label for="Crearforo" class="boton">Crear Foro</label>
+                            <input type="radio" id="Crearforo" name="nav" style="display:none;" onclick="createForumMenu()">
+
+                            <div id="createdForosContainer" class="foros-container" style="margin-left: -10px;">
+                                <!-- Los foros se renderizarán aquí -->
+                            </div>
+                            
+                        <label for="Volver6" class="botonV">Volver</label>
+                            <input type="radio" id="Volver6" name="nav" style="display:none;" onclick="toggleMyForumMenu()">
+                    
+                   </div>
+                   
+
+                    <!--ver foros seguidos-->
+                    <label for="forosseguidos" class="boton">Foros Seguidos</label>
+                        <input type="radio" id="forosseguidos" name="nav" style="display:none;" onclick="exploreForumMenu2()">
+                        <div id="exploreforumMenu2" class="dropdown-menu" style="left: 188px; margin-top: -99px;">  
+                            <div id="forosContainer2" class="foros-container" style="margin-left: -10px;">
+                                <!-- Los foros se renderizarán aquí -->
+                            </div>
+
+                            <label for="Volver5" class="botonV">Volver</label>
+                                <input type="radio" id="Volver5" name="nav" style="display:none;" onclick="exploreForumMenu2()">
+
+                        </div>
+
+                    <!--explorar foros-->
+                    <label for="explorarforos" class="boton">Explorar Foros</label>
+                        <input type="radio" id="explorarforos" name="nav" style="display:none;" onclick="exploreForumMenu()">
+                        <div id="exploreforumMenu" class="dropdown-menu" style="left: 188px; margin-top: -156px;">
+                            <div id="forosContainer" class="foros-container" style="margin-left: -10px;">
+                                <!--los foros se renderizaran aqui-->
+                            </div>
+                            <label for="Volver4" class="botonV">Volver</label>
+                                <input type="radio" id="Volver4" name="nav" style="display:none;" onclick="exploreForumMenu()">
+                        </div>    
+                    <label for="Volver3" class="botonV">Volver</label>
+                        <input type="radio" id="Volver3" name="nav" style="display:none;" onclick="toggleForumMenu()">
+                </div>
+
+                <label for="grupos" class="boton">Grupos</label>
+                        <input type="radio" id="grupos" name="nav" style="display:none;" onclick="toggleGruposMenu(); loadUserGroups();">
+                    <div id="gruposMenu" class="dropdown-menu" style="left: 188px; top: -20px;">
+                            
+                        <label for="userCreated" class="boton">Administración de grupos</label>
+                            <input type="radio" id="userCreated" name="nav" style="display:none;" onclick="usercreatedGroupMenu(); loadCreatedGroups();">  
+                        <div id="userCreatedMenu" class="dropdown-menu" style="left: 188px; top: -20px;"> 
+                            <div id="createdGroupsContainer" class="foros-container" style="margin-left: -10px;">
+                                <!-- Los grupos se renderizarán aquí -->
+                            </div>
+                            <label for="Volver8" class="botonV">Volver</label>
+                                <input type="radio" id="Volver8" name="nav" style="display:none;" onclick="usercreatedGroupMenu()">
+
+                        </div>
+
+                        <label for="userJoined" class="boton">Ver mis grupos</label>
+                            <input type="radio" id="userJoined" name="nav" style="display:none;" onclick="userJoinedGroupMenu(); loadUserGroups()">  
+                        <div id="userJoinedMenu" class="dropdown-menu" style="left: 188px; top: -20px;"> 
+                            <div id="joinedGruposContainer" class="foros-container" style="margin-left: -10px;">
+                                <!-- Los grupos se renderizarán aquí -->
+                            </div>
+                            <label for="Volver9" class="botonV">Volver</label>
+                                <input type="radio" id="Volver9" name="nav" style="display:none;" onclick="userJoinedGroupMenu()">
+
+                        </div>
+
+                        <label for="Creargrupo" class="boton">Crear grupo</label>
+                            <input type="radio" id="Creargrupo" name="nav" style="display:none;" onclick="createGroupMenu()">   
+
+                        <label for="entrargrupo" class="boton">Entrar a un grupo</label>
+                            <input type="radio" id="entrargrupo" name="nav" style="display:none;" onclick="joinGroupMenu()">
+    
+                        <label for="Volver7" class="botonV">Volver</label>
+                            <input type="radio" id="Volver7" name="nav" style="display:none;" onclick="toggleGruposMenu()">
+                   </div>
+
+                   <label for="Seguidos" class="boton">Usuarios Seguidos</label>
+                   <input type="radio" id="Seguidos" name="nav" style="display:none;" onclick="toggleUserMenu()"> 
+                   <div id="userSubMenu" class="dropdown-menu" style=" left: 188px; margin-top: -180px;">
+                   <div id="usersContainer" style="min-height: 86px; margin-left: -10px" class="foros-container">
+                       <!-- Los usuarios se renderizarán aquí -->
+                   </div>
+                   <label for="Volver2" class="botonV">Volver</label>
+                   <input type="radio" id="Volver2" name="nav" style="display:none;" onclick="toggleUserMenu()">
+                </div>
+                
+                <label for="Cerrar1" class="botonV">Cerrar</label>
+                <input type="radio" id="Cerrar1" name="nav" style="display:none;" onclick="toggleRightMenu()">
+            </div>
+
+            <img src="resources/SVG/search.svg" onclick="toggleSearch()" for="search" class="icone lupa" style="margin-left: 10px;margin-top: 0px;"></label>
+                <input type="radio" id="search" name="nav" style="display:none;" onclick="toggleSearch()">
+            <div id="SearchMenu" class="search-menu" style="display: none; left: 110px; top: 15px;">
+                <input type="text" id="searchInput" placeholder="Buscar..." oninput="searchMotor()" style="width: 223px;"></input> 
+                <div id="searchconteiner" class=".SearchContainer" class="foros-container">
+                    <!--las busquedas se renderizan aqui-->
+                </div>    
+            </div>
+
+            <label for="notif" class="icon campana" id= "puntoNotificacion" style="cursor: pointer; display: inline-block;">
+                <img src="resources/SVG/notifications.svg" alt="Notificaciones" id="iconoNotificacion">
+            </label>
+            <input type="radio" id="notif" name="nav" style="display: none;" onclick="toggleBell()">    
+        </div>
+        
+        <div class="right-section">
+            <button id="userButton" onclick="toggleMenu()">Seleccionar Usuario</button>
+
+            <div class="dropdown-menu" id="dropdownMenu">
+                <label class="boton" onclick="toggleSubMenu2()">Usuario</label>
+                <div class="dropdown-menu" id="subMenu2" style="display: none; position: absolute; left: 172px; margin-top: -41px;">
+                    <label for="configuración de la cuenta" class="boton">configuración de la cuenta</label>
+                    <input type="radio" id="configuración de la cuenta" name="nav" style="display:none;" onclick="location.href='cuenta'">
+                    
+                    <label for="Cerrar sesión" class="boton">Cerrar sesión</label>
+                    <input type="radio" id="Cerrar sesión" name="nav" style="display:none;" onclick="showUserSelectOverlay(); toggleMenu(); toggleSubMenu2(); closeSesion();">
+
+                    <label for="Volver1" class="botonV">Volver</label>
+                    <input type="radio" id="Volver1" name="nav" style="display:none;" onclick="toggleSubMenu2()">
+                </div>
+                
+                <label for="acercade" class="boton">Acerca de...</label>
+                <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='informacion'">
+
+                <label class="boton" onclick="toggleSubMenu()">Otros</label>
+                <div class="dropdown-menu" id="subMenu" style="display: none; position: absolute; left: 171px; margin-top: -122px;">
+                    <label for="Politicas" class="boton">Políticas</label>
+                    <input type="radio" id="Politicas" name="nav" style="display:none;" onclick="location.href='Terminos'">
+
+                    <label for="versiones" class="boton">Versiones</label>
+                    <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='versiones'">
+
+                    <label for="Ayuda" class="boton">Ayuda</label>
+                    <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda'">
+
+                    <label for="Volver" class="botonV">Volver</label>
+                    <input type="radio" id="Volver" name="nav" style="display:none;" onclick="toggleSubMenu()">
+                </div>
+                <label for="Cerrar" class="botonV">Cerrar</label>
+                <input type="radio" id="Cerrar" name="nav" style="display:none;" onclick="toggleMenu()">
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="appContainer">
+        <div class="post-box" id="postBox">
+            <textarea id="postContent" rows="3" placeholder="¿Qué estás pensando?" inputmode="text" lang="es"></textarea>
+            <!-- Checkbox para marcar contenido sensible -->
+            <label>
+                <input type="checkbox" id="sensitiveContentCheckbox" style="margin-top: 15px;">
+                ¿Es contenido sensible?
+            </label>
+    
+            <!-- Botón para seleccionar un archivo -->
+            <button class="button" onclick="document.getElementById('postMedia').click();">
+                Seleccionar archivo
+            </button>
+            <input id="postMedia" type="file" accept="image/*, video/*, audio/*" style="display:none;" onchange="handleFileSelect(event)">
+            
+            <!-- Botón para enviar el post -->
+            <button class="button" onclick="wherePost()">Cebar (publicar)</button>
+        </div>
+
+        <div class="profile-header" id="profileHeader" style="display:none;">
+            <div class="profile-info">
+                <img id="profileImage" src="" alt="Foto de perfil" class="profile-picture-large">
                 <div>
-                    <span class="loginHeader">¡Bienvenido/a a Matesito!</span>
-                  <span class="loginDesc">La comunidad argentina mas matera de todas. Cebá, habla y cagaté de risa con nuestra comunidad que estamos construyendo juntos.
-
-Acordaté de una cosa; Matesito todavia puede ser inestable y esta en constante desarrollo. Para asegurar que todo funcioné bien, no hagas cosas raras.</span>
-                 <div class="buttonContainer">
-                    <button class="loginButton">Registrarse</button>
-                    <button class="loginButton" onclick="useExistingUser()">Tengo una cuenta</button>
-                </div>
+                    <h2 id="profileUsername">Usuario</h2>
+                    <p id="profileDescription">descripción</p>
                 </div>
             </div>
 
-            <div class="loginContainer login" id="login">
-                <div class="headerContainerLogin">
-                    <button class="backButton">
-                        <img src="res/back.svg" alt="" class="backButtonIMG">
-                    </button>
-                    <span class="loginHeader">Loguearse</span>
-                </div>
+            
+            <div class="contenedorBotones">
+                <button class="button" onclick="backToPosts()">Volver a publicaciones</button>
             </div>
-
         </div>
+    
+    
+        <div class="contenedorBotones">
+            <button id="toggleButton" class="button" style="margin: 10px auto; display: block;" onclick="toggleSensitiveContent()">Mostrar contenido sensible</button>
+            <button id="Loadpostsbutton" class="button" style="margin: 10px auto; display: block;" onclick="buttonsState();">Recargar posts</button>
+            <button id="loadAllPostsButton" class="button" style="margin: 10px auto; display: block;" onclick="togglePostLoad()">Cargar todos los posts</button>
+        </div>
+
+        <div class="contenedorBotones">
+            <button id="bto" class="button" style="margin: 10px auto; display: block;" onclick="toggleOrden(this);">Más nuevos arriba</button>
+            <button class="button" style="margin: 10px auto; display: block;" onclick="toggleOrdenR(this); ">Más reacciones</button>    
+        </div>
+        
+        <ul id="postList" class="posts" style="display: block;"></ul>
+        <ul id="profileList" class="posts" style="display: none;"></ul>
+        <ul id="unicPostList" class="posts" style="display: none;"></ul>
+        <ul id="forumList" class="posts" style="display: none;"></ul>
+        <ul id="messageList" class="posts" style="display: none;"></ul>
+        <ul id="groupMessageList" class="posts" style="display: none;"></ul>
+    </div>
+
+<div class="overlay" id="AvisoOverlay">
+    <div class="initial-box">
+        <h2>
+            Bienvenido a Matesito, la red social más argenta que vas a pisar sin ensuciarte las zapatillas con yerba. Acá no hay fotos de brunch con palta ni challenges ridículos, lo único que importa es el mate que tengas en la mano: amargo, dulce, lavado, en calabaza, en termo Stanley heredado, con bizcochitos o sin nada. Compartí tu ronda, chusmeá la de otros y, si hace falta, discutí como corresponde sobre si la yerba va primero o después del agua. En Matesito la única regla es respetar al que ceba.<br><br>
+
+            Matesito está en constante desarrollo, por favor, reporta en nuestro correo de soporte "matesito.soporte@gmail.com" cualquier bug o brecha que encuentres.
+        </h2>
+        <button onclick="Acept()">Aceptar</button>
     </div>
 </div>
+    <!-- Contenedor principal de la aplicación -->
+<div class="overlay" id="initialOverlay">
+    <div class="initial-box post-initial-box">
+        <button onclick="useExistingUser()">Usar Usuario Existente</button>
+        <button onclick="createNewUser()">Crear Nuevo Usuario</button>
+    </div>
+</div>
+
+<!-- Overlay de Usuario Existente -->
+<div class="overlay" id="usernameOverlay" style="display: none;">
+    <link rel="preload" href="resources/PNG/eyeClose.png" as="image">
+    <link rel="preload" href="resources/PNG/eyeOpen.png" as="image">
+    <div class="username-box">
+        <input type="text" id="usernameInput" style="margin-left: -25px;" placeholder="Nombre de Usuario">
+        <input type="password" id="passwordInput" placeholder="Contraseña">
+
+        <button type="button" id="togglePasswordBoton" onclick="togglePassword1()">
+            <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
+        </button>
+        
+        <!-- Casilla para recordar la sesión -->
+        <div class="rem-container">
+            <input type="checkbox" id="rememberMe">
+            <label for="rememberMe">
+                Recordar mi sesión
+            </label>
+        </div>
+
+        <button onclick="loginUser()">Ingresar</button>
+        <!-- Botón Volver -->
+        <button onclick="goBackToInitial()">Volver</button>
+    </div>
+</div>
+
+<div class="overlay" id="notifMenu" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+    <div class="forum-box">
+        <div id="renderNotif" class="foros-container">
+            <!--Aquí se renderizaran las notificaciones-->
+        </div>
+        <button onclick="toggleBell()">Cerrar</button>
+    </div>
+</div>
+
+<div class="overlay" id="createForumOverlay" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+    <div class="forum-box">
+        <input type="text" id="forumName" placeholder="Nombre del Foro">
+        <textarea id="forumDescription" placeholder="Descripción del Foro"></textarea>
+        <button onclick="createForum()">Crear Foro</button>
+        <button onclick="createForumMenu()">Volver</button>
+    </div>
+</div>
+
+<div class="overlay" id="createGroupOverlay" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+    <div class="forum-box">
+        <input type="text" id="groupName" placeholder="Nombre del Grupo">
+        <textarea id="groupDescription" placeholder="Descripción del Grupo"></textarea>
+        <button onclick="createGroup()">Crear Grupo</button>
+        <button onclick="createGroupMenu()">Volver</button>
+    </div>
+</div>
+
+<div class="overlay" id="joinGrupoMenu" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+    <div class="forum-box">
+        <input type="text" id="inviteCode" placeholder="Codigo de invitación">
+        <button onclick="joinGroup()">Unirse</button>
+        <button onclick="joinGroupMenu()">Volver</button>
+    </div>
+</div>
+
+<div class="overlay" id="userSelectOverlay" style="display: none;">
+    <link rel="preload" href="resources/PNG/eyeClose.png" as="image">
+    <link rel="preload" href="resources/PNG/eyeOpen.png" as="image">
+    <div class="user-select-box">
+        <input type="text" id="newUsernameInput" placeholder="Nuevo usuario">
+        <input type="password" id="newPasswordInput" placeholder="Contraseña">
+        
+        <button type="button" id="togglePasswordButton" onclick="togglePassword()">
+            <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
+        </button>
+        <label for="newProfileImage" class="custom-file-upload button">
+            Seleccionar imagen de perfil
+        </label>
+        <input id="newProfileImage" type="file" accept="image/*" style="display:none;">
+
+        <div class="terms-container">
+            <input type="checkbox" id="acceptTermsCheckbox">
+            <label for="acceptTermsCheckbox">
+                Acepto los <a href="Terminos" target="_blank">términos y condiciones <br> y las políticas de privacidad</a>.
+            </label>
+        </div>
+
+        <button id="createUserButton" onclick="addNewUser()" disabled>Crear</button> <!-- Botón deshabilitado por defecto -->
+        <!-- Botón Volver -->
+        <button onclick="goBackToInitial()">Volver</button>
+    </div>
+</div>
+<script src="scripts.js"></script>
+<script src="scripts2.js"></script>
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-XXX" crossorigin="anonymous"></script>
+  <script>
+    const socket = io();
+
+    socket.on('reloadPosts', () => {
+        loadposts(loadAll);
+    });
+
+    socket.on('reloadFPosts', () => {
+        reloadFPosts();
+    });
+
+    socket.on('reloadGPosts', () => {
+        reloadGPosts();
+    });
+
+    socket.on('reloadCPosts', () => {
+        reloadCPosts();
+    });
+
+    socket.on('reloadFG', () => {
+        reloadFG();
+    });
+    socket.on('reloadMr', () => {
+        reloadMr();
+    });
+  </script>
 </body>
 </html>
