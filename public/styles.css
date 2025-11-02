@@ -16,6 +16,9 @@ body {
         }
 
         @media (max-width: 510px) {
+            .superHeader {
+                display: none;
+            }
             .left-section .logo{
                 width: 20px;
                 content:url("resources/PNG/matesito-logo-small.png");
