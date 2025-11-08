@@ -1122,7 +1122,7 @@ app.get('/search', (req, res) => {
             return res.status(500).json({ error: 'Error al obtener los foros' });
         }
 
-        db.query(public.usersQuery, [`%${query}%`], (err, userResults) => {
+        db.query(usersQuery, [`%${query}%`], (err, userResults) => {
             if (err) {
                 console.error('Error al obtener los usuarios:', err);
                 return res.status(500).json({ error: 'Error al obtener los usuarios' });
