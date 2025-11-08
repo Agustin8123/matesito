@@ -248,33 +248,32 @@ app.post('/posts', (req, res) => {
 });
 
 app.post('/mensajes/:forumId', async (req, res) => {
-    const { forumId } = req.params; // Este es el chat_or_group_id
+    const { forumId } = req.params;
     const { content, sensitive, sender_id, created_at, media, mediaType, is_private } = req.body;
 
     try {
-        // Insertar mensaje y obtener el ID generado
+        // Crear el ID del foro con prefijo
+        const formattedForumId = is_private ? `C-${forumId}` : `F-${forumId}`;
+
+        // Insertar mensaje
         const result = await db.query(
-            `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+            `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
              RETURNING id, chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private`,
-            [forumId, content, sensitive, sender_id, created_at, media, mediaType, is_private]
+            [formattedForumId, content, sensitive, sender_id, created_at, media, mediaType, is_private]
         );
 
         const mensaje = result.rows[0];
 
-        // Crear el ID personalizado
+        // Crear el ID formateado del mensaje
         const formattedId = is_private ? `C-${mensaje.id}` : `F-${mensaje.id}`;
 
-        // Actualizar el campo id con el ID formateado
-        await db.query(
-            `UPDATE mensajes SET id = $1 WHERE id = $2`,
-            [formattedId, mensaje.id]
-        );
+        // Actualizar el ID del mensaje
+        await db.query(`UPDATE mensajes SET id = $1 WHERE id = $2`, [formattedId, mensaje.id]);
 
-        // Actualizar el objeto de respuesta con el ID formateado
         mensaje.id = formattedId;
+
         if (is_private) {
-            // Si es privado (chat), crear notificación para el receptor
             const receptor = await db.query(
                 `SELECT CASE 
                     WHEN user1_id = $1 THEN user2_id 
@@ -282,45 +281,39 @@ app.post('/mensajes/:forumId', async (req, res) => {
                 END AS receptor 
                 FROM chats 
                 WHERE id = $2`,
-                [sender_id, forumId] // Asegúrate de pasar el forumId correctamente
+                [sender_id, forumId]
             );
-            
+
             if (receptor.rows.length > 0) {
-                // Insertar la notificación para el receptor
                 await db.query(
                     `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
                      VALUES ($1, 'mensaje', $2, $3)`,
-                    [receptor.rows[0].receptor, formattedId, sender_id]
-                );                
-            }     
+                    [receptor.rows[0].receptor, formattedId, formattedForumId]
+                );
+            }
         } else {
-            // Si no es privado (foro), crear notificaciones para los participantes del foro
             await db.query(
                 `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
                  SELECT user_id, 'foro', $1, $2 FROM participantes
-                 WHERE forum_or_group_id = $2 AND is_group = FALSE AND user_id != $3`,
-                [formattedId, forumId, sender_id]
+                 WHERE forum_or_group_id = $3 AND is_group = FALSE AND user_id != $4`,
+                [formattedId, formattedForumId, forumId, sender_id]
             );
         }
 
-        if (is_private) {
-            io.emit('reloadCPosts');
-        } else {
-            io.emit('reloadFPosts');
-        }
+        io.emit(is_private ? 'reloadCPosts' : 'reloadFPosts');
         res.status(201).json(mensaje);
+
     } catch (error) {
         console.error('Error al guardar el mensaje:', error);
         res.status(500).json({ error: 'Error al guardar el mensaje' });
     }
 });
 
-  app.get('/mensajes/:forumId', async (req, res) => {
-    const forumId = parseInt(req.params.forumId, 10); // Convierte a número entero
 
-    if (isNaN(forumId)) {
-        return res.status(400).json({ error: 'ID del foro no válido' });
-    }
+app.get('/mensajes/:forumId', async (req, res) => {
+    const { forumId } = req.params;
+    const isPrivate = req.query.private === 'true'; // opcional, según cómo lo llames desde frontend
+    const formattedId = isPrivate ? `C-${forumId}` : `F-${forumId}`;
 
     try {
         const result = await db.query(
@@ -340,7 +333,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
             INNER JOIN users u ON m.sender_id = u.id
             WHERE m.chat_or_group_id = $1
             ORDER BY m.created_at ASC`,
-            [forumId]
+            [formattedId]
         );
 
         res.status(200).json(result.rows);
@@ -349,6 +342,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
         res.status(500).json({ error: 'Error al cargar los mensajes' });
     }
 });
+
 
 // Obtener todos los posts
 app.get('/posts', (req, res) => {
@@ -1300,7 +1294,6 @@ app.post('/group/messages/:groupId', async (req, res) => {
     const { content, sensitive, sender_id, media, mediaType } = req.body;
 
     try {
-        // Validar que el usuario pertenece al grupo
         const isParticipant = await db.query(
             `SELECT COUNT(*) 
              FROM participantes 
@@ -1314,33 +1307,26 @@ app.post('/group/messages/:groupId', async (req, res) => {
             return res.status(403).json({ error: 'No tienes permiso para publicar en este grupo.' });
         }
 
-        // Insertar el mensaje en la base de datos
+        const formattedGroupId = `G-${groupId}`;
+
         const result = await db.query(
             `INSERT INTO mensajes (chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at)
              VALUES ($1, $2, $3, $4, $5, $6, FALSE, NOW())
              RETURNING id, chat_or_group_id, content, sensitive, sender_id, media, media_type, created_at`,
-            [groupId, sender_id, content, sensitive, media, mediaType]
+            [formattedGroupId, sender_id, content, sensitive, media, mediaType]
         );
 
         const mensaje = result.rows[0];
-
-        // Crear el ID personalizado
         const formattedId = `G-${mensaje.id}`;
 
-        // Actualizar el campo id con el ID formateado
-        await db.query(
-            `UPDATE mensajes SET id = $1 WHERE id = $2`,
-            [formattedId, mensaje.id]
-        );
-
-        // Actualizar el objeto de respuesta con el ID formateado
+        await db.query(`UPDATE mensajes SET id = $1 WHERE id = $2`, [formattedId, mensaje.id]);
         mensaje.id = formattedId;
 
         await db.query(
             `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
              SELECT user_id, 'grupo', $1, $2 FROM participantes
-             WHERE forum_or_group_id = $2 AND is_group = TRUE AND user_id != $3`,
-            [formattedId, groupId, sender_id]
+             WHERE forum_or_group_id = $3 AND is_group = TRUE AND user_id != $4`,
+            [formattedId, formattedGroupId, groupId, sender_id]
         );
 
         io.emit('reloadGPosts');
