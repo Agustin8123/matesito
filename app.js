@@ -2,6 +2,7 @@ const express = require('express');
 const { Server } = require('socket.io');
 const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
+const cors = require('cors');
 
 const http = require('http');
 
@@ -10,6 +11,18 @@ const app = express();
 const port = 3000;
 
 app.use(express.json()); // Para recibir datos JSONdd
+
+app.use(cors({
+  origin: [
+    'https://matesito.com.ar',
+    'http://localhost',
+    'capacitor://localhost'
+    credentials: true
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 
 app.use('/scripts.js', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
