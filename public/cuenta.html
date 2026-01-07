@@ -10,9 +10,20 @@
 <body>
     <div class="header">
         <div class="left-section">
-            <label onclick="location.href='index'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
-                <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo">
-            </label>
+            <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index'" style="cursor:pointer">
+        </div>
+        <div class="nav-buttons">
+            <label for="index" class="button">Inicio</label>
+            <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index'">
+
+            <label for="versiones" class="button">Versiones</label>
+            <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='versiones'">
+
+            <label for="acercade" class="button">Acerca de...</label>
+            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='informacion'">
+
+            <label for="Ayuda" class="button">Ayuda</label>
+            <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda'">
         </div>
     </div>
 
@@ -86,6 +97,7 @@
     </div>
 </div>
 
+<script src="utils.js"></script>
 <script src="scripts c.js"></script>
 </body>
 </html>

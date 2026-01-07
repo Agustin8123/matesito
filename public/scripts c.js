@@ -1,63 +1,38 @@
 let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imágenes de perfil
     
 
-   function Acept() {
-    document.getElementById('usernameOverlay').style.display = 'flex';
-    document.getElementById('appContainer').style.display = 'flex';
-    document.getElementById('AvisoOverlay').style.display = 'none';
-}
+   // La función Acept() fue movida a utils.js para evitar duplicados.
 
 // Función de login
-   function loginUser() {
-    const username = document.getElementById('usernameInput').value.trim();
-    const password = document.getElementById('passwordInput1').value.trim();
-    
-    fetch(' /login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.username) {
-            setActiveUser(data.username); // Función para actualizar el usuario activo
-        } else {
-            alert('Error al iniciar sesión');
-        }
-    })
-    .catch(error => {
-        alert('Error de conexión');
-    });
+     function loginUser() {
+        const username = document.getElementById('usernameInput').value.trim();
+        const password = document.getElementById('passwordInput1').value.trim();
+
+        performLoginCommon(username, password)
+            .then(data => {
+                if (data.username) {
+                    // Activar usuario usando helper común
+                    activateUser(data.username).then(() => {
+                        hideUserSelectOverlay();
+                    }).catch(err => {
+                        console.error(err);
+                        alert('Error al iniciar sesión');
+                    });
+                } else {
+                    alert('Error al iniciar sesión');
+                }
+            })
+            .catch(error => {
+                console.error('Error de conexión', error);
+                alert('Error de conexión');
+            });
 }
 
    function setActiveUser(username) {
-    fetch(' /getUserDetails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.id) {
-            // Guardar detalles del usuario activo
-            activeUser = username;
-            if (!users[username]) {
-                users[username] = {}; // Asegurarse de que el usuario exista en la estructura
-            }
-            users[username].profileImage = data.profileImage || 'resources/SVG/default-avatar.svg'; // Guardar la URL de la imagen
-            users[username].description = data.description || '';
-            document.getElementById('userDescription').value = users[username].description;
-
-            // Actualizar la UI
-            hideUserSelectOverlay();
-        } else {
-            alert("Usuario no encontrado.");
-        }
-    })
-
-    .catch(error => {
-        console.error("Error al obtener los detalles del usuario:", error);
-        alert("Error al obtener los detalles del usuario.");
+    // Enlaza con activateUser central en utils.js
+    activateUser(username).catch(error => {
+      console.error('Error al activar usuario:', error);
+      alert('Error al obtener los detalles del usuario.');
     });
 }
 
@@ -91,42 +66,15 @@ let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imá
 }
 
    function togglePassword() {
-    const passwordInput = document.getElementById('currentPassword');
-    const toggleButton = document.getElementById('togglePasswordButton');
-
-    if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
-    } else {
-        passwordInput.type = "password";
-        toggleButton.innerHTML = '<img src="eyeClose.png" alt="Ver Contraseña">';
-    }
+    togglePasswordInput('currentPassword', 'togglePasswordButton');
 }
 
    function togglePassword1() {
-    const passwordInput = document.getElementById('newPassword');
-    const toggleButton = document.getElementById('togglePasswordBoton');
-
-    if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
-    } else {
-        passwordInput.type = "password";
-        toggleButton.innerHTML = '<img src="eyeClose.png" alt="Ver Contraseña">';
-    }
+    togglePasswordInput('newPassword', 'togglePasswordBoton');
 }
 
    function togglePassword2() {
-    const passwordInput = document.getElementById('passwordInput1');
-    const toggleButton = document.getElementById('toggleBotonPassword');
-
-    if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
-    } else {
-        passwordInput.type = "password";
-        toggleButton.innerHTML = '<img src="eyeClose.png" alt="Ver Contraseña">';
-    }
+    togglePasswordInput('passwordInput1', 'toggleBotonPassword');
 }
 
    function updatePassword() {

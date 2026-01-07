@@ -7,149 +7,33 @@
     <link rel="stylesheet" href="styles.css">
 
     <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
-    <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com"> 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-    <style> 
-        * {
-            font-family: "Instrument Sans", sans-serif;
-        }
-        
-        button {
-            background-color: #800020;
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-
-        button:hover {
-            background-color: #9b243f; 
-        }
-
-        /* Estilo de botón genérico */
-        .button {
-            background-color: #ffffff;
-            border: none;
-            color: #9b243f;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        @media (max-width: 510px) {
-            .button {
-                margin-top: 10px;
-                margin-left: 17px;
-            }
-        }
-
-
-
-        .left-section {
-            display: flex; /* Agrupa el logo y el título */
-            align-items: center;
-            gap: 0px; /* Espaciado entre logo y texto */
-        }
-
-        .nav-buttons {
-            display: flex; /* Alinea los botones horizontalmente */
-            gap: 15px; /* Espaciado entre botones */
-            flex-grow: 1; /* Asegura que ocupe el espacio disponible */
-            justify-content: center; /* Centra los botones en el medio */
-            margin-left: -160px; /* Ajuste para mover los botones un poco a la izquierda */
-        }
-
-        .nav-buttons button {
-            background-color: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 5px 10px;
-        }
-
-        .nav-buttons button:hover {
-            text-decoration: underline; /* Subrayado al pasar el mouse */
-        }
-
-        .right-section button {
-            background-color: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .right-section button:hover {
-            text-decoration: underline;
-        }
-
-        h1 {
-            margin: 0;
-        }
-
-        .content {
-            margin: 20px auto;
-            max-width: 750px;
-            padding: 20px;
-            align-self: center;
-            background-color: #262424;
-            color: #fffbfb;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .version-box {
-            padding: 10px;
-            margin: 15px 0;
-
-        }
-
-        .version-box h2 {
-            margin-top: 0;
-        }
-
-        .version-box p {
-            font-size: 19px;
-        }
-
-        a {
-            word-wrap: break-word;    /* Rompe palabras largas */
-            overflow-wrap: break-word; /* Asegura que las palabras se dividan correctamente */     
-            max-width: 100%;  /* Asegura que el <pre> no se expanda más allá de su contenedor */
-        }
-    </style>
 </head>
 <body>
 
     <div class="header">
         <div class="left-section">
-            <label onclick="location.href='index'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
-                <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo">
-            </label>
+            <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index.html'" style="cursor:pointer">
         </div>
-    
-        <div class="right-section">
+        <div class="nav-buttons">
+            <label for="index" class="button">Inicio</label>
+            <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
+
             <label for="versiones" class="button">Versiones</label>
-            <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='versiones'">
+            <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='versiones.html'">
 
             <label for="acercade" class="button">Terminos</label>
-            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='Terminos'">
+            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='Terminos.html'">
 
             <label for="Ayuda" class="button">Ayuda</label>
-            <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda'">
+            <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
         </div>
     </div>
 
-    <div class="content" style="transform: translateX(20px);">
-        <div class="version-box">
+    <div class="content content-informacion" style="transform: translateX(20px);">
+        <div class="version-box version-box-informacion">
             <h1>Sobre Matesito...</h1>
             <p>
                 Hola, me llamo Agustín Couette (Agustin8 para los amigos) y soy el creador y dueño de Matesito, recientemente FeFe (SquaredFe) se sumó al equipo para contribuir con un nuevo diseño de la pagina. Matesito surgió como una idea loca, un día simplemente pensé: "¿Será muy difícil hacer una red social?"

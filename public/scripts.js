@@ -131,29 +131,11 @@ if (valor === true) {
 }
 
   function togglePassword() {
-    const passwordInput = document.getElementById('newPasswordInput');
-    const toggleButton = document.getElementById('togglePasswordButton');
-
-    if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
-    } else {
-        passwordInput.type = "password";
-        toggleButton.innerHTML = '<img src="eyeClose.png" alt="Ver Contraseña">';
-    }
+    togglePasswordInput('newPasswordInput', 'togglePasswordButton');
 }
 
   function togglePassword1() {
-    const passwordInput = document.getElementById('passwordInput');
-    const toggleButton = document.getElementById('togglePasswordBoton');
-
-    if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        toggleButton.innerHTML = '<img src="eyeOpen.png" alt="Ocultar Contraseña">';
-    } else {
-        passwordInput.type = "password";
-        toggleButton.innerHTML = '<img src="eyeClose.png" alt="Ver Contraseña">';
-    }
+    togglePasswordInput('passwordInput', 'togglePasswordBoton');
 }
 
 function useExistingUser() {
@@ -256,43 +238,10 @@ userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profi
 }
 
 function setActiveUser(username) {
-    fetch('/getUserDetails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.id) {
-            // Guardar detalles del usuario activo
-            activeUser = username;
-            if (!users[username]) {
-                users[username] = {}; // Asegurar que el usuario exista en la estructura
-            }
-
-            // Guardar el ID del usuario
-            users[username].id = data.id;
-
-            // Guardar la imagen de perfil (o usar una por defecto)
-            users[username].profileImage = data.profileImage || 'resources/SVG/default-avatar.svg';
-
-            // Guardar el ID en las cookies
-            document.cookie = `userID=${data.id}; path=/;`;
-
-            // Actualizar la UI
-            hideUserSelectOverlay();
-            document.getElementById('appContainer').style.display = 'block';
-            updateUserButton();
-            HideOverlays();
-            loadposts(loadAll);
-            obtenerNotificaciones();
-        } else {
-            alert("Usuario no encontrado.");
-        }
-    })
-    .catch(error => {
-        console.error("Error al obtener los detalles del usuario:", error);
-        alert("Error al obtener los detalles del usuario.");
+    // Usar la función común definida en utils.js
+    activateUser(username).catch(error => {
+        console.error('Error al activar usuario:', error);
+        alert('Error al obtener los detalles del usuario.');
     });
 }
 

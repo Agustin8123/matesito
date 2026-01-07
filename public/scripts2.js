@@ -182,4 +182,7 @@ function openFullscreen(element) {
   function Acept() {
     document.getElementById('initialOverlay').style.display = 'flex';
     document.getElementById('AvisoOverlay').style.display = 'none';
-}
+  }
+
+  /* Nota: la función Acept() fue consolidada en utils.js. Esta definición se mantiene vacía
+     sólo si el navegador carga scripts2.js sin utils.js por compatibilidad. */

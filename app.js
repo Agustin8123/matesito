@@ -16,8 +16,8 @@ app.use(cors({
   origin: [
     'https://matesito.com.ar',
     'http://localhost',
-    'capacitor://localhost'
-    credentials: true
+    'capacitor://localhost',
+    'credentials: true'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
