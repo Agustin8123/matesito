@@ -161,6 +161,7 @@ function updateDescription() {
 function loginUser() {
 const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput1').value.trim();
+const usernameOverlay = document.getElementById('usernameOverlay');
 
 fetch(' /login', {
     method: 'POST',
@@ -171,6 +172,7 @@ fetch(' /login', {
 .then(data => {
     if (data.username) {
         setActiveUser(data.username); 
+        usernameOverlay.style.display = 'none';
     } else {
         alert('Error al iniciar sesión');
     }
