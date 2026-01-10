@@ -68,6 +68,14 @@ function performLoginCommon(username, password, loginPath = '/login') {
   }).then(resp => resp.json());
 }
 
+function setActiveUser(username) {
+    // Usar la función común definida en utils.js
+    activateUser(username).catch(error => {
+        console.error('Error al activar usuario:', error);
+        alert('Error al obtener los detalles del usuario.');
+    });
+}
+
 // Obtiene detalles del usuario y activa la sesión en la UI
 function activateUser(username) {
   return fetch('/getUserDetails', {

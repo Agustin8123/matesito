@@ -181,11 +181,3 @@ fetch(' /login', {
     alert('Error de conexión');
 });
 }
-
-function setActiveUser(username) {
-    // Usar la función común definida en utils.js
-    activateUser(username).catch(error => {
-        console.error('Error al activar usuario:', error);
-        alert('Error al obtener los detalles del usuario.');
-    });
-}

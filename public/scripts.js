@@ -235,14 +235,6 @@ document.getElementById('userSelectOverlay').style.display = 'none';
 document.getElementById('usernameOverlay').style.display = 'none'; 
 }
 
-function setActiveUser(username) {
-    // Usar la función común definida en utils.js
-    activateUser(username).catch(error => {
-        console.error('Error al activar usuario:', error);
-        alert('Error al obtener los detalles del usuario.');
-    });
-}
-
 // Borrar la cookie cuando se cierra la pestaña o el navegador
 window.addEventListener('beforeunload', () => {
     document.cookie = "userID=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
