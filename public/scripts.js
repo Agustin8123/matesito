@@ -85,6 +85,17 @@ function showOnlyMenu(activeId) {
     });
 }
 
+function updateUserButton() {
+const userButton = document.querySelector('#userButton');
+
+// Usar la imagen del usuario activo, o una predeterminada si no existe
+const userImage = users[activeUser] && users[activeUser].profileImage
+    ? users[activeUser].profileImage
+    : 'resources/SVG/default-avatar.svg'; // Imagen predeterminada
+
+// Configurar el botón con la imagen y el nombre del usuario
+userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
+}
 
 let lastpostContent = "";
 const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'merca', 'falopa', 'cocaína', 'kok4', 'c0ca', 'cocaína', 'marihuana', 'weed', 'hierba', 'porro', 'mota', 'cannabis', '4:20', 'maría', '420', 'hachís', 'thc', 'éxtasis', 'éxt4sis', 'xtc', 'mdma', 'éxtasis', 'lsd', 'ácido', 'trips', 'lsd', 'd.r.o.g.a', 'dro@g@', 'DrOgA', 'dRoJA'];
