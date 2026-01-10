@@ -91,6 +91,7 @@ const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'm
 
 document.addEventListener("DOMContentLoaded", function() {
 document.getElementById('initialOverlay').style.display = 'none';
+updateUserButton(); 
 });
 
 function reloadPosts(){
