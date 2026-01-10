@@ -160,7 +160,7 @@ function updateDescription() {
 
 function loginUser() {
 const username = document.getElementById('usernameInput').value.trim();
-const password = document.getElementById('passwordInput').value.trim();
+const password = document.getElementById('passwordInput1').value.trim();
 
 fetch(' /login', {
     method: 'POST',
