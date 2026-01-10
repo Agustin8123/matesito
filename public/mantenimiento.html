@@ -4,113 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mantenimiento en curso</title>
-    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="extras.css">
-
-    <style>
-        button:hover {
-            background-color: #9b243f; 
-        }
-
-        @media (max-width: 510px) {
-            .button {
-                margin-top: 10px;
-                margin-left: 17px;
-            }
-        }
-
-
-
-        .left-section {
-            display: flex; /* Agrupa el logo y el título */
-            align-items: center;
-            gap: 0px; /* Espaciado entre logo y texto */
-        }
-
-        .nav-buttons {
-            display: flex; /* Alinea los botones horizontalmente */
-            gap: 15px; /* Espaciado entre botones */
-            flex-grow: 1; /* Asegura que ocupe el espacio disponible */
-            justify-content: center; /* Centra los botones en el medio */
-            margin-left: -160px; /* Ajuste para mover los botones un poco a la izquierda */
-        }
-
-        .nav-buttons button {
-            background-color: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 5px 10px;
-        }
-
-        .nav-buttons button:hover {
-            text-decoration: underline; /* Subrayado al pasar el mouse */
-        }
-
-        .right-section button {
-            background-color: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .right-section button:hover {
-            text-decoration: underline;
-        }
-
-        h1 {
-            margin: 0;
-        }
-
-        .content {
-            margin: 20px auto;
-            max-width: 760px;
-            padding: 20px;
-            background-color: #262424;
-            color: #fffbfb;
-            border-radius: 18px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .version-box {
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 16px;
-            width: 94.5%; /* Aumenta el ancho del contenedor */
-            max-width: 800px; /* Limita el ancho máximo */
-        }
-
-        .version-box h2 {
-            margin-top: 0;
-        }
-
-        .version-box p {
-            font-size: 38px;
-        }
-    </style>
+        <script src="utils.js"></script>
 </head>
 <body>
 
     
     <div class="header">
         <div class="left-section">
-            <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo">
+            <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index.html'" style="cursor:pointer">
         </div>
-    
-        <div class="nav-buttons">
-            <label for="index" class="button">index</label>
+        <div class="menu-toggle" onclick="toggleMenuExtras()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-buttons" id="navMenu">
+            <label for="index" class="button">Inicio</label>
             <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
-    
+
             <label for="versiones" class="button">Versiones</label>
             <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='versiones.html'">
 
-            <label for="acercade" class="button">Acerca de...</label>
-            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='informacion.html'">
+                <label for="acercade" class="button">Terminos</label>
+            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='Terminos.html'">
 
             <label for="Ayuda" class="button">Ayuda</label>
             <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
+
+            <label for="informacion" class="button">Acerca De</label>
+            <input type="radio" id="informacion" name="nav" style="display:none;" onclick="location.href='informacion.html'">
         </div>
     </div>
 
@@ -118,5 +45,13 @@
         <div class="version-box">
             <p><b>Actualmente la página se encuentra en mantenimiento.<br><br> Por favor, vuelva más tarde.</b></p>
         </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('open');
+        }
+    </script>
 </body>
 </html>

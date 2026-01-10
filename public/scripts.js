@@ -1,4 +1,3 @@
-
 let users = {};  // Objeto para almacenar los usuarios y contrase
 let activeUser = '';  // Variable para el usuario activo
 let activeForum = 0;
@@ -91,7 +90,6 @@ let lastpostContent = "";
 const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'merca', 'falopa', 'cocaína', 'kok4', 'c0ca', 'cocaína', 'marihuana', 'weed', 'hierba', 'porro', 'mota', 'cannabis', '4:20', 'maría', '420', 'hachís', 'thc', 'éxtasis', 'éxt4sis', 'xtc', 'mdma', 'éxtasis', 'lsd', 'ácido', 'trips', 'lsd', 'd.r.o.g.a', 'dro@g@', 'DrOgA', 'dRoJA'];
 
 document.addEventListener("DOMContentLoaded", function() {
-updateUserButton();  // Llama a la función para cargar la imagen por defecto cuando la página se haya cargado
 document.getElementById('initialOverlay').style.display = 'none';
 });
 
@@ -223,18 +221,6 @@ function HideOverlays(){
 document.getElementById('initialOverlay').style.display = 'none';
 document.getElementById('userSelectOverlay').style.display = 'none';
 document.getElementById('usernameOverlay').style.display = 'none'; 
-}
-
-function updateUserButton() {
-const userButton = document.querySelector('#userButton');
-
-// Usar la imagen del usuario activo, o una predeterminada si no existe
-const userImage = users[activeUser] && users[activeUser].profileImage
-    ? users[activeUser].profileImage
-    : 'resources/SVG/default-avatar.svg'; // Imagen predeterminada
-
-// Configurar el botón con la imagen y el nombre del usuario
-userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
 }
 
 function setActiveUser(username) {

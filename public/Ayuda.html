@@ -9,82 +9,7 @@
     <link rel="stylesheet" href="extras.css">
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
     <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
-    <style>
-        @media (max-width: 510px) {
-            .button {
-                margin-top: 10px;
-                margin-left: 17px;
-            }
-        }
-
-
-        .left-section {
-            display: flex; /* Agrupa el logo y el título */
-            align-items: center;
-            gap: 0px; /* Espaciado entre logo y texto */
-        }
-
-        .nav-buttons {
-            display: flex; /* Alinea los botones horizontalmente */
-            gap: 15px; /* Espaciado entre botones */
-            flex-grow: 1; /* Asegura que ocupe el espacio disponible */
-            justify-content: center; /* Centra los botones en el medio */
-            margin-left: -160px; /* Ajuste para mover los botones un poco a la izquierda */
-        }
-
-        .nav-buttons button {
-            background-color: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 5px 10px;
-        }
-
-        .nav-buttons button:hover {
-            text-decoration: underline; /* Subrayado al pasar el mouse */
-        }
-
-        .right-section button {
-            background-color: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .right-section button:hover {
-            text-decoration: underline;
-        }
-
-        h1 {
-            margin: 0;
-        }
-
-        .content {
-            margin: 20px auto;
-            max-width: 750px;
-            padding: 20px;
-            align-self: center;
-            border-radius: 64px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .version-box {
-            background-color: rgba(82, 82, 82, 0.388);
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 16px;
-        }
-
-        .version-box h2 {
-            margin-top: 0;
-        }
-
-        .version-box p {
-            font-size: 19px;
-        }
-    </style>
+        <script src="utils.js"></script>
 </head>
 <body>
 
@@ -92,7 +17,12 @@
         <div class="left-section">
             <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index.html'" style="cursor:pointer">
         </div>
-        <div class="nav-buttons">
+        <div class="menu-toggle" onclick="toggleMenuExtras()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-buttons" id="navMenu">
             <label for="index" class="button">Inicio</label>
             <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
 
@@ -107,7 +37,7 @@
         </div>
     </div>
 
-    <div class="content" style="transform: translateX(20px);">
+    <div class="content"  ">
         <div class="version-box">
             <h1 style="text-align: center;">¿Necesitas ayuda?</h1><br>
             <h2>Quiero borrar un post, mensaje o cuenta</h2>
@@ -143,5 +73,13 @@
                 <br><br>
             </p>            
         </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('open');
+        }
+    </script>
 </body>
 </html>

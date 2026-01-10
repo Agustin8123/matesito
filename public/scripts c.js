@@ -1,40 +1,5 @@
-let users = {};  // Objeto para almacenar los usuarios y contraseñas y sus imágenes de perfil
-    
-
-   // La función Acept() fue movida a utils.js para evitar duplicados.
-
-// Función de login
-     function loginUser() {
-        const username = document.getElementById('usernameInput').value.trim();
-        const password = document.getElementById('passwordInput1').value.trim();
-
-        performLoginCommon(username, password)
-            .then(data => {
-                if (data.username) {
-                    // Activar usuario usando helper común
-                    activateUser(data.username).then(() => {
-                        hideUserSelectOverlay();
-                    }).catch(err => {
-                        console.error(err);
-                        alert('Error al iniciar sesión');
-                    });
-                } else {
-                    alert('Error al iniciar sesión');
-                }
-            })
-            .catch(error => {
-                console.error('Error de conexión', error);
-                alert('Error de conexión');
-            });
-}
-
-   function setActiveUser(username) {
-    // Enlaza con activateUser central en utils.js
-    activateUser(username).catch(error => {
-      console.error('Error al activar usuario:', error);
-      alert('Error al obtener los detalles del usuario.');
-    });
-}
+let users = {};
+let activeUser = '';
 
    function hideUserSelectOverlay() {
     document.getElementById('usernameOverlay').style.display = 'none';

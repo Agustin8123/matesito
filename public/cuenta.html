@@ -5,14 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matesito</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="extras.css">
     <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+        <script src="utils.js"></script>
 </head>
 <body>
     <div class="header">
         <div class="left-section">
             <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index'" style="cursor:pointer">
         </div>
-        <div class="nav-buttons">
+        <div class="menu-toggle" onclick="toggleMenuExtras()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-buttons" id="navMenu">
             <label for="index" class="button">Inicio</label>
             <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index'">
 
@@ -49,29 +59,34 @@
     
         <!-- Cambiar contraseña -->
         <div class="settings-item">
-            
+            <label for="password">Contraseña</label>
+
             <label for="currentPassword">Contraseña actual</label>
             <input type="password" id="currentPassword" placeholder="Contraseña actual">
-          
-            <button type="button" id="togglePasswordButton" style="margin-top: -150px; transform: translateY(25%); margin-left: 0px;" onclick="togglePassword()">
+
+            <button type="button" id="togglePasswordButton" class="toggle-password" onclick="togglePassword(), togglePassword1()">
                 <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
             </button>
 
             <label for="newPassword">Nueva Contraseña</label>
             <input type="password" id="newPassword" placeholder="Nueva contraseña">
 
-            <button type="button" id="togglePasswordBoton" style="margin-top: -150px; transform: translateY(-14%); margin-left: 0px;" onclick="togglePassword1()">
-                <img src="resources/PNG/eyeOpen.png" alt="Ver/Ocultar Contraseña">
-            </button>
 
-            <button style="margin-left: 170px;" onclick="updatePassword()">Cambiar Contraseña</button>
+            <button onclick="updatePassword()">Cambiar Contraseña</button>
 
             <!-- Cambiar imagen de perfil -->
         <div class="settings-item">
             <label for="profileImage">Imagen de Perfil</label>
-            <input type="file" id="profileImage" accept="image/*">
+
+            <input type="file" id="profileImage" accept="image/*" hidden>
+
+            <label for="profileImage" id="userButton" class="profile-picker">
+                <img src="resources/SVG/default-avatar.svg" class="profile-pic-img">
+            </label>
+
             <button onclick="updateProfileImage()">Subir</button>
         </div>
+
 
         <!-- Cambiar descripción -->
         <div class="settings-item">
@@ -83,7 +98,7 @@
 </div>
 
 <div class="overlay" id="usernameOverlay" style="display: none;">
-    <link rel="preload" href="resources/eyeClose.png" as="image">
+    <link rel="preload" href="resources/PNG/eyeClose.png" as="image">
     <link rel="preload" href="resources/PNG/eyeOpen.png" as="image">
     <div class="username-box">
         <input type="text" id="usernameInput" style="margin-left: -25px;" placeholder="Nombre de Usuario">
@@ -92,8 +107,10 @@
             <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
         </button>
 
-        <button onclick="loginUser()">Ingresar</button>
-        <button onclick="location.href='index'">Volver</button>
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <button onclick="location.href='index'">Volver</button>
+            <button onclick="loginUser()">Ingresar</button>
+        </div>
     </div>
 </div>
 

@@ -12,13 +12,36 @@ function hideMenus(...menuIds) {
   });
 }
 
+function toggleMenuExtras() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('open');
+        }
+
+
+
+function updateUserButton() {
+const userButton = document.querySelector('#userButton');
+
+// Usar la imagen del usuario activo, o una predeterminada si no existe
+const userImage = users[activeUser] && users[activeUser].profileImage
+    ? users[activeUser].profileImage
+    : 'resources/SVG/default-avatar.svg'; // Imagen predeterminada
+
+// Configurar el botón con la imagen y el nombre del usuario
+userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
+}
+
+
 function Acept() {
   const initial = document.getElementById('initialOverlay');
   const aviso = document.getElementById('AvisoOverlay');
   const app = document.getElementById('appContainer');
+  const usernameOverlay = document.getElementById('usernameOverlay');
+
   if (initial) initial.style.display = 'flex';
   if (aviso) aviso.style.display = 'none';
   if (app) app.style.display = 'flex';
+  if (usernameOverlay) usernameOverlay.style.display = 'flex'; // Ensure username overlay is shown
 }
 
 // Alterna la visibilidad de un input de contraseña y actualiza el icono del botón
@@ -80,3 +103,21 @@ function activateUser(username) {
     return data;
   });
 }
+document.addEventListener("DOMContentLoaded", function() {
+updateUserButton(); 
+const profileImageInput = document.getElementById('profileImage');
+    const userButton = document.getElementById('userButton');
+
+    if (!profileImageInput || !userButton) return;
+
+    profileImageInput.addEventListener('change', () => {
+        const file = profileImageInput.files[0];
+        if (!file) return;
+
+        const previewURL = URL.createObjectURL(file);
+
+        userButton.innerHTML = `
+            <img src="${previewURL}" alt="${activeUser}" class="profile-pic-img">
+        `;
+    });
+});

@@ -9,34 +9,48 @@
     <link rel="stylesheet" href="extras.css">
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
     <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
+        <script src="utils.js"></script>
 </head>
 <body>
 
     <div class="header">
         <div class="left-section">
-            <label onclick="location.href='index.html'" style="cursor: pointer; display: flex; align-items: center; gap: 0px;">
-                    <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index'" style="cursor:pointer">
-                </label>
-            </div>
-            <div class="nav-buttons">
-                <label for="index" class="button">Inicio</label>
-                <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
+            <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index.html'" style="cursor:pointer">
+        </div>
+        <div class="menu-toggle" onclick="toggleMenuExtras()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-buttons" id="navMenu">
+            <label for="index" class="button">Inicio</label>
+            <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
 
-                <label for="informacion" class="button">Acerca De</label>
-                <input type="radio" id="informacion" name="nav" style="display:none;" onclick="location.href='informacion.html'">
+        <label for="informacion" class="button">Acerca De</label>
+            <input type="radio" id="informacion" name="nav" style="display:none;" onclick="location.href='informacion.html'">
 
-                <label for="terminos" class="button">Terminos</label>
-                <input type="radio" id="terminos" name="nav" style="display:none;" onclick="location.href='Terminos.html'">
+            <label for="acercade" class="button">Terminos</label>
+            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='Terminos.html'">
 
-                <label for="ayuda" class="button">Ayuda</label>
-                <input type="radio" id="ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
-            </div>
+            <label for="Ayuda" class="button">Ayuda</label>
+            <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
+        </div>
     </div>
 
-    <div class="content content-versiones" style="transform: translateX(20px);">
-        
+    <div class="content content-versiones"  ">
+    
         <div class="version-box version-box-versiones">
-        <h2>Versión 1.2.19 (actual)</h2>
+        <h2>Versión 1.2.20 (actual)</h2>
+        <p>
+            Optimización de la redundancia de codigo utilitario.<br>
+            Arreglo de bugs mayores en la pestaña de cuenta de usuario.<br>
+            Se añadió una vista previa de la imagen de perfil al momento de cambiarla.<br>
+            Se añadió un menu desplegable en las pestañas adicionales para mejorar la navegación en dispositivos moviles.<br>
+        </p>
+        </div>
+
+        <div class="version-box version-box-versiones">
+        <h2>Versión 1.2.19</h2>
         <p>
             Se puso en en funcionamiento las funciones de chats, foros y grupos que se habian roto cuando se hizo la migración de servidores. <br> 
 

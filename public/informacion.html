@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"> 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+        <script src="utils.js"></script>
 </head>
 <body>
 
@@ -17,7 +18,12 @@
         <div class="left-section">
             <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index.html'" style="cursor:pointer">
         </div>
-        <div class="nav-buttons">
+        <div class="menu-toggle" onclick="toggleMenuExtras()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-buttons" id="navMenu">
             <label for="index" class="button">Inicio</label>
             <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
 
@@ -32,7 +38,7 @@
         </div>
     </div>
 
-    <div class="content content-informacion" style="transform: translateX(20px);">
+    <div class="content content-informacion"  ">
         <div class="version-box version-box-informacion">
             <h1>Sobre Matesito...</h1>
             <p>
@@ -80,5 +86,6 @@
                 </p>
             </p>
         </div>
+    </div>
 </body>
 </html>

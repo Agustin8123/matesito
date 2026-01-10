@@ -68,9 +68,9 @@ body {
             max-width: 600px;
             margin: 20px auto;
             background-color: #252525;
-            padding: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 21px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
         }
 
         .foros-container {
@@ -216,7 +216,7 @@ body {
             background-color: #333;
             padding: 32px;
             border-radius: 16px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
         .username-box input, .user-select-box input {
@@ -227,11 +227,11 @@ body {
             border-radius: 10px;
         }
         .username-box button, .user-select-box button {
-            background-color: #ffffff; /* Color bordó */
-            color: rgb(0, 0, 0);
+            padding: 10px 15px;
+            background: #3f3f3f;
+            color: white;
             border: none;
-            padding: 10px;
-            border-radius: 32px;
+            border-radius: 4px;
             cursor: pointer;
         }
 
@@ -966,15 +966,11 @@ body {
 /* para la configuracion de cuentas*/
 
 .user-settings {
-    padding: 0;
+    padding: 20px;
     max-width: 600px;
     margin: 0 auto;
     background: #333;
-    border-top: 40px solid #333;
-    border-right: 40px solid #333;
-    border-bottom: 40px solid #333;
-    border-left: 23px solid #333; /* Elimina el borde izquierdo */
-    border-radius:8px;
+    border-radius: 8px;
 }
 
 .settings-item {
@@ -987,9 +983,10 @@ body {
     font-weight: bold;
 }
 
-.settings-item input {
+.settings-item input,
+.settings-item textarea {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -1005,9 +1002,8 @@ body {
 }
 
 .settings-item button:hover {
-    background: #3f3f3f;
+    background: #555;
 }
-
 
 #iconoNotificacion {
     margin-left: 10px; margin-bottom: -14px; position: relative;
