@@ -37,6 +37,23 @@
         </div>
     </div>
 
+    <div class="overlay" id="usernameOverlay" style="display: flex;">
+    <link rel="preload" href="resources/PNG/eyeClose.png" as="image">
+    <link rel="preload" href="resources/PNG/eyeOpen.png" as="image">
+    <div class="username-box">
+        <input type="text" id="usernameInput" style="margin-left: -25px;" placeholder="Nombre de Usuario">
+        <input type="password" id="passwordInput1" placeholder="Contraseña">
+        <button type="button" id="toggleBotonPassword" onclick="togglePassword2()">
+            <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
+        </button>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <button onclick="location.href='index'">Volver</button>
+            <button onclick="loginUser()">Ingresar</button>
+        </div>
+    </div>
+</div>
+
 <div class="overlay" id="AvisoOverlay">
     <div class="initial-box">
         <h1>Es nesesario que confirmes tu cuenta para continuar.</h1>
@@ -95,23 +112,6 @@
             <button onclick="updateDescription()">Guardar</button>
         </div>
     </div>    
-</div>
-
-<div class="overlay" id="usernameOverlay" style="display: none;">
-    <link rel="preload" href="resources/PNG/eyeClose.png" as="image">
-    <link rel="preload" href="resources/PNG/eyeOpen.png" as="image">
-    <div class="username-box">
-        <input type="text" id="usernameInput" style="margin-left: -25px;" placeholder="Nombre de Usuario">
-        <input type="password" id="passwordInput1" placeholder="Contraseña">
-        <button type="button" id="toggleBotonPassword" onclick="togglePassword2()">
-            <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
-        </button>
-
-        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-            <button onclick="location.href='index'">Volver</button>
-            <button onclick="loginUser()">Ingresar</button>
-        </div>
-    </div>
 </div>
 
 <script src="utils.js"></script>

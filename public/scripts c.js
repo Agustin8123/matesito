@@ -157,3 +157,33 @@ function updateDescription() {
         alert('Error al actualizar la imagen de perfil. Inténtalo de nuevo.');
     });
 }
+
+function loginUser() {
+const username = document.getElementById('usernameInput').value.trim();
+const password = document.getElementById('passwordInput').value.trim();
+
+fetch(' /login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+})
+.then(response => response.json())
+.then(data => {
+    if (data.username) {
+        setActiveUser(data.username); 
+    } else {
+        alert('Error al iniciar sesión');
+    }
+})
+.catch(error => {
+    alert('Error de conexión');
+});
+}
+
+function setActiveUser(username) {
+    // Usar la función común definida en utils.js
+    activateUser(username).catch(error => {
+        console.error('Error al activar usuario:', error);
+        alert('Error al obtener los detalles del usuario.');
+    });
+}
