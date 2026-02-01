@@ -1731,6 +1731,10 @@ function viewProfile(username) {
         const profileList = document.getElementById('profileList');
         profileList.innerHTML = '';
         
+
+        document.getElementById('profileList').innerHTML = '';
+        postsArray = [];
+
         fetch(`/posts/user/${username}`)
             .then(response => response.json())
             .then(posts => {
