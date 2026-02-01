@@ -92,7 +92,6 @@ reactions.forEach(async function (reaction) {
         el.innerText = "✔️";
         el.style.opacity = ".7";
         el.style.transform = "scale(1)";
-        list.style.opacity = "1";
 
         const r = await fetch(
           `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${reaction}`,
