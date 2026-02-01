@@ -1425,11 +1425,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const routesMap = {
     '/': 'html/index.html',
+    '/index': 'html/index.html',
+    '/inicio': 'html/index.html',
     '/ayuda': 'html/Ayuda.html',
     '/cuenta': 'html/cuenta.html',
     '/error': 'html/error.html',
     '/informacion': 'html/informacion.html',
-    '/inicio': 'html/Inicio.html',
     '/mantenimiento': 'html/mantenimiento.html',
     '/microreact': 'html/microReact.html',
     '/recetas': 'html/recetas.html',
