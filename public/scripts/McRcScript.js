@@ -140,7 +140,7 @@ if (typeof socket !== "undefined") {
   socket.on("reloadReactions", async data => {
     try {
       const r = await fetch(
-        `https://${API_BASE}/get/microreact--reaction/${encodeURIComponent(data.id)}`,
+        `https://${API_BASE}/get/microreact--reactionss/${encodeURIComponent(data.id)}`,
         { credentials: "include" }
       );
       const json = await r.json();
