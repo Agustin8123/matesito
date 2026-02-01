@@ -1501,12 +1501,12 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         console.error(`No se encontró el contenedor con id "${listId}".`);
         return;
     }
-    if (!postsArrays[listId]) postsArrays[listId] = [];
-    postsArrays[listId].push({ postElement: newpost, postId });
-
 
     const newpost = document.createElement('li');
     newpost.className = 'post';
+
+        if (!postsArrays[listId]) postsArrays[listId] = [];
+    postsArrays[listId].push({ postElement: newpost, postId });
 
     // Convertir fecha a hora local
     const localTime = created_at ? new Date(created_at).toLocaleString() : '';
