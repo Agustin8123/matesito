@@ -20,7 +20,7 @@ let invertirOrden = false;
 let ordenarReacciones = false;
 
 let isSortingInProgress = false;
-let postsArray = []; // Guardará los posts temporalmente
+let postsArrays = {};
 
 function ToggleVisibility(elementId) {
     const element = document.getElementById(elementId);
@@ -1180,7 +1180,7 @@ function loadposts(loadAll) {
 const unicPostList = document.getElementById('unicPostList');
 unicPostList.style.display = 'none';
 
-postsArray = [];
+postsArrays = {};
 
 activeForum = 0;
 activeChat = '';
@@ -1266,7 +1266,7 @@ function loadChatMessages(chatId, loadAll) {
 showOnlyMenu(messageList);
 activeForum = 0;
 activeGroup = '';
-postsArray = [];
+postsArrays = {};
 
 document.getElementById('messageList').innerHTML = ''; // Limpiar lista de mensajes
 const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
@@ -1328,7 +1328,7 @@ const unicPostList = document.getElementById('unicPostList'); unicPostList.style
 
 activeForum = 0;
 activeChat = '';
-postsArray = [];
+postsArrays = {};
 
 activeGroup = groupId;
 
@@ -1396,7 +1396,7 @@ const unicPostList = document.getElementById('unicPostList'); unicPostList.style
 activeChat = '';
 activeGroup = '';
 activeForum = forumId;
-postsArray = [];
+postsArrays = {};
 
 fetch(`/mensajes/${forumId}`)
     .then(response => {
@@ -1501,6 +1501,9 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         console.error(`No se encontró el contenedor con id "${listId}".`);
         return;
     }
+    if (!postsArrays[listId]) postsArrays[listId] = [];
+    postsArrays[listId].push({ postElement: newpost, postId });
+
 
     const newpost = document.createElement('li');
     newpost.className = 'post';
@@ -1596,14 +1599,14 @@ async function addpostToList(content, media, mediaType, username, profilePicture
 }
 
 async function renderPostsOrdenados(listId, invertirOrden, totals) {
+   
     if (isSortingInProgress) return;
 
     isSortingInProgress = true;
     const postList = document.getElementById(listId);
     
-    try {
-        let sortedPosts = [...postsArray];
-
+    try {;
+        let sortedPosts = [...postsArrays[listId]];
         if (ordenarReacciones) {
             // Ordenar por cantidad de reacciones
             sortedPosts.sort((a, b) => {
@@ -1635,7 +1638,7 @@ async function renderPostsOrdenados(listId, invertirOrden, totals) {
 
         postList.innerHTML = '';
         postList.appendChild(fragment);
-        postsArray = sortedPosts;
+        postsArrays[listId] = sortedPosts;
 
     } catch (error) {
         console.error('Error al ordenar:', error);
@@ -1730,10 +1733,7 @@ function viewProfile(username) {
         // Cargar los posts del usuario
         const profileList = document.getElementById('profileList');
         profileList.innerHTML = '';
-        
-
-        document.getElementById('profileList').innerHTML = '';
-        postsArray = [];
+        postsArrays = {};
 
         fetch(`/posts/user/${username}`)
             .then(response => response.json())
