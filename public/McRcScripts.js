@@ -102,11 +102,6 @@ reactions.forEach(async function (reaction) {
         list.innerText = json.value || 0;
       }, 250);
 
-      setTimeout(() => {
-        el.innerText = originalText;
-        el.style.opacity = "1";
-      }, 1500);
-
     } catch (err) {
       console.error("Error en reacción:", err);
     }
