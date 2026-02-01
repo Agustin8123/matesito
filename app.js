@@ -4,7 +4,7 @@ const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
 const cors = require('cors');
 const fs = require('fs');
-
+const path = require('path');
 const http = require('http');
 
 require('dotenv').config();
@@ -1415,35 +1415,49 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
 });
 
 
-// 1. Middleware para limpiar la caché (mantenlo para desarrollo)
-app.use((req, res, next) => {
-    res.set('Cache-Control', 'no-store');
-    next();
-});
-
-// 2. Rutas automáticas por tipo de archivo
 app.get('*', (req, res) => {
     const url = req.path.toLowerCase();
+    const fileName = path.basename(url);
 
-    // Si la URL termina en .css, .js, .png, etc., búscalo en su carpeta
+    // 1. Lógica para CSS
     if (url.endsWith('.css')) {
-        return res.sendFile(path.join(__dirname, 'public/css', path.basename(url)));
+        const filePath = path.join(__dirname, 'public', 'css', fileName);
+        if (fs.existsSync(filePath)) return res.sendFile(filePath);
+        return res.status(404).send('Not Found'); // No enviar HTML aquí
     }
+
+    // 2. Lógica para JS
     if (url.endsWith('.js')) {
-        return res.sendFile(path.join(__dirname, 'public/js', path.basename(url)));
+        const filePath = path.join(__dirname, 'public', 'js', fileName);
+        if (fs.existsSync(filePath)) return res.sendFile(filePath);
+        return res.status(404).send('Not Found'); // No enviar HTML aquí
     }
 
     // 3. Manejo de navegación (HTML)
-    // Si no tiene extensión, asumimos que es una página HTML
-    const page = url === '/' ? 'index.html' : `${url.replace('/', '')}.html`;
-    const htmlPath = path.join(__dirname, 'public/html', page);
+    // Mapeo manual para rutas especiales
+    const routesMap = {
+        '/': 'index.html',
+        '/index': 'index.html',
+        '/inicio': 'index.html',
+        '/ayuda': 'Ayuda.html',
+        '/terminos': 'Terminos.html'
+    };
 
-    if (fs.existsSync(htmlPath)) {
+    let htmlFile = routesMap[url] || `${url.replace('/', '')}.html`;
+    const htmlPath = path.join(__dirname, 'public', 'html', htmlFile);
+
+    if (fs.existsSync(htmlPath) && fs.lstatSync(htmlPath).isFile()) {
         return res.sendFile(htmlPath);
     }
 
-    // Si nada funciona, error
-    res.status(404).sendFile(path.join(__dirname, 'public/html/error.html'));
+    // 4. Si es una imagen o cualquier otro recurso en public
+    const fallbackPath = path.join(__dirname, 'public', url);
+    if (fs.existsSync(fallbackPath) && fs.lstatSync(fallbackPath).isFile()) {
+        return res.sendFile(fallbackPath);
+    }
+
+    // Si nada de lo anterior funcionó, RECIÉN AHÍ el error.html
+    res.status(404).sendFile(path.join(__dirname, 'public', 'html', 'error.html'));
 });
 
 // Crear el servidor
