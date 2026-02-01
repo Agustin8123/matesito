@@ -82,17 +82,11 @@ reactions.forEach(async function (reaction) {
       );
 
       // Animación
-      el.style.opacity = "0";
       el.style.transform = "scale(0.8) rotate(20deg)";
-      list.style.opacity = "0";
-
-      const originalText = el.innerText;
-
+      el.innerText = "✔️";
+      el.style.transform = "scale(1)";
+      
       setTimeout(async () => {
-        el.innerText = "✔️";
-        el.style.opacity = ".7";
-        el.style.transform = "scale(1)";
-
         const r = await fetch(
           `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${reaction}`,
           { credentials: "include" }
