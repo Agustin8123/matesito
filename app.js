@@ -1447,7 +1447,12 @@ const routesMap = {
     '/versiones': 'html/versiones.html'
 };
 
-app.get('*', (req, res) => {
+app.get('*', (req, res, next) => {
+    // si es un archivo (tiene punto), deja que static lo maneje
+    if (req.path.includes('.')) {
+        return next();
+    }
+
     const file = routesMap[req.path.toLowerCase()];
 
     if (file) {
@@ -1456,6 +1461,7 @@ app.get('*', (req, res) => {
         res.sendFile(path.join(__dirname, 'public', 'html/error.html'));
     }
 });
+
 
 // Crear el servidor
 const server = http.createServer(app);
