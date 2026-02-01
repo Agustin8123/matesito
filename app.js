@@ -3,6 +3,7 @@ const { Server } = require('socket.io');
 const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
 const cors = require('cors');
+const fs = require('fs');
 
 const http = require('http');
 
