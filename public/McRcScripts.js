@@ -107,12 +107,6 @@ reactions.forEach(async function (reaction) {
         el.style.opacity = "1";
       }, 1500);
 
-      if (!allowMultiple) {
-        document.querySelectorAll(`[data-reaction-id]`).forEach(b =>
-          b.setAttribute("disabled", "true")
-        );
-      }
-
     } catch (err) {
       console.error("Error en reacción:", err);
     }

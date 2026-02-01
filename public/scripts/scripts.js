@@ -1705,6 +1705,7 @@ function toggleUserProfileBox(uniqueId) {
 function viewProfile(username) {
     // Ocultar la caja de publicaciones
     document.getElementById('postBox').style.display = 'none';
+    document.getElementById('postList').style.display = 'none';
     
     // Mostrar la sección de perfil
     const profileHeader = document.getElementById('profileHeader');
@@ -1767,6 +1768,7 @@ function backToPosts() {
     
     // Mostrar caja de publicaciones
     document.getElementById('postBox').style.display = 'block';
+    document.getElementById('postList').style.display = 'block';
     
     // Volver a cargar los posts principales
     loadposts(loadAll);
