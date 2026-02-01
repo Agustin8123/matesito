@@ -24,14 +24,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-
-app.use((req, res, next) => {
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-    next();
-});
-
 const db = new Client({
     host: 'localhost', // Solo el host
     user: 'root', // Usuario
@@ -1423,14 +1415,18 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
 });
 
 
-app.set('etag', false);
+// 1. Definir los headers de "No Cache" en un middleware global para asegurarnos
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+});
+
+// 2. Servir archivos estáticos (CSS, JS, Imágenes)
 app.use(express.static(path.join(__dirname, 'public'), {
     etag: false,
-    lastModified: false,
-    cacheControl: false,
-    setHeaders: (res) => {
-        res.setHeader('Cache-Control', 'no-store');
-    }
+    lastModified: false
 }));
 
 const routesMap = {
@@ -1448,16 +1444,15 @@ const routesMap = {
     '/versiones': '/html/versiones.html'
 };
 
+// 3. Tu lógica de mapeo (Esto está bien, pero asegúrate de las rutas)
 app.get('*', (req, res) => {
     const route = req.path.toLowerCase();
     const file = routesMap[route];
 
     if (file) {
-        // Forzamos que no haya caché al enviar el archivo
-        return res.sendFile(path.join(__dirname, 'public', file), { etag: false });
+        return res.sendFile(path.join(__dirname, 'public', file));
     }
 
-    // Si el archivo existe físicamente (CSS, JS, Imágenes)
     const possibleFile = path.join(__dirname, 'public', req.path);
     if (fs.existsSync(possibleFile) && fs.lstatSync(possibleFile).isFile()) {
         return res.sendFile(possibleFile);
@@ -1465,8 +1460,6 @@ app.get('*', (req, res) => {
 
     res.status(404).sendFile(path.join(__dirname, 'public', 'html/error.html'));
 });
-
-
 
 // Crear el servidor
 const server = http.createServer(app);
