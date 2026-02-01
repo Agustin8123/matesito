@@ -82,11 +82,18 @@ reactions.forEach(async function (reaction) {
       );
 
       // Animación
+      el.style.opacity = "0";
       el.style.transform = "scale(0.8) rotate(20deg)";
-      el.innerText = "✔️";
-      el.style.transform = "scale(1)";
-      
+      list.style.opacity = "0";
+
+      const originalText = el.innerText;
+
       setTimeout(async () => {
+        el.innerText = "✔️";
+        el.style.opacity = ".7";
+        el.style.transform = "scale(1)";
+        list.style.opacity = "1";
+
         const r = await fetch(
           `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${reaction}`,
           { credentials: "include" }
@@ -94,6 +101,11 @@ reactions.forEach(async function (reaction) {
         const json = await r.json();
         list.innerText = json.value || 0;
       }, 250);
+
+      setTimeout(() => {
+        el.innerText = originalText;
+        el.style.opacity = "1";
+      }, 1500);
 
     } catch (err) {
       console.error("Error en reacción:", err);
