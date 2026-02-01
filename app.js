@@ -25,11 +25,11 @@ app.use(cors({
 }));
 
 
-app.use('/scripts.js', (req, res, next) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  next();
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
 });
 
 const db = new Client({
@@ -1434,35 +1434,36 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 const routesMap = {
-    '/': 'html/index.html',
-    '/index': 'html/index.html',
-    '/inicio': 'html/index.html',
-    '/ayuda': 'html/Ayuda.html',
-    '/cuenta': 'html/cuenta.html',
-    '/error': 'html/error.html',
-    '/informacion': 'html/informacion.html',
-    '/mantenimiento': 'html/mantenimiento.html',
-    '/microreact': 'html/microReact.html',
-    '/recetas': 'html/recetas.html',
-    '/terminos': 'html/Terminos.html',
-    '/versiones': 'html/versiones.html'
+    '/': '/html/index.html',
+    '/index': '/html/index.html',
+    '/inicio': '/html/index.html',
+    '/ayuda': '/html/Ayuda.html',
+    '/cuenta': '/html/cuenta.html',
+    '/error': '/html/error.html',
+    '/informacion': '/html/informacion.html',
+    '/mantenimiento': '/html/mantenimiento.html',
+    '/microreact': '/html/microReact.html',
+    '/recetas': '/html/recetas.html',
+    '/terminos': '/html/Terminos.html',
+    '/versiones': '/html/versiones.html'
 };
 
 app.get('*', (req, res) => {
-    const file = routesMap[req.path.toLowerCase()];
+    const route = req.path.toLowerCase();
+    const file = routesMap[route];
 
     if (file) {
-        return res.sendFile(path.join(__dirname, 'public', file));
+        // Forzamos que no haya caché al enviar el archivo
+        return res.sendFile(path.join(__dirname, 'public', file), { etag: false });
     }
 
-    // si no es una ruta conocida, intenta servir el archivo real
+    // Si el archivo existe físicamente (CSS, JS, Imágenes)
     const possibleFile = path.join(__dirname, 'public', req.path);
-    if (fs.existsSync(possibleFile)) {
+    if (fs.existsSync(possibleFile) && fs.lstatSync(possibleFile).isFile()) {
         return res.sendFile(possibleFile);
     }
 
-    // si no existe, error
-    res.sendFile(path.join(__dirname, 'public', 'html/error.html'));
+    res.status(404).sendFile(path.join(__dirname, 'public', 'html/error.html'));
 });
 
 
