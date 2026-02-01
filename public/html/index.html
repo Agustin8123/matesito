@@ -7,13 +7,13 @@
     <title>Matesito</title>
 
     <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com"> 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <link rel="preload" href="scripts.js" as="script">
+    <link rel="preload" href="../scripts/scripts.js" as="script">
 
     <div class="header">
         <div class="left-section">
@@ -188,7 +188,7 @@
     </div>
 
     <div class="container" id="appContainer">
-        <div class="post-box" id="postBox">
+        <div class="post-box" id="postList">
             <textarea id="postContent" rows="3" placeholder="¿Qué estás pensando?" inputmode="text" lang="es"></textarea>
             <!-- Checkbox para marcar contenido sensible -->
             <label>
@@ -347,9 +347,9 @@
         <button onclick="goBackToInitial()">Volver</button>
     </div>
 </div>
-<script src="utils.js"></script>
-<script src="scripts.js"></script>
-<script src="scripts2.js"></script>
+<script src="../scripts/utils.js"></script>
+<script src="../scripts/scripts.js"></script>
+<script src="../scripts/scripts2.js"></script>
 <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
   <script>
     const socket = io();

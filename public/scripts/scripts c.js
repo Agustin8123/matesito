@@ -35,7 +35,7 @@ let activeUser = '';
 }
 
    function togglePassword1() {
-    togglePasswordInput('newPassword', 'togglePasswordBoton');
+    togglePasswordInput('newPassword', 'togglePasswordButton');
 }
 
    function togglePassword2() {

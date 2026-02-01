@@ -1423,15 +1423,28 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/:page?', (req, res) => {
-    let page = req.params.page || 'index'; // Si no hay parámetro, usar 'index'
-    let filePath = path.join(__dirname, 'public', `${page}.html`);
+const routesMap = {
+    '/': 'html/index.html',
+    '/ayuda': 'html/Ayuda.html',
+    '/cuenta': 'html/cuenta.html',
+    '/error': 'html/error.html',
+    '/informacion': 'html/informacion.html',
+    '/inicio': 'html/Inicio.html',
+    '/mantenimiento': 'html/mantenimiento.html',
+    '/microreact': 'html/microReact.html',
+    '/recetas': 'html/recetas.html',
+    '/terminos': 'html/Terminos.html',
+    '/versiones': 'html/versiones.html'
+};
 
-    res.sendFile(filePath, (err) => {
-        if (err) {
-            res.sendFile(path.join(__dirname, 'public', 'error.html')); // Si no existe, cargar error.html
-        }
-    });
+app.get('*', (req, res) => {
+    const file = routesMap[req.path.toLowerCase()];
+
+    if (file) {
+        res.sendFile(path.join(__dirname, 'public', file));
+    } else {
+        res.sendFile(path.join(__dirname, 'public', 'html/error.html'));
+    }
 });
 
 // Crear el servidor

@@ -1,258 +1,308 @@
-/* Consolidated cleaned stylesheet for Matesito
-   - Single source of truth: public/styles.css
-   - Header aesthetics match mantenimiento.html
-   - Fixed syntax errors and centered overlays
-*/
-
-/* Reset and base */
-* { box-sizing: border-box; }
-html, body { margin:0; padding:0; overflow-x:hidden; }
-body { font-family: "Instrument Sans", sans-serif; background-color:#0A0A0A; color:#fff; }
-
-/* Header (matches mantenimiento.html) */
-.header { background-color:#252525; color:#fff; padding:32px 20px; display:flex; align-items:center; justify-content:space-between; width:100%; }
-.left-section { display:flex; align-items:center; gap:0; }
-.logo { height:48px; width:auto; cursor:pointer; }
-.nav-buttons { display:flex; gap:15px; flex-grow:1; justify-content:flex-end; margin-left:0; }
-.nav-buttons label, .nav-buttons button { background:transparent; border:none; color:#fff; cursor:pointer; font-size:16px; padding:5px 10px; }
-.nav-buttons label:hover, .nav-buttons button:hover { text-decoration:underline; }
-.right-section button { background:transparent; border:none; color:#fff; cursor:pointer; font-size:16px; }
-.right-section button:hover { text-decoration:underline; }
-
-/* Ajustando los botones del header para que coincidan con el estilo del botón "Abrir PDF de los Términos" */
-.nav-buttons label, .nav-buttons button {
-    background: #fff; /* Fondo blanco */
-    color: #9b243f; /* Texto bordó */
-    border: none; /* Sin bordes */
-    padding: 10px 20px; /* Espaciado interno */
-    border-radius: 32px; /* Bordes redondeados */
-    font-size: 16px; /* Tamaño de fuente */
-    cursor: pointer; /* Cursor de mano */
-    text-align: center; /* Centrado del texto */
-}
-
-.nav-buttons label:hover, .nav-buttons button:hover {
-    background: #e4dada; /* Fondo gris claro al pasar el mouse */
-}
-
-/* Generic buttons */
-button { background:#800020; color:#fff; border:none; padding:8px; border-radius:24px; cursor:pointer; }
-button:hover { background:#9b243f; }
-.button { background:#fff; color:#9b243f; padding:10px 20px; border-radius:32px; font-size:16px; border:none; cursor:pointer; }
-.button:hover { background:#e4dada; }
-
-.content { 
-    margin: 20px auto; /* Center content horizontally */
-    padding: 20px; /* Maintain internal spacing */
-    max-width: 750px; /* Set a maximum width */
-    box-sizing: border-box; /* Include padding and border in width */
-    background:#262424; color:#fffbfb; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1); overflow:hidden; 
-}
-.version-box { padding:20px; margin:15px 0; border-radius:16px; width:100%; max-width:800px; background:rgba(0,0,0,0.12); box-sizing:border-box; overflow:hidden; }
-.version-box h2 { margin-top:0; }
-.version-box p { font-size:19px; }
-.content-informacion, .content-versiones { transform:translateX(20px); }
-
-/* Error page image */
-.image_error { width:50%; height:auto; }
-
-/* Overlay centering for modals and alerts */
-.overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); z-index:1000; }
-.initial-box { background:rgba(51,51,51,0.48); backdrop-filter:blur(8px); padding:20px; border-radius:16px; box-shadow:0 0 10px rgba(0,0,0,0.1); text-align:center; width:90%; max-width:640px; }
-.initial-box button { background:#fff; color:#000; border:none; padding:10px 18px; border-radius:32px; cursor:pointer; }
-
-/* Forms and settings */
-.user-settings { padding:0; max-width:600px; margin:0 auto; background:#333; border-radius:8px; }
-.settings-item { margin-bottom:15px; }
-.settings-item label { display:block; margin-bottom:5px; font-weight:bold; }
-.settings-item input, .settings-item textarea { width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:4px; }
-.settings-item button { padding:10px 15px; background:#3f3f3f; color:#fff; border-radius:4px; border:none; cursor:pointer; }
-
-/* Scrollbar cosmetics */
-.foros-container::-webkit-scrollbar, .posts::-webkit-scrollbar { width:8px; }
-.foros-container::-webkit-scrollbar-thumb, .posts::-webkit-scrollbar-thumb { background:#555; border-radius:4px; }
-
-/* Utilities */
-.profile-picture-large { width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid #000; }
-#iconoNotificacion { margin-left:10px; margin-bottom:-14px; width:30px; height:auto; }
-.terms-container { display:flex; flex-direction:column; align-items:center; gap:5px; margin-top:10px; }
-
-/* Styles for the collapsible menu */
-.menu-toggle {
-    position: absolute;
-    top: 40px;
-    right: 20px;
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    gap: 5px;
-}
-.menu-toggle span {
-    display: block;
-    width: 25px;
-    height: 3px;
-    background-color: white;
-    border-radius: 2px;
-}
-
-.nav-buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    transition: max-height 0.3s ease-in-out;
-    overflow: hidden;
-}
-
-.nav-buttons.open {
-    flex-direction: column;
-    max-height: 300px; /* Adjust as needed */
-}
-
-/* Responsive tweaks */
-@media (max-width:510px) {
-    .button { margin-top:10px; margin-left:17px; }
-    .logo { height:40px; }
-    .nav-buttons { margin-left:-80px; }
-}
-
-/* Additional responsive for header buttons */
-@media (max-width: 768px) {
-    .header {
-        flex-direction: column;
-        padding: 20px 10px;
-        gap: 10px;
-    }
-    .nav-buttons {
-        flex-direction: column;
-        gap: 10px;
-        margin-left: 0;
-        justify-content: center;
-        flex-grow: 0;
-    }
-    .nav-buttons label, .nav-buttons button {
-        padding: 8px 16px;
-        font-size: 14px;
-    }
-    .right-section {
-        align-self: flex-end;
-    }
-    .menu-toggle {
-        display: flex;
-    }
-    .nav-buttons {
-        max-height: 0;
-        flex-direction: column;
-    }
-}
-
-/* Merged and optimized stylesheet
-   - Consolidated original consolidated-styles.css and project-specific rules
-   - This file is the single stylesheet for all HTML pages
-   - Header aesthetics match mantenimiento.html
-*/
-
-/* Basic reset and typography */
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; overflow-x: hidden; }
 body {
-    font-family: "Instrument Sans", sans-serif;
-    background-color: #0A0A0A;
-    color: #ffffff;
-}
-
-/* Header (shared aesthetic from mantenimiento.html) */
-.header {
-    background-color: #252525;
-    color: white;
-    padding: 32px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-}
-.left-section { display:flex; align-items:center; gap:0; }
-.nav-buttons { display:flex; gap:15px; flex-grow:1; justify-content:flex-end; margin-left:0; }
-.nav-buttons button, .nav-buttons label {
-    background-color: transparent; border: none; color: white; cursor: pointer; font-size:16px; padding:5px 10px;
-}
-.nav-buttons button:hover, .nav-buttons label:hover { text-decoration: underline; }
-.right-section button { background-color:transparent; border:none; color:white; cursor:pointer; font-size:16px; }
-.right-section button:hover { text-decoration: underline; }
-
-/* Ajustando los botones del header para que coincidan con el estilo del botón "Abrir PDF de los Términos" */
-.nav-buttons label, .nav-buttons button {
-    background: #fff; /* Fondo blanco */
-    color: #9b243f; /* Texto bordó */
-    border: none; /* Sin bordes */
-    padding: 10px 20px; /* Espaciado interno */
-    border-radius: 32px; /* Bordes redondeados */
-    font-size: 16px; /* Tamaño de fuente */
-    cursor: pointer; /* Cursor de mano */
-    text-align: center; /* Centrado del texto */
-}
-
-.nav-buttons label:hover, .nav-buttons button:hover {
-    background: #e4dada; /* Fondo gris claro al pasar el mouse */
-}
-
-/* Generic button */
-button { background-color:#800020; color:white; border:none; padding:8px; border-radius:3px; cursor:pointer; margin-top:8px; }
-button:hover { background-color:#9b243f; }
-.button { background-color:#ffffff; border:none; color:#9b243f; padding:10px 20px; font-size:16px; border-radius:5px; }
-
-.content { 
-    margin: 20px auto; /* Center content horizontally */
-    padding: 20px; /* Maintain internal spacing */
-    max-width: 750px; /* Set a maximum width */
-    box-sizing: border-box; /* Include padding and border in width */
-    background:#262424; color:#fffbfb; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1); overflow:hidden; 
-}
-.version-box { padding:20px; margin:15px 0; border-radius:16px; width:100%; max-width:800px; box-sizing:border-box; overflow:hidden; }
-.version-box h2 { margin-top:0; }
-.version-box p { font-size:19px; }
-
-/* Error image */
-.image_error { width:50%; height:auto; }
-
-/* Responsive */
-@media (max-width:510px) {
-    .button { margin-top:10px; margin-left:17px; }
-}
-
-/* User settings panel */
-.user-settings { padding:0; max-width:600px; margin:0 auto; background:#333; border-radius:8px; }
-.settings-item { margin-bottom:15px; }
-.settings-item label { display:block; margin-bottom:5px; font-weight:bold; }
-.settings-item input, .settings-item textarea { width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:4px; }
-.settings-item button { padding:10px 15px; background:#3f3f3f; color:white; border:none; border-radius:4px; cursor:pointer; }
-
-/* Scrollbars (cosmetic) */
-.foros-container::-webkit-scrollbar, .posts::-webkit-scrollbar { width:8px; }
-.foros-container::-webkit-scrollbar-thumb, .posts::-webkit-scrollbar-thumb { background:#555; border-radius:4px; }
-
-/* Small utilities */
-.logo { height:48px; width:auto; }
-.profile-picture-large { width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid #000; }
-
-/* Keep other specialized rules from consolidated-styles.css where necessary */
-.content-informacion { transform: translateX(20px); }
-.content-versiones { transform: translateX(20px); }
-
-/* Notification icon */
-#iconoNotificacion { margin-left:10px; margin-bottom:-14px; width:30px; height:auto; }
-
-/* Terms container */
-.terms-container { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; margin-top:10px; margin-bottom:2px; }
-.terms-container label { font-size:15px; text-align:center; }
-
-/* Keep page-specific overrides from mantenimiento.html inline styles in that file; this stylesheet provides defaults */
+            font-family: "Instrument Sans", sans-serif;
+            background-color: #0A0A0A;
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
+        }
         
-            
+        .header {
+            background-color: #252525; /* Fondo del header */
+            color: white;
+            padding: 20px 20px;
+            display: flex; /* Usa Flexbox */
+            align-items: center; /* Alinea verticalmente */
+            justify-content: space-between; /* Separa los elementos */
+        }
+
+        @media (max-width: 510px) {
+            .superHeader {
+                display: none;
+            }
+            .left-section .logo{
+                width: 20px;
+                content:url("resources/PNG/matesito-logo-small.png");
+                
+            }
+
+            .header .mid-section {
+                left: 60px;
+            }
+
+            .header button{
+                right: 5%
+            }
+
+            .initial-box h2 {
+                font-size: 20px;
+        }
+        }
+        
+        /* Estilos para la sección de perfil */
+    .profile-header {
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .profile-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 15px;
+        color: #000;
+    }
+
+    .profile-picture-large {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #000000;
+    }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #252525;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+        }
+
+        .foros-container {
+            max-height: 150px; /* Ajusta el valor según lo que necesites */
+            overflow-y: auto; /* Activa la barra deslizadora vertical */
+            overflow-x: hidden; /* Evita la barra de desplazamiento horizontal */
+            padding: 5px;
+            margin-right: -5px;
+        }        
+        
+        .foros-container::-webkit-scrollbar {
+            width: 6px; /* Grosor de la barra */
+        }
+
+        .foros-container::-webkit-scrollbar-track {
+            background: #d2d2d2; /* Color del fondo de la barra */
+            border-radius: 8px; /* Bordes redondeados */
+        }
+
+        .foros-container::-webkit-scrollbar-thumb {
+            background: #3f3f3f; /* Color de la barra */
+            border-radius: 8px; /* Bordes redondeados */
+        }
+
+        /* Personalización de la barra de desplazamiento */
+        .posts::-webkit-scrollbar {
+            width: 8px; /* Grosor de la barra */
+        }
+
+        .posts::-webkit-scrollbar-track {
+            background: #ddd; /* Color del fondo de la barra */
+            border-radius: 10px; /* Bordes redondeados */
+        }
+
+        .posts::-webkit-scrollbar-thumb {
+            background: #3f3f3f; /* Color de la barra */
+            border-radius: 10px; /* Bordes redondeados */
+        }
+
+        /* Caja de publicación */
+        .post-box {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        
+        .post-box textarea {
+
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 16px;
+            resize: none;
+            background-color: #ffffff;
+        }
+        
+        .post-box button {
+            background-color: #ffffff;
+            color: #9b243f;
+            border: none;
+            padding: 10px;
+            border-radius: 32px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        /* Contenedor de publicaciones con límite de altura y scroll */
+        .posts {
+            list-style: none;
+            padding: 0;
+            max-height: 520px; /* Altura máxima antes de que aparezca el scroll */
+            overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
+            overflow-x: hidden; /* Evita el desplazamiento horizontal */
+            background-color: #ffffff00;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        @media (max-width: 510px) {
+            .posts {
+                max-height: 700px;
+            }
+
+            .container {
+                max-width: 385px;
+            }
+        }
+
+        @media (max-width: 385px) {
+            .container {
+                max-width: 325px;
+            }
+        }
+
+        /* Cada publicación */
+        .post {
+            padding: 15px;
+            border-radius: 15px;
+            background-color: #f5f5f5;
+            margin-bottom: 10px;
+        }
+        
+        /* Último post sin línea inferior */
+        .post:last-child {
+            border-bottom: none;
+        }
+        
+        .post-cotent {
+            font-weight: normal;
+            margin-right: 5px;
+        }
+
+        .username {
+            cursor: pointer;  /* Cambia el puntero al pasar por encima */
+            transition: text-decoration 0.2s ease;  /* Suaviza la transición del subrayado */
+            font-size: 16px;
+            overflow-wrap: break-word; /* Permite que los nombres largos se dividan en varias líneas */
+            word-break: break-word;
+            text-align: center;
+            max-width: 100%; /* Asegura que no se salga del contenedor */
+            font-weight: bold;
+        }
+        
+        .username:hover {
+            text-decoration: underline;  /* Subraya el texto al pasar el puntero */
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center; /* Alineación vertical */
+            justify-content: center; /* Alineación horizontal */
+            z-index: 1000;
+        }
+
+
+
+        .username-box, .user-select-box {
+            background-color: #333;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .username-box input, .user-select-box input {
+            padding: 15px;
+            width: 80%;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .username-box button, .user-select-box button {
+            padding: 10px 15px;
+            background: #3f3f3f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .user-list {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .user-item {
+            text-align: center;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .user-item .profile-pic {
+            width: 50px;
+            height: 50px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 5px;
+            position: relative;
+            color: #333;
+        }
+        .user-item.active .profile-pic {
+            border: 2px solid #C43335; /* Color bordó */
+        }
+        .user-item .username {
+            display: block;
+        }
+
+        .preview-media {
+            width: 400px; /* Ancho predeterminado */
+            height: auto;
+            min-height: 40px;
+            max-height: 800px; /* Altura máxima */
+            border-radius: 5px; /* Bordes redondeados */
+            margin-top: 10px; /* Espacio superior */
+        }
+
+        @media (max-width: 510px) {
+            .preview-media {
+                width: 100%;
+                max-width: 400px; /* se adapta y nunca pasa de 400 */
+            }
+
+        }
+
+        .header button {
+            font-family: "Instrument Sans", sans-serif;
+            position: absolute;
+            top: 7px;
+            right: 60px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            overflow: hidden;
+            padding: 0;
+        }
+
+
+
         .header button img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            object-fit: cover;
+        
         }
 
         .initial-box {
@@ -395,8 +445,8 @@ button:hover { background-color:#9b243f; }
     display: flex; /* Alinea los botones horizontalmente */
     gap: 15px; /* Espaciado entre botones */
     flex-grow: 1; /* Asegura que ocupe el espacio disponible */
-    justify-content: flex-end; /* Alínea los botones a la derecha */
-    margin-left: 0; /* Elimina el margen izquierdo innecesario */
+    justify-content: center; /* Centra los botones en el medio */
+    margin-left: -160px; /* Ajuste para mover los botones un poco a la izquierda */
 }
 
 .nav-buttons button {
@@ -916,21 +966,15 @@ button:hover { background-color:#9b243f; }
 /* para la configuracion de cuentas*/
 
 .user-settings {
-    padding: 0;
-    max-width: 600px;
+    padding: 20px;
     margin: 0 auto;
     background: #333;
-    border-top: 40px solid #333;
-    border-right: 40px solid #333;
-    border-bottom: 40px solid #333;
-    border-left: 23px solid #333; /* Elimina el borde izquierdo */
-    border-radius:8px;
+    border-radius: 8px;
+    width: 100%;
 }
 
 .settings-item {
     margin-bottom: 15px;
-    align-items: center;
-    min-width: 500px;
 }
 
 .settings-item label {
@@ -939,9 +983,10 @@ button:hover { background-color:#9b243f; }
     font-weight: bold;
 }
 
-.settings-item input {
+.settings-item input,
+.settings-item textarea {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -954,25 +999,11 @@ button:hover { background-color:#9b243f; }
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    margin-bottom: 35px;
 }
 
 .settings-item button:hover {
-    background: #3f3f3f;
+    background: #555;
 }
-
-.settings-item #userButton {
-    margin-top: 10px;
-    margin-bottom: 20px;
-    margin:0 auto;
-
-    border: 1px solid #b3b3b3;
-    padding: 10px;
-    border-radius: 10px;
-
-    cursor: pointer;
-}
-
 
 #iconoNotificacion {
     margin-left: 10px; margin-bottom: -14px; position: relative;
@@ -991,65 +1022,3 @@ header {
   max-width: 100vw;      /* nunca más ancho que el viewport */
   box-sizing: border-box; /* padding y border no suman al ancho */
 }
-
-/* Ajustando el color de los enlaces de correo para que coincidan con el bordó de los botones */
-a[href^="mailto:"] {
-    color: #9b243f; /* Bordó de los botones */
-    text-decoration: none;
-}
-
-a[href^="mailto:"]:hover {
-    text-decoration: underline;
-}
-
-/* Ajustando el padding de las cajas principales para que sea uniforme */
-.version-box {
-    padding: 20px; /* Padding uniforme en todos los lados */
-    width: 100%;
-    max-width: 800px;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-#userButton {
-    width: 200px;
-    height: 200px;
-    padding: 0;
-    border: none;
-    background: none;
-}
-
-.profile-pic-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-    display: block;
-}
-
-
-.password-row input {
-    flex: 1;
-    height: 40px;
-}
-
- .toggle-password {
-    background: none;
-    border: none;
-    cursor: pointer;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
- .toggle-password img {
-    width: 20px;
-    height: 20px;
-}
-
- .update-password-btn {
-    margin-top: 12px;
-}
-

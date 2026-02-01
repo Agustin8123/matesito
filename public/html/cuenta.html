@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matesito</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="extras.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/extras.css">
     <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com"> 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-        <script src="utils.js"></script>
 </head>
 <body>
     <div class="header">
@@ -38,8 +37,7 @@
     </div>
 
     <div class="overlay" id="usernameOverlay" style="display: none;">
-    <link rel="preload" href="resources/PNG/eyeClose.png" as="image">
-    <link rel="preload" href="resources/PNG/eyeOpen.png" as="image">
+
     <div class="username-box">
         <input type="text" id="usernameInput" style="margin-left: -25px;" placeholder="Nombre de Usuario">
         <input type="password" id="passwordInput1" placeholder="Contraseña">
@@ -62,21 +60,19 @@
 </div>
 
 <div class="container" id="appContainer" style="display: none;">
-    <link rel="preload" href="resources/PNG/eyeClose.png" as="image">
-    <link rel="preload" href="resources/PNG/eyeOpen.png" as="image">
     <div class="user-settings">
-        <h2>Configuración de Usuario</h2>
+        <h1 style="text-align: center;">Configuración</h1>  
     
         <!-- Cambiar nombre de usuario -->
         <div class="settings-item">
-            <label for="newUsername">Nombre de Usuario</label>
+            <label for="newUsername"><h2>Nombre de Usuario</h2></label>
             <input type="text" id="newUsername" placeholder="Nuevo nombre de usuario">
             <button onclick="updateUsername()">Guardar</button>
         </div>
     
         <!-- Cambiar contraseña -->
         <div class="settings-item">
-            <label for="password">Contraseña</label>
+            <h2>Contraseña</h2>
 
             <label for="currentPassword">Contraseña actual</label>
             <input type="password" id="currentPassword" placeholder="Contraseña actual">
@@ -93,7 +89,7 @@
 
             <!-- Cambiar imagen de perfil -->
         <div class="settings-item">
-            <label for="profileImage">Imagen de Perfil</label>
+            <label for="profileImage"><h2>Imagen de Perfil</h2></label>
 
             <input type="file" id="profileImage" accept="image/*" hidden>
 
@@ -107,14 +103,14 @@
 
         <!-- Cambiar descripción -->
         <div class="settings-item">
-            <label for="userDescription">Descripción</label>
+            <label for="userDescription"><h2>Descripción</h2></label>
             <textarea id="userDescription" placeholder="Escribe tu nueva descripción" rows="3"></textarea>
             <button onclick="updateDescription()">Guardar</button>
         </div>
     </div>    
 </div>
 
-<script src="utils.js"></script>
-<script src="scripts c.js"></script>
+<script src="../scripts/utils.js"></script>
+<script src="../scripts/scripts c.js"></script>
 </body>
 </html>

@@ -140,14 +140,6 @@ if (valor === true) {
 }
 }
 
-  function togglePassword() {
-    togglePasswordInput('newPasswordInput', 'togglePasswordButton');
-}
-
-  function togglePassword1() {
-    togglePasswordInput('passwordInput', 'togglePasswordBoton');
-}
-
 function useExistingUser() {
 document.getElementById('initialOverlay').style.display = 'none';
 document.getElementById('usernameOverlay').style.display = 'flex';
@@ -1712,7 +1704,7 @@ function toggleUserProfileBox(uniqueId) {
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
 function viewProfile(username) {
     // Ocultar la caja de publicaciones
-    document.getElementById('postBox').style.display = 'none';
+    document.getElementById('postList').style.display = 'none';
     
     // Mostrar la sección de perfil
     const profileHeader = document.getElementById('profileHeader');
@@ -1774,10 +1766,10 @@ function backToPosts() {
     document.getElementById('profileHeader').style.display = 'none';
     
     // Mostrar caja de publicaciones
-    document.getElementById('postBox').style.display = 'block';
+    document.getElementById('postList').style.display = 'block';
     
     // Volver a cargar los posts principales
-    loadPosts();
+    buttonsState();
 }
 
 // Función para seguir al usuaris
