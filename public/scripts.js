@@ -1590,7 +1590,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         </div>
     `;
 
-    postsArray.push({ postElement: newpost, postId });
+    postsArrays.push({ postElement: newpost, postId });
 
     if (esUltimoPost) {
         await cargarTotalesYOrdenar(listId, invertirOrden);
