@@ -1447,20 +1447,23 @@ const routesMap = {
     '/versiones': 'html/versiones.html'
 };
 
-app.get('*', (req, res, next) => {
-    // si es un archivo (tiene punto), deja que static lo maneje
-    if (req.path.includes('.')) {
-        return next();
-    }
-
+app.get('*', (req, res) => {
     const file = routesMap[req.path.toLowerCase()];
 
     if (file) {
-        res.sendFile(path.join(__dirname, 'public', file));
-    } else {
-        res.sendFile(path.join(__dirname, 'public', 'html/error.html'));
+        return res.sendFile(path.join(__dirname, 'public', file));
     }
+
+    // si no es una ruta conocida, intenta servir el archivo real
+    const possibleFile = path.join(__dirname, 'public', req.path);
+    if (fs.existsSync(possibleFile)) {
+        return res.sendFile(possibleFile);
+    }
+
+    // si no existe, error
+    res.sendFile(path.join(__dirname, 'public', 'html/error.html'));
 });
+
 
 
 // Crear el servidor
