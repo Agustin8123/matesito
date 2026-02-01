@@ -1415,50 +1415,35 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
 });
 
 
-// 1. Definir los headers de "No Cache" en un middleware global para asegurarnos
+// 1. Middleware para limpiar la caché (mantenlo para desarrollo)
 app.use((req, res, next) => {
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
+    res.set('Cache-Control', 'no-store');
     next();
 });
 
-// 2. Servir archivos estáticos (CSS, JS, Imágenes)
-app.use(express.static(path.join(__dirname, 'public'), {
-    etag: false,
-    lastModified: false
-}));
-
-const routesMap = {
-    '/': '/html/index.html',
-    '/index': '/html/index.html',
-    '/inicio': '/html/index.html',
-    '/ayuda': '/html/Ayuda.html',
-    '/cuenta': '/html/cuenta.html',
-    '/error': '/html/error.html',
-    '/informacion': '/html/informacion.html',
-    '/mantenimiento': '/html/mantenimiento.html',
-    '/microreact': '/html/microReact.html',
-    '/recetas': '/html/recetas.html',
-    '/terminos': '/html/Terminos.html',
-    '/versiones': '/html/versiones.html'
-};
-
-// 3. Tu lógica de mapeo (Esto está bien, pero asegúrate de las rutas)
+// 2. Rutas automáticas por tipo de archivo
 app.get('*', (req, res) => {
-    const route = req.path.toLowerCase();
-    const file = routesMap[route];
+    const url = req.path.toLowerCase();
 
-    if (file) {
-        return res.sendFile(path.join(__dirname, 'public', file));
+    // Si la URL termina en .css, .js, .png, etc., búscalo en su carpeta
+    if (url.endsWith('.css')) {
+        return res.sendFile(path.join(__dirname, 'public/css', path.basename(url)));
+    }
+    if (url.endsWith('.js')) {
+        return res.sendFile(path.join(__dirname, 'public/js', path.basename(url)));
     }
 
-    const possibleFile = path.join(__dirname, 'public', req.path);
-    if (fs.existsSync(possibleFile) && fs.lstatSync(possibleFile).isFile()) {
-        return res.sendFile(possibleFile);
+    // 3. Manejo de navegación (HTML)
+    // Si no tiene extensión, asumimos que es una página HTML
+    const page = url === '/' ? 'index.html' : `${url.replace('/', '')}.html`;
+    const htmlPath = path.join(__dirname, 'public/html', page);
+
+    if (fs.existsSync(htmlPath)) {
+        return res.sendFile(htmlPath);
     }
 
-    res.status(404).sendFile(path.join(__dirname, 'public', 'html/error.html'));
+    // Si nada funciona, error
+    res.status(404).sendFile(path.join(__dirname, 'public/html/error.html'));
 });
 
 // Crear el servidor
