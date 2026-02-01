@@ -3,7 +3,6 @@ const { Server } = require('socket.io');
 const { Client } = require('pg');
 const bcryptjs = require('bcryptjs');
 const cors = require('cors');
-const fs = require('fs');
 
 const http = require('http');
 
@@ -1414,36 +1413,17 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
     }
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
 
-// 1. Middleware para limpiar la caché (mantenlo para desarrollo)
-app.use((req, res, next) => {
-    res.set('Cache-Control', 'no-store');
-    next();
-});
+app.get('/:page?', (req, res) => {
+    let page = req.params.page || 'index'; // Si no hay parámetro, usar 'index'
+    let filePath = path.join(__dirname, 'public', `${page}.html`);
 
-// 2. Rutas automáticas por tipo de archivo
-app.get('*', (req, res) => {
-    const url = req.path.toLowerCase();
-
-    // Si la URL termina en .css, .js, .png, etc., búscalo en su carpeta
-    if (url.endsWith('.css')) {
-        return res.sendFile(path.join(__dirname, 'public/css', path.basename(url)));
-    }
-    if (url.endsWith('.js')) {
-        return res.sendFile(path.join(__dirname, 'public/scripts', path.basename(url)));
-    }
-
-    // 3. Manejo de navegación (HTML)
-    // Si no tiene extensión, asumimos que es una página HTML
-    const page = url === '/' ? 'index.html' : `${url.replace('/', '')}.html`;
-    const htmlPath = path.join(__dirname, 'public/html', page);
-
-    if (fs.existsSync(htmlPath)) {
-        return res.sendFile(htmlPath);
-    }
-
-    // Si nada funciona, error
-    res.status(404).sendFile(path.join(__dirname, 'public/html/error.html'));
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            res.sendFile(path.join(__dirname, 'public', 'error.html')); // Si no existe, cargar error.html
+        }
+    });
 });
 
 // Crear el servidor
