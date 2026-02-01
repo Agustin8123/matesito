@@ -41,7 +41,7 @@ body {
         /* Estilos para la sección de perfil */
     .profile-header {
         background-color: #363636;
-        color: white;
+        color: white !important;
         padding: 20px;
         border-radius: 10px;
         margin-bottom: 20px;

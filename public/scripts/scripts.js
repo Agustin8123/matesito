@@ -1578,7 +1578,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
             style="opacity: 0; display: none; transition: opacity 0.3s ease; width: 100%; align-items: center; justify-content: center; margin-top: 10px;"
             data-loaded="false">
             <iframe 
-                src="/microReact?id=Matesito_${microReactId}" 
+                src="/microReact.html?id=Matesito_${microReactId}" 
                 style="width: 275px; height: 100px; border: none;" 
                 frameborder="0" 
                 loading="lazy" 
