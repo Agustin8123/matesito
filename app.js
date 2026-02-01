@@ -1421,7 +1421,16 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
     }
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+
+app.set('etag', false);
+app.use(express.static(path.join(__dirname, 'public'), {
+    etag: false,
+    lastModified: false,
+    cacheControl: false,
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'no-store');
+    }
+}));
 
 const routesMap = {
     '/': 'html/index.html',
