@@ -1121,7 +1121,7 @@ const unicPostList = document.getElementById('unicPostList');
 const forumList = document.getElementById('forumList');
 const messageList = document.getElementById('messageList');
 const groupMessageList = document.getElementById('groupMessageList');
-const postList = document.getElementById('postBox');
+const postList = document.getElementById('postList');
 
 if (profileList.style.display === 'block') {
     const username = document.getElementById('currentProfileUsername').value;
@@ -1704,7 +1704,7 @@ function toggleUserProfileBox(uniqueId) {
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
 function viewProfile(username) {
     // Ocultar la caja de publicaciones
-    document.getElementById('postList').style.display = 'none';
+    document.getElementById('postBox').style.display = 'none';
     
     // Mostrar la sección de perfil
     const profileHeader = document.getElementById('profileHeader');
@@ -1766,7 +1766,7 @@ function backToPosts() {
     document.getElementById('profileHeader').style.display = 'none';
     
     // Mostrar caja de publicaciones
-    document.getElementById('postList').style.display = 'block';
+    document.getElementById('postBox').style.display = 'block';
     
     // Volver a cargar los posts principales
     loadposts(loadAll);
