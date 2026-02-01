@@ -1769,7 +1769,7 @@ function backToPosts() {
     document.getElementById('postList').style.display = 'block';
     
     // Volver a cargar los posts principales
-    buttonsState();
+    loadposts(loadAll);
 }
 
 // Función para seguir al usuaris
