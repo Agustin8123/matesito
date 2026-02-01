@@ -1121,7 +1121,7 @@ const unicPostList = document.getElementById('unicPostList');
 const forumList = document.getElementById('forumList');
 const messageList = document.getElementById('messageList');
 const groupMessageList = document.getElementById('groupMessageList');
-const postList = document.getElementById('postList');
+const postList = document.getElementById('postBox');
 
 if (profileList.style.display === 'block') {
     const username = document.getElementById('currentProfileUsername').value;
