@@ -20,7 +20,7 @@ let invertirOrden = false;
 let ordenarReacciones = false;
 
 let isSortingInProgress = false;
-let postsArrays = {};
+let postsArray = []; // Guardará los posts temporalmente
 
 function ToggleVisibility(elementId) {
     const element = document.getElementById(elementId);
@@ -75,7 +75,7 @@ function showOnlyMenu(activeId) {
         'messageList', 
         'groupMessageList'
     ];
-    
+
     // Ocultar todos excepto el activo
     containers.forEach(id => {
         const element = document.getElementById(id);
@@ -493,7 +493,7 @@ fetch('/foros')
                 const uniqueId = `${foro.id}-${index}-${Date.now()}`;
                 const foroElement = document.createElement('div');
                 foroElement.classList.add('user');
-            
+
                 foroElement.innerHTML = `
                     <label for="label-${uniqueId}" class="boton">${foro.name}</label>
                     <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
@@ -596,7 +596,7 @@ fetch(` /userForums/${userId}`)
                 const uniqueId = `${foro.id}-${index}-${Date.now()}`; // ID único
                 const forumElement = document.createElement('div');
                 forumElement.classList.add('user');
-            
+
                 forumElement.innerHTML = `
                     <label for="label-${uniqueId}" class="boton">${foro.name}</label>
                     <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
@@ -612,7 +612,7 @@ fetch(` /userForums/${userId}`)
                         <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
                     </div>
                 `;
-            
+
                 container.appendChild(forumElement);
             });
         }
@@ -643,7 +643,7 @@ fetch(` /userCreatedForums/${userId}`)
                 const uniqueId = `${foro.id}-${index}-${Date.now()}`; // ID único
                 const forumElement = document.createElement('div');
                 forumElement.classList.add('user');
-            
+
                 forumElement.innerHTML = `
                     <label for="label-${uniqueId}" class="boton">${foro.name}</label>
                     <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
@@ -658,7 +658,7 @@ fetch(` /userCreatedForums/${userId}`)
                         <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
                     </div>
                 `;
-            
+
                 container.appendChild(forumElement);
             });
         }
@@ -1180,7 +1180,7 @@ function loadposts(loadAll) {
 const unicPostList = document.getElementById('unicPostList');
 unicPostList.style.display = 'none';
 
-postsArrays = {};
+postsArray = [];
 
 activeForum = 0;
 activeChat = '';
@@ -1205,9 +1205,9 @@ fetch(' /posts')
         postsToRender.forEach((post, index) => {
             const { content, media, mediaType, username, profilePicture, sensitive, created_at, userId, postId } = post;
             const esUltimoPost = index === postsToRender.length - 1; // Determinar si es último
-    
+
             if (!showSensitiveContent && sensitive === true) return;
-    
+
             if (content && username) {
                 addpostToList(
                     content, media, mediaType, username, 
@@ -1266,7 +1266,7 @@ function loadChatMessages(chatId, loadAll) {
 showOnlyMenu(messageList);
 activeForum = 0;
 activeGroup = '';
-postsArrays = {};
+postsArray = [];
 
 document.getElementById('messageList').innerHTML = ''; // Limpiar lista de mensajes
 const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
@@ -1328,7 +1328,7 @@ const unicPostList = document.getElementById('unicPostList'); unicPostList.style
 
 activeForum = 0;
 activeChat = '';
-postsArrays = {};
+postsArray = [];
 
 activeGroup = groupId;
 
@@ -1364,7 +1364,7 @@ fetch(` /group/messages/${groupId}/${activeUserId}`)
             // Filtrar contenido sensible si es necesario
             if (!showSensitiveContent && sensitive === true) return;
             const esUltimoPost = index === messagesToRender.length - 1;
-        
+
             addpostToList(
                 content,
                 media || null,
@@ -1396,7 +1396,7 @@ const unicPostList = document.getElementById('unicPostList'); unicPostList.style
 activeChat = '';
 activeGroup = '';
 activeForum = forumId;
-postsArrays = {};
+postsArray = [];
 
 fetch(`/mensajes/${forumId}`)
     .then(response => {
@@ -1427,7 +1427,7 @@ fetch(`/mensajes/${forumId}`)
             // Filtrar contenido sensible si es necesario
             if (!showSensitiveContent && sensitive === true) return;
             const esUltimoPost = indeX === messagesToRender.length - 1;
-        
+
             addpostToList(
                 content,
                 media || null,
@@ -1504,9 +1504,6 @@ async function addpostToList(content, media, mediaType, username, profilePicture
 
     const newpost = document.createElement('li');
     newpost.className = 'post';
-
-        if (!postsArrays[listId]) postsArrays[listId] = [];
-    postsArrays[listId].push({ postElement: newpost, postId });
 
     // Convertir fecha a hora local
     const localTime = created_at ? new Date(created_at).toLocaleString() : '';
@@ -1590,7 +1587,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         </div>
     `;
 
-    postsArrays.push({ postElement: newpost, postId });
+    postsArray.push({ postElement: newpost, postId });
 
     if (esUltimoPost) {
         await cargarTotalesYOrdenar(listId, invertirOrden);
@@ -1599,14 +1596,14 @@ async function addpostToList(content, media, mediaType, username, profilePicture
 }
 
 async function renderPostsOrdenados(listId, invertirOrden, totals) {
-   
     if (isSortingInProgress) return;
 
     isSortingInProgress = true;
     const postList = document.getElementById(listId);
-    
-    try {;
-        let sortedPosts = [...postsArrays[listId]];
+
+    try {
+        let sortedPosts = [...postsArray];
+
         if (ordenarReacciones) {
             // Ordenar por cantidad de reacciones
             sortedPosts.sort((a, b) => {
@@ -1638,7 +1635,7 @@ async function renderPostsOrdenados(listId, invertirOrden, totals) {
 
         postList.innerHTML = '';
         postList.appendChild(fragment);
-        postsArrays[listId] = sortedPosts;
+        postsArray = sortedPosts;
 
     } catch (error) {
         console.error('Error al ordenar:', error);
@@ -1709,12 +1706,12 @@ function viewProfile(username) {
     // Ocultar la caja de publicaciones
     document.getElementById('postBox').style.display = 'none';
     document.getElementById('postList').style.display = 'none';
-    
+
     // Mostrar la sección de perfil
     const profileHeader = document.getElementById('profileHeader');
     profileHeader.style.display = 'block';
     document.getElementById('profileList').innerHTML = '';
-    
+    postsArray = [];
     // Obtener detalles del usuario
     fetch('/getUserDetails', {
         method: 'POST',
@@ -1729,11 +1726,10 @@ function viewProfile(username) {
         document.getElementById('profileImage').src = userDetails.profileImage;
         document.getElementById('profileUsername').textContent = userDetails.username;
         document.getElementById('profileDescription').textContent = userDetails.description || 'Sin descripción';
-        
+
         // Cargar los posts del usuario
         const profileList = document.getElementById('profileList');
         profileList.innerHTML = '';
-        postsArrays = {};
 
         fetch(`/posts/user/${username}`)
             .then(response => response.json())
@@ -1760,7 +1756,7 @@ function viewProfile(username) {
     .catch(error => {
         console.error("Error al cargar detalles del usuario:", error);
     });
-    
+
     // Mostrar solo la lista de perfil y ocultar todas las demás
     showOnlyMenu('profileList');
 }
@@ -1769,11 +1765,11 @@ function viewProfile(username) {
 function backToPosts() {
     // Ocultar sección de perfil
     document.getElementById('profileHeader').style.display = 'none';
-    
+
     // Mostrar caja de publicaciones
     document.getElementById('postBox').style.display = 'block';
     document.getElementById('postList').style.display = 'block';
-    
+
     // Volver a cargar los posts principales
     loadposts(loadAll);
 }
@@ -2035,7 +2031,7 @@ const userId = users[activeUser].id;
 try {
     const response = await fetch(`/notificaciones/${userId}`);
     const notificaciones = await response.json();
-    
+
     renderizarNotificaciones(notificaciones);
     actualizarIndicadorNotificaciones(notificaciones.length > 0);
 } catch (error) {
