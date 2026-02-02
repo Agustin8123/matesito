@@ -32,6 +32,13 @@ const db = new Client({
     ssl: { rejectUnauthorized: false } // Asegura conexión segura
 });
 
+app.use('/scripts.js', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
 // Verificar conexión
 db.connect()
   .then(() => console.log('Conexión a la base de datos PostgreSQL exitosa'))
@@ -1413,7 +1420,15 @@ app.put('/notificaciones/:user_id/leer', async (req, res) => {
     }
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+    etag: false,
+    lastModified: false,
+    setHeaders: (res, path) => {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+}));
 
 app.get('/:page?', (req, res) => {
     let page = req.params.page || 'index'; // Si no hay parámetro, usar 'index'
