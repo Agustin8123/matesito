@@ -179,9 +179,9 @@ function openFullscreen(element) {
 }
 
   function togglePassword() {
-  togglePasswordInput('togglePasswordButton');
+  togglePasswordInput('newPasswordInput', 'togglePasswordButton');
 }
 
   function togglePassword1() {
-  togglePasswordInput('togglePasswordBoton');
+  togglePasswordInput('passwordInput', 'togglePasswordBoton');
 }
