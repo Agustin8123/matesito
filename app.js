@@ -1252,14 +1252,11 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
 });
 
 app.get('/group/messages/:groupId/:userId', async (req, res) => {
-    // Convertimos los strings a números enteros
-    const groupId = parseInt(req.params.groupId, 10);
-    const userId = parseInt(req.params.userId, 10);
-
-    // Validación básica por si no son números válidos
-    if (isNaN(groupId) || isNaN(userId)) {
-        return res.status(400).json({ error: 'IDs inválidos' });
-    }
+    const { groupId, userId } = req.params;
+    
+    // IMPORTANTE: Formatear el ID igual que en el POST
+    const formattedGroupId = `G-${groupId}`; 
+    const numericUserId = parseInt(userId, 10);
 
     try {
         const result = await db.query(
@@ -1277,30 +1274,26 @@ app.get('/group/messages/:groupId/:userId', async (req, res) => {
                 u.image
             FROM mensajes m
             INNER JOIN users u ON m.sender_id = u.id
-            WHERE m.chat_or_group_id = $1
+            WHERE m.chat_or_group_id = $1  -- Aquí buscará "G-3"
             AND m.is_private = FALSE
             AND (
                 (
                     m.sender_id IN (
                         SELECT user_id 
                         FROM participantes 
-                        WHERE forum_or_group_id = $1 AND is_group = TRUE
+                        WHERE forum_or_group_id = $2 AND is_group = TRUE -- Aquí usamos el ID numérico
                     )
                     AND m.sender_id IN (
-                        SELECT followed_id 
-                        FROM seguir 
-                        WHERE follower_id = $2
+                        SELECT followed_id FROM seguir WHERE follower_id = $3
                     )
                     AND m.sender_id IN (
-                        SELECT follower_id 
-                        FROM seguir 
-                        WHERE followed_id = $2
+                        SELECT follower_id FROM seguir WHERE followed_id = $3
                     )
                 )
-                OR m.sender_id = $2 
+                OR m.sender_id = $3 
             )
             ORDER BY m.created_at ASC`,
-            [groupId, userId] // Ahora estos son Integers
+            [formattedGroupId, groupId, numericUserId] // Pasamos 3 parámetros
         );
 
         res.status(200).json(result.rows);
