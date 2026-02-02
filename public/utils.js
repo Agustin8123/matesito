@@ -35,12 +35,10 @@ userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profi
 function Acept() {
   const initial = document.getElementById('initialOverlay');
   const aviso = document.getElementById('AvisoOverlay');
-  const app = document.getElementById('appContainer');
   const usernameOverlay = document.getElementById('usernameOverlay');
 
   if (initial) initial.style.display = 'flex';
   if (aviso) aviso.style.display = 'none';
-  if (app) app.style.display = 'flex';
   if (usernameOverlay) usernameOverlay.style.display = 'flex'; // Ensure username overlay is shown
 }
 
