@@ -1324,7 +1324,6 @@ fetch(` /chat/messages/${chatId}`)
 
 function loadGroupMessages(groupId, loadAll) {
 showOnlyMenu(groupMessageList);
-const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
 
 activeForum = 0;
 activeChat = '';
@@ -1336,7 +1335,7 @@ const activeUserId = users[activeUser].id;
 
 document.getElementById('groupMessageList').innerHTML = ''; // Limpiar lista de mensajes
 
-fetch(` /group/messages/${groupId}/${activeUserId}`)
+fetch(`/group/messages/${groupId}/${activeUserId}`)
     .then(response => {
         if (!response.ok) {
             throw new Error(`Error al cargar los mensajes: ${response.status}`);

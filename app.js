@@ -1252,7 +1252,14 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
 });
 
 app.get('/group/messages/:groupId/:userId', async (req, res) => {
-    const { groupId, userId } = req.params;
+    // Convertimos los strings a números enteros
+    const groupId = parseInt(req.params.groupId, 10);
+    const userId = parseInt(req.params.userId, 10);
+
+    // Validación básica por si no son números válidos
+    if (isNaN(groupId) || isNaN(userId)) {
+        return res.status(400).json({ error: 'IDs inválidos' });
+    }
 
     try {
         const result = await db.query(
@@ -1273,25 +1280,27 @@ app.get('/group/messages/:groupId/:userId', async (req, res) => {
             WHERE m.chat_or_group_id = $1
             AND m.is_private = FALSE
             AND (
-                m.sender_id IN (
-                    SELECT user_id 
-                    FROM participantes 
-                    WHERE forum_or_group_id = $1 AND is_group = TRUE
+                (
+                    m.sender_id IN (
+                        SELECT user_id 
+                        FROM participantes 
+                        WHERE forum_or_group_id = $1 AND is_group = TRUE
+                    )
+                    AND m.sender_id IN (
+                        SELECT followed_id 
+                        FROM seguir 
+                        WHERE follower_id = $2
+                    )
+                    AND m.sender_id IN (
+                        SELECT follower_id 
+                        FROM seguir 
+                        WHERE followed_id = $2
+                    )
                 )
-                AND m.sender_id IN (
-                    SELECT followed_id 
-                    FROM seguir 
-                    WHERE follower_id = $2
-                )
-                AND m.sender_id IN (
-                    SELECT follower_id 
-                    FROM seguir 
-                    WHERE followed_id = $2
-                )
-                OR m.sender_id = $2 -- Incluir siempre los mensajes del usuario activo
+                OR m.sender_id = $2 
             )
             ORDER BY m.created_at ASC`,
-            [groupId, userId]
+            [groupId, userId] // Ahora estos son Integers
         );
 
         res.status(200).json(result.rows);
