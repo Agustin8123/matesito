@@ -2073,7 +2073,8 @@ notificaciones.forEach(noti => {
 
     if (noti.tipo === 'mensaje') {
         mensaje = `Tienes un nuevo mensaje de ${nombre}`;
-        notiElemento.addEventListener('click', () => createOrLoadChat(chat_or_group_id));
+        const numericId = parseInt(chat_or_group_id.split('-')[1], 10);
+        createOrLoadChat(numericId);
     } else if (noti.tipo === 'grupo') {
         mensaje = `Tienes nuevos mensajes del grupo ${nombre}`;
         notiElemento.addEventListener('click', () => loadGroupMessages(chat_or_group_id, loadAll));
