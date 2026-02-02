@@ -130,8 +130,8 @@ if (this.checked) {
 window.onload = function() {
 document.getElementById('initialOverlay').style.display = 'none';
 document.getElementById('AvisoOverlay').style.display = 'flex';
-
 document.getElementById('usernameOverlay').style.display = 'none';
+document.getElementById('appContainer').style.display = 'none';
 }
 
 function verMant(valor) {
