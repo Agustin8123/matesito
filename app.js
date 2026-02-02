@@ -1364,31 +1364,35 @@ app.get('/notificaciones/:user_id', async (req, res) => {
 
         const notiDetalles = await Promise.all(
             notificaciones.rows.map(async (noti) => {
-                let nombre;
 
-                if (noti.tipo === 'foro') {
-                    // Obtener el nombre del foro
+                const rawId = noti.chat_or_group_id; // "C-5", "G-3", "F-2"
+                const prefix = rawId.split('-')[0];
+                const numericId = parseInt(rawId.split('-')[1], 10);
+
+                let nombre = 'Desconocido';
+
+                if (prefix === 'F') {
                     const foro = await db.query(
                         `SELECT name FROM foros WHERE id = $1`,
-                        [noti.chat_or_group_id]
+                        [numericId]
                     );
                     if (foro.rows.length > 0) nombre = foro.rows[0].name;
-                } else if (noti.tipo === 'grupo') {
-                    // Obtener el nombre del grupo
+
+                } else if (prefix === 'G') {
                     const grupo = await db.query(
                         `SELECT name FROM grupos WHERE id = $1`,
-                        [noti.chat_or_group_id]
+                        [numericId]
                     );
                     if (grupo.rows.length > 0) nombre = grupo.rows[0].name;
-                } else if (noti.tipo === 'mensaje') {             
-                    const sender = await db.query(
-                        `SELECT username FROM public.users WHERE id = $1`,
-                        [noti.chat_or_group_id]
-                    );                                 
-                    if (sender.rows.length > 0) nombre = sender.rows[0].username;
+
+                } else if (prefix === 'C') {
+                    const user = await db.query(
+                        `SELECT username FROM users WHERE id = $1`,
+                        [numericId]
+                    );
+                    if (user.rows.length > 0) nombre = user.rows[0].username;
                 }
-                
-                console.log("Enviando notificación con nombre:", nombre); // <-- Agrega esto
+
                 return {
                     id: noti.id,
                     tipo: noti.tipo,
@@ -1396,16 +1400,18 @@ app.get('/notificaciones/:user_id', async (req, res) => {
                     chat_or_group_id: noti.chat_or_group_id,
                     leido: noti.leido,
                     nombre,
-                };                
+                };
             })
         );
 
         res.json(notiDetalles);
+
     } catch (error) {
         console.error('Error al obtener notificaciones:', error);
         res.status(500).json({ error: 'Error al obtener notificaciones' });
     }
 });
+
 
 app.put('/notificaciones/:user_id/leer', async (req, res) => {
     const { user_id } = req.params;
