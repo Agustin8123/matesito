@@ -178,6 +178,14 @@ function openFullscreen(element) {
   }
 }
 
+  function togglePassword() {
+  togglePasswordInput('togglePasswordButton');
+}
+
+  function togglePassword1() {
+  togglePasswordInput('togglePasswordBoton');
+}
+
 // Overlay inicial
   function Acept() {
     document.getElementById('initialOverlay').style.display = 'flex';
