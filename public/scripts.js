@@ -1213,7 +1213,7 @@ fetch(' /posts')
                     content, media, mediaType, username, 
                     profilePicture, sensitive, created_at, 
                     userId, postId, 'postList', invertirOrden,
-                    esUltimoPost // ⬅️ Parámetro añadido
+                    esUltimoPost
                 );
             }
         });
@@ -1224,6 +1224,8 @@ fetch(' /posts')
 }
 
 function createOrLoadChat(user2Id) {
+    document.getElementById('profileHeader').style.display = 'none';
+    document.getElementById('postBox').style.display = 'block';
 const user1Id = users[activeUser].id;
 
 if (!user1Id || !user2Id) {
@@ -1323,6 +1325,8 @@ fetch(` /chat/messages/${chatId}`)
 }
 
 function loadGroupMessages(groupId, loadAll) {
+document.getElementById('profileHeader').style.display = 'none';
+document.getElementById('postBox').style.display = 'block';
 showOnlyMenu(groupMessageList);
 
 activeForum = 0;
@@ -1386,6 +1390,8 @@ fetch(`/group/messages/${groupId}/${activeUserId}`)
 }
 
 function loadForumPosts(forumId, loadAll) {
+document.getElementById('profileHeader').style.display = 'none';
+document.getElementById('postBox').style.display = 'block';
 showOnlyMenu(forumList);
 
 console.log (forumId);
@@ -1705,6 +1711,7 @@ function viewProfile(username) {
     // Ocultar la caja de publicaciones
     document.getElementById('postBox').style.display = 'none';
     document.getElementById('postList').style.display = 'none';
+
 
     // Mostrar la sección de perfil
     const profileHeader = document.getElementById('profileHeader');
