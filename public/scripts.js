@@ -227,25 +227,18 @@ if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
 function checkRememberedUser() {
-const username = getCookie('username');
-const encodedPassword = getCookie('password');
+    const username = getCookie('username');
+    const encodedPassword = getCookie('password');
 
-if (username && encodedPassword) {
-    document.getElementById('usernameInput').value = username;
-    document.getElementById('passwordInput').value = decodePassword(encodedPassword);
-    document.getElementById('rememberMe').checked = true;
+    if (username && encodedPassword) {
+        document.getElementById('usernameInput').value = username;
+        document.getElementById('passwordInput').value = decodePassword(encodedPassword);
+        document.getElementById('rememberMe').checked = true;
 
-    loginUser();
-    document.getElementById('AvisoOverlay').style.display = 'none';
-
-    document.getElementById('initialOverlay').style.display = 'none';
-}
-}
-
-function HideOverlays(){
-document.getElementById('initialOverlay').style.display = 'none';
-document.getElementById('userSelectOverlay').style.display = 'none';
-document.getElementById('usernameOverlay').style.display = 'none'; 
+        document.getElementById('AvisoOverlay').style.display = 'none';
+        document.getElementById('initialOverlay').style.display = 'none';
+                document.getElementById('usernameOverlay').style.display = 'block';
+    }
 }
 
 // Borrar la cookie cuando se cierra la pestaña o el navegador
