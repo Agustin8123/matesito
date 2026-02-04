@@ -345,7 +345,6 @@ function createUserInDatabase(username, password, profileImageURL, description, 
         console.error('Error al crear el usuario:', error);
         alert('Hubo un error al crear el usuario.');
         turnstile.reset('#turnstileRegister');
-
     });
 }
 
@@ -1117,6 +1116,8 @@ document.getElementById('usernameOverlay').style.display = 'none';
 document.getElementById('userSelectOverlay').style.display = 'none';
 
 document.getElementById('initialOverlay').style.display = 'flex';
+turnstile.reset('#turnstileRegister');
+turnstile.reset('#turnstileLogin');
 }
 
 let showSensitiveContent = false;
