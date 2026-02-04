@@ -1,6 +1,6 @@
 let users = {};
 let activeUser = '';
-let loginWidgetId = turnstile.render('#turnstileLogin', {sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'});
+let loginWidgetId;
 
    function hideUserSelectOverlay() {
     document.getElementById('usernameOverlay').style.display = 'none';
@@ -160,12 +160,11 @@ function updateDescription() {
 }
 
 function loginUser() {
+loginWidgetId = turnstile.render('#turnstileLogin', {sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'});
 const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput1').value.trim();
 const usernameOverlay = document.getElementById('usernameOverlay');
-const token = loginWidgetId = turnstile.render('#turnstileLogin', {
-        sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
-    });
+const token = loginWidgetId;
 
 
 if (!token) {
@@ -187,12 +186,12 @@ fetch(' /login', {
         alert('Error al iniciar sesión');
         
     }
-    turnstile.reset('turnstileLogin');
+    turnstile.reset('#turnstileLogin');
 
 })
 .catch(error => {
     alert('Error de conexión');
-    turnstile.reset('turnstileLogin');
+    turnstile.reset('#turnstileLogin');
 
 });
 }

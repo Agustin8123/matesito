@@ -210,12 +210,12 @@ fetch(' /login', {
         alert('Error al iniciar sesión');
         
     }
-    turnstile.reset('turnstileLogin');
+    turnstile.reset('#turnstileLogin');
 
 })
 .catch(error => {
     alert('Error de conexión');
-    turnstile.reset('turnstileLogin');
+    turnstile.reset('#turnstileLogin');
 
 });
 }
@@ -338,13 +338,13 @@ function createUserInDatabase(username, password, profileImageURL, description, 
             alert('error al crear el usuario');
             
         }
-        turnstile.reset('turnstileRegister');
+        turnstile.reset('#turnstileRegister');
 
     })
     .catch(error => {
         console.error('Error al crear el usuario:', error);
         alert('Hubo un error al crear el usuario.');
-        turnstile.reset('turnstileRegister');
+        turnstile.reset('#turnstileRegister');
 
     });
 }
