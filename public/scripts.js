@@ -145,10 +145,11 @@ if (valor === true) {
 function useExistingUser() {
 document.getElementById('initialOverlay').style.display = 'none';
 document.getElementById('usernameOverlay').style.display = 'flex';
+const turnstileLogin = ocument.getElementById('turnstileLogin');
 turnstile.render('#turnstileLogin', {
     sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
 });
-turnstile.reset('#turnstileLogin');
+turnstile.reset(turnstileLogin);
 
 }
 
@@ -158,8 +159,9 @@ document.getElementById('userSelectOverlay').style.display = 'flex';
 turnstile.render('#turnstileRegister', {
     sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
 });
-document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
-turnstile.reset('#turnstileRegister');
+document.querySelector('.header button').style.display = 'none'; 
+const turnstileRegister = ocument.getElementById('turnstileRegister');
+turnstile.reset(turnstileRegister);
 }
 
 function encodePassword(password) {
