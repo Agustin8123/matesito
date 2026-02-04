@@ -256,6 +256,7 @@ document.querySelector('.header button').style.display = 'block';
 }
 
 function addNewUser() {
+loginWidgetId = turnstile.render('#turnstileRegister', {sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'})
 const usernameInput = document.getElementById('newUsernameInput');
 const passwordInput = document.getElementById('newPasswordInput');
 const profileImageInput = document.getElementById('newProfileImage');
