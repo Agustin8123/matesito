@@ -184,12 +184,12 @@ fetch(' /login', {
         alert('Error al iniciar sesión');
         
     }
-    turnstile.reset(loginWidgetId);
+    turnstile.reset('turnstileLogin');
 
 })
 .catch(error => {
     alert('Error de conexión');
-    turnstile.reset(loginWidgetId);
+    turnstile.reset('turnstileLogin');
 
 });
 }
