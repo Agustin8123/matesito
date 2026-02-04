@@ -162,7 +162,7 @@ function loginUser() {
 const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput1').value.trim();
 const usernameOverlay = document.getElementById('usernameOverlay');
-const token = turnstile.getResponse('usernameOverlay');
+const token = turnstile.getResponse('turnstileLogin');
 
 
 if (!token) {
