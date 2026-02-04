@@ -193,3 +193,11 @@ fetch(' /login', {
 
 });
 }
+
+function Acept1() {
+  const initial = document.getElementById('usernameOverlay');
+  const aviso = document.getElementById('AvisoOverlay');
+
+  if (initial) initial.style.display = 'flex';
+  if (aviso) aviso.style.display = 'none';
+}
