@@ -160,11 +160,10 @@ function updateDescription() {
 }
 
 function loginUser() {
-loginWidgetId = turnstile.render('#turnstileLogin', {sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'});
 const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput1').value.trim();
 const usernameOverlay = document.getElementById('usernameOverlay');
-const token = loginWidgetId;
+const token = turnstile.getResponse(loginWidgetId);
 
 
 if (!token) {
@@ -199,7 +198,7 @@ fetch(' /login', {
 function Acept1() {
   const initial = document.getElementById('usernameOverlay');
   const aviso = document.getElementById('AvisoOverlay');
-
+  loginWidgetId = turnstile.render('#turnstileLogin', {sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'});
   if (initial) initial.style.display = 'flex';
   if (aviso) aviso.style.display = 'none';
 }
