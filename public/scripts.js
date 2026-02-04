@@ -22,6 +22,8 @@ let ordenarReacciones = false;
 let isSortingInProgress = false;
 let postsArray = []; // Guardará los posts temporalmente
 
+let loginWidgetId;
+
 function ToggleVisibility(elementId) {
     const element = document.getElementById(elementId);
     element.style.display = 'block';
