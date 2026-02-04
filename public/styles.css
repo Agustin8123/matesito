@@ -218,8 +218,6 @@ body {
             border-radius: 16px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
-            word-break: break-all;
-            word-wrap: break-word;
         }
         .username-box input, .user-select-box input {
             padding: 15px;
@@ -227,10 +225,6 @@ body {
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 10px;
-        }
-        .username-box #rememberMe {
-            word-break: break-all;
-            word-wrap: break-word;
         }
 
         .username-box button, .user-select-box button {
