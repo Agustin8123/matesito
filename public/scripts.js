@@ -148,6 +148,7 @@ document.getElementById('usernameOverlay').style.display = 'flex';
 turnstile.render('#turnstileLogin', {
     sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
 });
+turnstile.reset('#turnstileLogin');
 
 }
 
@@ -158,6 +159,7 @@ turnstile.render('#turnstileRegister', {
     sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
 });
 document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
+turnstile.reset('#turnstileRegister');
 }
 
 function encodePassword(password) {
