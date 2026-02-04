@@ -145,7 +145,7 @@ if (valor === true) {
 function useExistingUser() {
 document.getElementById('initialOverlay').style.display = 'none';
 document.getElementById('usernameOverlay').style.display = 'flex';
-const turnstileLogin = ocument.getElementById('turnstileLogin');
+const turnstileLogin = document.getElementById('turnstileLogin');
 turnstile.render('#turnstileLogin', {
     sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
 });
@@ -160,7 +160,7 @@ turnstile.render('#turnstileRegister', {
     sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
 });
 document.querySelector('.header button').style.display = 'none'; 
-const turnstileRegister = ocument.getElementById('turnstileRegister');
+const turnstileRegister = document.getElementById('turnstileRegister');
 turnstile.reset(turnstileRegister);
 }
 
