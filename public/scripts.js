@@ -182,10 +182,12 @@ if (rememberMe) {
 
 // Función de login
 function loginUser() {
+loginWidgetId = turnstile.render('#turnstileLogin', {sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'})
 const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput').value.trim();
 const rememberMe = document.getElementById('rememberMe').checked;
 const token = loginWidgetId;
+
 
 if (!token) {
     alert("Completa la verificación de seguridad.");
@@ -2242,4 +2244,3 @@ checkRememberedUser();
 init();
 };
 
-let loginWidgetId = turnstile.render('#turnstileLogin', {sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'})
