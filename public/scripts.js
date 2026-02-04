@@ -237,7 +237,7 @@ function checkRememberedUser() {
 
         document.getElementById('AvisoOverlay').style.display = 'none';
         document.getElementById('initialOverlay').style.display = 'none';
-                document.getElementById('usernameOverlay').style.display = 'block';
+        document.getElementById('usernameOverlay').style.display = 'block';
     }
 }
 
