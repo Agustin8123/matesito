@@ -1,6 +1,6 @@
 let users = {};
 let activeUser = '';
-let loginWidgetId;
+let loginWidgetId = turnstile.render('#turnstileLogin', {sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'});
 
    function hideUserSelectOverlay() {
     document.getElementById('usernameOverlay').style.display = 'none';
