@@ -229,8 +229,10 @@ body {
             border-radius: 10px;
         }
         .username-box #rememberMe {
-            text-align: center;
+            word-break: break-all;
+            word-wrap: break-word;
         }
+
         .username-box button, .user-select-box button {
             padding: 10px 15px;
             background: #3f3f3f;
