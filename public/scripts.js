@@ -247,8 +247,8 @@ function checkRememberedUser() {
         document.getElementById('passwordInput').value = decodePassword(encodedPassword);
         document.getElementById('rememberMe').checked = true;
 
-        document.getElementById('AvisoOverlay').style.display = 'none';
-        document.getElementById('initialOverlay').style.display = 'flex';
+        Acept();
+        useExistingUser();
     }
 }
 
