@@ -1,5 +1,6 @@
 let users = {};
 let activeUser = '';
+let loginWidgetId;
 
    function hideUserSelectOverlay() {
     document.getElementById('usernameOverlay').style.display = 'none';
@@ -162,7 +163,9 @@ function loginUser() {
 const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput1').value.trim();
 const usernameOverlay = document.getElementById('usernameOverlay');
-const token = turnstile.getResponse('turnstileLogin');
+const token = loginWidgetId = turnstile.render('#turnstileLogin', {
+        sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
+    });
 
 
 if (!token) {

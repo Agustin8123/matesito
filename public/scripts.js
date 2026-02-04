@@ -24,6 +24,8 @@ let postsArray = []; // Guardará los posts temporalmente
 
 let loginWidgetId;
 
+
+
 function ToggleVisibility(elementId) {
     const element = document.getElementById(elementId);
     element.style.display = 'block';
@@ -187,7 +189,10 @@ function loginUser() {
 const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput').value.trim();
 const rememberMe = document.getElementById('rememberMe').checked;
-const token = turnstile.getResponse('turnstileLogin');
+const token = loginWidgetId = turnstile.render('#turnstileLogin', {
+        sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
+    });
+
 
 if (!token) {
     alert("Completa la verificación de seguridad.");
@@ -261,7 +266,9 @@ const passwordInput = document.getElementById('newPasswordInput');
 const profileImageInput = document.getElementById('newProfileImage');
 const username = usernameInput.value.trim();
 const password = passwordInput.value.trim();
-const token = turnstile.getResponse('turnstileRegister');
+const token = loginWidgetId = turnstile.render('#turnstileLogin', {
+        sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
+    });
 
 if (!token) {
     alert("Completa la verificación de seguridad.");
