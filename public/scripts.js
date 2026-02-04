@@ -238,7 +238,6 @@ function checkRememberedUser() {
         document.getElementById('rememberMe').checked = true;
 
         document.getElementById('AvisoOverlay').style.display = 'none';
-        document.getElementById('initialOverlay').style.display = 'none';
         document.getElementById('initialOverlay').style.display = 'flex';
     }
 }
