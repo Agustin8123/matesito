@@ -22,6 +22,8 @@ let ordenarReacciones = false;
 let isSortingInProgress = false;
 let postsArray = []; // Guardará los posts temporalmente
 
+let loginWidgetId;
+
 function ToggleVisibility(elementId) {
     const element = document.getElementById(elementId);
     element.style.display = 'block';
@@ -143,11 +145,18 @@ if (valor === true) {
 function useExistingUser() {
 document.getElementById('initialOverlay').style.display = 'none';
 document.getElementById('usernameOverlay').style.display = 'flex';
+turnstile.render('#turnstileLogin', {
+    sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
+});
+
 }
 
 function createNewUser() {
 document.getElementById('initialOverlay').style.display = 'none';
 document.getElementById('userSelectOverlay').style.display = 'flex';
+turnstile.render('#turnstileLogin', {
+    sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
+});
 document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
 }
 
@@ -179,7 +188,8 @@ const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput').value.trim();
 const rememberMe = document.getElementById('rememberMe').checked;
 
-const token = turnstile.getResponse();
+const token = turnstile.getResponse(loginWidgetId);
+
 if (!token) {
     alert("Completa la verificación de seguridad.");
     return;
@@ -199,11 +209,13 @@ fetch(' /login', {
         alert('Error al iniciar sesión');
         
     }
-    turnstile.reset();
+    turnstile.reset(loginWidgetId);
+
 })
 .catch(error => {
     alert('Error de conexión');
-    turnstile.reset();
+    turnstile.reset(loginWidgetId);
+
 });
 }
 
@@ -247,7 +259,10 @@ document.getElementById('initialOverlay').style.display = 'flex';
 
 function hideUserSelectOverlay() {
 document.getElementById('userSelectOverlay').style.display = 'none';
-document.querySelector('.header button').style.display = 'block'; // Mostrar el botón de selección de usuario nuevamente
+document.querySelector('.header button').style.display = 'block';
+turnstile.render('#turnstileLogin', {
+    sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
+}); // Mostrar el botón de selección de usuario nuevamente
 }
 
 function addNewUser() {
@@ -256,7 +271,8 @@ const passwordInput = document.getElementById('newPasswordInput');
 const profileImageInput = document.getElementById('newProfileImage');
 const username = usernameInput.value.trim();
 const password = passwordInput.value.trim();
-const token = turnstile.getResponse();
+const token = turnstile.getResponse(loginWidgetId);
+
 
 if (!token) {
     alert("Completa la verificación de seguridad.");
@@ -332,12 +348,14 @@ function createUserInDatabase(username, password, profileImageURL, description, 
             alert('error al crear el usuario');
             
         }
-        turnstile.reset();
+        turnstile.reset(loginWidgetId);
+
     })
     .catch(error => {
         console.error('Error al crear el usuario:', error);
         alert('Hubo un error al crear el usuario.');
-        turnstile.reset();
+        turnstile.reset(loginWidgetId);
+
     });
 }
 
