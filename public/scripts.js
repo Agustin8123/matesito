@@ -205,6 +205,7 @@ fetch(' /login', {
     if (data.username) {
         setActiveUser(data.username); // Función para actualizar el usuario activo
         saveSession(username, password, rememberMe); // Guardar sesión si "Recordar mi sesión" está marcado
+        document.getElementById('usernameOverlay').style.display = 'none';
     } else {
         alert('Error al iniciar sesión');
         
@@ -237,7 +238,7 @@ function checkRememberedUser() {
 
         document.getElementById('AvisoOverlay').style.display = 'none';
         document.getElementById('initialOverlay').style.display = 'none';
-        document.getElementById('usernameOverlay').style.display = 'block';
+        document.getElementById('usernameOverlay').style.display = 'flex';
     }
 }
 
