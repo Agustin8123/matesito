@@ -188,7 +188,7 @@ const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput').value.trim();
 const rememberMe = document.getElementById('rememberMe').checked;
 
-const token = turnstile.getResponse('turnstileLogin');
+const token = turnstile.getResponse(loginWidgetId);
 
 if (!token) {
     alert("Completa la verificación de seguridad.");
@@ -262,6 +262,7 @@ const passwordInput = document.getElementById('newPasswordInput');
 const profileImageInput = document.getElementById('newProfileImage');
 const username = usernameInput.value.trim();
 const password = passwordInput.value.trim();
+const token = turnstile.getResponse(loginWidgetId);
 
 
 if (!token) {
