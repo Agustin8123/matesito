@@ -154,7 +154,7 @@ turnstile.render('#turnstileLogin', {
 function createNewUser() {
 document.getElementById('initialOverlay').style.display = 'none';
 document.getElementById('userSelectOverlay').style.display = 'flex';
-turnstile.render('#turnstileLogin', {
+turnstile.render('#turnstileRegister', {
     sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
 });
 document.querySelector('.header button').style.display = 'none'; // Ocultar el botón de selección de usuario
@@ -260,9 +260,6 @@ document.getElementById('initialOverlay').style.display = 'flex';
 function hideUserSelectOverlay() {
 document.getElementById('userSelectOverlay').style.display = 'none';
 document.querySelector('.header button').style.display = 'block';
-turnstile.render('#turnstileLogin', {
-    sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
-}); // Mostrar el botón de selección de usuario nuevamente
 }
 
 function addNewUser() {

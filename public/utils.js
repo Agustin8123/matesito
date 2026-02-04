@@ -40,6 +40,7 @@ function Acept() {
   if (initial) initial.style.display = 'flex';
   if (aviso) aviso.style.display = 'none';
   if (usernameOverlay) usernameOverlay.style.display = 'flex'; // Ensure username overlay is shown
+  
 }
 
 // Alterna la visibilidad de un input de contraseña y actualiza el icono del botón
