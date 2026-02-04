@@ -22,7 +22,8 @@ let ordenarReacciones = false;
 let isSortingInProgress = false;
 let postsArray = []; // Guardará los posts temporalmente
 
-let loginWidgetId;
+let loginWidgetId = null;
+let registerWidgetId = null;
 
 function ToggleVisibility(elementId) {
     const element = document.getElementById(elementId);
@@ -143,26 +144,31 @@ if (valor === true) {
 }
 
 function useExistingUser() {
-document.getElementById('initialOverlay').style.display = 'none';
-document.getElementById('usernameOverlay').style.display = 'flex';
-const turnstileLogin = document.getElementById('turnstileLogin');
-turnstile.render('#turnstileLogin', {
-    sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
-});
-turnstile.reset(turnstileLogin);
+    document.getElementById('initialOverlay').style.display = 'none';
+    document.getElementById('usernameOverlay').style.display = 'flex';
 
+    if (!loginWidgetId) {
+        loginWidgetId = turnstile.render('#turnstileLogin', {
+            sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
+        });
+    } else {
+        turnstile.reset(loginWidgetId);
+    }
 }
 
 function createNewUser() {
-document.getElementById('initialOverlay').style.display = 'none';
-document.getElementById('userSelectOverlay').style.display = 'flex';
-turnstile.render('#turnstileRegister', {
-    sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
-});
-document.querySelector('.header button').style.display = 'none'; 
-const turnstileRegister = document.getElementById('turnstileRegister');
-turnstile.reset(turnstileRegister);
+    document.getElementById('initialOverlay').style.display = 'none';
+    document.getElementById('userSelectOverlay').style.display = 'flex';
+
+    if (!registerWidgetId) {
+        registerWidgetId = turnstile.render('#turnstileRegister', {
+            sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
+        });
+    } else {
+        turnstile.reset(registerWidgetId);
+    }
 }
+
 
 function encodePassword(password) {
 return btoa(password); // Convierte a Base64
@@ -266,7 +272,7 @@ const passwordInput = document.getElementById('newPasswordInput');
 const profileImageInput = document.getElementById('newProfileImage');
 const username = usernameInput.value.trim();
 const password = passwordInput.value.trim();
-const token = turnstile.getResponse(loginWidgetId);
+const token = turnstile.getResponse(registerWidgetId);
 
 if (!token) {
     alert("Completa la verificación de seguridad.");
