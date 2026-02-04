@@ -22,10 +22,6 @@ let ordenarReacciones = false;
 let isSortingInProgress = false;
 let postsArray = []; // Guardará los posts temporalmente
 
-let loginWidgetId = turnstile.render('#turnstileLogin', {sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'})
-
-
-
 function ToggleVisibility(elementId) {
     const element = document.getElementById(elementId);
     element.style.display = 'block';
@@ -2245,3 +2241,5 @@ verMant(mantenimiento);
 checkRememberedUser();
 init();
 };
+
+let loginWidgetId = turnstile.render('#turnstileLogin', {sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'})
