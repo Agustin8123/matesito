@@ -179,10 +179,16 @@ const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput').value.trim();
 const rememberMe = document.getElementById('rememberMe').checked;
 
+const token = turnstile.getResponse();
+if (!token) {
+    alert("Completa la verificación de seguridad.");
+    return;
+}
+
 fetch(' /login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
+    body: JSON.stringify({ username, password, token })
 })
 .then(response => response.json())
 .then(data => {
@@ -191,10 +197,13 @@ fetch(' /login', {
         saveSession(username, password, rememberMe); // Guardar sesión si "Recordar mi sesión" está marcado
     } else {
         alert('Error al iniciar sesión');
+        
     }
+    turnstile.reset();
 })
 .catch(error => {
     alert('Error de conexión');
+    turnstile.reset();
 });
 }
 
@@ -247,6 +256,12 @@ const passwordInput = document.getElementById('newPasswordInput');
 const profileImageInput = document.getElementById('newProfileImage');
 const username = usernameInput.value.trim();
 const password = passwordInput.value.trim();
+const token = turnstile.getResponse();
+
+if (!token) {
+    alert("Completa la verificación de seguridad.");
+    return;
+}
 
 // Validar longitud del nombre de usuario
 if (username.length > 25) {
@@ -278,14 +293,14 @@ if (profileImageInput.files && profileImageInput.files[0]) {
     .then(response => response.json())
     .then(data => {
         profileImageURL = data.secure_url; // URL de la imagen subida
-        createUserInDatabase(username, password, profileImageURL, "No hay descripción todavia.");
+        createUserInDatabase(username, password, profileImageURL, "No hay descripción todavia.", token);
     })
     .catch(error => {
         console.error('Error al subir la imagen:', error);
         alert('No se pudo subir la imagen de perfil. Inténtalo de nuevo.');
     });
 } else {
-    createUserInDatabase(username, password, profileImageURL, "No hay descripción todavia.");
+    createUserInDatabase(username, password, profileImageURL, "No hay descripción todavia.", token);
 }
 
 usernameInput.value = '';
@@ -295,19 +310,18 @@ descriptionInput.value = '';
 }
 
 
-function createUserInDatabase(username, password, profileImageURL, description) {
-    const userData = {
+function createUserInDatabase(username, password, profileImageURL, description, token) {
+ const userData = {
         username,
         password,
         profileImage: profileImageURL,
-        description: description || null // Si está vacío, mandalo como null
+        description: description || null,
+        token
     };
 
     fetch('/users', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
     })
     .then(response => response.json())
@@ -316,11 +330,14 @@ function createUserInDatabase(username, password, profileImageURL, description) 
             setActiveUser(username);
         } else {
             alert('error al crear el usuario');
+            
         }
+        turnstile.reset();
     })
     .catch(error => {
         console.error('Error al crear el usuario:', error);
         alert('Hubo un error al crear el usuario.');
+        turnstile.reset();
     });
 }
 

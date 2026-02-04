@@ -7,7 +7,8 @@
     <title>Matesito</title>
 
     <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
     <link rel="preconnect" href="https://fonts.googleapis.com"> 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
@@ -277,6 +278,8 @@
             </label>
         </div>
 
+        <div class="cf-turnstile" data-sitekey="<0x4AAAAAACXaLFPU3wAuzN1y>"></div>
+
         <button onclick="loginUser()">Ingresar</button>
         <!-- Botón Volver -->
         <button onclick="goBackToInitial()">Volver</button>
@@ -340,6 +343,8 @@
             </label>
         </div>
 
+        <div class="cf-turnstile" data-sitekey="<0x4AAAAAACXaLFPU3wAuzN1y>"></div>
+
         <button id="createUserButton" onclick="addNewUser()" disabled>Crear</button> <!-- Botón deshabilitado por defecto -->
         <!-- Botón Volver -->
         <button onclick="goBackToInitial()">Volver</button>
@@ -349,6 +354,11 @@
 <script src="/scripts.js"></script>
 <script src="/scripts2.js"></script>
 <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+<script
+  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+  async
+  defer
+></script>
   <script>
     const socket = io();
 

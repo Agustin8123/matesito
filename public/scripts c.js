@@ -162,11 +162,17 @@ function loginUser() {
 const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput1').value.trim();
 const usernameOverlay = document.getElementById('usernameOverlay');
+const token = turnstile.getResponse();
+
+if (!token) {
+    alert("Completa la verificación de seguridad.");
+    return;
+}
 
 fetch(' /login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
+    body: JSON.stringify({ username, password, token })
 })
 .then(response => response.json())
 .then(data => {
@@ -175,9 +181,12 @@ fetch(' /login', {
         usernameOverlay.style.display = 'none';
     } else {
         alert('Error al iniciar sesión');
+        
     }
+    turnstile.reset();
 })
 .catch(error => {
     alert('Error de conexión');
+    turnstile.reset();
 });
 }

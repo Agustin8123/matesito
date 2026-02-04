@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matesito</title>
-    <link rel="stylesheet" href="/styles.css">
-    <link rel="stylesheet" href="/extras.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="extras.css">
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
     <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com"> 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,6 +45,8 @@
         <button type="button" id="toggleBotonPassword" onclick="togglePassword2()">
             <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
         </button>
+
+        <div class="cf-turnstile" data-sitekey="<0x4AAAAAACXaLFPU3wAuzN1y>"></div>
 
         <div style="display: flex; justify-content: space-between; margin-top: 10px;">
             <button onclick="location.href='index'">Volver</button>
@@ -110,7 +113,12 @@
     </div>    
 </div>
 
-<script src="/utils.js"></script>
-<script src="/scripts c.js"></script>
+<script src="utils.js"></script>
+<script src="scripts c.js"></script>
+<script
+  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+  async
+  defer
+></script>
 </body>
 </html>

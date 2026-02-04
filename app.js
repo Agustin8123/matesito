@@ -10,6 +10,21 @@ require('dotenv').config();
 const app = express();
 const port = 3000;
 
+async function verifyTurnstile(token, ip) {
+    const resp = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            secret: '0x4AAAAAACXaLHrb8QGTy-dXOm22xFBpYEA',
+            response: token,
+            remoteip: ip
+        })
+    });
+
+    const data = await resp.json();
+    return data.success;
+}
+
 app.use(express.json()); // Para recibir datos JSONdd
 
 app.use(cors({
@@ -173,7 +188,13 @@ app.get('/get/microreact--reactionss/:id', async (req, res) => {
 
 // Crear nuevo usuario
 app.post('/users', async (req, res) => {
-    const { username, password, profileImage, description } = req.body;
+    const { username, password, profileImage, description, token } = req.body;
+
+    const isHuman = await verifyTurnstile(token, req.ip);
+    if (!isHuman) {
+        return res.status(403).json({ error: 'Captcha inválido' });
+    }
+
     const hashedPassword = await bcryptjs.hash(password, 10);
 
     const query = 'INSERT INTO public.users (username, password, image, description) VALUES ($1, $2, $3, $4) RETURNING id';
@@ -189,8 +210,13 @@ app.post('/users', async (req, res) => {
 });
 
 // Iniciar sesión con un usuario existente
-app.post('/login', (req, res) => {
-    const { username, password } = req.body;
+app.post('/login', async (req, res) => {
+    const { username, password, token } = req.body;
+
+    const isHuman = await verifyTurnstile(token, req.ip);
+    if (!isHuman) {
+        return res.status(403).json('Captcha inválido');
+    }
 
     const query = 'SELECT * FROM public.users WHERE username = $1';
     db.query(query, [username], async (err, results) => {
