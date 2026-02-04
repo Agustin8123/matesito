@@ -227,8 +227,9 @@ body {
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 10px;
-            word-break: break-all;
-            word-wrap: break-word;
+        }
+        .username-box #rememberMe {
+            text-align: center;
         }
         .username-box button, .user-select-box button {
             padding: 10px 15px;
