@@ -158,7 +158,6 @@ function useExistingUser() {
                 const rememberMe = document.getElementById('rememberMe').checked;
 
                 if (rememberMe) {
-                    rememberCheckbox.checked = false;
                     loginUser();
                 }
             }
@@ -210,6 +209,7 @@ const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput').value.trim();
 const rememberMe = document.getElementById('rememberMe').checked;
 const token = turnstile.getResponse(loginWidgetId);
+rememberCheckbox.checked = false;
 
 
 if (!token) {
