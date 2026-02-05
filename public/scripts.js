@@ -197,7 +197,6 @@ if (rememberMe) {
 
     document.cookie = `username=${username}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
     document.cookie = `password=${encodePassword(password)}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
-    rememberMe.checked = false;
 } else {
     document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     document.cookie = `password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
@@ -1547,6 +1546,8 @@ async function cargarTotalesDeReacciones() {
 
 async function addpostToList(content, media, mediaType, username, profilePicture, sensitive, created_at, userId, postId, listId, invertirOrden, esUltimoPost) {
     const postList = document.getElementById(listId);
+    const rememberMe = document.getElementById('rememberMe');
+    rememberMe.checked = false;
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
         return;
