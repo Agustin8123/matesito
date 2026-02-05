@@ -158,8 +158,8 @@ function useExistingUser() {
                 const rememberMe = document.getElementById('rememberMe').checked;
 
                 if (rememberMe) {
-                    loginUser();
                     rememberCheckbox.checked = false;
+                    loginUser();
                 }
             }
         });
