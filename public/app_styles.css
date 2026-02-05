@@ -66,6 +66,12 @@ h4 {
         flex-direction:column;
         justify-content: center;
         align-items: center;
+        width: 90%;
+    }
+    .featuresHighlight {
+        display: flex;
+        flex-direction: column;
+        width: 80%;
     }
 }
 
