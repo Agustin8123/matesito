@@ -212,3 +212,7 @@ h4 {
 .logo:hover {
     scale: 1.1;
 }
+
+h6 {
+    text-align: center;
+}
