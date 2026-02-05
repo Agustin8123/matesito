@@ -209,8 +209,6 @@ const username = document.getElementById('usernameInput').value.trim();
 const password = document.getElementById('passwordInput').value.trim();
 const rememberMe = document.getElementById('rememberMe').checked;
 const token = turnstile.getResponse(loginWidgetId);
-rememberCheckbox.checked = false;
-
 
 if (!token) {
     alert("Completa la verificación de seguridad.");
@@ -229,6 +227,7 @@ fetch(' /login', {
         saveSession(username, password, rememberMe); // Guardar sesión si "Recordar mi sesión" está marcado
         document.getElementById('usernameOverlay').style.display = 'none';
         document.getElementById('initialOverlay').style.display = 'none';
+        rememberMe.checked = false;
     } else {
         alert('Error al iniciar sesión');
         
