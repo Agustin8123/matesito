@@ -141,6 +141,9 @@ h4 {
     height: 20vh;
     mask: linear-gradient(to top, transparent, black 60%);
     -webkit-mask: linear-gradient(to top, transparent, black 60%);
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: backdrop-filter;
 }
 
 .header {
