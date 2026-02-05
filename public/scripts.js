@@ -158,8 +158,8 @@ function useExistingUser() {
                 const rememberMe = document.getElementById('rememberMe').checked;
 
                 if (rememberMe) {
-                    // el captcha ya está resuelto, ahora sí logueá solo
                     loginUser();
+                    rememberCheckbox.checked = false;
                 }
             }
         });
