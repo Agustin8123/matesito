@@ -140,7 +140,7 @@ h4 {
     width: 100vw;
     height: 20vh;
     mask: linear-gradient(to top, transparent, black 60%);
-
+    -webkit-mask: linear-gradient(to top, transparent, black 60%);
 }
 
 .header {
