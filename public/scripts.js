@@ -153,7 +153,15 @@ function useExistingUser() {
 
     if (!loginWidgetId) {
         loginWidgetId = turnstile.render('#turnstileLogin', {
-            sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
+            sitekey: '0x4AAAAAACXaLFPU3wAuzN1y',
+            callback: function(token) {
+                const rememberMe = document.getElementById('rememberMe').checked;
+
+                if (rememberMe) {
+                    // el captcha ya está resuelto, ahora sí logueá solo
+                    loginUser();
+                }
+            }
         });
     } else {
         turnstile.reset(loginWidgetId);
@@ -225,13 +233,11 @@ fetch(' /login', {
         alert('Error al iniciar sesión');
         
     }
-    turnstile.reset('#turnstileLogin');
-
+    turnstile.reset(loginWidgetId);
 })
 .catch(error => {
     alert('Error de conexión');
-    turnstile.reset('#turnstileLogin');
-
+    turnstile.reset(loginWidgetId);
 });
 }
 
