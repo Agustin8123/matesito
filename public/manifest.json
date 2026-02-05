@@ -1,0 +1,20 @@
+{
+  "name": "Matesito",
+  "short_name": "Matesito",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "resources/PNG/favicon192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "resources/PNG/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

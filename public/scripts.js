@@ -25,6 +25,10 @@ let postsArray = []; // Guardará los posts temporalmente
 let loginWidgetId = null;
 let registerWidgetId = null;
 
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+
 function ToggleVisibility(elementId) {
     const element = document.getElementById(elementId);
     element.style.display = 'block';
