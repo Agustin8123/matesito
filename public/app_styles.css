@@ -2,9 +2,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: black;
-    align-items: center;
-    align-content: center;
-    justify-content: center;
+
     align-self: center;
     height: 100%;
     width: 100%;
@@ -138,10 +136,14 @@ h4 {
 .blurPiola {
     background-color: rgba(0, 0, 0, 0.123);
     backdrop-filter: blur(40px);
+    -webkit-filter: blur(40px);
     width: 100vw;
     height: 20vh;
     mask: linear-gradient(to top, transparent, black 60%);
-
+    -webkit-mask: linear-gradient(to top, transparent, black 60%);
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: backdrop-filter;
 }
 
 .header {
