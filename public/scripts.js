@@ -197,6 +197,7 @@ if (rememberMe) {
 
     document.cookie = `username=${username}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
     document.cookie = `password=${encodePassword(password)}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
+    rememberMe.checked = false;
 } else {
     document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     document.cookie = `password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
@@ -227,7 +228,6 @@ fetch(' /login', {
         saveSession(username, password, rememberMe); // Guardar sesión si "Recordar mi sesión" está marcado
         document.getElementById('usernameOverlay').style.display = 'none';
         document.getElementById('initialOverlay').style.display = 'none';
-        rememberMe.checked = false;
     } else {
         alert('Error al iniciar sesión');
         
