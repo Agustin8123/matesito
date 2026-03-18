@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Versiones</title>
+     <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="extras.css">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
+        <script src="utils.js"></script>
+</head>
+<body>
+
+    <div class="header">
+        <div class="left-section">
+            <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index.html'" style="cursor:pointer">
+        </div>
+        <div class="menu-toggle" onclick="toggleMenuExtras()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-buttons" id="navMenu">
+            <label for="index" class="button">Inicio</label>
+            <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
+
+        <label for="informacion" class="button">Acerca De</label>
+            <input type="radio" id="informacion" name="nav" style="display:none;" onclick="location.href='informacion.html'">
+
+            <label for="acercade" class="button">Terminos</label>
+            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='Terminos.html'">
+
+            <label for="Ayuda" class="button">Ayuda</label>
+            <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
+        </div>
+    </div>
+
+    <div class="content content-versiones"  ">
+
+        <div class="version-box version-box-versiones">
+        <h2>Versión 1.2.22 (actual)</h2>
+        <p>
+           Se arreglaron todos los problemas de carga y publicación en chats, foros y grupos<br>
+           Se removió el botón de Chat General debido a que ya no es nescesario por la nueva estructura de la página<br>
+           Se solucionó el bug que hacía que no llegaran las notificaciones<br>
+           Se mejoró la UI principal<br>
+           Añadió la Protección de Cloudflare Turnstile.<br>
+        </p>
+        </div>
+
+
+        <div class="version-box version-box-versiones">
+        <h2>Versión 1.2.21</h2>
+        <p>
+            Version final de la pestaña de configuración de usuario<br>
+            Vuelta en linea del sistema MicroReact, caido por refactor del desarrollador original.<br>
+            Ahora las reacciones se pueden cambiar sin recargar los post<br>
+            Arreglos de bugs en el sistema de ver perfiles.<br>
+        </p>
+        </div>
+
+        <div class="version-box version-box-versiones">
+        <h2>Versión 1.2.20</h2>
+        <p>
+            Optimización de la redundancia de codigo utilitario.<br>
+            Arreglo de bugs mayores en la pestaña de cuenta de usuario.<br>
+            Se añadió una vista previa de la imagen de perfil al momento de cambiarla.<br>
+            Se añadió un menu desplegable en las pestañas adicionales para mejorar la navegación en dispositivos moviles.<br>
+        </p>
+        </div>
+
+        <div class="version-box version-box-versiones">
+        <h2>Versión 1.2.19</h2>
+        <p>
+            Se puso en en funcionamiento las funciones de chats, foros y grupos que se habian roto cuando se hizo la migración de servidores. <br> 
+
+            Corrigió algunas faltas ortográficas en la pestaña de versiones.<br>
+            Optimizó y unifico el código de las pestañas adicionales a Inicio para una menor redundancia.<br>
+            optimizó el código general de la página para un mejor orden.
+        </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.2.18</h2>
+            <p>
+                Corrigió muchos de los bugs visuales que tenia la pagina en todas las resoluciones pequeñas. 
+            </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.2.17</h2>
+            <p>
+                NOVEDADES:<br>
+                Nuevo diseño (no final)<br>
+                Se elimino la posibilidad de añadir descripciones al registrarse<br>
+                Nuevo favicon<br><br>
+
+                HOTFIXES:<br>
+                Ya no se permite añadir posts vacios<br>
+            </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.2.16</h2>
+            <p>
+                Añadió la función de descripciónes para los usuarios.<br>
+                Removió la funcion de ver un solo post<br>
+                Cambio la forma en la que se ven los perfiles de los usuarios<br>
+                hizo que la pagina nunca se guarde en la cache, esto para estar siempre sincronizada con los archivos en el servidor<br><br>
+
+                Fue la primera versión en funcinar en los servidores oficiales de Matesito.
+            </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.2.15</h2>
+            <p>
+                Añadió la función de pantalla completa para imagenes.<br>
+                Removió la funcion de ver un solo post<br>
+                
+            </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.2.14</h2>
+            <p>
+                Ahora, al presionar la foto de perfil de un usuario, se extiende el 
+                contenedor de botones de ver perfil y seguir. Anteriormente solo funcionaba 
+                si se presionaba el nombre.<br>
+                Se arregló un error de sintaxis que venía de la versión 1.0.7<br><br>
+
+                
+                Solucionó el bug visual que hacía que la barra dezlizadora esté sobre los 
+                botones en los menús desplegables.<br><br>
+
+                Ahora, si se ingresa la URL sin extensión, se carga index.<br>
+                Añadió una pagina de Error 404 para URL invalidas.
+            </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.2.13</h2>
+            <p>
+                se volvió a centrar el contenedor principal en la versión de dispositivos moviles.<br>
+                Ahora no hace falta poner .html en la url para entrar a la página.
+            </p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.2.12</h2>
+            <p>
+                Se editaron y corrigieron los terminos y Condiciones.<br>
+                Ahora por defecto se cargan los más nuevos arriba.<br><br>
+
+                Se arreglo definitivamente el bug del zoom en dispositivos moviles.<br>
+                Se acortó el texto del botón de cambiar cantidad de post para solucionar un bug en dispositivos moviles.<br><br>
+
+                Se mejoró el sistema de recarga automatica, ahora solo se recarga si se publicó en el mismo tipo de chat que está el usuario.<br><br>
+
+                Se arregló el bug introducido en la versión anterior que hacía que no funcionaran los chats, grupos y foros.
+            </p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.2.11</h2>
+            <p>
+                Ahora cada vez que alguien reacciona, se recarga solo el numero de la reccion correspondiente. Sin recargar todos los post.<br>
+                Añadió el filtro para ordenar los post por numero de reacciones.<br>
+                Se modificó MicroReact para que se recuerde la ultima reaccion del usuario en cada post, asi poder eliminar su reacción, o cambiarla.<br>
+                Se añadió un botón para mostrar y ocultar el contenedor de reacciones en cada post. Así ocupa menos espacio, y se gasta menos ancho de 
+                banda al no tener que cargar todas las reacciones siempre.<br><br>
+
+                Se movieron los botones de Ver Perfil y Seguir a debajo del nombre en cada post, en lugar de debajo de el contenido.
+            </p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.2.10</h2>
+            <p>
+                Añadió una barra deslizadora a los menús de usuarios, foros y grupos.<br>
+                Se corrigió la poscisión del botón de usuario.<br>
+                Agregó el sistema de notificaciones en tiempo real.<br>
+                Se corrigió el bug visual de dispositivos moviles que hacía que los medios multimedia se salieran del margen<br>
+                El botón de cerrar sesión elimina por completo la sesión actual del usuario.<br><br>
+
+                simplificó la lógica de interaccion con el servidor.
+            </p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.2.9 </h2>
+            <p>
+                Solucionó los siguientes bugs visuales generales:<br>
+                Menú "Otros" aparecía un poco más bajo de lo que debía.<br>
+                El botón de mostrar contenido sensible estaba ligeramente desalineado.<br>
+                Al pasar el puntero sobre cualquier botón de color rojo, estos se volvían un color demasiado claro.<br>
+                La página se cargaba con un poco de zoom por defecto.<br><br>
+
+                Solucionó los siguientes bugs visuales en dispositivos móviles:<br>
+                La pestaña de Acerca De se cargaba estirada.<br>
+                La pestaña de Términos y Condiciones se cargaba estirada.<br><br>
+
+                Al presionar el botón del Chat General, el contenedor de Posts se duplicaba.<br>
+                Ahora todas las referencias a los Términos y Condiciones y Políticas de privacidad llevan a la respectiva pestaña, en lugar de al PDF.<br>
+                Se extendió el largo máximo del contenedor de posts.<br>
+                En el overlay de index de sesión el campo de usuario aparecía ligeramente desplazado hacia derecha.<br>
+                Se corrigieron faltas ortográficas en las pestañas de: versiones, Acerca De y Ayuda.
+            </p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.2.8</h2>
+            <p>
+                Mejoró la pestaña de Acerca de y agregó la pestaña de Ayuda y la pestaña de Términos y Condiciones.<br>
+                Añadió el botón para elegir si cargar los posts nuevos arriba o abajo. <br>
+                Solucionó un pequeño bug visual de la caja de escritura.
+            </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.2.7</h2>
+            <p>Se mejoró el buscador, ahora no se expande infinitamente, sino que tiene una barra deslizadora para los resultados.<br>
+                Ahora el contenedor de posts tiene un largo máximo, si los posts superan ese largo, les aparece una barra deslizadora; además, ahora se cargan por defecto debajo de todo.
+            </p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.2.6</h2>
+            <p>Se mejoró el logo, y ahora se muestra también en la pestaña del navegador.<br>
+            Se solucionó un pequeño bug visual en los botones del contenedor principal.
+            </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.2.5</h2>
+            <p>
+                En la descripción de los grupos, se muestra su dueño.<br>
+                Se solucionó el bug que hacía que se mostrara "Error: Cannot read properties of null (reading 'style')" como alerta, cada vez que un usuario sale de grupo.<br><br>
+                Se aumentó el tamaño máximo de los archivos:<br>
+                * 10MB para fotos y audios.<br>
+                * 20MB para videos.<br><br>
+                
+                Se añadió el símbolo de carga al publicar mensajes en foros, chats y grupos. Ahora el símbolo de carga no se mueve con la pantalla y se solucionó el bug que hacía que apareciera debajo del botón de menú en dispositivos móviles.
+            </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.2.4</h2>
+            <p>Se encontró y solucionó un bug que impedía entrar a un foro desde el buscador.<br>
+                Ahora los nombres de cada foro son únicos. En la descripción del foro, se muestra el dueño de este.
+            </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.2.3</h2>
+            <p>Se solucionó el bug que impedía usar el emoji triste en dispositivos móviles, cambiando la forma en la que se mostraba la hora de cada post.</p>
+        </div>
+       
+         <div class="version-box">
+            <h2>Versión 1.2.2</h2>
+            <p>Se solucionó el bug que impedía la carga de archivos, en foros, grupos y chats.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.2.1</h2>
+            <p>Ahora se recargan las listas de Foros, Grupos y usuarios cada vez que se hace una interacción.<br>
+                Ahora se recargan los posts cada vez que se reacciona.<br>
+                Ahora, si está seleccionado "Recordar mi sesión" en la pestaña de index de sesión, se iniciará sesión automáticamente. Se extendió el tiempo de recordar sesión a 1 semana.
+            </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.2</h2>
+            <p>La segunda gran actualización de Matesito. Esta agregó:<br>
+            Crear foros y la posibilidad de participar en ellos.<br>
+            Chats privados entre usuarios que se sigan mutuamente.<br>
+            Grupos de chat privados, accesibles mediante un código único.<br>
+            Los mensajes en grupos privados no son visibles entre usuarios que no se siguen mutuamente, aunque estén en el mismo grupo.<br>
+            Un menú en el header dedicado a interactuar con foros, usuarios y cargar el chat principal.<br>
+            Un buscador para encontrar usuarios y foros.<br>
+            La funcionalidad de seguir usuarios y foros.<br>
+            Reacciones con emojis a los posts.<br><br>
+            
+            Se cambió:<br>
+            Al hacer clic en el nombre de un usuario en cualquier post, aparecerá un submenú que permite ver los posts de solo ese usuario y seguirlo.<br>
+            Al hacer clic en el texto de cualquier post, se cargará solo ese post y no se verá afectado por la actualización de posts general.<br>
+            Se cambió la forma en la que funcionaban los botones de contenido sensible, recargar los posts y cargar todos los posts para adaptarlos a las funciones mencionadas anteriormente.<br>
+            El botón del logo de la página ahora redirecciona directamente a Matesito sin pasar por indexgv.html.<br>
+            Ya no se carga ningún post hasta que se inicie sesión.<br>
+            Se eliminó la recarga de 20 segundos. Ahora solo se recarga cuando se publica un nuevo post o mensaje, dependiendo si el usuario está en un foro, chat, grupo o el contenedor de posts general.<br>
+            Ahora hay un límite máximo de caracteres al crear el nombre de un usuario o foro.<br><br>
+            
+            Debido a los nuevos menús, se reforzó la lógica proveniente de la versión 1.1 que los manejaba.<br>
+            Se corrigieron faltas ortográficas en la pestaña de versiones.<br>
+            </p>
+        </div>
+
+        <div class="version-box">
+            <h2>Versión 1.1.9</h2>
+            <p>Añadió un círculo de carga mientras se suben los archivos de los posts a la base de datos.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.1.8</h2>
+            <p>Para la comodidad de los usuarios, se añadió que solo se carguen los últimos 12 posts y un botón para cargar todos los posts. <br> La fecha y hora de las publicaciones ahora están en la esquina superior derecha, porque en versiones de dispositivos móviles se veía mal.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.1.7</h2>
+            <p>Los posts ahora se cargan con su fecha y hora de publicación en su esquina inferior derecha.<br> Se mejoró el aspecto de los contenedores de los posts.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.1.6</h2>
+            <p>Ahora todas las publicaciones se recargan globalmente cada 20 segundos para todos los usuarios conectados.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.1.5</h2>
+            <p>Se solucionó un bug que a veces sucedía al recargar los posts cuando se publicaba un nuevo mensaje.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.1.4</h2>
+            <p>Se puso en funcionamiento una parte del código que estaba anulada; esta mejora la gestión del contenido sensible.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.1.3</h2>
+            <p>Agregó soporte para subir audios, se añadió un límite de 6 MB para audios e imágenes, y 10 MB para videos. Se mejoró la lógica de validación de archivos.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.1.2</h2>
+            <p>Solucionó el bug visual de la pestaña de versiones en dispositivos móviles que provenía de la versión 1.2.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.1.1</h2>
+            <p>Solucionó los nuevos bugs visuales en la pestaña de cuentas. <br> 
+                Solucionó un bug con el botón de mostrar contenido sensible.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.1</h2>
+            <p>La primera gran actualización de Matesito. Esta agregó:<br>
+            Fotos de perfil personalizadas.<br>
+            La posibilidad de postear imágenes y videos.<br>
+            Un filtro de contenido sensible.<br>
+            Un menú dedicado a la configuración de cuentas.<br>
+            Añadió un botón para cargar los nuevos posts cuando se quiera.<br><br>
+        
+            Se cambió:<br>
+            Las fotos de perfil ahora se ven a la izquierda del nombre de usuario en cada post.<br>
+            Ahora se puede ver lo que se escribe en el campo de contraseña en todos los menús.<br>
+            Cada vez que se publica algo, se recargan los posts localmente.<br>
+            Se actualizó la lista de palabras prohibidas y se removieron algunas, debido al nuevo filtro de contenido sensible.
+        
+            <br><br>
+            Se encontró y solucionó un bug proveniente de la versión 1.0
+            </p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.0.9</h2>
+            <p>Solucionó todos los bugs visuales de las versiones 1.0.x en dispositivos móviles.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.0.8</h2>
+            <p>Se mejoró el menú desplegable que se agregó en la versión anterior, y ahora el logo funciona como el botón de index.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.0.7</h2>
+            <p>Ahora el botón de usuario funciona como un menú desplegable, que contiene todas las opciones que anteriormente estaban en el header de la página. Esto se ha hecho para solucionar la mayoría de bugs en dispositivos móviles.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.0.6</h2>
+            <p>Se implementó una lista de palabras baneadas que será actualizada regularmente. Esto para evitar spam y contenido inapropiado en la plataforma.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.0.5</h2>
+            <p>Para la comodidad de los usuarios, se agregó una casilla de recordar sesión en la pestaña de sesión. También se añadió una casilla de aceptación de los Términos y Condiciones y Política de Privacidad en la pestaña de creación de cuentas.<br> Se inhabilitaron los botones de selección de archivos para prevenir bugs relacionados con la base de datos.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.0.4</h2>
+            <p>Se implementó un sistema que evita que los usuarios repitan una y otra vez el mismo post.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.0.3</h2>
+            <p>Añadió los Términos y Condiciones, así como también la Política de Privacidad.<br> Se cambió la página de index de "indexgv" a "index". Ahora "indexgv" se usa como un centro de redireccionamiento.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.0.2</h2>
+            <p>Solucionó algunos bugs visuales, agregó el listado de versiones y la función de redireccionar a la página de mantenimiento si así se requiriera.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.0.1</h2>
+            <p>Igual que la versión 1.0, pero con el error de seguridad corregido.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión 1.0</h2>
+            <p>La primera versión pública, con sistema de almacenamiento de datos y que permitía la interacción online.<br> Tenía un error grave de seguridad. Este permitía crear varias cuentas con nombres iguales. Fue rápidamente corregido, dando lugar a la versión 1.0.1.</p>
+        </div>
+        
+        <div class="version-box">
+            <h2>Versión Preliminar</h2>
+            <p>Esta versión fue el primer plasmado de la idea del proyecto. Solo funcionaba localmente en el navegador y no tenía ningún tipo de interacción con usuarios de otros dispositivos.</p>
+        </div>        
+</body>
+</html>

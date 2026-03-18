@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Información</title>
+    <link rel="stylesheet" href="extras.css">
+
+    <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+        <script src="utils.js"></script>
+</head>
+<body>
+
+    <div class="header">
+        <div class="left-section">
+            <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index.html'" style="cursor:pointer">
+        </div>
+        <div class="menu-toggle" onclick="toggleMenuExtras()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-buttons" id="navMenu">
+            <label for="index" class="button">Inicio</label>
+            <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
+
+            <label for="versiones" class="button">Versiones</label>
+            <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='versiones.html'">
+
+            <label for="acercade" class="button">Terminos</label>
+            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='Terminos.html'">
+
+            <label for="Ayuda" class="button">Ayuda</label>
+            <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
+        </div>
+    </div>
+
+    <div class="content content-informacion"  ">
+        <div class="version-box version-box-informacion">
+            <h1>Sobre Matesito...</h1>
+            <p>
+                Hola, me llamo Agustín Couette (Agustin8 para los amigos) y soy el creador y dueño de Matesito, recientemente FeFe (SquaredFe) se sumó al equipo para contribuir con un nuevo diseño de la pagina. Matesito surgió como una idea loca, un día simplemente pensé: "¿Será muy difícil hacer una red social?"
+                y acto seguido empecé a hacer una para responderme mi pregunta.<br>
+                Tengo que reconocer que fue mucho más difícil de lo que imaginaba. Pero, después de un largo tiempo, lo logré. Matesito es un proyecto al que le tengo un cariño especial, y aunque ahora mismo casi nadie lo conoce,
+                tengo la esperanza de que con el tiempo se forme una comunidad, aunque sea pequeña, que lo valore tanto como yo.<br>
+                Por ahora no tengo pensado dejar de actualizar Matesito, tengo muchas ideas que quiero implementar, y estoy emocionado por hacerlo. No sé si voy a poder hacer realidad todo, pero no lo pienso abandonar hasta que me sienta satisfecho.
+                <br><br>
+                Tengo un canal de difusión de WhatsApp en el que voy publicando novedades sobre Matesito, como las nuevas actualizaciones, avisos de mantenimiento y comunicados especiales. Puedes unirte al canal mediante este link o este código QR:<br>
+                <a href="https://whatsapp.com/channel/0029VauaHTO6xCSY8fonqp3q" 
+                    style="color: #ffffff; text-decoration: underline; cursor: pointer; display: block; text-align: center; margin-top: 10px;" 
+                    target="_blank">
+                    https://whatsapp.com/channel/0029VauaHTO6xCSY8fonqp3q
+                </a>
+                
+                <img src="resources/JPG/Qr.jpg" alt="Logo" style="border-radius: 15px; max-width: 100%; height: auto; display: block; margin: 25px auto;">
+                <br>
+                <h2>Matesito utiliza los siguientes servicios de terceros:</h2>
+                <h3>Cloudflare Tunnel:</h3> 
+                <p>
+                    Cloudflare Tunnel es un servicio que brinda la empresa Cloudflare, este servicio redirije todo el trafico que ingresa al dominio 
+                    "matesito.com.ar" a los servidores oficiales de Matesito.
+                </p>
+                <h3>Cloudinary:</h3>
+                <p>
+                    Es una empresa que brinda un servicio para almacenar archivos, es donde se guardan todas las fotos, videos y audios que 
+                    se suben en Matesito. Actualmente está funcionando con el plan gratuito.
+                </p>
+                <h3>MicroReact:</h3> 
+                <p>
+                    Es el sistema de reacciones de Matesito, es de código abierto y fue desarrollado por Tiago Rangel.<br>
+                    Matesito utiliza una versión modificada de MicroReact. Esta modificación consiste en simplemente funcionar con un contador
+                    interno de la API de Matesito, en lugar del contador de Jason Cameron, Abacus, con el que funcionaba originalmente. además
+                    se añadió una logica que recuerda la ultima reacción de cada usuario en cada post, así el usuario puede eliminar su reacción, o cambiarla.<br>
+                    Puedes ver la página oficial de MicroReact <a href="https://microreact.pages.dev" style="color: #9c0e31; text-decoration: underline; cursor: pointer;" target="_blank">aquí</a>.
+                </p><br><br>
+
+                <h2>Servicios de terceros que matesito alguna vez usó:</h2>
+                <h3>Render:</h3> 
+                <p>
+                    Render es una empresa que, entre otras cosas, brinda un muy buen alojamiento de servicios web. Es decir, 
+                    Matesito funcionba en sus servidores. También es donde estána alojada la base de datos 
+                    que guarda todos los textos que se suben en Matesito. Este servicio se dejó de usar en la version 1.2.16 donde se migraron a los servidores oficiales de matesito.
+                </p>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+/* Consolidated CSS for all HTML files */
+
+/* General styles */
+body {
+    font-family: "Instrument Sans", sans-serif;
+    background-color: #333;
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+}
+
+h1 {
+    margin: 0;
+}
+
+button {
+    background-color: #800020;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+button:hover {
+    background-color: #9b243f;
+}
+
+/* Generic button styles */
+.button {
+    background-color: #ffffff;
+    border: none;
+    color: #9b243f;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+@media (max-width: 510px) {
+    .button {
+        margin-top: 10px;
+        margin-left: 17px;
+    }
+}
+
+/* Header styles */
+.header {
+    background-color: #800020;
+    color: white;
+    padding: 32px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.left-section {
+    display: flex;
+    align-items: center;
+    gap: 0px;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 15px;
+    flex-grow: 1;
+    justify-content: center;
+    margin-left: -160px;
+}
+
+.nav-buttons button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.nav-buttons button:hover {
+    text-decoration: underline;
+}
+
+.right-section button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.right-section button:hover {
+    text-decoration: underline;
+}
+
+/* Content styles */
+.content {
+    margin: 20px auto;
+    max-width: 760px;
+    padding: 20px;
+    background-color: #262424;
+    color: #fffbfb;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.version-box {
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 16px;
+    width: 94.5%;
+    max-width: 800px;
+}
+
+.version-box h2 {
+    margin-top: 0;
+}
+
+.version-box p {
+    font-size: 19px;
+}

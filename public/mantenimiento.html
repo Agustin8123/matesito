@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mantenimiento en curso</title>
+    <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="extras.css">
+        <script src="utils.js"></script>
+</head>
+<body>
+
+    
+    <div class="header">
+        <div class="left-section">
+            <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index.html'" style="cursor:pointer">
+        </div>
+        <div class="menu-toggle" onclick="toggleMenuExtras()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-buttons" id="navMenu">
+            <label for="index" class="button">Inicio</label>
+            <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
+
+            <label for="versiones" class="button">Versiones</label>
+            <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='versiones.html'">
+
+                <label for="acercade" class="button">Terminos</label>
+            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='Terminos.html'">
+
+            <label for="Ayuda" class="button">Ayuda</label>
+            <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
+
+            <label for="informacion" class="button">Acerca De</label>
+            <input type="radio" id="informacion" name="nav" style="display:none;" onclick="location.href='informacion.html'">
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="version-box">
+            <p><b>Actualmente la página se encuentra en mantenimiento.<br><br> Por favor, vuelva más tarde.</b></p>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
