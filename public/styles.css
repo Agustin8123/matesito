@@ -357,9 +357,10 @@ body {
 
         /* Estilo de botón genérico */
         .button {
-            background-color: #ffffff;
+            background-color: #f0eded;
             border: none;
             color: #9b243f;
+            font-weight: bold;
             padding: 10px 20px;
             text-align: center;
             text-decoration: none;
@@ -728,8 +729,11 @@ body {
             position: relative;
             padding: 12px;
             /* margin-bottom: 15px; */
+            background-color: #3333337a;
+            backdrop-filter: blur(64px);
+            padding: 20px;
             border-radius: 16px;
-            background-color: #363636;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         
         .post-user-info, .username {
