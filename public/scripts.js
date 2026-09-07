@@ -717,6 +717,14 @@ function containsForbiddenWords(message) {
     return forbiddenWords.some(word => message.toLowerCase().includes(word.toLowerCase()));
 }
 
+function updatePostMediaButton(fileName = '') {
+    const button = document.getElementById('postMediaButton');
+    if (!button) return;
+    const label = button.querySelector('span');
+    if (label) label.textContent = fileName || 'Seleccionar archivo';
+    button.title = fileName || 'Seleccionar archivo';
+}
+
   function handleFileSelect(event) {
     selectedFile = event.target.files[0]; // Guardar el archivo seleccionado
     if (selectedFile) {
@@ -731,6 +739,7 @@ function containsForbiddenWords(message) {
             alert("Por favor, selecciona un archivo de tipo imagen, audio o video.");
             selectedFile = null;
             event.target.value = ''; // Restablecer la selección
+            updatePostMediaButton();
             return;
         }
 
@@ -742,8 +751,12 @@ function containsForbiddenWords(message) {
             alert("El archivo seleccionado excede el tamaño máximo permitido.");
             selectedFile = null;
             event.target.value = ''; // Restablecer la selección
+            updatePostMediaButton();
             return;
         }
+        updatePostMediaButton(selectedFile.name);
+    } else {
+        updatePostMediaButton();
     } 
 }
 
@@ -1063,6 +1076,7 @@ async function sendGroupMessage(groupId) {
             lastpostContent = data.content;
             document.getElementById('postMedia').value = '';
             selectedFile = null;
+            updatePostMediaButton();
             document.getElementById('loading').style.display = 'none';
             document.getElementById('postContent').value = '';
             alert('Tu post se ha enviado correctamente');
@@ -1084,6 +1098,7 @@ async function sendGroupMessage(groupId) {
             lastpostContent = data.content;
             document.getElementById('postContent').value = '';
             selectedFile = null;
+            updatePostMediaButton();
             alert('Tu post se ha enviado correctamente');
             togglePosts();
         })
