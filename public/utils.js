@@ -14,6 +14,7 @@ function hideMenus(...menuIds) {
 
 function toggleMenuExtras() {
             const navMenu = document.getElementById('navMenu');
+            if (!navMenu) return;
             navMenu.classList.toggle('open');
         }
 
@@ -21,6 +22,7 @@ function toggleMenuExtras() {
 
 function updateUserButton() {
 const userButton = document.querySelector('#userButton');
+if (!userButton) return;
 
 // Usar la imagen del usuario activo, o una predeterminada si no existe
 const userImage = users[activeUser] && users[activeUser].profileImage
@@ -28,7 +30,12 @@ const userImage = users[activeUser] && users[activeUser].profileImage
     : 'resources/SVG/default-avatar.svg'; // Imagen predeterminada
 
 // Configurar el botón con la imagen y el nombre del usuario
-userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
+userButton.replaceChildren();
+const image = document.createElement('img');
+image.src = userImage;
+image.alt = activeUser || 'Usuario';
+image.className = 'profile-pic-img';
+userButton.appendChild(image);
 }
 
 
@@ -48,10 +55,18 @@ function togglePasswordInput(inputId, toggleButtonId, openIcon = 'resources/PNG/
 
   if (passwordInput.type === 'password') {
     passwordInput.type = 'text';
-    toggleButton.innerHTML = `<img src="${openIcon}" alt="Ocultar Contraseña">`;
+    toggleButton.replaceChildren();
+    const image = document.createElement('img');
+    image.src = openIcon;
+    image.alt = 'Ocultar contraseña';
+    toggleButton.appendChild(image);
   } else {
     passwordInput.type = 'password';
-    toggleButton.innerHTML = `<img src="${closeIcon}" alt="Ver Contraseña">`;
+    toggleButton.replaceChildren();
+    const image = document.createElement('img');
+    image.src = closeIcon;
+    image.alt = 'Ver contraseña';
+    toggleButton.appendChild(image);
   }
 }
 
@@ -94,7 +109,7 @@ function activateUser(username) {
     const userDescriptionEl = document.getElementById('userDescription');
     if (userDescriptionEl) userDescriptionEl.value = users[username].description;
 
-    document.cookie = `userID=${data.id}; path=/;`;
+    document.cookie = `userID=${encodeURIComponent(data.id)}; path=/; SameSite=Lax`;
 
     const appContainer = document.getElementById('appContainer');
     if (appContainer) appContainer.style.display = 'block';
@@ -120,8 +135,22 @@ const profileImageInput = document.getElementById('profileImage');
 
         const previewURL = URL.createObjectURL(file);
 
-        userButton.innerHTML = `
-            <img src="${previewURL}" alt="${activeUser}" class="profile-pic-img">
-        `;
+        userButton.replaceChildren();
+        const image = document.createElement('img');
+        image.src = previewURL;
+        image.alt = activeUser || 'Usuario';
+        image.className = 'profile-pic-img';
+        userButton.appendChild(image);
     });
 });
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+}
+
+function safeDate(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleString();
+}

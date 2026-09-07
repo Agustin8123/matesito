@@ -37,10 +37,59 @@
         </div>
     </div>
 
-    <div class="content content-versiones"  ">
+    <div class="content content-versiones">
 
         <div class="version-box version-box-versiones">
-        <h2>Versión 1.2.22 (actual)</h2>
+        <h2>Versión 1.2.23 (actual)</h2>
+        <p>
+            SEGURIDAD DEL BACKEND:<br>
+            Se añadió autenticación real con JWT y cookies HttpOnly para proteger las sesiones.<br>
+            Se añadió el cierre de sesión mediante el endpoint <code>/logout</code> y se dejó de exponer el token JWT a JavaScript.<br>
+            Se protegieron publicaciones, mensajes, chats, grupos, foros, seguimientos, reacciones, perfiles y notificaciones contra suplantación de identidad.<br>
+            Se validan en el servidor los usuarios, IDs, textos, tipos de contenido, archivos multimedia y la propiedad de los recursos.<br>
+            Se añadió validación server-side de contenido sensible y palabras prohibidas para que no pueda saltarse desde la API.<br>
+            Se eliminaron las credenciales hardcodeadas del código y se centralizó la configuración sensible en variables de entorno.<br>
+            Se reemplazó <code>pg.Client</code> por <code>pg.Pool</code> para soportar concurrencia y recuperación de conexiones.<br>
+            Se corrigió la configuración de CORS de Express y Socket.IO, incluyendo credenciales y orígenes permitidos.<br>
+            Se corrigió el manejo de errores de Turnstile y se eliminó la dependencia de secretos de prueba en producción.<br>
+            Se corrigió el acceso a notificaciones para que solo pueda leerlas o marcarlas como leídas su propietario.<br>
+            Marcar una notificación como leída ahora actualiza <code>leido</code> en vez de borrarla.<br>
+            Se eliminó el código inalcanzable después de respuestas HTTP y se mejoraron los errores de rutas inexistentes.<br>
+            El catch-all ahora sanitiza el nombre de página y devuelve HTTP 404 correctamente.<br><br>
+
+            PROTECCIÓN DEL FRONTEND:<br>
+            Se eliminó el almacenamiento de contraseñas en cookies y cualquier codificación Base64 de credenciales.<br>
+            Se dejó de borrar accidentalmente la sesión <code>userID</code> durante la navegación normal.<br>
+            Se añadió escape de HTML para contenido dinámico de publicaciones, búsquedas, foros, grupos, perfiles y notificaciones.<br>
+            Se corrigieron referencias DOM inexistentes y se añadió tolerancia a elementos opcionales que no están presentes en todas las páginas.<br>
+            Se corrigió el error de <code>descriptionInput</code> al crear usuarios.<br>
+            Se eliminaron las definiciones duplicadas de <code>toggleVisibility</code> y <code>hideMenus</code>.<br>
+            Se aisló el último mensaje enviado por contexto para que foros, chats y grupos no se bloqueen entre sí.<br>
+            Se corrigió el ordenamiento de publicaciones para usar timestamps reales en vez de analizar fechas localizadas.<br>
+            Se corrigieron las notificaciones de mensajes para que no abran chats automáticamente durante cada actualización.<br>
+            Se corrigió el indicador y el refresco de notificaciones.<br>
+            Se corrigió la actualización del botón de usuario en páginas que no cargan la aplicación principal.<br>
+            Se corrigieron los reinicios y renderizados repetidos de Turnstile en login, registro y cuenta.<br>
+            Se corrigieron los toggles de contraseñas para que actualicen correctamente sus iconos y campos.<br>
+            Se corrigieron funciones duplicadas y referencias con mayúsculas/minúsculas incorrectas en grupos.<br>
+            Se corrigió el callback de carga de <code>Iniciogv.html</code>.<br><br>
+
+            HTML, NAVEGACIÓN Y VISUAL:<br>
+            Se corrigieron etiquetas HTML inválidas, atributos rotos, comillas sobrantes y contenedores mal cerrados.<br>
+            Se corrigió el enlace de descarga de la aplicación Android y se eliminó la doble barra de su URL.<br>
+            Se corrigió el texto <em>PRESENTADO</em> en la página de la aplicación.<br>
+            Se eliminaron IDs duplicados en la página de error.<br>
+            Se corrigieron enlaces y referencias de navegación entre las páginas públicas.<br>
+            Se añadieron protecciones <code>noopener noreferrer</code> a enlaces externos.<br>
+            Se validaron los parámetros visuales usados por MicroReact para evitar inyección mediante estilos dinámicos.<br>
+            Se preservaron y ajustaron los estilos de la publicación principal y sus botones para mejorar su presentación.<br>
+            Se verificó la estructura de las páginas públicas y la respuesta 404 de URLs inexistentes.<br>
+            Se validó la sintaxis de todo el JavaScript propio del proyecto.<br>
+        </p>
+        </div>
+
+        <div class="version-box version-box-versiones">
+        <h2>Versión 1.2.22</h2>
         <p>
            Se arreglaron todos los problemas de carga y publicación en chats, foros y grupos<br>
            Se removió el botón de Chat General debido a que ya no es nescesario por la nueva estructura de la página<br>
@@ -416,5 +465,6 @@
             <h2>Versión Preliminar</h2>
             <p>Esta versión fue el primer plasmado de la idea del proyecto. Solo funcionaba localmente en el navegador y no tenía ningún tipo de interacción con usuarios de otros dispositivos.</p>
         </div>        
+    </div>
 </body>
 </html>

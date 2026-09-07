@@ -343,18 +343,31 @@ body {
         }
 
 
-        button {
-            background-color: #ffffff;
-            color: rgb(0, 0, 0);
-            border: none;
-            padding: 8px;
-            border-radius: 24px;
-            cursor: pointer;
-            margin-top: 1px;
-        }
+
 
         button:hover {
-            background-color: #ffdae3; 
+            background-color: #ffdae3;
+        }
+
+        .buttonIcon {
+            width: 40px;
+            height: auto;
+            background-image: url("res/image.svg");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #88888800 !important;
+            border-radius: 0% !important;
+            border: none;
+            cursor: pointer;
+            color: transparent;
+        }
+
+        .buttonIcon h3 {
+            position: relative;
+            top: 1px;
+            left: 40px;
+            display: inline-block;
         }
 
         /* Estilo de botón genérico */

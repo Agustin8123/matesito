@@ -135,11 +135,11 @@
                 <input type="radio" id="Cerrar1" name="nav" style="display:none;" onclick="toggleRightMenu()">
             </div>
 
-            <img src="resources/SVG/search.svg" onclick="toggleSearch()" for="search" class="icone lupa" style="margin-left: 10px;margin-top: 0px;"></label>
+            <label for="search"><img src="resources/SVG/search.svg" onclick="toggleSearch()" class="icone lupa" style="margin-left: 10px;margin-top: 0px;" alt="Buscar"></label>
                 <input type="radio" id="search" name="nav" style="display:none;" onclick="toggleSearch()">
             <div id="SearchMenu" class="search-menu" style="display: none; left: 110px; top: 15px;">
                 <input type="text" id="searchInput" placeholder="Buscar..." oninput="searchMotor()" style="width: 223px;"></input> 
-                <div id="searchconteiner" class=".SearchContainer" class="foros-container">
+                <div id="searchconteiner" class="SearchContainer foros-container">
                     <!--las busquedas se renderizan aqui-->
                 </div>    
             </div>
@@ -195,20 +195,23 @@
     <div class="container" id="appContainer">
         <div class="post-box" id="postBox">
             <textarea id="postContent" rows="3" placeholder="¿Qué estás pensando?" inputmode="text" lang="es"></textarea>
-            <!-- Checkbox para marcar contenido sensible -->
-            <label>
+
+            <div class="contenedorBotones">
+                 <label>
                 <input type="checkbox" id="sensitiveContentCheckbox" style="margin-top: 15px;">
                 ¿Es contenido sensible?
             </label>
     
-            <!-- Botón para seleccionar un archivo -->
-            <button class="button" onclick="document.getElementById('postMedia').click();">
-                Seleccionar archivo
+           <button class="buttonIcon" onclick="document.getElementById('postMedia').click();">
+                <h3>Seleccionar archivo</h3>
             </button>
+
             <input id="postMedia" type="file" accept="image/*, video/*, audio/*" style="display:none;" onchange="handleFileSelect(event)">
-            
+
             <!-- Botón para enviar el post -->
             <button class="button" onclick="wherePost()">Cebar (publicar)</button>
+            </div>
+
         </div>
 
         <div class="profile-header" id="profileHeader" style="display:none;">

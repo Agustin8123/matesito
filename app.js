@@ -1,51 +1,79 @@
 const express = require('express');
 const { Server } = require('socket.io');
-const { Client } = require('pg');
+const { Pool } = require('pg');
 const bcryptjs = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
 const http = require('http');
 
 require('dotenv').config();
 const app = express();
-const port = 3000;
+app.disable('x-powered-by');
+const port = Number(process.env.PORT) || 3000;
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret && process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET es obligatorio en producción');
+}
+const authSecret = jwtSecret || 'development-only-change-me';
+const allowedOrigins = (process.env.CORS_ORIGINS || 'https://matesito.com.ar,http://localhost,capacitor://localhost')
+    .split(',').map(origin => origin.trim()).filter(Boolean);
+const corsOrigin = (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Origen no permitido'));
+};
 
-async function verifyTurnstile(token, ip) {
-    const resp = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-            secret: '0x4AAAAAACXaLHrb8QGTy-dXOm22xFBpYEA',
-            response: token,
-            remoteip: ip
-        })
-    });
-
-    const data = await resp.json();
-    return data.success;
+const poolConfig = process.env.DATABASE_URL
+    ? { connectionString: process.env.DATABASE_URL }
+    : {
+        host: process.env.DB_HOST || 'localhost',
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME || 'matesito_8s',
+        port: Number(process.env.DB_PORT) || 5432
+    };
+if (process.env.NODE_ENV === 'production') {
+    poolConfig.ssl = { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' };
 }
 
-app.use(express.json()); // Para recibir datos JSONdd
+async function verifyTurnstile(token, ip) {
+    if (!process.env.TURNSTILE_SECRET || !token) return false;
+    try {
+        const resp = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                secret: process.env.TURNSTILE_SECRET,
+                response: token,
+                remoteip: ip
+            }),
+            signal: AbortSignal.timeout(5000)
+        });
+        if (!resp.ok) return false;
+        const data = await resp.json();
+        return data.success === true;
+    } catch (error) {
+        console.error('Error verificando Turnstile:', error.message);
+        return false;
+    }
+}
+
+app.use(express.json({ limit: process.env.JSON_LIMIT || '1mb' }));
 
 app.use(cors({
-  origin: [
-    'https://matesito.com.ar',
-    'http://localhost',
-    'capacitor://localhost',
-    'credentials: true'
-  ],
+  origin: corsOrigin,
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-const db = new Client({
-    host: 'localhost', // Solo el host
-    user: 'root', // Usuario
-    password: 'agustin2', // Contraseña
-    database: 'matesito_8s', // Base de datos
-    port: 5432, // Puerto
-    ssl: { rejectUnauthorized: false } // Asegura conexión segura
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Referrer-Policy', 'same-origin');
+    next();
 });
+
+const db = new Pool(poolConfig);
 
 app.use('/scripts.js', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -55,9 +83,53 @@ app.use('/scripts.js', (req, res, next) => {
 });
 
 // Verificar conexión
-db.connect()
+db.query('SELECT 1')
   .then(() => console.log('Conexión a la base de datos PostgreSQL exitosa'))
   .catch(err => console.error('Error al conectar a la base de datos:', err));
+
+function getToken(req) {
+    const header = req.headers.authorization;
+    if (header && header.startsWith('Bearer ')) return header.slice(7);
+    const cookies = (req.headers.cookie || '').split(';').map(value => value.trim());
+    const authCookie = cookies.find(value => value.startsWith('auth_token='));
+    return authCookie ? decodeURIComponent(authCookie.slice('auth_token='.length)) : null;
+}
+
+function requireAuth(req, res, next) {
+    const token = getToken(req);
+    if (!token) return res.status(401).json({ error: 'Autenticación requerida' });
+    try {
+        req.user = jwt.verify(token, authSecret);
+        next();
+    } catch {
+        return res.status(401).json({ error: 'Sesión inválida o expirada' });
+    }
+
+    function setAuthCookie(res, token, maxAge = 7 * 24 * 60 * 60) {
+        const cookieParts = [
+            `auth_token=${encodeURIComponent(token)}`, 'HttpOnly', 'SameSite=Lax',
+            'Path=/', `Max-Age=${maxAge}`
+        ];
+        if (process.env.NODE_ENV === 'production') cookieParts.push('Secure');
+        res.setHeader('Set-Cookie', cookieParts.join('; '));
+    }
+}
+
+function sameUser(req, value) {
+    return value !== undefined && String(value) === String(req.user.id);
+}
+
+function validText(value, max) {
+    return typeof value === 'string' && value.trim().length > 0 && value.length <= max;
+}
+
+function validId(value) {
+    return /^\d+$/.test(String(value || ''));
+}
+
+function validNumericId(value) {
+    return validId(value) && Number(value) > 0 && Number.isSafeInteger(Number(value));
+}
 
 
  // Obtener la cantidad de reacciones
@@ -65,7 +137,7 @@ db.connect()
     const { id } = req.params;
     const reaction = req.query.reaction;
   
-    if (!reaction) {
+     if (!validNumericId(id) || !validText(reaction, 32)) {
       return res.status(400).json({ error: 'Reaction parameter is missing' });
     }
   
@@ -87,11 +159,11 @@ db.connect()
   
   // Actualizar el contador de reacciones
   // Ruta para obtener el número de reacciones
-  app.post('/hit/microreact--reactions/:id/:reaction', async (req, res) => {
+  app.post('/hit/microreact--reactions/:id/:reaction', requireAuth, async (req, res) => {
     const { id, reaction } = req.params;
     const userId = req.body.user_id; // Se debe recibir el user_id en el request
 
-    if (!userId) {
+    if (!validNumericId(id) || !/^[a-zA-Z0-9_-]{1,32}$/.test(reaction) || !validNumericId(userId) || !sameUser(req, userId)) {
         return res.status(400).json({ error: 'User ID is required' });
     }
 
@@ -144,6 +216,7 @@ db.connect()
 // Ruta para obtener todas las reacciones del post
 app.get('/get/microreact--reactionss/:id', async (req, res) => {
     const { id } = req.params;
+    if (!validNumericId(id)) return res.status(400).json({ error: 'ID inválido' });
   
     try {
         // Obtener todas las reacciones asociadas al post
@@ -190,6 +263,9 @@ app.get('/get/microreact--reactionss/:id', async (req, res) => {
 app.post('/users', async (req, res) => {
     const { username, password, profileImage, description, token } = req.body;
 
+    if (!validText(username, 25) || !validText(password, 128)) {
+        return res.status(400).json({ error: 'Usuario o contraseña inválidos' });
+    }
     const isHuman = await verifyTurnstile(token, req.ip);
     if (!isHuman) {
         return res.status(403).json({ error: 'Captcha inválido' });
@@ -198,59 +274,53 @@ app.post('/users', async (req, res) => {
     const hashedPassword = await bcryptjs.hash(password, 10);
 
     const query = 'INSERT INTO public.users (username, password, image, description) VALUES ($1, $2, $3, $4) RETURNING id';
-    db.query(query, [username, hashedPassword, profileImage || 'default-avatar.png', description || null], (err, result) => {
-        if (err) {
-            console.error("Error al insertar usuario:", err);
-            res.status(500).json({ error: 'Error al crear el usuario' });
-        } else {
-            const userId = result.rows[0].id;
-            res.status(201).json({ id: userId, username });
-        }
-    });
+    try {
+        const result = await db.query(query, [username.trim(), hashedPassword, profileImage || 'default-avatar.png',
+            validText(description, 1000) ? description.trim() : null]);
+        const userId = result.rows[0].id;
+        res.status(201).json({ id: userId, username: username.trim() });
+    } catch (err) {
+        console.error('Error al insertar usuario:', err);
+        res.status(err.code === '23505' ? 409 : 500).json({ error: 'Error al crear el usuario' });
+    }
 });
 
 // Iniciar sesión con un usuario existente
 app.post('/login', async (req, res) => {
     const { username, password, token } = req.body;
 
+    if (!validText(username, 25) || !validText(password, 128)) {
+        return res.status(400).json({ error: 'Credenciales inválidas' });
+    }
     const isHuman = await verifyTurnstile(token, req.ip);
     if (!isHuman) {
         return res.status(403).json('Captcha inválido');
     }
 
-    const query = 'SELECT * FROM public.users WHERE username = $1';
-    db.query(query, [username], async (err, results) => {
-        if (err) {
-            console.error('Error al buscar el usuario:', err);
-            return res.status(500).json('Error al buscar el usuario');
+    try {
+        const results = await db.query('SELECT id, username, password FROM public.users WHERE username = $1', [username.trim()]);
+        if (!results.rows.length || !(await bcryptjs.compare(password, results.rows[0].password))) {
+            return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
         }
-
-        console.log('Resultados de la consulta:', results);
-        if (results.rows && results.rows.length > 0) {
-            const user = results.rows[0];
-            const isValidPassword = await bcryptjs.compare(password, user.password);
-
-            if (isValidPassword) {
-                console.log('Login exitoso para usuario:', username);
-                return res.status(200).json({ username: user.username });
-            } else {
-                console.log('Contraseña incorrecta para usuario:', username);
-                return res.status(401).json('Usuario o contraseña incorrectos');
-            }
-        } else {
-            console.log('Usuario no encontrado:', username);
-            return res.status(404).json('Usuario no encontrado');
-        }
-    });
+        const user = results.rows[0];
+        const authToken = jwt.sign({ id: user.id, username: user.username }, authSecret, { expiresIn: '7d' });
+        setAuthCookie(res, authToken);
+        return res.status(200).json({ id: user.id, username: user.username });
+    } catch (err) {
+        console.error('Error al buscar el usuario:', err);
+        return res.status(500).json({ error: 'Error al buscar el usuario' });
+    }
 });
 ;
 
 // Crear un nuevo post
-app.post('/posts', (req, res) => {
+app.post('/posts', requireAuth, (req, res) => {
     const { username, content, media, mediaType, sensitive } = req.body;
 
     // Verifica si el usuario y el contenido están presentes
-    if (!username || !content) {
+    if (username !== req.user.username || !validText(content, 10000) ||
+        (media !== undefined && media !== null && !validText(media, 2000000)) ||
+        (mediaType !== undefined && mediaType !== null && !validText(mediaType, 100))) {
         return res.status(400).json('Faltan datos requeridos');
     }
 
@@ -266,7 +336,10 @@ app.post('/posts', (req, res) => {
             return res.status(400).json('No puedes enviar el mismo post que el anterior.');
         }
 
-        const isSensitive = !!sensitive; // Convierte cualquier valor "truthy" en true, y "falsy" en false
+        if (sensitive !== undefined && typeof sensitive !== 'boolean') {
+            return res.status(400).json('El campo sensitive debe ser booleano');
+        }
+        const isSensitive = sensitive === true;
         const query = `
         INSERT INTO posts (username, content, media, mediatype, sensitive, created_at) 
         VALUES ($1, $2, $3, $4, $5, $6) 
@@ -285,11 +358,30 @@ app.post('/posts', (req, res) => {
     });
 });
 
-app.post('/mensajes/:forumId', async (req, res) => {
+app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
     const { forumId } = req.params;
     const { content, sensitive, sender_id, created_at, media, mediaType, is_private } = req.body;
 
+    if (!validId(forumId) || !sameUser(req, sender_id) || !validText(content, 10000) ||
+        (sensitive !== undefined && typeof sensitive !== 'boolean') ||
+        (is_private !== undefined && typeof is_private !== 'boolean')) {
+        return res.status(400).json({ error: 'Contenido o remitente inválido' });
+    }
     try {
+        const numericForumId = Number(forumId);
+        if (is_private) {
+            const chat = await db.query(
+                'SELECT 1 FROM chats WHERE id = $1 AND (user1_id = $2 OR user2_id = $2)',
+                [numericForumId, req.user.id]
+            );
+            if (!chat.rows.length) return res.status(403).json({ error: 'Acceso denegado' });
+        } else {
+            const participant = await db.query(
+                'SELECT 1 FROM participantes WHERE forum_or_group_id = $1 AND user_id = $2 AND is_group = FALSE',
+                [numericForumId, req.user.id]
+            );
+            if (!participant.rows.length) return res.status(403).json({ error: 'Acceso denegado' });
+        }
         // Crear el ID del foro con prefijo
         const formattedForumId = is_private ? `C-${forumId}` : `F-${forumId}`;
 
@@ -298,7 +390,7 @@ app.post('/mensajes/:forumId', async (req, res) => {
             `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
              RETURNING id, chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private`,
-            [formattedForumId, content, sensitive, sender_id, created_at, media, mediaType, is_private]
+            [formattedForumId, content, sensitive === true, sender_id, new Date(), media, mediaType, is_private === true]
         );
 
         const mensaje = result.rows[0];
@@ -348,12 +440,24 @@ app.post('/mensajes/:forumId', async (req, res) => {
 });
 
 
-app.get('/mensajes/:forumId', async (req, res) => {
+app.get('/mensajes/:forumId', requireAuth, async (req, res) => {
     const { forumId } = req.params;
     const isPrivate = req.query.private === 'true'; // opcional, según cómo lo llames desde frontend
-    const formattedId = isPrivate ? `C-${forumId}` : `F-${forumId}`;
-
+    if (!validNumericId(forumId)) return res.status(400).json({ error: 'ID inválido' });
     try {
+        if (isPrivate) {
+            const chat = await db.query(
+                'SELECT 1 FROM chats WHERE id = $1 AND (user1_id = $2 OR user2_id = $2)',
+                [forumId, req.user.id]
+            );
+            if (!chat.rows.length) return res.status(403).json({ error: 'Acceso denegado' });
+        } else {
+            // Los foros son legibles por cualquier usuario autenticado; los chats
+            // privados se restringen al participante anterior.
+            const forum = await db.query('SELECT 1 FROM foros WHERE id = $1', [forumId]);
+            if (!forum.rows.length) return res.status(404).json({ error: 'Foro no encontrado' });
+        }
+        const formattedId = isPrivate ? `C-${forumId}` : `F-${forumId}`;
         const result = await db.query(
             `SELECT 
                 m.id,
@@ -479,10 +583,10 @@ app.post('/getUserDetails', (req, res) => {
     });
 });
 
-app.put('/updateProfileImage', (req, res) => {
+app.put('/updateProfileImage', requireAuth, (req, res) => {
     const { username, profileImage } = req.body;
 
-    if (!username || !profileImage) {
+    if (username !== req.user.username || !validText(profileImage, 2000000)) {
         return res.status(400).json({ error: 'Datos incompletos' });
     }
 
@@ -501,10 +605,10 @@ app.put('/updateProfileImage', (req, res) => {
     });
 });
 
-app.put('/updateDescription', (req, res) => {
+app.put('/updateDescription', requireAuth, (req, res) => {
     const { username, description } = req.body;
 
-    if (!username || !description) {
+    if (username !== req.user.username || !validText(description, 1000)) {
         return res.status(400).json({ success: false, message: 'Faltan datos.' });
     }
 
@@ -524,21 +628,30 @@ app.put('/updateDescription', (req, res) => {
 });
 
 // Ruta para actualizar el nombre de usuario
-app.put('/updateUsername', (req, res) => {
+app.put('/updateUsername', requireAuth, (req, res) => {
     const { currentUsername, newUsername } = req.body;
 
-    if (!currentUsername || !newUsername) {
+    if (currentUsername !== req.user.username || !validText(newUsername, 25)) {
         return res.status(400).json({ error: 'Datos incompletos' });
     }
 
-    const query = 'UPDATE public.users SET username = $1 WHERE username = $2';
-    db.query(query, [newUsername, currentUsername], (err, result) => {
+    const normalizedUsername = newUsername.trim();
+    if (!validText(normalizedUsername, 25)) {
+        return res.status(400).json({ error: 'Nombre de usuario inválido' });
+    }
+    const query = 'UPDATE public.users SET username = $1 WHERE id = $2';
+    db.query(query, [normalizedUsername, req.user.id], (err, result) => {
         if (err) {
             console.error('Error al actualizar el nombre de usuario:', err);
-            return res.status(500).json({ error: 'Error al actualizar el nombre de usuario' });
+            return res.status(err.code === '23505' ? 409 : 500).json({ error: 'Error al actualizar el nombre de usuario' });
         }
 
         if (result.rowCount > 0) {
+            setAuthCookie(res, jwt.sign(
+                { id: req.user.id, username: normalizedUsername },
+                authSecret,
+                { expiresIn: '7d' }
+            ));
             res.status(200).json({ success: true, message: 'Nombre de usuario actualizado con éxito' });
         } else {
             res.status(404).json({ success: false, message: 'Usuario no encontrado' });
@@ -547,10 +660,10 @@ app.put('/updateUsername', (req, res) => {
 });
 
 // Ruta para actualizar la contraseña
-app.put('/updatePassword', async (req, res) => {
+app.put('/updatePassword', requireAuth, async (req, res) => {
     const { username, currentPassword, newPassword } = req.body;
 
-    if (!username || !currentPassword || !newPassword) {
+    if (username !== req.user.username || !validText(currentPassword, 128) || !validText(newPassword, 128)) {
         return res.status(400).json({ error: 'Datos incompletos' });
     }
 
@@ -590,10 +703,10 @@ app.put('/updatePassword', async (req, res) => {
 });
 
 // Crear un foro
-app.post('/foros', (req, res) => {
+app.post('/foros', requireAuth, (req, res) => {
     const { name, description, ownerId } = req.body;
 
-    if (!name || !description || !ownerId) {
+    if (!validText(name, 120) || !validText(description, 2000) || !sameUser(req, ownerId)) {
         return res.status(400).json({ error: 'Datos incompletos' });
     }
 
@@ -649,11 +762,11 @@ app.get('/foros', (req, res) => {
     });
 });
 
-app.post('/grupos', async (req, res) => {
+app.post('/grupos', requireAuth, async (req, res) => {
     const { name, description, ownerId } = req.body;
 
     // Validar que los campos requeridos estén presentes
-    if (!name || !description || !ownerId) {
+    if (!validText(name, 120) || !validText(description, 2000) || !sameUser(req, ownerId)) {
         return res.status(400).json('Datos incompletos');
     }
 
@@ -700,11 +813,11 @@ app.post('/grupos', async (req, res) => {
     }
 });
 
-app.get('/grupos-creados/:ownerId', async (req, res) => {
+app.get('/grupos-creados/:ownerId', requireAuth, async (req, res) => {
     const { ownerId } = req.params;
 
     // Validar que se haya proporcionado el ID del propietario
-    if (!ownerId) {
+    if (!validNumericId(ownerId) || !sameUser(req, ownerId)) {
         return res.status(400).json({ error: 'El ID del propietario es requerido' });
     }
 
@@ -725,11 +838,11 @@ app.get('/grupos-creados/:ownerId', async (req, res) => {
     }
 });
 
-app.delete('/grupo/:groupId/:ownerId', async (req, res) => {
+app.delete('/grupo/:groupId/:ownerId', requireAuth, async (req, res) => {
     const { groupId, ownerId } = req.params;
 
     // Validar que el ID del propietario y del grupo estén presentes
-    if (!groupId || !ownerId) {
+    if (!validId(groupId) || !sameUser(req, ownerId)) {
         return res.status(400).json({ error: 'El ID del grupo y el propietario son requeridos' });
     }
 
@@ -750,11 +863,10 @@ app.delete('/grupo/:groupId/:ownerId', async (req, res) => {
             return res.status(403).json({ error: 'No tienes permisos para eliminar este grupo' });
         }
 
-        // Eliminar el grupo
-        await db.query('DELETE FROM grupos WHERE id = $1', [groupId]);
-
         // Eliminar los participantes asociados al grupo
         await db.query('DELETE FROM participantes WHERE forum_or_group_id = $1 AND is_group = TRUE', [groupId]);
+        // Eliminar el grupo después de sus referencias dependientes.
+        await db.query('DELETE FROM grupos WHERE id = $1', [groupId]);
 
         res.status(200).json({ message: 'Grupo eliminado correctamente' });
     } catch (error) {
@@ -763,11 +875,11 @@ app.delete('/grupo/:groupId/:ownerId', async (req, res) => {
     }
 });
 
-app.post('/unir-grupo', async (req, res) => {
+app.post('/unir-grupo', requireAuth, async (req, res) => {
     const { inviteCode, userId } = req.body;
 
     // Validar que se envíen todos los datos necesarios
-    if (!inviteCode || !userId) {
+    if (!validText(inviteCode, 32) || !sameUser(req, userId)) {
         return res.status(400).json({ error: 'Código de invitación y userId son requeridos' });
     }
 
@@ -815,11 +927,11 @@ app.post('/unir-grupo', async (req, res) => {
     }
 });
 
-app.delete('/salir-grupo', async (req, res) => {
+app.delete('/salir-grupo', requireAuth, async (req, res) => {
     const { groupId, userId } = req.body;
 
     // Validar que se envíen todos los datos necesarios
-    if (!groupId || !userId) {
+    if (!validId(groupId) || !sameUser(req, userId)) {
         return res.status(400).json({ error: 'El ID del grupo y el ID del usuario son requeridos' });
     }
 
@@ -848,10 +960,10 @@ app.delete('/salir-grupo', async (req, res) => {
     }
 });
 
-app.get('/grupos-usuario/:userId', async (req, res) => {
+app.get('/grupos-usuario/:userId', requireAuth, async (req, res) => {
     const { userId } = req.params;
 
-    if (!userId) {
+    if (!validNumericId(userId) || !sameUser(req, userId)) {
         return res.status(400).json({ error: 'El ID del usuario es requerido' });
     }
 
@@ -878,6 +990,7 @@ app.get('/grupos-usuario/:userId', async (req, res) => {
 // Ruta para obtener los detalles de un grupo por su ID
 app.get('/grupo/:id', async (req, res) => {
     const groupId = req.params.id;
+    if (!validNumericId(groupId)) return res.status(400).json({ error: 'ID inválido' });
 
     try {
         // Consulta para obtener los detalles del grupo por ID
@@ -896,10 +1009,10 @@ app.get('/grupo/:id', async (req, res) => {
     }
 });
 
-app.get('/userCreatedForums/:userId', (req, res) => {
+app.get('/userCreatedForums/:userId', requireAuth, (req, res) => {
     const userId = req.params.userId;
 
-    if (!userId) {
+    if (!validNumericId(userId) || !sameUser(req, userId)) {
         return res.status(400).json('ID de usuario no proporcionado');
     }
 
@@ -914,11 +1027,11 @@ app.get('/userCreatedForums/:userId', (req, res) => {
     });
 });
 
-app.delete('/foros/:forumId', (req, res) => {
+app.delete('/foros/:forumId', requireAuth, (req, res) => {
     const forumId = req.params.forumId;
     const { userId } = req.body; // El usuario que intenta eliminar el foro
 
-    if (!forumId || !userId) {
+    if (!validId(forumId) || !sameUser(req, userId)) {
         return res.status(400).json('Datos incompletos');
     }
 
@@ -930,7 +1043,7 @@ app.delete('/foros/:forumId', (req, res) => {
             return res.status(500).json('Error al verificar el foro');
         }
 
-        if (result.rows.length === 0 || result.rows[0].owner_id !== userId) {
+        if (result.rows.length === 0 || String(result.rows[0].owner_id) !== String(userId)) {
             return res.status(403).json('No tienes permiso para eliminar este foro');
         }
 
@@ -948,10 +1061,10 @@ app.delete('/foros/:forumId', (req, res) => {
     });
 });
 
-app.post('/joinForum', (req, res) => {
+app.post('/joinForum', requireAuth, (req, res) => {
     const { userId, forumId } = req.body;
 
-    if (!userId || !forumId) {
+    if (!validId(forumId) || !sameUser(req, userId)) {
         return res.status(400).json({ message: 'Datos incompletos' }); // Mensaje claro
     }
 
@@ -979,10 +1092,10 @@ app.post('/joinForum', (req, res) => {
     });
 });
 
-app.post('/leaveForum', (req, res) => {
+app.post('/leaveForum', requireAuth, (req, res) => {
     const { userId, forumId } = req.body;
 
-    if (!userId || !forumId) {
+    if (!validId(forumId) || !sameUser(req, userId)) {
         return res.status(400).json({ message: 'Datos incompletos' }); // Mensaje claro
     }
 
@@ -1010,10 +1123,10 @@ app.post('/leaveForum', (req, res) => {
     });
 });
 
-app.get('/userForums/:userId', (req, res) => {
+app.get('/userForums/:userId', requireAuth, (req, res) => {
     const { userId } = req.params;
 
-    if (!userId) {
+    if (!validNumericId(userId) || !sameUser(req, userId)) {
         return res.status(400).json('ID de usuario no proporcionado');
     }
 
@@ -1036,10 +1149,11 @@ app.get('/userForums/:userId', (req, res) => {
 });
 
 // Seguir un usuario
-app.post('/followUser', (req, res) => {
+app.post('/followUser', requireAuth, (req, res) => {
     const { followerId, followedId } = req.body;
 
-    if (!followerId || !followedId) {
+    if (!validNumericId(followedId) || !validNumericId(followerId) ||
+        !sameUser(req, followerId) || String(followerId) === String(followedId)) {
         return res.status(400).json({ message: 'Datos incompletos' });
     }
 
@@ -1067,10 +1181,10 @@ app.post('/followUser', (req, res) => {
     });
 });
 
-app.get('/followedUsers/:followerId', (req, res) => {
+app.get('/followedUsers/:followerId', requireAuth, (req, res) => {
     const { followerId } = req.params;
 
-    if (!followerId) {
+    if (!validNumericId(followerId) || !sameUser(req, followerId)) {
         return res.status(400).json('ID de usuario no proporcionado');
     }
 
@@ -1091,10 +1205,10 @@ app.get('/followedUsers/:followerId', (req, res) => {
     });
 });
 
-app.post('/unfollowUser', (req, res) => {
+app.post('/unfollowUser', requireAuth, (req, res) => {
     const { followerId, followedId } = req.body;
 
-    if (!followerId || !followedId) {
+    if (!validNumericId(followedId) || !validNumericId(followerId) || !sameUser(req, followerId)) {
         return res.status(400).json({ message: 'Datos incompletos' });
     }
 
@@ -1184,10 +1298,11 @@ app.get('/search', (req, res) => {
 });
 
 // Crear un chat privado
-app.post('/createOrLoadPrivateChat', (req, res) => {
+app.post('/createOrLoadPrivateChat', requireAuth, (req, res) => {
     const { user1Id, user2Id } = req.body;
 
-    if (!user1Id || !user2Id) {
+    if (!validNumericId(user2Id) || !validNumericId(user1Id) ||
+        !sameUser(req, user1Id) || String(user1Id) === String(user2Id)) {
         return res.status(400).json({ error: 'Datos incompletos' });
     }
 
@@ -1246,11 +1361,18 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
     });
 });
 
-  app.get('/chat/messages/:chatId', async (req, res) => {
+  app.get('/chat/messages/:chatId', requireAuth, async (req, res) => {
     const { chatId } = req.params;
+      if (!validNumericId(chatId)) return res.status(400).json({ error: 'ID inválido' });
+      const formattedChatId = `C-${chatId}`;
 
-    try {
-        const result = await db.query(
+      try {
+          const chat = await db.query(
+              'SELECT 1 FROM chats WHERE id = $1 AND (user1_id = $2 OR user2_id = $2)',
+              [chatId, req.user.id]
+          );
+          if (!chat.rows.length) return res.status(403).json({ error: 'Acceso denegado' });
+          const result = await db.query(
             `SELECT 
                 m.id,
                 m.chat_or_group_id, 
@@ -1267,7 +1389,7 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
             INNER JOIN users u ON m.sender_id = u.id
             WHERE m.chat_or_group_id = $1
             ORDER BY m.created_at ASC`,
-            [chatId]
+            [formattedChatId]
         );
 
         res.status(200).json(result.rows);
@@ -1277,14 +1399,22 @@ app.post('/createOrLoadPrivateChat', (req, res) => {
     }
 });
 
-app.get('/group/messages/:groupId/:userId', async (req, res) => {
+app.get('/group/messages/:groupId/:userId', requireAuth, async (req, res) => {
     const { groupId, userId } = req.params;
     
     // IMPORTANTE: Formatear el ID igual que en el POST
     const formattedGroupId = `G-${groupId}`; 
     const numericUserId = parseInt(userId, 10);
+    if (!validId(groupId) || !sameUser(req, numericUserId)) {
+        return res.status(403).json({ error: 'No tienes permiso para ver este grupo' });
+    }
 
     try {
+        const membership = await db.query(
+            'SELECT 1 FROM participantes WHERE forum_or_group_id = $1 AND user_id = $2 AND is_group = TRUE',
+            [groupId, numericUserId]
+        );
+        if (!membership.rows.length) return res.status(403).json({ error: 'No perteneces a este grupo' });
         const result = await db.query(
             `SELECT 
                 m.id,
@@ -1329,10 +1459,16 @@ app.get('/group/messages/:groupId/:userId', async (req, res) => {
     }
 });
 
-app.post('/group/messages/:groupId', async (req, res) => {
+app.post('/group/messages/:groupId', requireAuth, async (req, res) => {
     const { groupId } = req.params;
     const { content, sensitive, sender_id, media, mediaType } = req.body;
 
+    if (!validId(groupId) || !sameUser(req, sender_id) || !validText(content, 10000) ||
+        (sensitive !== undefined && typeof sensitive !== 'boolean') ||
+        (media !== undefined && media !== null && !validText(media, 2000000)) ||
+        (mediaType !== undefined && mediaType !== null && !validText(mediaType, 100))) {
+        return res.status(400).json({ error: 'Contenido o remitente inválido' });
+    }
     try {
         const isParticipant = await db.query(
             `SELECT COUNT(*) 
@@ -1353,7 +1489,7 @@ app.post('/group/messages/:groupId', async (req, res) => {
             `INSERT INTO mensajes (chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at)
              VALUES ($1, $2, $3, $4, $5, $6, FALSE, NOW())
              RETURNING id, chat_or_group_id, content, sensitive, sender_id, media, media_type, created_at`,
-            [formattedGroupId, sender_id, content, sensitive, media, mediaType]
+            [formattedGroupId, sender_id, content, sensitive === true, media, mediaType]
         );
 
         const mensaje = result.rows[0];
@@ -1377,8 +1513,9 @@ app.post('/group/messages/:groupId', async (req, res) => {
     }
 });
 
-app.get('/notificaciones/:user_id', async (req, res) => {
+app.get('/notificaciones/:user_id', requireAuth, async (req, res) => {
     const { user_id } = req.params;
+    if (!sameUser(req, user_id)) return res.status(403).json({ error: 'Acceso denegado' });
 
     try {
         const notificaciones = await db.query(
@@ -1439,18 +1576,18 @@ app.get('/notificaciones/:user_id', async (req, res) => {
 });
 
 
-app.put('/notificaciones/:user_id/leer', async (req, res) => {
+app.put('/notificaciones/:user_id/leer', requireAuth, async (req, res) => {
     const { user_id } = req.params;
     const { id } = req.body; // Cambié referencia_id por id
+    if (!sameUser(req, user_id)) return res.status(403).json({ error: 'Acceso denegado' });
     try {
-        await db.query(
-            `DELETE FROM notificaciones WHERE user_id = $1 AND id = $2;`,
-            [user_id, id]
-        );
-        res.json({ message: 'Notificación eliminada.' });
+        const result = id
+            ? await db.query('UPDATE notificaciones SET leido = TRUE WHERE user_id = $1 AND id = $2', [user_id, id])
+            : await db.query('UPDATE notificaciones SET leido = TRUE WHERE user_id = $1', [user_id]);
+        res.json({ message: 'Notificación marcada como leída.', updated: result.rowCount });
     } catch (error) {
-        console.error('Error al eliminar notificación:', error);
-        res.status(500).json({ error: 'Error al eliminar notificación' });
+        console.error('Error al marcar notificación:', error);
+        res.status(500).json({ error: 'Error al marcar notificación' });
     }
 });
 
@@ -1465,13 +1602,11 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 app.get('/:page?', (req, res) => {
-    let page = req.params.page || 'index'; // Si no hay parámetro, usar 'index'
-    let filePath = path.join(__dirname, 'public', `${page}.html`);
-
-    res.sendFile(filePath, (err) => {
-        if (err) {
-            res.sendFile(path.join(__dirname, 'public', 'error.html')); // Si no existe, cargar error.html
-        }
+    const page = req.params.page || 'index';
+    if (!/^[a-zA-Z0-9_-]+$/.test(page)) return res.status(404).sendFile(path.join(__dirname, 'public', 'error.html'));
+    const filePath = path.join(__dirname, 'public', `${page}.html`);
+    res.sendFile(filePath, err => {
+        if (err) res.status(404).sendFile(path.join(__dirname, 'public', 'error.html'));
     });
 });
 
@@ -1480,7 +1615,7 @@ const server = http.createServer(app);
 
 // Inicializar Socket.IO en el servidor
 const io = new Server(server, {
-    cors: { origin: "*" }
+    cors: { origin: corsOrigin, credentials: true }
 });
 
 // Cuando un cliente se conecta
@@ -1493,7 +1628,32 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Un cliente se ha desconectado');
   });
+
 });
+
+io.use((socket, next) => {
+    const token = socket.handshake.auth && socket.handshake.auth.token;
+    if (!token) return next();
+    try {
+        socket.user = jwt.verify(token, authSecret);
+        next();
+    } catch {
+        next(new Error('Sesión inválida'));
+    }
+});
+
+app.post('/logout', (req, res) => {
+    setAuthCookie(res, '', 0);
+    res.status(204).end();
+});
+
+app.use((req, res) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/get') || req.path.startsWith('/hit')) {
+        return res.status(404).json({ error: 'Recurso no encontrado' });
+    }
+    res.status(404).sendFile(path.join(__dirname, 'public', 'error.html'));
+});
+
 server.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
 });

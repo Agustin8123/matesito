@@ -21,16 +21,27 @@ const userID = getUserID();
 // URL PARAMS
 // ================================
 const params = new URLSearchParams(window.location.search);
+const decodeParam = value => {
+  try {
+    return decodeURIComponent(value || "");
+  } catch {
+    return "";
+  }
+};
 const id = params.get("id");
 
 const reactions = (params.get("reactions") || "12345").split("");
 const allowMultiple = !!Number(params.get("allowMultiple") || 0);
-const textColor = decodeURIComponent(params.get("textColor") || "") || false;
-const bgColor = decodeURIComponent(params.get("bgColor") || "") || false;
-const font = decodeURIComponent(params.get("font") || "") || false;
+const textColor = decodeParam(params.get("textColor")).trim() || false;
+const bgColor = decodeParam(params.get("bgColor")).trim() || false;
+const font = decodeParam(params.get("font")).trim() || false;
 
 const API_BASE =
-  decodeURIComponent(params.get("api_base") || "") || "matesito.com.ar";
+  decodeParam(params.get("api_base")).trim() || "matesito.com.ar";
+
+// Only accept CSS values that cannot terminate a declaration or inject rules.
+const safeColor = value => /^(#[0-9a-f]{3,8}|(?:rgb|hsl)a?\([\d\s,.%+-]+\)|[a-z]+)$/i.test(value) ? value : false;
+const safeFont = value => /^[a-z0-9 ,"'-]+$/i.test(value) ? value : false;
 
 // ================================
 // VALIDACIÓN ID
@@ -156,9 +167,12 @@ if (typeof socket !== "undefined") {
 // ================================
 let css = "";
 
-if (textColor) css += `* { color: ${textColor} !important }\n`;
-if (bgColor) css += `body { background-color: ${bgColor} !important }\n`;
-if (font) css += `* { font-family: ${font} !important }\n`;
+const validTextColor = safeColor(textColor);
+const validBgColor = safeColor(bgColor);
+const validFont = safeFont(font);
+if (validTextColor) css += `* { color: ${validTextColor} !important }\n`;
+if (validBgColor) css += `body { background-color: ${validBgColor} !important }\n`;
+if (validFont) css += `* { font-family: ${validFont} !important }\n`;
 
 if (css) {
   const style = document.createElement("style");

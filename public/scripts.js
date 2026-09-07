@@ -4,6 +4,7 @@ let activeForum = 0;
 let activeChat = '';
 let activeGroup = '';
 let activeMenuId = '';
+let currentProfileUsername = '';
 
 const forumList = 'forumList';
 const postList = 'postList';
@@ -39,31 +40,14 @@ function closeSesion() {
     activeUser = '';
 
     updateUserButton();
+    fetch('/logout', { method: 'POST', credentials: 'same-origin' }).catch(error => {
+        console.error('Error al cerrar la sesión:', error);
+    });
     document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    document.cookie = `password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 }
 
 // Función para ocultar múltiples menús
 function HideMenus(...menuIds) {
-    menuIds.forEach(menuId => {
-        const menu = document.getElementById(menuId);
-        if (menu && menu.style.display !== 'none') {
-            menu.style.display = 'none';
-        }
-    });
-}
-
-function toggleVisibility(elementId, displayType = 'block') {
-    const element = document.getElementById(elementId);
-    if (element) {
-        // Alternar entre 'block' y 'none'
-        element.style.display = (element.style.display === displayType) ? 'none' : displayType;
-    } else {
-        console.error(`No se encontró el elemento con id "${elementId}".`);
-    }
-}
-
-function hideMenus(...menuIds) {
     menuIds.forEach(menuId => {
         const menu = document.getElementById(menuId);
         if (menu && menu.style.display !== 'none') {
@@ -94,6 +78,7 @@ function showOnlyMenu(activeId) {
 
 function updateUserButton() {
 const userButton = document.querySelector('#userButton');
+if (!userButton) return;
 
 // Usar la imagen del usuario activo, o una predeterminada si no existe
 const userImage = users[activeUser] && users[activeUser].profileImage
@@ -101,7 +86,12 @@ const userImage = users[activeUser] && users[activeUser].profileImage
     : 'resources/SVG/default-avatar.svg'; // Imagen predeterminada
 
 // Configurar el botón con la imagen y el nombre del usuario
-userButton.innerHTML = `<img src="${userImage}" alt="${activeUser}" class="profile-pic-img">`;
+userButton.replaceChildren();
+const image = document.createElement('img');
+image.src = userImage;
+image.alt = activeUser || 'Usuario';
+image.className = 'profile-pic-img';
+userButton.appendChild(image);
 }
 
 let lastpostContent = "";
@@ -181,25 +171,14 @@ function createNewUser() {
 }
 
 
-function encodePassword(password) {
-return btoa(password); // Convierte a Base64
-}
-
-// Función para decodificar la contraseña de Base64
-function decodePassword(encodedPassword) {
-return atob(encodedPassword);
-}
-
-function saveSession(username, password, rememberMe) {
+function saveSession(username, rememberMe) {
 if (rememberMe) {
     let expirationDate = new Date();
     expirationDate.setTime(expirationDate.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 días
 
-    document.cookie = `username=${username}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
-    document.cookie = `password=${encodePassword(password)}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
+    document.cookie = `username=${encodeURIComponent(username)}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax`;
 } else {
     document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    document.cookie = `password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 }
 }
 
@@ -215,7 +194,7 @@ if (!token) {
     return;
 }
 
-fetch(' /login', {
+fetch('/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password, token })
@@ -224,7 +203,7 @@ fetch(' /login', {
 .then(data => {
     if (data.username) {
         setActiveUser(data.username); // Función para actualizar el usuario activo
-        saveSession(username, password, rememberMe); // Guardar sesión si "Recordar mi sesión" está marcado
+        saveSession(username, rememberMe); // El servidor mantiene el token en una cookie HttpOnly
         document.getElementById('usernameOverlay').style.display = 'none';
         document.getElementById('initialOverlay').style.display = 'none';
     } else {
@@ -248,22 +227,11 @@ if (parts.length === 2) return parts.pop().split(';').shift();
 
 function checkRememberedUser() {
     const username = getCookie('username');
-    const encodedPassword = getCookie('password');
-
-    if (username && encodedPassword) {
-        document.getElementById('usernameInput').value = username;
-        document.getElementById('passwordInput').value = decodePassword(encodedPassword);
+    if (username) {
+        document.getElementById('usernameInput').value = decodeURIComponent(username);
         document.getElementById('rememberMe').checked = true;
-
-        Acept();
-        useExistingUser();
     }
 }
-
-// Borrar la cookie cuando se cierra la pestaña o el navegador
-window.addEventListener('beforeunload', () => {
-    document.cookie = "userID=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-});
 
 function showUserSelectOverlay() {
 document.getElementById('initialOverlay').style.display = 'flex';
@@ -330,7 +298,8 @@ if (profileImageInput.files && profileImageInput.files[0]) {
 usernameInput.value = '';
 passwordInput.value = '';
 profileImageInput.value = '';
-descriptionInput.value = '';
+const descriptionInput = document.getElementById('descriptionInput');
+if (descriptionInput) descriptionInput.value = '';
 }
 
 
@@ -356,13 +325,13 @@ function createUserInDatabase(username, password, profileImageURL, description, 
             alert('error al crear el usuario');
             
         }
-        turnstile.reset('#turnstileRegister');
+        if (registerWidgetId !== null) turnstile.reset(registerWidgetId);
 
     })
     .catch(error => {
         console.error('Error al crear el usuario:', error);
         alert('Hubo un error al crear el usuario.');
-        turnstile.reset('#turnstileRegister');
+        if (registerWidgetId !== null) turnstile.reset(registerWidgetId);
     });
 }
 
@@ -798,7 +767,7 @@ function containsForbiddenWords(message) {
 }
 
 
-let lastMessageContent = '';  // Definir una variable global fuera de la función para almacenar el contenido del último mensaje
+const lastMessageContentByContext = new Map();
 
 async function sendForumMessage(forumId) {
     const content = document.getElementById('postContent').value;
@@ -813,7 +782,7 @@ async function sendForumMessage(forumId) {
     }
 
     // Verificar si el contenido es igual al último enviado
-    if (content === lastMessageContent) {
+    if (content === lastMessageContentByContext.get(`forum:${forumId}`)) {
         alert("No puedes enviar un mensaje igual al anterior.");
         return;
     }
@@ -871,7 +840,7 @@ async function sendForumMessage(forumId) {
 
         if (response.ok) {
             const responseData = await response.json();
-            lastMessageContent = responseData.content;  // Actualizar la variable global
+            lastMessageContentByContext.set(`forum:${forumId}`, responseData.content);
             document.getElementById('postContent').value = '';
             fileInput.value = ''; // Limpiar input de archivos
             document.getElementById('loading').style.display = 'none';
@@ -900,7 +869,7 @@ async function sendChatMessage(chatId) {
     }
 
     // Verificar si el contenido es igual al último enviado
-    if (content === lastMessageContent) {
+    if (content === lastMessageContentByContext.get(`chat:${chatId}`)) {
         alert("No puedes enviar un mensaje igual al anterior.");
         return;
     }
@@ -954,7 +923,7 @@ async function sendChatMessage(chatId) {
 
         if (response.ok) {
             const responseData = await response.json();
-            lastMessageContent = responseData.content;
+            lastMessageContentByContext.set(`chat:${chatId}`, responseData.content);
             document.getElementById('postContent').value = '';
             if (fileInput) fileInput.value = '';
             document.getElementById('loading').style.display = 'none';
@@ -1166,9 +1135,11 @@ const forumList = document.getElementById('forumList');
 const messageList = document.getElementById('messageList');
 const groupMessageList = document.getElementById('groupMessageList');
 const postList = document.getElementById('postList');
+if (!profileList || !unicPostList || !forumList || !messageList || !groupMessageList || !postList) return;
 
 if (profileList.style.display === 'block') {
-    const username = document.getElementById('currentProfileUsername').value;
+    const username = currentProfileUsername;
+    if (!username) return;
     profileList.innerHTML = '';
     unicPostList.innerHTML = '';
     viewProfile(username, loadAll); 
@@ -1547,7 +1518,7 @@ async function cargarTotalesDeReacciones() {
 async function addpostToList(content, media, mediaType, username, profilePicture, sensitive, created_at, userId, postId, listId, invertirOrden, esUltimoPost) {
     const postList = document.getElementById(listId);
     const rememberMe = document.getElementById('rememberMe');
-    rememberMe.checked = false;
+    if (rememberMe) rememberMe.checked = false;
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
         return;
@@ -1555,13 +1526,14 @@ async function addpostToList(content, media, mediaType, username, profilePicture
 
     const newpost = document.createElement('li');
     newpost.className = 'post';
+    if (created_at) newpost.dataset.createdAt = created_at;
 
     // Convertir fecha a hora local
-    const localTime = created_at ? new Date(created_at).toLocaleString() : '';
+    const localTime = safeDate(created_at);
 
     // Imagen del perfil
     const profilePicHTML = profilePicture
-        ? `<img src="${profilePicture}" alt="Foto de perfil de ${username}" class="profile-picture">`
+        ? `<img src="${escapeHTML(profilePicture)}" alt="Foto de perfil de ${escapeHTML(username)}" class="profile-picture">`
         : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
 
     // Media del post
@@ -1570,20 +1542,20 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         if (mediaType.startsWith('image/')) {
             mediaHTML = `
             <div class="media-container">
-                <img src="${media}" alt="Imagen subida por ${username}" class="preview-media clickable">
+                <img src="${escapeHTML(media)}" alt="Imagen subida por ${escapeHTML(username)}" class="preview-media clickable">
                 <button class="fullscreen-btn" onclick="openFullscreen(this.previousElementSibling)">⛶</button>
             </div>`; 
         } else if (mediaType.startsWith('video/')) {
             mediaHTML = `<div>
                             <video controls class="preview-media clickable">
-                                <source src="${media}" type="${mediaType}">
+                                <source src="${escapeHTML(media)}" type="${escapeHTML(mediaType)}">
                                 Tu navegador no soporta la reproducción de video.
                             </video>
                         </div>`;
         } else if (mediaType.startsWith('audio/')) {
             mediaHTML = `<div>
                             <audio controls class="preview-media clickable">
-                                <source src="${media}" type="${mediaType}">
+                                <source src="${escapeHTML(media)}" type="${escapeHTML(mediaType)}">
                                 Tu navegador no soporta la reproducción de audio.
                             </audio>
                         </div>`;
@@ -1596,12 +1568,12 @@ async function addpostToList(content, media, mediaType, username, profilePicture
                 <p>⚠ Este contenido ha sido marcado como sensible</p>
                 <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Mostrar contenido</button>
                 <div class="hidden-content clickable" style="display:none;">
-                    ${content}
+                    ${escapeHTML(content)}
                     ${mediaHTML}
                 </div>
             </div>`
             : `<div class="post-content clickable">
-            <div class="post-text">${content}</div>
+            <div class="post-text">${escapeHTML(content)}</div>
             ${mediaHTML}
         </div>`;
 
@@ -1614,13 +1586,13 @@ async function addpostToList(content, media, mediaType, username, profilePicture
             <div class="post-user-info">
                 <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">
                 ${profilePicHTML}
-                <span class="username-text">${username}</span>
+                <span class="username-text">${escapeHTML(username)}</span>
             </span>
                 <span class="post-time">${localTime}</span>
             </div>
         </div>
         <div class="user-profile-box" id="${uniqueId}" style="display:none; margin-bottom: 8px">
-            <button onclick="viewProfile('${username}')">Ver perfil</button>
+            <button onclick="viewProfile(${escapeHTML(JSON.stringify(String(username)))})">Ver perfil</button>
             <button onclick="followUser(${userId})">Seguir</button>
         </div>
         ${contentHTML}
@@ -1643,7 +1615,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     if (esUltimoPost) {
         await cargarTotalesYOrdenar(listId, invertirOrden);
     }
-    scrollTo();
+    scrollPosts();
 }
 
 async function renderPostsOrdenados(listId, invertirOrden, totals) {
@@ -1669,8 +1641,8 @@ async function renderPostsOrdenados(listId, invertirOrden, totals) {
         } else {
             // Ordenar por fecha de creación (más nuevos primero)
             sortedPosts.sort((a, b) => {
-                const dateA = new Date(a.postElement.querySelector(".post-time").textContent);
-                const dateB = new Date(b.postElement.querySelector(".post-time").textContent);
+                const dateA = new Date(a.postElement.dataset.createdAt || 0);
+                const dateB = new Date(b.postElement.dataset.createdAt || 0);
 
                 return dateB - dateA; // Orden descendente (más nuevos primero)
             });
@@ -1754,6 +1726,7 @@ function toggleUserProfileBox(uniqueId) {
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
 function viewProfile(username) {
+    currentProfileUsername = String(username || '');
     // Ocultar la caja de publicaciones
     document.getElementById('postBox').style.display = 'none';
     document.getElementById('postList').style.display = 'none';
@@ -2078,7 +2051,10 @@ fetch(` /grupo/${groupId}/${userId}`, {
 
 
 async function obtenerNotificaciones() {
-const userId = users[activeUser].id;
+const user = users[activeUser];
+const contenedor = document.getElementById('renderNotif');
+if (!user || !user.id || !contenedor) return;
+const userId = user.id;
 
 try {
     const response = await fetch(`/notificaciones/${userId}`);
@@ -2092,8 +2068,10 @@ try {
 }
 
 function renderizarNotificaciones(notificaciones) {
-const userId = users[activeUser].id;
+const user = users[activeUser];
 const contenedor = document.getElementById('renderNotif');
+if (!user || !user.id || !contenedor) return;
+const userId = user.id;
 contenedor.innerHTML = '';
 
 if (notificaciones.length === 0) {
@@ -2119,8 +2097,10 @@ notificaciones.forEach(noti => {
 
     if (noti.tipo === 'mensaje') {
         mensaje = `Tienes un nuevo mensaje de ${nombre}`;
-        const numericId = parseInt(chat_or_group_id.split('-')[1], 10);
-        createOrLoadChat(numericId);
+        notiElemento.addEventListener('click', () => {
+            const numericId = parseInt(String(chat_or_group_id).split('-')[1], 10);
+            if (Number.isFinite(numericId)) createOrLoadChat(numericId);
+        });
     } else if (noti.tipo === 'grupo') {
         mensaje = `Tienes nuevos mensajes del grupo ${nombre}`;
         notiElemento.addEventListener('click', () => loadGroupMessages(chat_or_group_id, loadAll));
@@ -2174,7 +2154,8 @@ try {
 
 
 function actualizarIndicadorNotificaciones(hayNotificaciones) {
-const punto = document.getElementById('puntoNotificacion');
+const punto = document.getElementById('iconoNotificacion');
+if (!punto) return;
 // Usa visibility en lugar de display/opacity para evitar problemas con el label
 if (hayNotificaciones){
     punto.src = "resources/SVG/notifications_new.svg";
@@ -2185,8 +2166,10 @@ if (hayNotificaciones){
 
 
 function searchMotor() {
-const query = document.getElementById('searchInput').value;
+const searchInput = document.getElementById('searchInput');
 const searchContainer = document.getElementById('searchconteiner');
+if (!searchInput || !searchContainer) return;
+const query = searchInput.value;
 
 // Si el campo está vacío, limpiar y salir
 if (query.trim().length < 1) { 
@@ -2194,7 +2177,7 @@ if (query.trim().length < 1) {
     return; // Detener la ejecución
 }
 
-fetch(`/search?query=${query}`)
+fetch(`/search?query=${encodeURIComponent(query.trim())}`)
     .then(response => response.json())
     .then(data => {
         searchContainer.innerHTML = ''; // Limpiar resultados previos
@@ -2207,9 +2190,11 @@ fetch(`/search?query=${query}`)
         data.foros.forEach(foro => {
             const foroElement = document.createElement('div');
             foroElement.classList.add('SearchContainer', 'forum-item'); // Agregar clases
-            foroElement.innerHTML = `
-                <p><strong>Foro:</strong> ${foro.name}</p>
-            `;
+            const foroLabel = document.createElement('p');
+            const foroStrong = document.createElement('strong');
+            foroStrong.textContent = 'Foro:';
+            foroLabel.append(foroStrong, ` ${foro.name || ''}`);
+            foroElement.appendChild(foroLabel);
             // Agregar manejador de clic para el foro
             foroElement.addEventListener('click', () => {
                 loadForumPosts(foro.id, loadAll); // Llamar a la función con el ID del foro
@@ -2221,12 +2206,18 @@ fetch(`/search?query=${query}`)
         data.usuarios.forEach(user => {
             const userElement = document.createElement('div');
             userElement.classList.add('SearchContainer'); // Agregar clase
-            userElement.innerHTML = `
-                <div class="SearchContainer user-item" style="margin-top: 5px; margin-bottom: 5px;">
-                    <img src="${user.profilePicture || '/default-avatar.png'}" alt="${user.username}" class="profile-picture" />
-                    <span class="username">${user.username}</span>
-                </div>
-            `;
+            const userItem = document.createElement('div');
+            userItem.className = 'SearchContainer user-item';
+            userItem.style.cssText = 'margin-top: 5px; margin-bottom: 5px;';
+            const image = document.createElement('img');
+            image.src = user.profilePicture || '/default-avatar.png';
+            image.alt = user.username || 'Usuario';
+            image.className = 'profile-picture';
+            const name = document.createElement('span');
+            name.className = 'username';
+            name.textContent = user.username || '';
+            userItem.append(image, name);
+            userElement.appendChild(userItem);
             // Agregar manejador de clic para el usuario
             userElement.addEventListener('click', () => {
                 viewProfile(user.username); // Llamar a la función con el nombre de usuario
@@ -2252,7 +2243,7 @@ await wait(200);
 toggleVisibility('postList');
 }
 
-function scrollTo() {
+function scrollPosts() {
     let containers = document.querySelectorAll(".posts");
     containers.forEach(container => {
         container.scrollTop = invertirOrden ? container.scrollHeight : 0;
@@ -2265,4 +2256,3 @@ verMant(mantenimiento);
 checkRememberedUser();
 init();
 };
-

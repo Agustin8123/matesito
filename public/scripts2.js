@@ -14,6 +14,7 @@
 
     const postList = document.getElementById('postList');
 
+    if (!profileList || !unicPostList || !forumList || !messageList || !groupMessageList || !postList) return;
     profileList.style.display = 'none';
     unicPostList.style.display = 'none';
     forumList.style.display = 'none';
@@ -73,8 +74,10 @@
 }
 
   function toggleBell() {
+    const menu = document.getElementById('notifMenu');
+    const opening = menu && (menu.style.display === 'none' || menu.style.display === '');
     toggleVisibility('notifMenu', 'flex');
-    obtenerNotificaciones();
+    if (opening) obtenerNotificaciones();
   }
 
   function joinGroupMenu() {
@@ -109,11 +112,9 @@
             // Seleccionar el contenedor dinámico basado en el groupId
             const detailsElement = document.getElementById(`GroupDetailsContainer-${groupId}`);
             if (detailsElement) {
-                detailsElement.innerHTML = `
-                    <h3>${group.name}</h3>
-                    <p>${group.description}</p>
-                    <p>Código de invitación: ${group.invite_code}</p>
-                `;
+                detailsElement.replaceChildren();
+                [['h3', group.name], ['p', group.description], ['p', `Código de invitación: ${group.invite_code}`]]
+                  .forEach(([tag, text]) => { const el = document.createElement(tag); el.textContent = text || ''; detailsElement.appendChild(el); });
             } else {
                 console.error(`No se encontró el contenedor para los detalles del grupo con ID: ${groupId}`);
             }
@@ -129,11 +130,9 @@
             // Seleccionar el contenedor dinámico basado en el groupId
             const detailsElement = document.getElementById(`groupDetailsContainer-${groupId}`);
             if (detailsElement) {
-                detailsElement.innerHTML = `
-                    <h3>${group.name}</h3>
-                    <p>${group.description}</p>
-                    <p>Código de invitación: ${group.invite_code}</p>
-                `;
+                detailsElement.replaceChildren();
+                [['h3', group.name], ['p', group.description], ['p', `Código de invitación: ${group.invite_code}`]]
+                  .forEach(([tag, text]) => { const el = document.createElement(tag); el.textContent = text || ''; detailsElement.appendChild(el); });
             } else {
                 console.error(`No se encontró el contenedor para los detalles del grupo con ID: ${groupId}`);
             }
@@ -152,6 +151,7 @@
 
   function toggle_GroupMenu(groupId) {
     const menu = document.getElementById(`${groupId}`);
+    if (!menu) return;
     if (menu.style.display === 'none' || menu.style.display === '') {
         menu.style.display = 'block';
     } else {
@@ -161,6 +161,7 @@
 
   function toggle_GroupMenu1(groupId) {
     const menu = document.getElementById(`${groupId}`);
+    if (!menu) return;
     if (menu.style.display === 'none' || menu.style.display === '') {
         menu.style.display = 'block';
     } else {
