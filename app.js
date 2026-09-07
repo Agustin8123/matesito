@@ -1601,7 +1601,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
     }
 }));
 
-app.get('/:page?', (req, res) => {
+app.get('/:page{*}', (req, res) => {
     const page = req.params.page || 'index';
     if (!/^[a-zA-Z0-9_-]+$/.test(page)) return res.status(404).sendFile(path.join(__dirname, 'public', 'error.html'));
     const filePath = path.join(__dirname, 'public', `${page}.html`);
