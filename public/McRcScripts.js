@@ -82,7 +82,7 @@ reactions.forEach(async function (reaction) {
     }
 
     try {
-      await fetch(
+      const response = await fetch(
         `https://${API_BASE}/hit/microreact--reactions/${encodeURIComponent(id)}/${reaction}`,
         {
           method: "POST",
@@ -91,6 +91,9 @@ reactions.forEach(async function (reaction) {
           body: JSON.stringify({ user_id: userID }),
         }
       );
+      if (!response.ok) {
+        throw new Error(`No se pudo guardar la reacción (${response.status})`);
+      }
 
       // Animación
       el.style.opacity = "0";
@@ -109,6 +112,7 @@ reactions.forEach(async function (reaction) {
           `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${reaction}`,
           { credentials: "include" }
         );
+        if (!r.ok) throw new Error(`No se pudo cargar la reacción (${r.status})`);
         const json = await r.json();
         list.innerText = json.value || 0;
       }, 250);
@@ -131,6 +135,7 @@ reactions.forEach(async function (reaction) {
       `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${reaction}`,
       { credentials: "include" }
     );
+    if (!r.ok) throw new Error(`No se pudo cargar la reacción (${r.status})`);
     const json = await r.json();
     list.innerText = json.value || 0;
   } catch {

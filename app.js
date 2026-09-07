@@ -131,13 +131,17 @@ function validNumericId(value) {
     return validId(value) && Number(value) > 0 && Number.isSafeInteger(Number(value));
 }
 
+function validReactionPostId(value) {
+    return typeof value === 'string' && /^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(value);
+}
+
 
  // Obtener la cantidad de reacciones
  app.get('/get/microreact--reactions/:id', async (req, res) => {
     const { id } = req.params;
     const reaction = req.query.reaction;
   
-     if (!validNumericId(id) || !validText(reaction, 32)) {
+     if (!validReactionPostId(id) || !/^[1-5]$/.test(String(reaction))) {
       return res.status(400).json({ error: 'Reaction parameter is missing' });
     }
   
@@ -163,7 +167,7 @@ function validNumericId(value) {
     const { id, reaction } = req.params;
     const userId = req.body.user_id; // Se debe recibir el user_id en el request
 
-    if (!validNumericId(id) || !/^[a-zA-Z0-9_-]{1,32}$/.test(reaction) || !validNumericId(userId) || !sameUser(req, userId)) {
+    if (!validReactionPostId(id) || !/^[1-5]$/.test(reaction) || !validNumericId(userId) || !sameUser(req, userId)) {
         return res.status(400).json({ error: 'User ID is required' });
     }
 
@@ -216,7 +220,7 @@ function validNumericId(value) {
 // Ruta para obtener todas las reacciones del post
 app.get('/get/microreact--reactionss/:id', async (req, res) => {
     const { id } = req.params;
-    if (!validNumericId(id)) return res.status(400).json({ error: 'ID inválido' });
+    if (!validReactionPostId(id)) return res.status(400).json({ error: 'ID inválido' });
   
     try {
         // Obtener todas las reacciones asociadas al post
