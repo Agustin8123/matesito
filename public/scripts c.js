@@ -13,7 +13,7 @@ let loginWidgetId;
         return;
     }
 
-    fetch(' /updateUsername', {
+    fetch('/updateUsername', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentUsername: activeUser, newUsername }), // Cambié 'oldUsername' por 'currentUsername'
@@ -52,7 +52,7 @@ let loginWidgetId;
         return;
     }
 
-    fetch(' /updatePassword', {
+    fetch('/updatePassword', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -134,7 +134,7 @@ function updateDescription() {
 }
 
    function updateProfileImageInDatabase(newProfileImageURL) {
-    fetch(' /updateProfileImage', {
+    fetch('/updateProfileImage', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ if (!token) {
     return;
 }
 
-fetch(' /login', {
+fetch('/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password, token })
@@ -185,12 +185,12 @@ fetch(' /login', {
         alert('Error al iniciar sesión');
         
     }
-    turnstile.reset('#turnstileLogin');
+    if (loginWidgetId !== undefined) turnstile.reset(loginWidgetId);
 
 })
 .catch(error => {
     alert('Error de conexión');
-    turnstile.reset('#turnstileLogin');
+    if (loginWidgetId !== undefined) turnstile.reset(loginWidgetId);
 
 });
 }
@@ -198,7 +198,11 @@ fetch(' /login', {
 function Acept1() {
   const initial = document.getElementById('usernameOverlay');
   const aviso = document.getElementById('AvisoOverlay');
-  loginWidgetId = turnstile.render('#turnstileLogin', {sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'});
+  if (loginWidgetId === undefined) {
+    loginWidgetId = turnstile.render('#turnstileLogin', { sitekey: '0x4AAAAAACXaLFPU3wAuzN1y' });
+  } else {
+    turnstile.reset(loginWidgetId);
+  }
   if (initial) initial.style.display = 'flex';
   if (aviso) aviso.style.display = 'none';
 }

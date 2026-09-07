@@ -104,15 +104,15 @@ function requireAuth(req, res, next) {
     } catch {
         return res.status(401).json({ error: 'Sesión inválida o expirada' });
     }
+}
 
-    function setAuthCookie(res, token, maxAge = 7 * 24 * 60 * 60) {
-        const cookieParts = [
-            `auth_token=${encodeURIComponent(token)}`, 'HttpOnly', 'SameSite=Lax',
-            'Path=/', `Max-Age=${maxAge}`
-        ];
-        if (process.env.NODE_ENV === 'production') cookieParts.push('Secure');
-        res.setHeader('Set-Cookie', cookieParts.join('; '));
-    }
+function setAuthCookie(res, token, maxAge = 7 * 24 * 60 * 60) {
+    const cookieParts = [
+        `auth_token=${encodeURIComponent(token)}`, 'HttpOnly', 'SameSite=Lax',
+        'Path=/', `Max-Age=${maxAge}`
+    ];
+    if (process.env.NODE_ENV === 'production') cookieParts.push('Secure');
+    res.setHeader('Set-Cookie', cookieParts.join('; '));
 }
 
 function sameUser(req, value) {

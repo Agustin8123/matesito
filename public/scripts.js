@@ -141,7 +141,7 @@ function useExistingUser() {
     document.getElementById('initialOverlay').style.display = 'none';
     document.getElementById('usernameOverlay').style.display = 'flex';
 
-    if (!loginWidgetId) {
+    if (loginWidgetId === null) {
         loginWidgetId = turnstile.render('#turnstileLogin', {
             sitekey: '0x4AAAAAACXaLFPU3wAuzN1y',
             callback: function(token) {
@@ -152,7 +152,7 @@ function useExistingUser() {
                 }
             }
         });
-    } else {
+    } else if (typeof turnstile !== 'undefined') {
         turnstile.reset(loginWidgetId);
     }
 }
@@ -161,11 +161,11 @@ function createNewUser() {
     document.getElementById('initialOverlay').style.display = 'none';
     document.getElementById('userSelectOverlay').style.display = 'flex';
 
-    if (!registerWidgetId) {
+    if (registerWidgetId === null) {
         registerWidgetId = turnstile.render('#turnstileRegister', {
             sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
         });
-    } else {
+    } else if (typeof turnstile !== 'undefined') {
         turnstile.reset(registerWidgetId);
     }
 }
@@ -210,11 +210,11 @@ fetch('/login', {
         alert('Error al iniciar sesión');
         
     }
-    turnstile.reset(loginWidgetId);
+    if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
 })
 .catch(error => {
     alert('Error de conexión');
-    turnstile.reset(loginWidgetId);
+    if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
 });
 }
 
@@ -357,7 +357,7 @@ const forumData = {
     ownerId: parseInt(ownerId),
 };
 
-fetch(' /foros', {
+fetch('/foros', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(forumData),
@@ -401,7 +401,7 @@ const groupData = {
 };
 
 // Enviar la solicitud al backend
-fetch(' /grupos', {
+fetch('/grupos', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -437,7 +437,7 @@ if (!inviteCode) {
     return;
 }
 
-fetch(' /unir-grupo', {
+fetch('/unir-grupo', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -465,7 +465,7 @@ if (!confirm('¿Estás seguro de que deseas salir del grupo?')) {
     return; // Si el usuario cancela, no hacemos nada
 }
 
-fetch(' /salir-grupo', {
+fetch('/salir-grupo', {
     method: 'DELETE',
     headers: {
         'Content-Type': 'application/json',
@@ -538,7 +538,7 @@ const data = {
     forumId: forumId  // ID del foro que se pasa como parámetro
 };
 
-fetch(' /joinForum', {
+fetch('/joinForum', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
@@ -566,7 +566,7 @@ const data = {
     forumId: forumId  // ID del foro que se pasa como parámetro
 };
 
-fetch(' /leaveForum', {
+fetch('/leaveForum', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
@@ -1052,7 +1052,7 @@ async function sendGroupMessage(groupId) {
             postData.media = data.secure_url;
             postData.mediaType = selectedFile.type;
 
-            return fetch(' /posts', {
+            return fetch('/posts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(postData),
@@ -1074,7 +1074,7 @@ async function sendGroupMessage(groupId) {
         })
 
     } else {
-        fetch(' /posts', {
+        fetch('/posts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(postData),
@@ -1103,8 +1103,8 @@ document.getElementById('usernameOverlay').style.display = 'none';
 document.getElementById('userSelectOverlay').style.display = 'none';
 
 document.getElementById('initialOverlay').style.display = 'flex';
-turnstile.reset('#turnstileRegister');
-turnstile.reset('#turnstileLogin');
+if (registerWidgetId !== null) turnstile.reset(registerWidgetId);
+if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
 }
 
 let showSensitiveContent = false;
@@ -1205,7 +1205,7 @@ showOnlyMenu('postList');
 
 document.getElementById('postList').innerHTML = '';
 
-fetch(' /posts')
+fetch('/posts')
     .then(response => {
         if (!response.ok) {
             throw new Error(`Error al cargar los posts: ${response.status}`);
@@ -1248,7 +1248,7 @@ if (!user1Id || !user2Id) {
     return;
 }
 
-fetch(' /createOrLoadPrivateChat', {
+fetch('/createOrLoadPrivateChat', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -1813,7 +1813,7 @@ if (followerId === userId) {
     return;
 }
 
-fetch(' /followUser', {
+fetch('/followUser', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ followerId, followedId: userId })
@@ -1836,7 +1836,7 @@ fetch(' /followUser', {
 }
 
 function unfollowUser(followerId, followedId) {
-fetch(' /unfollowUser', {
+fetch('/unfollowUser', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ followerId, followedId })
@@ -2057,8 +2057,13 @@ if (!user || !user.id || !contenedor) return;
 const userId = user.id;
 
 try {
-    const response = await fetch(`/notificaciones/${userId}`);
-    const notificaciones = await response.json();
+    const response = await fetch(`/notificaciones/${userId}`, { credentials: 'same-origin' });
+    const payload = await response.json();
+    if (!response.ok) {
+        if (response.status === 401 || response.status === 403) return;
+        throw new Error(payload.error || 'No se pudieron obtener las notificaciones');
+    }
+    const notificaciones = Array.isArray(payload) ? payload : [];
 
     renderizarNotificaciones(notificaciones);
     actualizarIndicadorNotificaciones(notificaciones.length > 0);
@@ -2074,7 +2079,7 @@ if (!user || !user.id || !contenedor) return;
 const userId = user.id;
 contenedor.innerHTML = '';
 
-if (notificaciones.length === 0) {
+if (!Array.isArray(notificaciones) || notificaciones.length === 0) {
     contenedor.innerHTML = '<p>No tienes notificaciones nuevas.</p>';
     actualizarIndicadorNotificaciones(false);
     return;
@@ -2133,13 +2138,14 @@ actualizarIndicadorNotificaciones(notificaciones.length > 0);
 
 async function marcarComoLeida(userId, notiId, elemento) {
 try {
-    await fetch(`/notificaciones/${userId}/leer`, {
+    const response = await fetch(`/notificaciones/${userId}/leer`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: notiId }) // Ahora envía el ID correcto
     });
 
-    elemento.remove(); // Borra la notificación del DOM
+    if (!response.ok) throw new Error('No se pudo marcar la notificación');
+    elemento.remove();
 
     // Verificar si quedan notificaciones en pantalla
     const contenedor = document.getElementById('renderNotif');
