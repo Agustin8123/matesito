@@ -5,12 +5,11 @@ const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
-require('./ups-monitor')(app);
-
 const http = require('http');
 
 require('dotenv').config();
 const app = express();
+require('./ups-monitor')(app);
 app.disable('x-powered-by');
 const port = Number(process.env.PORT) || 3000;
 const jwtSecret = process.env.JWT_SECRET;
