@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaise — estado de la UPS</title>
+<style>
+  :root {
+    --bg: #14171A;
+    --panel: #1B1F24;
+    --line: #2A2F35;
+    --text: #E8E6E1;
+    --muted: #7C8289;
+    --ok: #8FBF6F;
+    --warn: #E0A458;
+    --crit: #DD6E57;
+    --mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", "SF Mono", Consolas, monospace;
+    --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: 720px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+  }
+
+  .hero {
+    padding: 26px 24px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .hero-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .state-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .state-word {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+  }
+
+  .hero.ok .state-dot { background: var(--ok); }
+  .hero.ok .state-word { color: var(--ok); }
+  .hero.warn .state-dot { background: var(--warn); }
+  .hero.warn .state-word { color: var(--warn); }
+  .hero.crit .state-dot { background: var(--crit); animation: pulse 1.4s ease-in-out infinite; }
+  .hero.crit .state-word { color: var(--crit); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .state-dot { animation: none !important; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  .hero-sub {
+    margin-top: 10px;
+    padding-left: 26px;
+  }
+
+  .ups-name {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
+
+  .ups-meta {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .meters {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .meter {
+    padding: 22px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-right: 1px solid var(--line);
+    text-align: center;
+  }
+
+  .meter:last-child { border-right: none; }
+
+  .gauge { width: 92px; height: 92px; }
+  .gauge-track, .gauge-fill { fill: none; stroke-width: 8; }
+  .gauge-track { stroke: var(--line); }
+  .gauge-fill {
+    stroke: var(--ok);
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 0.6s ease, stroke 0.4s ease;
+  }
+
+  .meter-readout {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 3px;
+    font-family: var(--mono);
+  }
+
+  .meter-value { font-size: 26px; font-weight: 500; }
+  .meter-value.small { font-size: 19px; }
+  .meter-unit { font-size: 12px; color: var(--muted); }
+
+  .meter-label { font-size: 12px; color: var(--muted); }
+
+  .bar-track {
+    width: 100%;
+    height: 8px;
+    background: var(--line);
+    margin: 6px 0 2px;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--ok);
+    width: 0%;
+    transition: width 0.6s ease, background 0.4s ease;
+  }
+
+  .volt-pair { display: flex; gap: 18px; }
+  .volt-tag {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .trace {
+    padding: 16px 22px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .trace svg { width: 100%; height: 56px; display: block; }
+  .trace-line { fill: none; stroke: var(--ok); stroke-width: 1.5; }
+  .trace-label {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .manifest { padding: 4px 22px; }
+  .manifest .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .manifest .row:last-child { border-bottom: none; }
+  .manifest .k { color: var(--muted); }
+  .manifest .v { font-family: var(--mono); text-align: right; }
+
+  .foot {
+    padding: 12px 22px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 560px) {
+    .meters { grid-template-columns: 1fr; }
+    .meter { border-right: none; border-bottom: 1px solid var(--line); }
+    .meter:last-child { border-bottom: none; }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ok);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+  <div class="panel">
+    <header class="hero" id="hero">
+      <div class="hero-top">
+        <span class="state-dot"></span>
+        <span class="state-word" id="stateWord">SIN DATOS</span>
+      </div>
+      <div class="hero-sub">
+        <span class="ups-name" id="upsName">KAISE</span>
+        <span class="ups-meta" id="upsMeta">esperando la primera lectura…</span>
+      </div>
+    </header>
+
+    <section class="meters">
+      <div class="meter">
+        <svg class="gauge" viewBox="0 0 120 120">
+          <circle class="gauge-track" cx="60" cy="60" r="52"/>
+          <circle class="gauge-fill" id="chargeArc" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="meter-readout">
+          <span class="meter-value" id="chargeValue">—</span>
+          <span class="meter-unit">%</span>
+        </div>
+        <span class="meter-label">Carga de batería</span>
+      </div>
+
+      <div class="meter">
+        <div style="width:100%">
+          <div class="meter-readout" style="justify-content:center">
+            <span class="meter-value" id="loadValue">—</span>
+            <span class="meter-unit">%</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" id="loadBar"></div></div>
+        </div>
+        <span class="meter-label">Carga del sistema</span>
+      </div>
+
+      <div class="meter">
+        <div class="volt-pair">
+          <div>
+            <div class="meter-readout">
+              <span class="meter-value small" id="voltIn">—</span>
+              <span class="meter-unit">V</span>
+            </div>
+            <span class="volt-tag">entrada</span>
+          </div>
+          <div>
+            <div class="meter-readout">
+              <span class="meter-value small" id="voltOut">—</span>
+              <span class="meter-unit">V</span>
+            </div>
+            <span class="volt-tag">salida</span>
+          </div>
+        </div>
+        <span class="meter-label">Tensión de línea</span>
+      </div>
+    </section>
+
+    <section class="trace">
+      <svg id="traceSvg" viewBox="0 0 600 56" preserveAspectRatio="none"></svg>
+      <span class="trace-label">Tensión de entrada — ventana reciente</span>
+    </section>
+
+    <section class="manifest" id="manifest"></section>
+
+    <footer class="foot" id="lastUpdate">esperando datos…</footer>
+  </div>
+
+<script>
+(function () {
+  const CIRC = 2 * Math.PI * 52;
+  const MAX_HISTORY = 60;
+  const history = [];
+
+  const els = {
+    hero: document.getElementById('hero'),
+    stateWord: document.getElementById('stateWord'),
+    upsMeta: document.getElementById('upsMeta'),
+    chargeArc: document.getElementById('chargeArc'),
+    chargeValue: document.getElementById('chargeValue'),
+    loadValue: document.getElementById('loadValue'),
+    loadBar: document.getElementById('loadBar'),
+    voltIn: document.getElementById('voltIn'),
+    voltOut: document.getElementById('voltOut'),
+    trace: document.getElementById('traceSvg'),
+    manifest: document.getElementById('manifest'),
+    lastUpdate: document.getElementById('lastUpdate'),
+  };
+
+  els.chargeArc.style.strokeDasharray = String(CIRC);
+
+  const STATES = {
+    LB: { word: 'BATERÍA BAJA', cls: 'crit' },
+    OB: { word: 'EN BATERÍA', cls: 'warn' },
+    OL: { word: 'EN LÍNEA', cls: 'ok' },
+  };
+
+  function classify(statusStr) {
+    const flags = (statusStr || '').split(/\s+/);
+    if (flags.includes('LB')) return STATES.LB;
+    if (flags.includes('OB')) return STATES.OB;
+    if (flags.includes('OL')) return STATES.OL;
+    return { word: 'SIN DATOS', cls: '' };
+  }
+
+  function num(v) {
+    const n = parseFloat(v);
+    return Number.isNaN(n) ? null : n;
+  }
+
+  function drawTrace() {
+    if (history.length < 2) return;
+    const min = Math.min(...history);
+    const max = Math.max(...history);
+    const range = max - min || 1;
+    const w = 600, h = 56, pad = 6;
+    const step = w / (MAX_HISTORY - 1);
+    const points = history
+      .map((v, i) => {
+        const x = i * step;
+        const y = h - pad - ((v - min) / range) * (h - pad * 2);
+        return x.toFixed(1) + ',' + y.toFixed(1);
+      })
+      .join(' ');
+    els.trace.innerHTML = '<polyline points="' + points + '" class="trace-line"/>';
+  }
+
+  function render(d) {
+    const state = classify(d['ups.status']);
+    els.hero.className = 'hero ' + state.cls;
+    els.stateWord.textContent = state.word;
+    els.upsMeta.textContent = d._error
+      ? 'controlador ' + (d['driver.name'] || '?') + ' — última lectura con error: ' + d._error
+      : 'controlador ' + (d['driver.name'] || '?') + ', protocolo ' + (d['driver.parameter.protocol'] || '?');
+
+    const charge = num(d['battery.charge']) ?? 0;
+    els.chargeValue.textContent = Math.round(charge);
+    els.chargeArc.style.strokeDashoffset = String(CIRC * (1 - charge / 100));
+    els.chargeArc.style.stroke = charge <= 20 ? 'var(--crit)' : charge <= 50 ? 'var(--warn)' : 'var(--ok)';
+
+    const load = num(d['ups.load']) ?? 0;
+    els.loadValue.textContent = Math.round(load);
+    els.loadBar.style.width = Math.min(load, 100) + '%';
+    els.loadBar.style.background = load >= 90 ? 'var(--crit)' : load >= 70 ? 'var(--warn)' : 'var(--ok)';
+
+    const vIn = num(d['input.voltage']);
+    const vOut = num(d['output.voltage']);
+    els.voltIn.textContent = vIn === null ? '—' : vIn.toFixed(1);
+    els.voltOut.textContent = vOut === null ? '—' : vOut.toFixed(1);
+
+    if (vIn !== null) {
+      history.push(vIn);
+      if (history.length > MAX_HISTORY) history.shift();
+      drawTrace();
+    }
+
+    const rows = [
+      ['Tensión de batería', d['battery.voltage'] ? d['battery.voltage'] + ' V' : '—'],
+      ['Frecuencia', d['input.frequency'] ? d['input.frequency'] + ' Hz' : '—'],
+      ['Temperatura', d['ups.temperature'] ? d['ups.temperature'] + ' °C' : '—'],
+      ['Firmware', d['ups.firmware'] || '—'],
+      ['Puerto', d['driver.parameter.port'] || '—'],
+      ['Beeper', d['ups.beeper.status'] || '—'],
+    ];
+    els.manifest.innerHTML = rows
+      .map(([k, v]) => '<div class="row"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>')
+      .join('');
+
+    els.lastUpdate.textContent = 'actualizado ' + new Date().toLocaleTimeString('es-AR');
+  }
+
+  const source = new EventSource('/api/ups/stream');
+  source.onmessage = (e) => {
+    try { render(JSON.parse(e.data)); } catch (err) { console.error(err); }
+  };
+  source.onerror = () => {
+    els.lastUpdate.textContent = 'reconectando…';
+  };
+})();
+</script>
+</body>
+</html>

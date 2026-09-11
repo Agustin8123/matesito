@@ -5,6 +5,8 @@ const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
+require('./ups-monitor')(app);
+
 const http = require('http');
 
 require('dotenv').config();
