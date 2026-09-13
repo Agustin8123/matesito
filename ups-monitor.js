@@ -12,13 +12,6 @@ function parseUpsc(output) {
   return data;
 }
 
-function parseRuntime(value) {
-    const seconds = Number(value);
-    if (!Number.isFinite(seconds) || seconds < 0) return null;
-
-    return Math.round(seconds);
-}
-
 function attachUpsMonitor(app, opts = {}) {
   const {
     upsName = 'Kaise',
@@ -46,16 +39,13 @@ function attachUpsMonitor(app, opts = {}) {
     });
   }
 
-function currentPayload() {
-    const runtime = parseRuntime(latest?.['battery.runtime']);
-
+  function currentPayload() {
     return {
-        ...(latest || {}),
-        _runtimeSeconds: runtime,
-        _error: lastError,
-        _lastGoodAt: lastGoodAt,
+      ...(latest || {}),
+      _error: lastError,
+      _lastGoodAt: lastGoodAt,
     };
-}
+  }
 
   async function tick() {
     try {

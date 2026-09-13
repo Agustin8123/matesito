@@ -81,6 +81,21 @@
     50% { opacity: 0.35; }
   }
 
+  .hero-runtime {
+    margin-top: 8px;
+    padding-left: 26px;
+    font-family: var(--mono);
+  }
+  .hero-runtime .runtime-value { font-size: 15px; font-weight: 600; color: var(--muted); }
+  .hero-runtime .runtime-label {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: 6px;
+  }
+  .hero.warn .hero-runtime .runtime-value { color: var(--warn); }
+  .hero.crit .hero-runtime .runtime-value { color: var(--crit); }
+
   .hero-sub {
     margin-top: 10px;
     padding-left: 26px;
@@ -101,7 +116,7 @@
 
   .meters {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 1fr 1fr 1fr;
     border-bottom: 1px solid var(--line);
   }
 
@@ -215,6 +230,10 @@
         <span class="state-dot"></span>
         <span class="state-word" id="stateWord">SIN DATOS</span>
       </div>
+      <div class="hero-runtime" id="heroRuntime" hidden>
+        <span class="runtime-value" id="runtimeValue">—</span>
+        <span class="runtime-label">de autonomía estimada</span>
+      </div>
       <div class="hero-sub">
         <span class="ups-name" id="upsName">KAISE</span>
         <span class="ups-meta" id="upsMeta">esperando la primera lectura…</span>
@@ -223,10 +242,6 @@
 
     <section class="meters">
       <div class="meter">
-        <div class="meter-readout">
-            <span class="meter-value" id="runtimeValue">—</span>
-        </div>
-        <span class="meter-label">Tiempo estimado restante</span>
         <svg class="gauge" viewBox="0 0 120 120">
           <circle class="gauge-track" cx="60" cy="60" r="52"/>
           <circle class="gauge-fill" id="chargeArc" cx="60" cy="60" r="52"/>
@@ -290,6 +305,8 @@
     hero: document.getElementById('hero'),
     stateWord: document.getElementById('stateWord'),
     upsMeta: document.getElementById('upsMeta'),
+    heroRuntime: document.getElementById('heroRuntime'),
+    runtimeValue: document.getElementById('runtimeValue'),
     chargeArc: document.getElementById('chargeArc'),
     chargeValue: document.getElementById('chargeValue'),
     loadValue: document.getElementById('loadValue'),
@@ -299,7 +316,6 @@
     trace: document.getElementById('traceSvg'),
     manifest: document.getElementById('manifest'),
     lastUpdate: document.getElementById('lastUpdate'),
-    runtimeValue: document.getElementById('runtimeValue'),
   };
 
   els.chargeArc.style.strokeDasharray = String(CIRC);
@@ -309,20 +325,6 @@
     OB: { word: 'EN BATERÍA', cls: 'warn' },
     OL: { word: 'EN LÍNEA', cls: 'ok' },
   };
-
-  function formatRuntime(seconds) {
-        if (!Number.isFinite(seconds) || seconds < 0) return '—';
-
-        const totalMinutes = Math.floor(seconds / 60);
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-
-        if (hours > 0) {
-            return `${hours} h ${minutes} min`;
-        }
-
-        return `${minutes} min`;
-    }
 
   function classify(statusStr) {
     const flags = (statusStr || '').split(/\s+/);
@@ -335,6 +337,14 @@
   function num(v) {
     const n = parseFloat(v);
     return Number.isNaN(n) ? null : n;
+  }
+
+  function formatRuntime(seconds) {
+    const s = Math.max(0, Math.round(seconds));
+    if (s < 60) return s + ' s';
+    const m = Math.floor(s / 60);
+    if (m < 60) return m + ' min';
+    return Math.floor(m / 60) + 'h ' + (m % 60) + 'min';
   }
 
   function drawTrace() {
@@ -367,19 +377,19 @@
     els.chargeArc.style.strokeDashoffset = String(CIRC * (1 - charge / 100));
     els.chargeArc.style.stroke = charge <= 20 ? 'var(--crit)' : charge <= 50 ? 'var(--warn)' : 'var(--ok)';
 
-    const runtime = num(d._runtimeSeconds);
-
-    if (state.cls === 'warn' || state.cls === 'crit') {
-    els.runtimeValue.textContent =
-        runtime === null ? '—' : formatRuntime(runtime);
-    } else {
-        els.runtimeValue.textContent = '—';
-    }
-
     const load = num(d['ups.load']) ?? 0;
     els.loadValue.textContent = Math.round(load);
     els.loadBar.style.width = Math.min(load, 100) + '%';
     els.loadBar.style.background = load >= 90 ? 'var(--crit)' : load >= 70 ? 'var(--warn)' : 'var(--ok)';
+
+    const runtimeSec = num(d['battery.runtime']);
+    const onBattery = state.cls === 'warn' || state.cls === 'crit';
+    if (onBattery && runtimeSec !== null) {
+      els.heroRuntime.hidden = false;
+      els.runtimeValue.textContent = formatRuntime(runtimeSec);
+    } else {
+      els.heroRuntime.hidden = true;
+    }
 
     const vIn = num(d['input.voltage']);
     const vOut = num(d['output.voltage']);
@@ -393,6 +403,7 @@
     }
 
     const rows = [
+      ['Autonomía estimada', runtimeSec !== null ? formatRuntime(runtimeSec) : 'sin calibrar (runtimecal)'],
       ['Tensión de batería', d['battery.voltage'] ? d['battery.voltage'] + ' V' : '—'],
       ['Frecuencia', d['input.frequency'] ? d['input.frequency'] + ' Hz' : '—'],
       ['Temperatura', d['ups.temperature'] ? d['ups.temperature'] + ' °C' : '—'],
