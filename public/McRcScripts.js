@@ -77,7 +77,7 @@ reactions.forEach(async function (reaction) {
   // ================================
   el.addEventListener("click", async function () {
     if (!userID) {
-      alert("No hay sesión activa.");
+      notify("No hay sesión activa.");
       return;
     }
 

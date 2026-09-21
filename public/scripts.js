@@ -13,7 +13,7 @@ const groupMessageList = 'groupMessageList';
 const profileList = 'profileList';
 const unicPostList = 'unicPostList';  
 
-let mantenimiento = true;
+let mantenimiento = false;
 
 let selectedFile = null;
 let loadAll = false;
@@ -35,15 +35,20 @@ function ToggleVisibility(elementId) {
     element.style.display = 'block';
 }
 
-function closeSesion() {
-    users = {};
-    activeUser = '';
-
-    updateUserButton();
-    fetch('/logout', { method: 'POST', credentials: 'same-origin' }).catch(error => {
-        console.error('Error al cerrar la sesión:', error);
-    });
-    document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+async function closeSesion() {
+    try {
+        const response = await fetch('/logout', { method: 'POST' });
+        if (!response.ok) throw new Error('No se pudo cerrar la sesión.');
+        users = {};
+        activeUser = '';
+        lastpostContent = '';
+        lastMessageContentByContext.clear();
+        for (const name of ['username', 'userID']) document.cookie = name + '=; Max-Age=0; path=/;';
+        localStorage.removeItem('userID');
+        updateUserButton();
+        document.getElementById('appContainer').style.display = 'none';
+        document.getElementById('initialOverlay').style.display = 'flex';
+    } catch (error) { notify(error.message, 'error'); }
 }
 
 // Función para ocultar múltiples menús
@@ -124,12 +129,7 @@ if (this.checked) {
 }
 });
 
-window.onload = function() {
-document.getElementById('initialOverlay').style.display = 'none';
-document.getElementById('AvisoOverlay').style.display = 'flex';
-document.getElementById('usernameOverlay').style.display = 'none';
-document.getElementById('appContainer').style.display = 'none';
-}
+
 
 function verMant(valor) {
 if (valor === true) {
@@ -141,6 +141,7 @@ function useExistingUser() {
     document.getElementById('initialOverlay').style.display = 'none';
     document.getElementById('usernameOverlay').style.display = 'flex';
 
+    if (typeof turnstile === 'undefined') return notify('La verificación de seguridad todavía no cargó. Intentá nuevamente.', 'error');
     if (loginWidgetId === null) {
         loginWidgetId = turnstile.render('#turnstileLogin', {
             sitekey: '0x4AAAAAACXaLFPU3wAuzN1y',
@@ -161,6 +162,7 @@ function createNewUser() {
     document.getElementById('initialOverlay').style.display = 'none';
     document.getElementById('userSelectOverlay').style.display = 'flex';
 
+    if (typeof turnstile === 'undefined') return notify('La verificación de seguridad todavía no cargó. Intentá nuevamente.', 'error');
     if (registerWidgetId === null) {
         registerWidgetId = turnstile.render('#turnstileRegister', {
             sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
@@ -185,12 +187,12 @@ if (rememberMe) {
 // Función de login
 function loginUser() {
 const username = document.getElementById('usernameInput').value.trim();
-const password = document.getElementById('passwordInput').value.trim();
+const password = document.getElementById('passwordInput').value;
 const rememberMe = document.getElementById('rememberMe').checked;
-const token = turnstile.getResponse(loginWidgetId);
+const token = typeof turnstile !== 'undefined' && loginWidgetId !== null ? turnstile.getResponse(loginWidgetId) : '';
 
 if (!token) {
-    alert("Completa la verificación de seguridad.");
+    notify("Completa la verificación de seguridad.");
     return;
 }
 
@@ -199,7 +201,7 @@ fetch('/login', {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password, token })
 })
-.then(response => response.json())
+.then(readResponse)
 .then(data => {
     if (data.username) {
         setActiveUser(data.username); // Función para actualizar el usuario activo
@@ -207,13 +209,13 @@ fetch('/login', {
         document.getElementById('usernameOverlay').style.display = 'none';
         document.getElementById('initialOverlay').style.display = 'none';
     } else {
-        alert('Error al iniciar sesión');
+        notify('Error al iniciar sesión');
         
     }
     if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
 })
 .catch(error => {
-    alert('Error de conexión');
+    notify('Error de conexión');
     if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
 });
 }
@@ -247,27 +249,27 @@ const usernameInput = document.getElementById('newUsernameInput');
 const passwordInput = document.getElementById('newPasswordInput');
 const profileImageInput = document.getElementById('newProfileImage');
 const username = usernameInput.value.trim();
-const password = passwordInput.value.trim();
-const token = turnstile.getResponse(registerWidgetId);
+const password = passwordInput.value;
+const token = typeof turnstile !== 'undefined' && registerWidgetId !== null ? turnstile.getResponse(registerWidgetId) : '';
 
 if (!token) {
-    alert("Completa la verificación de seguridad.");
+    notify("Completa la verificación de seguridad.");
     return;
 }
 
 // Validar longitud del nombre de usuario
 if (username.length > 25) {
-    alert('El nombre de usuario no puede tener más de 25 caracteres.');
+    notify('El nombre de usuario no puede tener más de 25 caracteres.');
     return;
 }
 
 if (!username || !password) {
-    alert('Por favor, introduce un nombre o apodo y contraseña válidos.');
+    notify('Por favor, introduce un nombre o apodo y contraseña válidos.');
     return;
 }
 
 if (!document.getElementById('acceptTermsCheckbox').checked) {
-    alert('Debes aceptar los términos y condiciones para continuar.');
+    notify('Debes aceptar los términos y condiciones para continuar.');
     return;
 }
 
@@ -282,14 +284,14 @@ if (profileImageInput.files && profileImageInput.files[0]) {
         method: 'POST',
         body: formData,
     })
-    .then(response => response.json())
+    .then(readResponse)
     .then(data => {
         profileImageURL = data.secure_url; // URL de la imagen subida
         createUserInDatabase(username, password, profileImageURL, "No hay descripción todavia.", token);
     })
     .catch(error => {
         console.error('Error al subir la imagen:', error);
-        alert('No se pudo subir la imagen de perfil. Inténtalo de nuevo.');
+        notify('No se pudo subir la imagen de perfil. Inténtalo de nuevo.');
     });
 } else {
     createUserInDatabase(username, password, profileImageURL, "No hay descripción todavia.", token);
@@ -317,12 +319,12 @@ function createUserInDatabase(username, password, profileImageURL, description, 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
     })
-    .then(response => response.json())
+    .then(readResponse)
     .then(data => {
         if (data.id) {
             setActiveUser(username);
         } else {
-            alert('error al crear el usuario');
+            notify('error al crear el usuario');
             
         }
         if (registerWidgetId !== null) turnstile.reset(registerWidgetId);
@@ -330,7 +332,7 @@ function createUserInDatabase(username, password, profileImageURL, description, 
     })
     .catch(error => {
         console.error('Error al crear el usuario:', error);
-        alert('Hubo un error al crear el usuario.');
+        notify('Hubo un error al crear el usuario.');
         if (registerWidgetId !== null) turnstile.reset(registerWidgetId);
     });
 }
@@ -342,12 +344,12 @@ const forumDescription = document.getElementById('forumDescription').value.trim(
 const ownerId = users[activeUser].id;
 
 if (forumName.length > 30) {
-    alert('El nombre del foro no puede tener más de 30 caracteres.');
+    notify('El nombre del foro no puede tener más de 30 caracteres.');
     return;
 }
 
 if (!forumName || !forumDescription || !ownerId) {
-    alert("Por favor, completa todos los campos.");
+    notify("Por favor, completa todos los campos.");
     return;
 }
 
@@ -362,17 +364,17 @@ fetch('/foros', {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(forumData),
 })
-.then(response => response.json())
+.then(readResponse)
 .then(data => {
     if (data.error) {
-        alert(`Error: ${data.error}`); // Manejar error si el foro ya existe
+        notify(`Error: ${data.error}`); // Manejar error si el foro ya existe
     } else {
-        alert(`Foro creado exitosamente: ${data.name}`);
+        notify(`Foro creado exitosamente: ${data.name}`);
         createForumMenu();
     }
 })
 .catch(error => {
-    alert(`Error: ${error.message}`);
+    notify(`Error: ${error.message}`);
 });
 }
 
@@ -383,13 +385,13 @@ const ownerId = users[activeUser].id;
 
 // Validar longitud del nombre del grupo
 if (groupName.length > 30) {
-    alert('El nombre del grupo no puede tener más de 30 caracteres.');
+    notify('El nombre del grupo no puede tener más de 30 caracteres.');
     return;
 }
 
 // Validar que todos los campos estén completos
 if (!groupName || !groupDescription || !ownerId) {
-    alert("Por favor, completa todos los campos.");
+    notify("Por favor, completa todos los campos.");
     return;
 }
 
@@ -416,7 +418,7 @@ fetch('/grupos', {
 })
 .then(data => {
     // Mostrar un mensaje de éxito y limpiar los campos
-    alert(`Grupo creado exitosamente: ${data.name} con código de invitación: ${data.invite_code}`);
+    notify(`Grupo creado exitosamente: ${data.name} con código de invitación: ${data.invite_code}`);
     document.getElementById('groupName').value = '';
     document.getElementById('groupDescription').value = '';
     document.getElementById('inviteCode').value = `${data.invite_code}`;
@@ -424,7 +426,7 @@ fetch('/grupos', {
     createGroupMenu();
 })
 .catch(error => {
-    alert(`Error: ${error.message}`);
+    notify(`Error: ${error.message}`);
 });
 }
 
@@ -433,7 +435,7 @@ const inviteCode = document.getElementById('inviteCode').value.trim();
 const userId = users[activeUser].id;
 
 if (!inviteCode) {
-    alert('Por favor, ingresa un código de invitación.');
+    notify('Por favor, ingresa un código de invitación.');
     return;
 }
 
@@ -451,17 +453,17 @@ fetch('/unir-grupo', {
     return response.json();
 })
 .then(data => {
-    alert(data.message);
+    notify(data.message);
     // Opcional: redirigir o actualizar la interfaz
 })
 .catch(error => {
-    alert(`Error: ${error.message}`);
+    notify(`Error: ${error.message}`);
 });
 }
 
-function leaveGroup(groupId) {
+async function leaveGroup(groupId) {
 const userId = users[activeUser].id;
-if (!confirm('¿Estás seguro de que deseas salir del grupo?')) {
+if (!await confirmAction('¿Estás seguro de que deseas salir del grupo?')) {
     return; // Si el usuario cancela, no hacemos nada
 }
 
@@ -479,16 +481,16 @@ fetch('/salir-grupo', {
     return response.json();
 })
 .then(data => {
-    alert(data.message);
+    notify(data.message);
 })
 .catch(error => {
-    alert(`Error: ${error.message}`);
+    notify(`Error: ${error.message}`);
 });
 }
 
 function loadForos() {
 fetch('/foros')
-    .then(response => response.json())
+    .then(readResponse)
     .then(foros => {
         const container = document.getElementById('forosContainer');
         container.innerHTML = '';
@@ -527,7 +529,7 @@ fetch('/foros')
     })
     .catch(error => {
         console.error('Error al cargar los foros:', error);
-        alert("Error al cargar los foros");
+        notify("Error al cargar los foros");
     });
 }
 
@@ -545,17 +547,17 @@ fetch('/joinForum', {
     },
     body: JSON.stringify(data)
 })
-.then(response => response.json())
+.then(readResponse)
 .then(data => {
     if (data.message) {
-        alert(data.message); // Muestra el mensaje recibido desde el backend
+        notify(data.message); // Muestra el mensaje recibido desde el backend
     } else {
-        alert('Error desconocido al procesar la solicitud'); // Mensaje por defecto si no hay mensaje
+        notify('Error desconocido al procesar la solicitud'); // Mensaje por defecto si no hay mensaje
     }
 })
 .catch((error) => {
     console.error('Error:', error);
-    alert('Error al procesar la solicitud'); // Mensaje de error general
+    notify('Error al procesar la solicitud'); // Mensaje de error general
 });
 }
 
@@ -573,17 +575,17 @@ fetch('/leaveForum', {
     },
     body: JSON.stringify(data)
 })
-.then(response => response.json())
+.then(readResponse)
 .then(data => {
     if (data.message) {
-        alert(data.message); // Muestra el mensaje recibido desde el backend
+        notify(data.message); // Muestra el mensaje recibido desde el backend
     } else {
-        alert('Error desconocido al procesar la solicitud'); // Mensaje por defecto si no hay mensaje
+        notify('Error desconocido al procesar la solicitud'); // Mensaje por defecto si no hay mensaje
     }
 })
 .catch((error) => {
     console.error('Error:', error);
-    alert('Error al procesar la solicitud'); // Mensaje de error general
+    notify('Error al procesar la solicitud'); // Mensaje de error general
 });
 }
 
@@ -591,7 +593,7 @@ function loadUserForums() {
 const userId = users[activeUser].id;
 
 fetch(` /userForums/${userId}`)
-    .then(response => response.json())
+    .then(readResponse)
     .then(forums => {
         const container = document.getElementById('forosContainer2');
         container.innerHTML = ''; // Limpiamos el contenedor
@@ -630,7 +632,7 @@ fetch(` /userForums/${userId}`)
     })
     .catch(error => {
         console.error('Error al cargar los foros del usuario:', error);
-        alert('Error al cargar los foros del usuario');
+        notify('Error al cargar los foros del usuario');
     });
 }
 
@@ -638,7 +640,7 @@ function loadUserCreatedForums() {
 const userId = users[activeUser].id; // ID del usuario activo
 
 fetch(` /userCreatedForums/${userId}`)
-    .then(response => response.json())
+    .then(readResponse)
     .then(forums => {
         const container = document.getElementById('createdForosContainer');
         container.innerHTML = ''; // Limpiamos el contenedor
@@ -676,14 +678,14 @@ fetch(` /userCreatedForums/${userId}`)
     })
     .catch(error => {
         console.error('Error al cargar los foros creados por el usuario:', error);
-        alert('Error al cargar los foros creados por el usuario');
+        notify('Error al cargar los foros creados por el usuario');
     });
 }
-function deleteForum(forumId) {
+async function deleteForum(forumId) {
 const userId = users[activeUser].id; // ID del usuario activo
 
 // Confirmar la eliminación
-const confirmDelete = confirm('¿Estás seguro de que deseas eliminar este foro?');
+const confirmDelete = await confirmAction('¿Estás seguro de que deseas eliminar este foro?');
 if (!confirmDelete) {
     return;
 }
@@ -704,12 +706,12 @@ fetch(` /foros/${forumId}`, {
     return response.json();
 })
 .then(data => {
-    alert(data); // Mensaje de éxito del backend
+    notify(data); // Mensaje de éxito del backend
     loadUserCreatedForums(); // Actualiza la lista de foros creados
 })
 .catch(error => {
     console.error('Error al eliminar el foro:', error);
-    alert(error.message || 'Error al eliminar el foro');
+    notify(error.message || 'Error al eliminar el foro');
 });
 }
 
@@ -736,7 +738,7 @@ function updatePostMediaButton(fileName = '') {
         const fileCategory = fileType.split('/')[0];
 
         if (!validFileTypes.includes(fileCategory)) {
-            alert("Por favor, selecciona un archivo de tipo imagen, audio o video.");
+            notify("Por favor, selecciona un archivo de tipo imagen, audio o video.");
             selectedFile = null;
             event.target.value = ''; // Restablecer la selección
             updatePostMediaButton();
@@ -748,7 +750,7 @@ function updatePostMediaButton(fileName = '') {
             (fileCategory === 'image' || fileCategory === 'audio') && fileSize > 10 * 1024 * 1024 ||
             fileCategory === 'video' && fileSize > 20 * 1024 * 1024
         ) {
-            alert("El archivo seleccionado excede el tamaño máximo permitido.");
+            notify("El archivo seleccionado excede el tamaño máximo permitido.");
             selectedFile = null;
             event.target.value = ''; // Restablecer la selección
             updatePostMediaButton();
@@ -775,343 +777,82 @@ function updatePostMediaButton(fileName = '') {
     } else if (groupMessageList.style.display === 'block') {
         sendGroupMessage(activeGroup);
     } else {
-        alert("No puedes publicar un mensaje aquí");
+        notify("No puedes publicar un mensaje aquí");
     }
 }
 
 
 const lastMessageContentByContext = new Map();
 
-async function sendForumMessage(forumId) {
-    const content = document.getElementById('postContent').value;
-    const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
-    const fileInput = document.getElementById('postMedia');
-    const file = fileInput?.files?.[0];
+let publishing = false;
 
-    // Validar contenido prohibido
-    if (containsForbiddenWords(content)) {
-        alert("Creemos que tu mensaje infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
+async function publishContent(kind, contextId) {
+    if (publishing) return;
+    if (!users[activeUser]?.id) {
+        notify('Iniciá sesión para publicar.', 'error');
+        showUserSelectOverlay();
         return;
     }
-
-    // Verificar si el contenido es igual al último enviado
-    if (content === lastMessageContentByContext.get(`forum:${forumId}`)) {
-        alert("No puedes enviar un mensaje igual al anterior.");
-        return;
-    }
-
-    // Preparar los datos del mensaje
-    const messageData = {
-        content,
-        sensitive: isSensitive ? 1 : 0,
-        sender_id: users[activeUser].id,
-        created_at: new Date().toISOString(),
-        chat_or_group_id: forumId,
-        is_private: false,
-    };
-
-    let media = null;
-    let mediaType = null;
-
-    if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", "matesito"); // Agregado para Cloudinary
-
-        try {
-            // Subir el archivo a Cloudinary u otro servicio
-            const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
-                method: 'POST',
-                body: formData,
-            });
-
-            document.getElementById('loading').style.display = 'block';
-
-            const uploadData = await uploadResponse.json();
-            media = uploadData.secure_url;
-            mediaType = file.type;
-
-            // Añadir los datos de media al mensaje
-            messageData.media = media;
-            messageData.mediaType = mediaType;
-        } catch (error) {
-            console.error('Error al subir el archivo:', error);
-            alert('Error al subir el archivo.');
-            return;
-        }
-    }
-
+    const input = document.getElementById('postContent');
+    const content = input.value.trim();
+    const sensitiveInput = document.getElementById('sensitiveContentCheckbox');
+    const file = selectedFile;
+    const sensitive = sensitiveInput.checked;
+    if (!content || content.length > 10000) return notify('Escribí un texto de entre 1 y 10.000 caracteres.', 'error');
+    if (containsForbiddenWords(content)) return notify('Revisá el contenido: puede infringir los términos y condiciones.', 'error');
+    const context = kind + ':' + (contextId || activeUser);
+    if (lastMessageContentByContext.get(context) === content) return notify('No podés enviar el mismo texto dos veces seguidas.', 'error');
+    const isPost = kind === 'post';
+    const payload = isPost ? { username: activeUser, content, sensitive }
+        : { content, sensitive, sender_id: users[activeUser].id, is_private: kind === 'chat' };
+    const url = isPost ? '/posts' : kind === 'group' ? '/group/messages/' + contextId : '/mensajes/' + contextId;
+    publishing = true;
+    const sendButton = document.getElementById('publishButton');
+    if (sendButton) { sendButton.disabled = true; sendButton.textContent = 'Publicando…'; }
     document.getElementById('loading').style.display = 'block';
-
     try {
-        // Enviar el mensaje al servidor
-        const response = await fetch(`/mensajes/${forumId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(messageData),
-        });
-
-        if (response.ok) {
-            const responseData = await response.json();
-            lastMessageContentByContext.set(`forum:${forumId}`, responseData.content);
-            document.getElementById('postContent').value = '';
-            fileInput.value = ''; // Limpiar input de archivos
-            document.getElementById('loading').style.display = 'none';
-            alert('Mensaje enviado con éxito');
-        } else {
-            document.getElementById('loading').style.display = 'none';
-            alert('Error al enviar el mensaje');
+        if (file) {
+            const form = new FormData();
+            form.append('file', file);
+            form.append('upload_preset', 'matesito');
+            const uploaded = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', { method: 'POST', body: form }).then(readResponse);
+            if (!uploaded.secure_url) throw new Error('No se recibió el archivo subido. Tu texto sigue guardado.');
+            payload.media = uploaded.secure_url;
+            payload.mediaType = file.type;
         }
-    } catch (error) {
-        document.getElementById('loading').style.display = 'none';
-        console.error('Error al enviar el mensaje:', error);
-        alert('Error al enviar el mensaje.');
-    }
-}    
-
-async function sendChatMessage(chatId) {
-    const content = document.getElementById('postContent').value;
-    const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
-    const fileInput = document.getElementById('postMedia');
-    const file = fileInput?.files?.[0];
-
-    // Validar contenido prohibido
-    if (containsForbiddenWords(content)) {
-        alert("Creemos que tu mensaje infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
-        return;
-    }
-
-    // Verificar si el contenido es igual al último enviado
-    if (content === lastMessageContentByContext.get(`chat:${chatId}`)) {
-        alert("No puedes enviar un mensaje igual al anterior.");
-        return;
-    }
-
-    // Preparar los datos del mensaje
-    const messageData = {
-        content,
-        sensitive: isSensitive ? 1 : 0,
-        sender_id: users[activeUser].id,
-        created_at: new Date().toISOString(),
-        chat_or_group_id: chatId,
-        is_private: true,
-    };
-
-    let media = null;
-    let mediaType = null;
-
-    if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", "matesito"); // Agregado para Cloudinary
-
-        document.getElementById('loading').style.display = 'block';
-
-        try {
-            const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
-                method: 'POST',
-                body: formData,
-            });
-            const uploadData = await uploadResponse.json();
-            media = uploadData.secure_url;
-            mediaType = file.type;
-
-            messageData.media = media;
-            messageData.mediaType = mediaType;
-        } catch (error) {
-            console.error('Error al subir el archivo:', error);
-            alert('Error al subir el archivo.');
-            return;
-        }
-    }
-
-    document.getElementById('loading').style.display = 'block';
-
-    try {
-        const response = await fetch(`/mensajes/${chatId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(messageData),
-        });
-
-        if (response.ok) {
-            const responseData = await response.json();
-            lastMessageContentByContext.set(`chat:${chatId}`, responseData.content);
-            document.getElementById('postContent').value = '';
-            if (fileInput) fileInput.value = '';
-            document.getElementById('loading').style.display = 'none';
-            alert('Mensaje enviado con éxito');
-        } else {
-            document.getElementById('loading').style.display = 'none';
-            alert('Error al enviar el mensaje');
-        }
-    } catch (error) {
-        document.getElementById('loading').style.display = 'none';
-        console.error('Error al enviar el mensaje:', error);
-        alert('Error al enviar el mensaje.');
-    }
-}
-
-async function sendGroupMessage(groupId) {
-    const content = document.getElementById('postContent').value;
-    const isSensitive = document.getElementById('sensitiveContentCheckbox')?.checked || false;
-    const fileInput = document.getElementById('postMedia');
-    const file = fileInput?.files?.[0];
-
-    // Validar contenido prohibido
-    if (containsForbiddenWords(content)) {
-        alert("Tu mensaje puede infringir las políticas. Por favor revisa su contenido.");
-        return;
-    }
-
-    let media = null;
-    let mediaType = null;
-
-    if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", "matesito"); // Agregado para Cloudinary
-
-        document.getElementById('loading').style.display = 'block';
-
-        try {
-            const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
-                method: 'POST',
-                body: formData,
-            });
-            const uploadData = await uploadResponse.json();
-            media = uploadData.secure_url;
-            mediaType = file.type;
-        } catch (error) {
-            console.error('Error al subir el archivo:', error);
-            alert('Error al subir el archivo.');
-            return;
-        }
-    }
-
-    // Crear datos del mensaje
-    const messageData = {
-        content,
-        sensitive: isSensitive ? 1 : 0,
-        sender_id: users[activeUser].id,
-        media,
-        mediaType,
-    };
-
-    document.getElementById('loading').style.display = 'block';
-
-    try {
-        const response = await fetch(` /group/messages/${groupId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(messageData),
-        });
-
-        if (response.ok) {
-            document.getElementById('postContent').value = '';
-            if (fileInput) fileInput.value = '';
-            alert('Mensaje enviado con éxito');
-            document.getElementById('loading').style.display = 'none';
-        } else {
-            document.getElementById('loading').style.display = 'none';
-            alert('Error al enviar el mensaje');
-        }
-    } catch (error) {
-        console.error('Error al enviar el mensaje:', error);
-        alert('Error al enviar el mensaje.');
-        document.getElementById('loading').style.display = 'none';
-    }
-}
-
- function postpost() {
-    const postContent = document.getElementById('postContent').value;
-    const isSensitive = document.getElementById('sensitiveContentCheckbox').checked;
-    const proccesedContent = postContent.trim()
-    if (containsForbiddenWords(postContent)) {
-        alert("Creemos que tu post infringe nuestros términos y condiciones. Si crees que es un error, contacta con soporte.");
-        return;
-    }
-
-    if (postContent === lastpostContent) {
-        alert("No puedes enviar un post igual al anterior.");
-        return;
-    }
-
-    if (proccesedContent.length === 0){
-        alert("No podes cebar un post vacio.");
-        return;
-    }
-    const postData = {
-        username: activeUser,
-        content: postContent,
-        sensitive: isSensitive ? 1 : 0,
-        created_at: new Date().toISOString(),
-    };
-
-    // Mostrar el símbolo de carga
-    document.getElementById('loading').style.display = 'block';
-
-    if (selectedFile) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("upload_preset", "matesito");
-
-        fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            postData.media = data.secure_url;
-            postData.mediaType = selectedFile.type;
-
-            return fetch('/posts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(postData),
-            });
-        })
-        .then(response => response.json())
-        .then(data => {
-            lastpostContent = data.content;
+        const saved = await fetch(url, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        }).then(readResponse);
+        if (!saved.id) throw new Error('El servidor no confirmó la publicación.');
+        lastMessageContentByContext.set(context, content);
+        // No borrar texto ni archivos que el usuario cambió durante la petición.
+        if (input.value.trim() === content) input.value = '';
+        if (selectedFile === file) {
+            selectedFile = null;
             document.getElementById('postMedia').value = '';
-            selectedFile = null;
             updatePostMediaButton();
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('postContent').value = '';
-            alert('Tu post se ha enviado correctamente');
-            togglePosts();
-        })
-        .catch(error => {
-            console.error('Error al subir el archivo o enviar el post:', error);
-            alert('Error al subir el archivo o enviar el post');
-        })
-
-    } else {
-        fetch('/posts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(postData),
-        })
-        .then(response => response.json())
-        .then(data => {
-            lastpostContent = data.content;
-            document.getElementById('postContent').value = '';
-            selectedFile = null;
-            updatePostMediaButton();
-            alert('Tu post se ha enviado correctamente');
-            togglePosts();
-        })
-        .catch(error => {
-            console.error('Error al enviar el post:', error);
-            alert('Error al enviar el post');
-        })
-        .finally(() => {
-            // Ocultar el símbolo de carga
-            document.getElementById('loading').style.display = 'none';
-        });
+        }
+        if (sensitiveInput.checked === sensitive) sensitiveInput.checked = false;
+        notify(isPost ? 'Tu post se publicó correctamente.' : 'Mensaje enviado.', 'success');
+        if (sensitive && !showSensitiveContent) notify('El contenido sensible está oculto por el filtro actual.');
+        // Recargar explícitamente: la publicación no depende de Socket.IO.
+        if (isPost && document.getElementById('postList').style.display === 'block') await loadposts(loadAll);
+        if (kind === 'forum' && activeForum === contextId) await loadForumPosts(contextId, loadAll);
+        if (kind === 'chat' && activeChat === contextId) await loadChatMessages(contextId, loadAll);
+        if (kind === 'group' && activeGroup === contextId) await loadGroupMessages(contextId, loadAll);
+    } catch (error) {
+        notify(error.message || 'No se pudo publicar. Intentá nuevamente.', 'error');
+    } finally {
+        publishing = false;
+        document.getElementById('loading').style.display = 'none';
+        if (sendButton) { sendButton.disabled = false; sendButton.textContent = 'Cebar'; }
     }
-}   
+}
+
+function sendForumMessage(id) { return publishContent('forum', id); }
+function sendChatMessage(id) { return publishContent('chat', id); }
+function sendGroupMessage(id) { return publishContent('group', id); }
+function postpost() { return publishContent('post'); }
 
 function goBackToInitial() {
 document.getElementById('usernameOverlay').style.display = 'none';
@@ -1143,41 +884,11 @@ function reloadCPosts() {
 }
 
 function buttonsState() {
-// Obtener referencias a los contenedores directamente dentro de la función
-const profileList = document.getElementById('profileList');
-const unicPostList = document.getElementById('unicPostList');
-const forumList = document.getElementById('forumList');
-const messageList = document.getElementById('messageList');
-const groupMessageList = document.getElementById('groupMessageList');
-const postList = document.getElementById('postList');
-if (!profileList || !unicPostList || !forumList || !messageList || !groupMessageList || !postList) return;
-
-if (profileList.style.display === 'block') {
-    const username = currentProfileUsername;
-    if (!username) return;
-    profileList.innerHTML = '';
-    unicPostList.innerHTML = '';
-    viewProfile(username, loadAll); 
-
-} else if (postList.style.display === 'block') {
-    loadposts(loadAll); 
-    postList.innerHTML = '';
-    unicPostList.innerHTML = '';
-} else if (forumList.style.display === 'block') {
-    loadForumPosts(activeForum, loadAll);
-    forumList.innerHTML = '';
-    unicPostList.innerHTML = '';
-}else if (messageList.style.display === 'block') {
-    loadChatMessages(activeChat, loadAll);
-    messageList.innerHTML = '';
-    unicPostList.innerHTML = '';
-} else if (groupMessageList.style.display === 'block') {
-    unicPostList.innerHTML = '';
-    loadGroupMessages(activeGroup, loadAll);
-    groupMessageList.innerHTML = '';
-}
-
-obtenerNotificaciones();
+    if (document.getElementById('profileList').style.display === 'block') return viewProfile(currentProfileUsername);
+    if (document.getElementById('forumList').style.display === 'block') return loadForumPosts(activeForum, loadAll);
+    if (document.getElementById('messageList').style.display === 'block') return loadChatMessages(activeChat, loadAll);
+    if (document.getElementById('groupMessageList').style.display === 'block') return loadGroupMessages(activeGroup, loadAll);
+    return loadposts(loadAll);
 }
 
 // Función para alternar la configuración de contenido sensible
@@ -1206,51 +917,60 @@ button.textContent = loadAll ? 'últimos 12 posts' : 'Todos los posts';
 buttonsState();
 }
 
-function loadposts(loadAll) {
-const unicPostList = document.getElementById('unicPostList');
-unicPostList.style.display = 'none';
+let feedRequest = 0;
 
-postsArray = [];
-
-activeForum = 0;
-activeChat = '';
-activeGroup = '';
-
-showOnlyMenu('postList');
-
-document.getElementById('postList').innerHTML = '';
-
-fetch('/posts')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Error al cargar los posts: ${response.status}`);
+async function loadFeed(url, listId, all, messages = false) {
+    const request = ++feedRequest;
+    const list = document.getElementById(listId);
+    showOnlyMenu(listId);
+    list.setAttribute('aria-busy', 'true');
+    try {
+        let rows = await fetch(url).then(readResponse);
+        if (!Array.isArray(rows)) throw new Error('El servidor devolvió una lista inválida.');
+        if (request !== feedRequest) return;
+        // Filtrar antes de limitar, para no perder posts visibles por los sensibles.
+        rows = rows.filter(row => showSensitiveContent || !row.sensitive);
+        rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        const totals = ordenarReacciones ? await cargarTotalesDeReacciones() : {};
+        if (request !== feedRequest) return;
+        if (ordenarReacciones) rows.sort((a, b) =>
+            Number(totals['Matesito_post-' + (b.postId ?? b.id)] || 0) - Number(totals['Matesito_post-' + (a.postId ?? a.id)] || 0));
+        if (!all) rows = rows.slice(0, 12);
+        if (invertirOrden) rows.reverse();
+        list.replaceChildren();
+        rows.forEach(row => addpostToList(row.content, row.media,
+            messages ? row.media_type : row.mediaType, row.username,
+            messages ? row.image : row.profilePicture, row.sensitive, row.created_at,
+            messages ? row.sender_id : row.userId, messages ? row.id : row.postId, listId));
+        if (!rows.length) {
+            const empty = document.createElement('li');
+            empty.className = 'feed-state';
+            empty.textContent = 'No hay publicaciones para mostrar con estos filtros.';
+            list.appendChild(empty);
         }
-        return response.json();
-    })
-    .then(posts => {
-        const reversedPosts = posts;
+    } catch (error) {
+        if (request !== feedRequest) return;
+        notify('No se pudieron cargar las publicaciones: ' + error.message, 'error');
+        if (!list.children.length) {
+            const state = document.createElement('li');
+            state.className = 'feed-state';
+            state.textContent = 'No pudimos cargar el contenido. ';
+            const retry = document.createElement('button');
+            retry.textContent = 'Reintentar';
+            retry.addEventListener('click', buttonsState);
+            state.appendChild(retry);
+            list.appendChild(state);
+        }
+    } finally {
+        if (request === feedRequest) list.setAttribute('aria-busy', 'false');
+    }
+}
 
-        // Determinar cuántos posts renderizar
-        const postsToRender = loadAll ? reversedPosts : reversedPosts.slice(0, 12);
-        postsToRender.forEach((post, index) => {
-            const { content, media, mediaType, username, profilePicture, sensitive, created_at, userId, postId } = post;
-            const esUltimoPost = index === postsToRender.length - 1; // Determinar si es último
-
-            if (!showSensitiveContent && sensitive === true) return;
-
-            if (content && username) {
-                addpostToList(
-                    content, media, mediaType, username, 
-                    profilePicture, sensitive, created_at, 
-                    userId, postId, 'postList', invertirOrden,
-                    esUltimoPost
-                );
-            }
-        });
-    })
-    .catch(error => {
-        console.error('Error al cargar los posts:', error);
-    });
+function loadposts(all) {
+    activeForum = 0; activeChat = ''; activeGroup = '';
+    document.getElementById('profileHeader').style.display = 'none';
+    document.getElementById('postBox').style.display = 'block';
+    return loadFeed('/posts', 'postList', all);
 }
 
 function createOrLoadChat(user2Id) {
@@ -1259,7 +979,7 @@ function createOrLoadChat(user2Id) {
 const user1Id = users[activeUser].id;
 
 if (!user1Id || !user2Id) {
-    alert('IDs de usuario incompletos');
+    notify('IDs de usuario incompletos');
     return;
 }
 
@@ -1290,200 +1010,30 @@ fetch('/createOrLoadPrivateChat', {
     })
     .catch(error => {
         console.error('Error en createOrLoadChat:', error);
-        alert(`Error: ${error.message}`);
+        notify(`Error: ${error.message}`);
     });
 }
 
-function loadChatMessages(chatId, loadAll) {
-showOnlyMenu(messageList);
-activeForum = 0;
-activeGroup = '';
-postsArray = [];
-
-document.getElementById('messageList').innerHTML = ''; // Limpiar lista de mensajes
-const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
-
-fetch(` /chat/messages/${chatId}`)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Error al cargar los mensajes: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(messages => {
-        const reversedMessages = messages.reverse(); // Ordenar los mensajes de más antiguos a más recientes
-
-        const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
-
-        messagesToRender.forEach((message, index) => {
-            const {
-                content,
-                media,
-                media_type: mediaType,
-                sensitive,
-                created_at: created_at,
-                sender_id: userId,
-                username,
-                image: profilePicture,
-                id: messageId // Asegurarse de que se obtenga el ID del mensaje
-            } = message;
-
-            // Filtrar contenido sensible si es necesario
-            if (!showSensitiveContent && sensitive === true) return;
-            const esUltimoPost = index === messagesToRender.length - 1;
-
-            // Agregar mensaje a la lista
-            addpostToList(
-                content,
-                media || null,
-                mediaType || null,
-                username || `Usuario ${userId}`,
-                profilePicture || '/default-profile.png',
-                sensitive,
-                created_at,
-                userId,
-                messageId,
-                'messageList', 
-                invertirOrden,
-                esUltimoPost
-            );
-        });
-    })
-    .catch(error => {
-        console.error('Error al cargar los mensajes:', error);
-    });
+function loadChatMessages(id, all) {
+    activeForum = 0; activeGroup = ''; activeChat = id;
+    document.getElementById('profileHeader').style.display = 'none';
+    document.getElementById('postBox').style.display = 'block';
+    return loadFeed('/chat/messages/' + id, 'messageList', all, true);
 }
 
-function loadGroupMessages(groupId, loadAll) {
-document.getElementById('profileHeader').style.display = 'none';
-document.getElementById('postBox').style.display = 'block';
-showOnlyMenu(groupMessageList);
-
-activeForum = 0;
-activeChat = '';
-postsArray = [];
-
-activeGroup = groupId;
-
-const activeUserId = users[activeUser].id;
-
-document.getElementById('groupMessageList').innerHTML = ''; // Limpiar lista de mensajes
-
-fetch(`/group/messages/${groupId}/${activeUserId}`)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Error al cargar los mensajes: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(messages => {
-        const reversedMessages = messages.reverse(); // Ordenar los mensajes de más antiguos a más recientes
-
-        const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
-
-        messagesToRender.forEach((message, index) => {
-            const {
-                content,
-                media,
-                media_type: mediaType,
-                sensitive,
-                created_at: created_at,
-                sender_id: userId,
-                username,
-                image: profilePicture,
-                id: messageId // Asegurarse de que se obtenga el ID del mensaje
-            } = message;
-
-            // Filtrar contenido sensible si es necesario
-            if (!showSensitiveContent && sensitive === true) return;
-            const esUltimoPost = index === messagesToRender.length - 1;
-
-            addpostToList(
-                content,
-                media || null,
-                mediaType || null,
-                username || `Usuario ${userId}`,
-                profilePicture || '/default-profile.png',
-                sensitive,
-                created_at,
-                userId,
-                messageId,
-                'groupMessageList', 
-                invertirOrden,
-                esUltimoPost
-            );
-        });
-    })
-    .catch(error => {
-        console.error('Error al cargar los mensajes del grupo:', error);
-    });
+function loadGroupMessages(id, all) {
+    if (!users[activeUser]?.id) return showUserSelectOverlay();
+    activeForum = 0; activeChat = ''; activeGroup = id;
+    document.getElementById('profileHeader').style.display = 'none';
+    document.getElementById('postBox').style.display = 'block';
+    return loadFeed('/group/messages/' + id + '/' + users[activeUser].id, 'groupMessageList', all, true);
 }
 
-function loadForumPosts(forumId, loadAll) {
-document.getElementById('profileHeader').style.display = 'none';
-document.getElementById('postBox').style.display = 'block';
-showOnlyMenu(forumList);
-
-console.log (forumId);
-document.getElementById('forumList').innerHTML = ''; // Limpiar lista de posts
-const unicPostList = document.getElementById('unicPostList'); unicPostList.style.display = 'none';
-
-activeChat = '';
-activeGroup = '';
-activeForum = forumId;
-postsArray = [];
-
-fetch(`/mensajes/${forumId}`)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Error al cargar los mensajes: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(messages => {
-
-        const reversedMessages = messages.reverse();
-
-        const messagesToRender = loadAll ? reversedMessages : reversedMessages.slice(0, 12);
-
-        messagesToRender.forEach((message, indeX) => {
-            const {
-                content,
-                media,
-                media_type: mediaType,
-                sensitive,
-                created_at: created_at,
-                sender_id: userId,
-                username,
-                image: profilePicture,
-                id: postId // Asegurarse de que se obtenga el ID del mensaje
-            } = message;
-
-            // Filtrar contenido sensible si es necesario
-            if (!showSensitiveContent && sensitive === true) return;
-            const esUltimoPost = indeX === messagesToRender.length - 1;
-
-            addpostToList(
-                content,
-                media || null,
-                mediaType || null,
-                username || `Usuario ${userId}`,
-                profilePicture || '/default-profile.png',
-                sensitive,
-                created_at,
-                userId,
-                postId,
-                'forumList', 
-                invertirOrden,
-                esUltimoPost
-            );
-
-            console.log(message);
-        });
-    })
-    .catch(error => {
-        console.error('Error al cargar los mensajes:', error);
-    });
+function loadForumPosts(id, all) {
+    activeChat = ''; activeGroup = ''; activeForum = id;
+    document.getElementById('profileHeader').style.display = 'none';
+    document.getElementById('postBox').style.display = 'block';
+    return loadFeed('/mensajes/' + id, 'forumList', all, true);
 }
 
 function toggleOrden(button) {
@@ -1523,17 +1073,15 @@ function toggleOrdenR(button) {
 async function cargarTotalesDeReacciones() {
     try {
         const response = await fetch('/api/reactions/totals');
-        return await response.json();
+        return await readResponse(response);
     } catch (error) {
         console.error('Error al cargar los totales de reacciones:', error);
         return {};
     }
 }
 
-async function addpostToList(content, media, mediaType, username, profilePicture, sensitive, created_at, userId, postId, listId, invertirOrden, esUltimoPost) {
+function addpostToList(content, media, mediaType, username, profilePicture, sensitive, created_at, userId, postId, listId, invertirOrden, esUltimoPost) {
     const postList = document.getElementById(listId);
-    const rememberMe = document.getElementById('rememberMe');
-    if (rememberMe) rememberMe.checked = false;
     if (!postList) {
         console.error(`No se encontró el contenedor con id "${listId}".`);
         return;
@@ -1549,7 +1097,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
     // Imagen del perfil
     const profilePicHTML = profilePicture
         ? `<img src="${escapeHTML(profilePicture)}" alt="Foto de perfil de ${escapeHTML(username)}" class="profile-picture">`
-        : `<img src="/default-profile.png" alt="Foto de perfil por defecto" class="profile-picture">`;
+        : `<img src="/resources/SVG/default-avatar.svg" alt="Foto de perfil por defecto" class="profile-picture">`;
 
     // Media del post
     let mediaHTML = '';
@@ -1625,70 +1173,7 @@ async function addpostToList(content, media, mediaType, username, profilePicture
         </div>
     `;
 
-    postsArray.push({ postElement: newpost, postId });
-
-    if (esUltimoPost) {
-        await cargarTotalesYOrdenar(listId, invertirOrden);
-    }
-    scrollPosts();
-}
-
-async function renderPostsOrdenados(listId, invertirOrden, totals) {
-    if (isSortingInProgress) return;
-
-    isSortingInProgress = true;
-    const postList = document.getElementById(listId);
-
-    try {
-        let sortedPosts = [...postsArray];
-
-        if (ordenarReacciones) {
-            // Ordenar por cantidad de reacciones
-            sortedPosts.sort((a, b) => {
-                const claveA = `Matesito_post-${a.postId}`;
-                const claveB = `Matesito_post-${b.postId}`;
-
-                const totalA = parseInt(totals[claveA] || 0);
-                const totalB = parseInt(totals[claveB] || 0);
-
-                return totalB - totalA; // Orden descendente (más reacciones primero)
-            });
-        } else {
-            // Ordenar por fecha de creación (más nuevos primero)
-            sortedPosts.sort((a, b) => {
-                const dateA = new Date(a.postElement.dataset.createdAt || 0);
-                const dateB = new Date(b.postElement.dataset.createdAt || 0);
-
-                return dateB - dateA; // Orden descendente (más nuevos primero)
-            });
-        }
-
-        if (invertirOrden) sortedPosts.reverse();
-
-        // Renderizar los posts ordenados
-        const fragment = document.createDocumentFragment();
-        sortedPosts.forEach(({ postElement }) => {
-            fragment.appendChild(postElement);
-        });
-
-        postList.innerHTML = '';
-        postList.appendChild(fragment);
-        postsArray = sortedPosts;
-
-    } catch (error) {
-        console.error('Error al ordenar:', error);
-    } finally {
-        isSortingInProgress = false;
-    }
-}
-
-async function cargarTotalesYOrdenar(listId, invertirOrden) {
-    try {
-        const totals = await cargarTotalesDeReacciones();
-        await renderPostsOrdenados(listId, invertirOrden, totals);
-    } catch (error) {
-        console.error("Error al cargar y ordenar posts:", error);
-    }
+    postList.appendChild(newpost);
 }
 
 function toggleReactions(postId) {
@@ -1740,65 +1225,24 @@ function toggleUserProfileBox(uniqueId) {
 }
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
-function viewProfile(username) {
+async function viewProfile(username) {
     currentProfileUsername = String(username || '');
-    // Ocultar la caja de publicaciones
+    activeForum = 0; activeChat = ''; activeGroup = '';
     document.getElementById('postBox').style.display = 'none';
-    document.getElementById('postList').style.display = 'none';
-
-
-    // Mostrar la sección de perfil
-    const profileHeader = document.getElementById('profileHeader');
-    profileHeader.style.display = 'block';
-    document.getElementById('profileList').innerHTML = '';
-    postsArray = [];
-    // Obtener detalles del usuario
-    fetch('/getUserDetails', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username: username })
-    })
-    .then(response => response.json())
-    .then(userDetails => {
-        // Actualizar la información del perfil
-        document.getElementById('profileImage').src = userDetails.profileImage;
-        document.getElementById('profileUsername').textContent = userDetails.username;
-        document.getElementById('profileDescription').textContent = userDetails.description || 'Sin descripción';
-
-        // Cargar los posts del usuario
-        const profileList = document.getElementById('profileList');
-        profileList.innerHTML = '';
-
-        fetch(`/posts/user/${username}`)
-            .then(response => response.json())
-            .then(posts => {
-                posts.forEach((post, index) => {
-                    const esUltimoPost = index === posts.length - 1;
-                    addpostToList(
-                        post.content, 
-                        post.media, 
-                        post.mediaType, 
-                        post.username, 
-                        post.profilePicture, 
-                        post.sensitive, 
-                        post.created_at, 
-                        post.userId, 
-                        post.postId, 
-                        'profileList', 
-                        invertirOrden,
-                        esUltimoPost
-                    );
-                });
-            });
-    })
-    .catch(error => {
-        console.error("Error al cargar detalles del usuario:", error);
-    });
-
-    // Mostrar solo la lista de perfil y ocultar todas las demás
+    document.getElementById('profileHeader').style.display = 'block';
     showOnlyMenu('profileList');
+    const feed = loadFeed('/posts/user/' + encodeURIComponent(username), 'profileList', loadAll);
+    const request = feedRequest;
+    try {
+        const user = await fetch('/getUserDetails', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username })
+        }).then(readResponse);
+        if (request !== feedRequest) return;
+        document.getElementById('profileImage').src = user.profileImage || '/resources/SVG/default-avatar.svg';
+        document.getElementById('profileUsername').textContent = user.username;
+        document.getElementById('profileDescription').textContent = user.description || 'Sin descripción';
+    } catch (error) { if (request === feedRequest) notify(error.message, 'error'); }
+    await feed;
 }
 
 // Función para volver a las publicaciones
@@ -1819,12 +1263,12 @@ function followUser(userId) {
 const followerId = users[activeUser].id; // El ID del usuario que está siguiendo
 
 if (!followerId) {
-    alert('Error: Usuario activo no encontrado');
+    notify('Error: Usuario activo no encontrado');
     return;
 }
 
 if (followerId === userId) {
-    alert('No puedes seguirte ti mismo');
+    notify('No puedes seguirte ti mismo');
     return;
 }
 
@@ -1842,11 +1286,11 @@ fetch('/followUser', {
     });
 })
 .then(data => {
-    alert(data.message); // Mensaje del backend
+    notify(data.message); // Mensaje del backend
 })
 .catch(error => {
     console.error('Error al seguir al usuario:', error);
-    alert(error.message || 'Error al seguir al usuario');
+    notify(error.message || 'Error al seguir al usuario');
 });
 }
 
@@ -1856,17 +1300,17 @@ fetch('/unfollowUser', {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ followerId, followedId })
 })
-.then(response => response.json())
+.then(readResponse)
 .then(data => {
     if (data.message === 'Has dejado de seguir a este usuario') {
-        alert('Has dejado de seguir a este usuario');
+        notify('Has dejado de seguir a este usuario');
     } else {
-        alert(data.message);
+        notify(data.message);
     }
 })
 .catch(error => {
     console.error('Error al dejar de seguir:', error);
-    alert('Error al dejar de seguir al usuario');
+    notify('Error al dejar de seguir al usuario');
 });
 }
 
@@ -1874,7 +1318,7 @@ function loadFollowedUsers() {
 const followerId = users[activeUser]?.id; // ID del usuario activo
 
 fetch(` /followedUsers/${followerId}`)
-    .then(response => response.json())
+    .then(readResponse)
     .then(users => {
         const container = document.getElementById('usersContainer');
         container.innerHTML = ''; // Limpiamos el contenedor
@@ -1918,7 +1362,7 @@ fetch(` /followedUsers/${followerId}`)
     })
     .catch(error => {
         console.error('Error al cargar los usuarios seguidos:', error);
-        alert('Error al cargar los usuarios seguidos');
+        notify('Error al cargar los usuarios seguidos');
     });
 }
 
@@ -1926,7 +1370,7 @@ function loadUserGroups() {
 const userId = users[activeUser]?.id; // ID del usuario activo
 
 fetch(` /grupos-usuario/${userId}`)
-.then(response => response.json())
+.then(readResponse)
 .then(groups => {
     const container = document.getElementById('joinedGruposContainer');
     const container1 = document.getElementById('createdGroupsContainer');
@@ -1980,7 +1424,7 @@ fetch(` /grupos-usuario/${userId}`)
 })
 .catch(error => {
     console.error('Error al cargar los grupos del usuario:', error);
-    alert('Error al cargar los grupos del usuario');
+    notify('Error al cargar los grupos del usuario');
 });
 }
 
@@ -1988,7 +1432,7 @@ function loadCreatedGroups() {
 const userId = users[activeUser]?.id; // ID del usuario activo
 
 fetch(` /grupos-creados/${userId}`)
-    .then(response => response.json())
+    .then(readResponse)
     .then(groups => {
         const container = document.getElementById('createdGroupsContainer');
         const container1 = document.getElementById('joinedGruposContainer');
@@ -2039,28 +1483,29 @@ fetch(` /grupos-creados/${userId}`)
     })
     .catch(error => {
         console.error('Error al cargar los grupos creados:', error);
-        alert('Error al cargar los grupos creados');
+        notify('Error al cargar los grupos creados');
     });
 }
 
-function deleteGroup(groupId) {
+async function deleteGroup(groupId) {
+if (!await confirmAction('¿Eliminar este grupo y sus mensajes?')) return;
 const userId = users[activeUser]?.id; // ID del suario activo
 
 fetch(` /grupo/${groupId}/${userId}`, {
     method: 'DELETE',
 })
-    .then(response => response.json())
+    .then(readResponse)
     .then(data => {
         if (data.message) {
-            alert(data.message); // Mostrar mensaje de éxito
+            notify(data.message); // Mostrar mensaje de éxito
             loadCreatedGroups(); // Volver a cargar los grupos creados
         } else {
-            alert(data.error); // Mostrar mensaje de error
+            notify(data.error); // Mostrar mensaje de error
         }
     })
     .catch(error => {
         console.error('Error al eliminar el grupo:', error);
-        alert('Error al eliminar el grupo');
+        notify('Error al eliminar el grupo');
     });
 }
 
@@ -2199,7 +1644,7 @@ if (query.trim().length < 1) {
 }
 
 fetch(`/search?query=${encodeURIComponent(query.trim())}`)
-    .then(response => response.json())
+    .then(readResponse)
     .then(data => {
         searchContainer.innerHTML = ''; // Limpiar resultados previos
 
@@ -2231,7 +1676,7 @@ fetch(`/search?query=${encodeURIComponent(query.trim())}`)
             userItem.className = 'SearchContainer user-item';
             userItem.style.cssText = 'margin-top: 5px; margin-bottom: 5px;';
             const image = document.createElement('img');
-            image.src = user.profilePicture || '/default-avatar.png';
+            image.src = user.profilePicture || '/resources/SVG/default-avatar.svg';
             image.alt = user.username || 'Usuario';
             image.className = 'profile-picture';
             const name = document.createElement('span');
@@ -2248,20 +1693,22 @@ fetch(`/search?query=${encodeURIComponent(query.trim())}`)
     })
     .catch(error => {
         console.error('Error al buscar:', error);
-        alert('Error al procesar la búsqueda');
+        notify('Error al procesar la búsqueda');
     });
 }
 
-function wait(ms) {
-return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async  function init() {
-toggleVisibility('postList');
-
-await wait(200);
-
-toggleVisibility('postList');
+async function init() {
+    checkRememberedUser();
+    HideOverlays();
+    try {
+        const response = await fetch('/session');
+        if (response.status === 401) { showUserSelectOverlay(); return; }
+        const session = await readResponse(response);
+        await activateUser(session.username);
+    } catch (error) {
+        notify('No se pudo recuperar la sesión: ' + error.message, 'error');
+        showUserSelectOverlay();
+    }
 }
 
 function scrollPosts() {
@@ -2274,6 +1721,5 @@ function scrollPosts() {
 //al cargar página
 window.onload = function() {
 verMant(mantenimiento);
-checkRememberedUser();
 init();
 };

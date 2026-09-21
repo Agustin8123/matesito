@@ -81,10 +81,14 @@ function performLoginCommon(username, password, loginPath = '/login') {
 
 function setActiveUser(username) {
     // Usar la función común definida en utils.js
-    activateUser(username).catch(error => {
+    return activateUser(username).catch(error => {
         console.error('Error al activar usuario:', error);
-        alert('Error al obtener los detalles del usuario.');
+        notify('Error al obtener los detalles del usuario.');
     });
+}
+
+function HideOverlays() {
+  hideMenus('initialOverlay', 'usernameOverlay', 'userSelectOverlay', 'AvisoOverlay', 'AvisoOverlay1');
 }
 
 // Obtiene detalles del usuario y activa la sesión en la UI
@@ -94,7 +98,7 @@ function activateUser(username) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username }),
   })
-  .then(response => response.json())
+  .then(readResponse)
   .then(data => {
     if (!data || !data.id) throw new Error('Usuario no encontrado');
 

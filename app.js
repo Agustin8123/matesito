@@ -9,7 +9,7 @@ const http = require('http');
 
 require('dotenv').config();
 const app = express();
-require('./ups-monitor')(app);
+if (require.main === module) require('./ups-monitor')(app);
 app.disable('x-powered-by');
 const port = Number(process.env.PORT) || 3000;
 const jwtSecret = process.env.JWT_SECRET;
@@ -84,7 +84,7 @@ app.use('/scripts.js', (req, res, next) => {
 });
 
 // Verificar conexión
-db.query('SELECT 1')
+if (require.main === module) db.query('SELECT 1')
   .then(() => console.log('Conexión a la base de datos PostgreSQL exitosa'))
   .catch(err => console.error('Error al conectar a la base de datos:', err));
 
@@ -93,7 +93,8 @@ function getToken(req) {
     if (header && header.startsWith('Bearer ')) return header.slice(7);
     const cookies = (req.headers.cookie || '').split(';').map(value => value.trim());
     const authCookie = cookies.find(value => value.startsWith('auth_token='));
-    return authCookie ? decodeURIComponent(authCookie.slice('auth_token='.length)) : null;
+    try { return authCookie ? decodeURIComponent(authCookie.slice('auth_token='.length)) : null; }
+    catch { return null; }
 }
 
 function requireAuth(req, res, next) {
@@ -150,7 +151,7 @@ function validReactionPostId(value) {
       const result = await db.query(
         `SELECT SUM(count) AS total_count 
          FROM reactions 
-         WHERE id LIKE $1 || '%' AND reaction_id = $2`,
+         WHERE id = $1 AND reaction_id = $2`,
         [id, reaction]
       );
   
@@ -182,7 +183,7 @@ function validReactionPostId(value) {
         if (existingReaction.rows.length > 0) {
             const previousReaction = existingReaction.rows[0].reaction_id;
 
-            if (previousReaction === reaction) {
+            if (String(previousReaction) === reaction) {
                 // Si ya reaccionó con la misma, la eliminamos
                 await db.query('DELETE FROM user_reactions WHERE user_id = $1 AND post_id = $2', [userId, id]);
                 await db.query('UPDATE reactions SET count = count - 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
@@ -230,10 +231,6 @@ app.get('/get/microreact--reactionss/:id', async (req, res) => {
             [id]
         );
         
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'No reactions found for this post' });
-        }
-
         const reactions = result.rows.map(row => ({
             reaction_id: row.reaction_id,
             count: row.count || 0, // Asegurar que el conteo no sea null
@@ -280,9 +277,10 @@ app.post('/users', async (req, res) => {
 
     const query = 'INSERT INTO public.users (username, password, image, description) VALUES ($1, $2, $3, $4) RETURNING id';
     try {
-        const result = await db.query(query, [username.trim(), hashedPassword, profileImage || 'default-avatar.png',
+        const result = await db.query(query, [username.trim(), hashedPassword, profileImage || '/resources/SVG/default-avatar.svg',
             validText(description, 1000) ? description.trim() : null]);
         const userId = result.rows[0].id;
+        setAuthCookie(res, jwt.sign({ id: userId, username: username.trim() }, authSecret, { expiresIn: '7d' }));
         res.status(201).json({ id: userId, username: username.trim() });
     } catch (err) {
         console.error('Error al insertar usuario:', err);
@@ -372,26 +370,29 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
         (is_private !== undefined && typeof is_private !== 'boolean')) {
         return res.status(400).json({ error: 'Contenido o remitente inválido' });
     }
+    let client;
     try {
+        client = await db.connect();
+        await client.query('BEGIN');
         const numericForumId = Number(forumId);
         if (is_private) {
-            const chat = await db.query(
+            const chat = await client.query(
                 'SELECT 1 FROM chats WHERE id = $1 AND (user1_id = $2 OR user2_id = $2)',
                 [numericForumId, req.user.id]
             );
-            if (!chat.rows.length) return res.status(403).json({ error: 'Acceso denegado' });
+            if (!chat.rows.length) { await client.query('ROLLBACK'); return res.status(403).json({ error: 'Acceso denegado' }); }
         } else {
-            const participant = await db.query(
+            const participant = await client.query(
                 'SELECT 1 FROM participantes WHERE forum_or_group_id = $1 AND user_id = $2 AND is_group = FALSE',
                 [numericForumId, req.user.id]
             );
-            if (!participant.rows.length) return res.status(403).json({ error: 'Acceso denegado' });
+            if (!participant.rows.length) { await client.query('ROLLBACK'); return res.status(403).json({ error: 'Acceso denegado' }); }
         }
         // Crear el ID del foro con prefijo
         const formattedForumId = is_private ? `C-${forumId}` : `F-${forumId}`;
 
         // Insertar mensaje
-        const result = await db.query(
+        const result = await client.query(
             `INSERT INTO mensajes (chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
              RETURNING id, chat_or_group_id, content, sensitive, sender_id, created_at, media, media_type, is_private`,
@@ -404,12 +405,12 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
         const formattedId = is_private ? `C-${mensaje.id}` : `F-${mensaje.id}`;
 
         // Actualizar el ID del mensaje
-        await db.query(`UPDATE mensajes SET id = $1 WHERE id = $2`, [formattedId, mensaje.id]);
+        await client.query(`UPDATE mensajes SET id = $1 WHERE id = $2`, [formattedId, mensaje.id]);
 
         mensaje.id = formattedId;
 
         if (is_private) {
-            const receptor = await db.query(
+            const receptor = await client.query(
                 `SELECT CASE 
                     WHEN user1_id = $1 THEN user2_id 
                     ELSE user1_id 
@@ -420,14 +421,14 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
             );
 
             if (receptor.rows.length > 0) {
-                await db.query(
+                await client.query(
                     `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
                      VALUES ($1, 'mensaje', $2, $3)`,
                     [receptor.rows[0].receptor, formattedId, formattedForumId]
                 );
             }
         } else {
-            await db.query(
+            await client.query(
                 `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
                  SELECT user_id, 'foro', $1, $2 FROM participantes
                  WHERE forum_or_group_id = $3 AND is_group = FALSE AND user_id != $4`,
@@ -435,13 +436,15 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
             );
         }
 
+        await client.query('COMMIT');
         io.emit(is_private ? 'reloadCPosts' : 'reloadFPosts');
         res.status(201).json(mensaje);
 
     } catch (error) {
+        if (client) await client.query('ROLLBACK').catch(() => {});
         console.error('Error al guardar el mensaje:', error);
         res.status(500).json({ error: 'Error al guardar el mensaje' });
-    }
+    } finally { client?.release(); }
 });
 
 
@@ -498,7 +501,7 @@ app.get('/posts', (req, res) => {
         t.id AS postId, t.username, t.content, t.media, t.mediatype, t.created_at, t.sensitive,
         u.id AS userId, u.image AS profilePicture
         FROM posts t
-        JOIN public.users u ON t.username = u.username
+        LEFT JOIN public.users u ON t.username = u.username
         ORDER BY t.created_at DESC
     `;
     
@@ -533,7 +536,7 @@ app.get('/posts/user/:username', (req, res) => {
         t.id AS postId, t.username, t.content, t.media, t.mediatype, t.created_at, t.sensitive,
         u.id AS userId, u.image AS profilePicture
         FROM posts t
-        JOIN public.users u ON t.username = u.username
+        LEFT JOIN public.users u ON t.username = u.username
         WHERE t.username = $1
         ORDER BY t.created_at DESC
     `;
@@ -579,7 +582,7 @@ app.post('/getUserDetails', (req, res) => {
             res.status(200).json({
                 id: user.id,
                 username: user.username,
-                profileImage: user.image || 'default-avatar.png',
+                profileImage: user.image || '/resources/SVG/default-avatar.svg',
                 description: user.description || ''
             });
         } else {
@@ -633,35 +636,32 @@ app.put('/updateDescription', requireAuth, (req, res) => {
 });
 
 // Ruta para actualizar el nombre de usuario
-app.put('/updateUsername', requireAuth, (req, res) => {
+app.put('/updateUsername', requireAuth, async (req, res) => {
     const { currentUsername, newUsername } = req.body;
-
     if (currentUsername !== req.user.username || !validText(newUsername, 25)) {
-        return res.status(400).json({ error: 'Datos incompletos' });
-    }
-
-    const normalizedUsername = newUsername.trim();
-    if (!validText(normalizedUsername, 25)) {
         return res.status(400).json({ error: 'Nombre de usuario inválido' });
     }
-    const query = 'UPDATE public.users SET username = $1 WHERE id = $2';
-    db.query(query, [normalizedUsername, req.user.id], (err, result) => {
-        if (err) {
-            console.error('Error al actualizar el nombre de usuario:', err);
-            return res.status(err.code === '23505' ? 409 : 500).json({ error: 'Error al actualizar el nombre de usuario' });
+    let client;
+    try {
+        client = await db.connect();
+        await client.query('BEGIN');
+        const current = await client.query('SELECT username FROM public.users WHERE id = $1 FOR UPDATE', [req.user.id]);
+        if (!current.rows.length) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Usuario no encontrado' });
         }
-
-        if (result.rowCount > 0) {
-            setAuthCookie(res, jwt.sign(
-                { id: req.user.id, username: normalizedUsername },
-                authSecret,
-                { expiresIn: '7d' }
-            ));
-            res.status(200).json({ success: true, message: 'Nombre de usuario actualizado con éxito' });
-        } else {
-            res.status(404).json({ success: false, message: 'Usuario no encontrado' });
-        }
-    });
+        const normalized = newUsername.trim();
+        const oldName = current.rows[0].username;
+        await client.query('UPDATE public.users SET username = $1 WHERE id = $2', [normalized, req.user.id]);
+        // Los posts históricos usan el nombre como vínculo con el autor.
+        await client.query('UPDATE posts SET username = $1 WHERE username = $2', [normalized, oldName]);
+        await client.query('COMMIT');
+        setAuthCookie(res, jwt.sign({ id: req.user.id, username: normalized }, authSecret, { expiresIn: '7d' }));
+        res.json({ success: true, message: 'Nombre de usuario actualizado con éxito' });
+    } catch (error) {
+        if (client) await client.query('ROLLBACK').catch(() => {});
+        res.status(error.code === '23505' ? 409 : 500).json({ error: error.code === '23505' ? 'Ese nombre ya está en uso' : 'No se pudo actualizar el nombre' });
+    } finally { client?.release(); }
 });
 
 // Ruta para actualizar la contraseña
@@ -1474,8 +1474,11 @@ app.post('/group/messages/:groupId', requireAuth, async (req, res) => {
         (mediaType !== undefined && mediaType !== null && !validText(mediaType, 100))) {
         return res.status(400).json({ error: 'Contenido o remitente inválido' });
     }
+    let client;
     try {
-        const isParticipant = await db.query(
+        client = await db.connect();
+        await client.query('BEGIN');
+        const isParticipant = await client.query(
             `SELECT COUNT(*) 
              FROM participantes 
              WHERE forum_or_group_id = $1 
@@ -1485,12 +1488,13 @@ app.post('/group/messages/:groupId', requireAuth, async (req, res) => {
         );
 
         if (parseInt(isParticipant.rows[0].count) === 0) {
+            await client.query('ROLLBACK');
             return res.status(403).json({ error: 'No tienes permiso para publicar en este grupo.' });
         }
 
         const formattedGroupId = `G-${groupId}`;
 
-        const result = await db.query(
+        const result = await client.query(
             `INSERT INTO mensajes (chat_or_group_id, sender_id, content, sensitive, media, media_type, is_private, created_at)
              VALUES ($1, $2, $3, $4, $5, $6, FALSE, NOW())
              RETURNING id, chat_or_group_id, content, sensitive, sender_id, media, media_type, created_at`,
@@ -1500,22 +1504,24 @@ app.post('/group/messages/:groupId', requireAuth, async (req, res) => {
         const mensaje = result.rows[0];
         const formattedId = `G-${mensaje.id}`;
 
-        await db.query(`UPDATE mensajes SET id = $1 WHERE id = $2`, [formattedId, mensaje.id]);
+        await client.query(`UPDATE mensajes SET id = $1 WHERE id = $2`, [formattedId, mensaje.id]);
         mensaje.id = formattedId;
 
-        await db.query(
+        await client.query(
             `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
              SELECT user_id, 'grupo', $1, $2 FROM participantes
              WHERE forum_or_group_id = $3 AND is_group = TRUE AND user_id != $4`,
             [formattedId, formattedGroupId, groupId, sender_id]
         );
 
+        await client.query('COMMIT');
         io.emit('reloadGPosts');
         res.status(201).json(mensaje);
     } catch (error) {
+        if (client) await client.query('ROLLBACK').catch(() => {});
         console.error('Error al publicar el mensaje:', error);
         res.status(500).json({ error: 'Error al publicar el mensaje.' });
-    }
+    } finally { client?.release(); }
 });
 
 app.get('/notificaciones/:user_id', requireAuth, async (req, res) => {
@@ -1596,6 +1602,18 @@ app.put('/notificaciones/:user_id/leer', requireAuth, async (req, res) => {
     }
 });
 
+app.get('/session', requireAuth, async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    try {
+        const result = await db.query('SELECT id, username FROM public.users WHERE id = $1', [req.user.id]);
+        if (!result.rows.length) return res.status(401).json({ error: 'La cuenta ya no existe' });
+        // Refresh the signed name if it was changed from another tab.
+        const user = result.rows[0];
+        if (user.username !== req.user.username) setAuthCookie(res, jwt.sign(user, authSecret, { expiresIn: '7d' }));
+        res.json(user);
+    } catch (error) { res.status(500).json({ error: 'No se pudo recuperar la sesión' }); }
+});
+
 app.use(express.static(path.join(__dirname, 'public'), {
     etag: false,
     lastModified: false,
@@ -1659,6 +1677,8 @@ app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'public', 'error.html'));
 });
 
-server.listen(port, () => {
+if (require.main === module) server.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
 });
+
+module.exports = { app, server, db, io };
