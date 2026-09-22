@@ -64,7 +64,8 @@ function attachUpsMonitor(app, opts = {}) {
   }
 
   tick();
-  setInterval(tick, pollMs);
+  const timer = setInterval(tick, pollMs);
+  timer.unref?.();
 
   app.get(path, (req, res) => {
     if (!latest) {
@@ -78,9 +79,10 @@ function attachUpsMonitor(app, opts = {}) {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
     });
     res.flushHeaders?.();
-    if (latest) res.write(`data: ${JSON.stringify(currentPayload())}\n\n`);
+    res.write(`data: ${JSON.stringify(currentPayload())}\n\n`);
     clients.add(res);
     req.on('close', () => clients.delete(res));
   });

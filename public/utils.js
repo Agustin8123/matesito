@@ -22,7 +22,7 @@ function toggleMenuExtras() {
 
 function updateUserButton() {
 const userButton = document.querySelector('#userButton');
-if (!userButton) return;
+if (!userButton || typeof users === 'undefined' || typeof activeUser === 'undefined') return;
 
 // Usar la imagen del usuario activo, o una predeterminada si no existe
 const userImage = users[activeUser] && users[activeUser].profileImage
@@ -131,7 +131,7 @@ updateUserButton();
 const profileImageInput = document.getElementById('profileImage');
     const userButton = document.getElementById('userButton');
 
-    if (!profileImageInput || !userButton) return;
+    if (!profileImageInput || profileImageInput.type !== 'file' || !userButton) return;
 
     profileImageInput.addEventListener('change', () => {
         const file = profileImageInput.files[0];
@@ -144,6 +144,7 @@ const profileImageInput = document.getElementById('profileImage');
         image.src = previewURL;
         image.alt = activeUser || 'Usuario';
         image.className = 'profile-pic-img';
+        image.addEventListener('load', () => URL.revokeObjectURL(previewURL), { once: true });
         userButton.appendChild(image);
     });
 });

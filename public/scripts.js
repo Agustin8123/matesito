@@ -1,4 +1,4 @@
-let users = {};  // Objeto para almacenar los usuarios y contrase
+let users = Object.create(null);  // Objeto para almacenar los usuarios y contrase
 let activeUser = '';  // Variable para el usuario activo
 let activeForum = 0;
 let activeChat = '';
@@ -20,8 +20,6 @@ let loadAll = false;
 let invertirOrden = false;
 let ordenarReacciones = false;
 
-let isSortingInProgress = false;
-let postsArray = []; // Guardará los posts temporalmente
 
 let loginWidgetId = null;
 let registerWidgetId = null;
@@ -39,12 +37,11 @@ async function closeSesion() {
     try {
         const response = await fetch('/logout', { method: 'POST' });
         if (!response.ok) throw new Error('No se pudo cerrar la sesión.');
-        users = {};
+        users = Object.create(null);
         activeUser = '';
-        lastpostContent = '';
         lastMessageContentByContext.clear();
         for (const name of ['username', 'userID']) document.cookie = name + '=; Max-Age=0; path=/;';
-        localStorage.removeItem('userID');
+        try { localStorage.removeItem('userID'); } catch { /* Storage can be disabled. */ }
         updateUserButton();
         document.getElementById('appContainer').style.display = 'none';
         document.getElementById('initialOverlay').style.display = 'flex';
@@ -99,7 +96,6 @@ image.className = 'profile-pic-img';
 userButton.appendChild(image);
 }
 
-let lastpostContent = "";
 const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'merca', 'falopa', 'cocaína', 'kok4', 'c0ca', 'cocaína', 'marihuana', 'weed', 'hierba', 'porro', 'mota', 'cannabis', '4:20', 'maría', '420', 'hachís', 'thc', 'éxtasis', 'éxt4sis', 'xtc', 'mdma', 'éxtasis', 'lsd', 'ácido', 'trips', 'lsd', 'd.r.o.g.a', 'dro@g@', 'DrOgA', 'dRoJA'];
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -112,6 +108,7 @@ function reloadPosts(){
 } 
 
 function reloadFG(){
+    if (!users[activeUser]?.id) return;
     loadCreatedGroups();
     loadUserCreatedForums();
     loadUserForums();
@@ -144,14 +141,7 @@ function useExistingUser() {
     if (typeof turnstile === 'undefined') return notify('La verificación de seguridad todavía no cargó. Intentá nuevamente.', 'error');
     if (loginWidgetId === null) {
         loginWidgetId = turnstile.render('#turnstileLogin', {
-            sitekey: '0x4AAAAAACXaLFPU3wAuzN1y',
-            callback: function(token) {
-                const rememberMe = document.getElementById('rememberMe').checked;
-
-                if (rememberMe) {
-                    loginUser();
-                }
-            }
+            sitekey: '0x4AAAAAACXaLFPU3wAuzN1y'
         });
     } else if (typeof turnstile !== 'undefined') {
         turnstile.reset(loginWidgetId);
@@ -185,39 +175,22 @@ if (rememberMe) {
 }
 
 // Función de login
-function loginUser() {
-const username = document.getElementById('usernameInput').value.trim();
-const password = document.getElementById('passwordInput').value;
-const rememberMe = document.getElementById('rememberMe').checked;
-const token = typeof turnstile !== 'undefined' && loginWidgetId !== null ? turnstile.getResponse(loginWidgetId) : '';
-
-if (!token) {
-    notify("Completa la verificación de seguridad.");
-    return;
-}
-
-fetch('/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password, token })
-})
-.then(readResponse)
-.then(data => {
-    if (data.username) {
-        setActiveUser(data.username); // Función para actualizar el usuario activo
-        saveSession(username, rememberMe); // El servidor mantiene el token en una cookie HttpOnly
-        document.getElementById('usernameOverlay').style.display = 'none';
-        document.getElementById('initialOverlay').style.display = 'none';
-    } else {
-        notify('Error al iniciar sesión');
-        
-    }
-    if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
-})
-.catch(error => {
-    notify('Error de conexión');
-    if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
-});
+let authPending = false;
+async function loginUser() {
+    if (authPending) return;
+    const username = document.getElementById('usernameInput').value.trim();
+    const password = document.getElementById('passwordInput').value;
+    const token = typeof turnstile !== 'undefined' && loginWidgetId !== null ? turnstile.getResponse(loginWidgetId) : '';
+    if (!username || !password) return notify('Completá usuario y contraseña.', 'error');
+    if (!token) return notify('Completá la verificación de seguridad.', 'error');
+    authPending = true;
+    try {
+        const data = await fetch('/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, token }) }).then(readResponse);
+        await activateUser(data.username);
+        saveSession(data.username, document.getElementById('rememberMe').checked);
+        document.getElementById('passwordInput').value = '';
+    } catch (error) { notify(error.message, 'error'); }
+    finally { authPending = false; turnstile.reset(loginWidgetId); }
 }
 
 // Obtener cookies
@@ -230,7 +203,7 @@ if (parts.length === 2) return parts.pop().split(';').shift();
 function checkRememberedUser() {
     const username = getCookie('username');
     if (username) {
-        document.getElementById('usernameInput').value = decodeURIComponent(username);
+        try { document.getElementById('usernameInput').value = decodeURIComponent(username); } catch { return; }
         document.getElementById('rememberMe').checked = true;
     }
 }
@@ -244,104 +217,42 @@ document.getElementById('userSelectOverlay').style.display = 'none';
 document.querySelector('.header button').style.display = 'block';
 }
 
-function addNewUser() {
-const usernameInput = document.getElementById('newUsernameInput');
-const passwordInput = document.getElementById('newPasswordInput');
-const profileImageInput = document.getElementById('newProfileImage');
-const username = usernameInput.value.trim();
-const password = passwordInput.value;
-const token = typeof turnstile !== 'undefined' && registerWidgetId !== null ? turnstile.getResponse(registerWidgetId) : '';
-
-if (!token) {
-    notify("Completa la verificación de seguridad.");
-    return;
-}
-
-// Validar longitud del nombre de usuario
-if (username.length > 25) {
-    notify('El nombre de usuario no puede tener más de 25 caracteres.');
-    return;
-}
-
-if (!username || !password) {
-    notify('Por favor, introduce un nombre o apodo y contraseña válidos.');
-    return;
-}
-
-if (!document.getElementById('acceptTermsCheckbox').checked) {
-    notify('Debes aceptar los términos y condiciones para continuar.');
-    return;
-}
-
-let profileImageURL = 'resources/SVG/default-avatar.svg'; // Imagen predeterminada
-
-if (profileImageInput.files && profileImageInput.files[0]) {
-    const formData = new FormData();
-    formData.append('file', profileImageInput.files[0]);
-    formData.append('upload_preset', 'matesito'); // Cambia esto por tu preset en Cloudinary
-
-    fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
-        method: 'POST',
-        body: formData,
-    })
-    .then(readResponse)
-    .then(data => {
-        profileImageURL = data.secure_url; // URL de la imagen subida
-        createUserInDatabase(username, password, profileImageURL, "No hay descripción todavia.", token);
-    })
-    .catch(error => {
-        console.error('Error al subir la imagen:', error);
-        notify('No se pudo subir la imagen de perfil. Inténtalo de nuevo.');
-    });
-} else {
-    createUserInDatabase(username, password, profileImageURL, "No hay descripción todavia.", token);
-}
-
-usernameInput.value = '';
-passwordInput.value = '';
-profileImageInput.value = '';
-const descriptionInput = document.getElementById('descriptionInput');
-if (descriptionInput) descriptionInput.value = '';
-}
-
-
-function createUserInDatabase(username, password, profileImageURL, description, token) {
- const userData = {
-        username,
-        password,
-        profileImage: profileImageURL,
-        description: description || null,
-        token
-    };
-
-    fetch('/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
-    })
-    .then(readResponse)
-    .then(data => {
-        if (data.id) {
-            setActiveUser(username);
-        } else {
-            notify('error al crear el usuario');
-            
+async function addNewUser() {
+    if (authPending) return;
+    const usernameInput = document.getElementById('newUsernameInput');
+    const passwordInput = document.getElementById('newPasswordInput');
+    const fileInput = document.getElementById('newProfileImage');
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    const token = typeof turnstile !== 'undefined' && registerWidgetId !== null ? turnstile.getResponse(registerWidgetId) : '';
+    if (!username || username.length > 25 || !password.trim() || password.length > 128) return notify('Revisá el usuario (hasta 25 caracteres) y la contraseña (hasta 128).', 'error');
+    if (!document.getElementById('acceptTermsCheckbox').checked) return notify('Debés aceptar los términos para crear tu cuenta.', 'error');
+    if (!token) return notify('Completá la verificación de seguridad.', 'error');
+    authPending = true;
+    const button = document.getElementById('createUserButton'); button.disabled = true;
+    try {
+        let profileImage = '/resources/SVG/default-avatar.svg';
+        const file = fileInput.files[0];
+        if (file) {
+            if (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) throw new Error('Elegí una imagen de hasta 10 MB.');
+            const form = new FormData(); form.append('file', file); form.append('upload_preset', 'matesito');
+            const upload = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', { method: 'POST', body: form }).then(readResponse);
+            if (!upload.secure_url) throw new Error('No se pudo subir la imagen.');
+            profileImage = upload.secure_url;
         }
-        if (registerWidgetId !== null) turnstile.reset(registerWidgetId);
-
-    })
-    .catch(error => {
-        console.error('Error al crear el usuario:', error);
-        notify('Hubo un error al crear el usuario.');
-        if (registerWidgetId !== null) turnstile.reset(registerWidgetId);
-    });
+        const user = await fetch('/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, profileImage, token }) }).then(readResponse);
+        if (!user.id) throw new Error('No se pudo confirmar la creación de la cuenta.');
+        usernameInput.value = ''; passwordInput.value = ''; fileInput.value = '';
+        await activateUser(user.username);
+        notify('Tu cuenta está lista. ¡Bienvenido a la ronda!', 'success');
+    } catch (error) { notify(error.message, 'error'); }
+    finally { authPending = false; button.disabled = !document.getElementById('acceptTermsCheckbox').checked; turnstile.reset(registerWidgetId); }
 }
-
 
 function createForum() {
 const forumName = document.getElementById('forumName').value.trim();
 const forumDescription = document.getElementById('forumDescription').value.trim();
-const ownerId = users[activeUser].id;
+const ownerId = users[activeUser]?.id;
 
 if (forumName.length > 30) {
     notify('El nombre del foro no puede tener más de 30 caracteres.');
@@ -370,6 +281,9 @@ fetch('/foros', {
         notify(`Error: ${data.error}`); // Manejar error si el foro ya existe
     } else {
         notify(`Foro creado exitosamente: ${data.name}`);
+        reloadFG();
+        document.getElementById('forumName').value = '';
+        document.getElementById('forumDescription').value = '';
         createForumMenu();
     }
 })
@@ -381,7 +295,7 @@ fetch('/foros', {
 function createGroup() {
 const groupName = document.getElementById('groupName').value.trim();
 const groupDescription = document.getElementById('groupDescription').value.trim();
-const ownerId = users[activeUser].id;
+const ownerId = users[activeUser]?.id;
 
 // Validar longitud del nombre del grupo
 if (groupName.length > 30) {
@@ -422,7 +336,7 @@ fetch('/grupos', {
     document.getElementById('groupName').value = '';
     document.getElementById('groupDescription').value = '';
     document.getElementById('inviteCode').value = `${data.invite_code}`;
-    joinGroup();
+    reloadFG();
     createGroupMenu();
 })
 .catch(error => {
@@ -432,7 +346,8 @@ fetch('/grupos', {
 
 function joinGroup() {
 const inviteCode = document.getElementById('inviteCode').value.trim();
-const userId = users[activeUser].id;
+const userId = users[activeUser]?.id;
+if (!userId) return;
 
 if (!inviteCode) {
     notify('Por favor, ingresa un código de invitación.');
@@ -454,6 +369,7 @@ fetch('/unir-grupo', {
 })
 .then(data => {
     notify(data.message);
+    reloadFG();
     // Opcional: redirigir o actualizar la interfaz
 })
 .catch(error => {
@@ -462,7 +378,7 @@ fetch('/unir-grupo', {
 }
 
 async function leaveGroup(groupId) {
-const userId = users[activeUser].id;
+const userId = users[activeUser]?.id;
 if (!await confirmAction('¿Estás seguro de que deseas salir del grupo?')) {
     return; // Si el usuario cancela, no hacemos nada
 }
@@ -482,61 +398,39 @@ fetch('/salir-grupo', {
 })
 .then(data => {
     notify(data.message);
+    reloadFG();
 })
 .catch(error => {
     notify(`Error: ${error.message}`);
 });
 }
 
-function loadForos() {
-fetch('/foros')
-    .then(readResponse)
-    .then(foros => {
-        const container = document.getElementById('forosContainer');
-        container.innerHTML = '';
-
-        if (foros.length === 0) {
-            const noForosMessage = document.createElement('p');
-            noForosMessage.textContent = 'No hay nada aquí';
-            noForosMessage.style.textAlign = 'center';
-            noForosMessage.style.color = 'gray';
-            container.appendChild(noForosMessage);
-        } else {
-            foros.forEach((foro, index) => {
-                const uniqueId = `${foro.id}-${index}-${Date.now()}`;
-                const foroElement = document.createElement('div');
-                foroElement.classList.add('user');
-
-                foroElement.innerHTML = `
-                    <label for="label-${uniqueId}" class="boton">${foro.name}</label>
-                    <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
-                    <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 190px; top: -20px;">
-                        <h2 style="margin-top: -5px;">${foro.name}</h2>
-                        <p style="margin-top: -10px;">${foro.description}</p>
-                        <p style="font-size: 0.9em; color: gray;">Creado por: <strong>${foro.ownerName}</strong></p>
-                        <label for="view-${uniqueId}" class="boton">Ver Foro</label>
-                        <input type="radio" id="view-${uniqueId}" name="nav" style="display:none;" onclick="loadForumPosts(${foro.id})">
-                        <label for="follow-${uniqueId}" class="boton">Seguir foro</label>
-                        <input type="radio" id="follow-${uniqueId}" name="nav" style="display:none;" onclick="joinForum(${foro.id})">
-                        <label for="back-${uniqueId}" class="botonV">Volver</label>
-                        <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
-                    </div>
-                `;
-
-                container.appendChild(foroElement);
-            });
+async function loadForumMenu(kind) {
+    const userId = users[activeUser]?.id;
+    if (kind !== 'all' && !userId) return;
+    const container = document.getElementById(kind === 'all' ? 'forosContainer' : kind === 'followed' ? 'forosContainer2' : 'createdForosContainer');
+    const url = kind === 'all' ? '/foros' : kind === 'followed' ? '/userForums/' + userId : '/userCreatedForums/' + userId;
+    try {
+        const forums = await fetch(url).then(readResponse);
+        container.replaceChildren();
+        if (!forums.length) container.textContent = 'No hay foros en esta lista todavía.';
+        for (const forum of forums) {
+            const card = document.createElement('div'); card.className = 'forum-item';
+            const title = document.createElement('h3'); title.textContent = forum.name;
+            const description = document.createElement('p'); description.textContent = forum.description;
+            card.append(title, description, menuButton('Ver foro', () => loadForumPosts(forum.id, loadAll)),
+                menuButton(kind === 'created' ? 'Eliminar foro' : kind === 'followed' ? 'Dejar de seguir' : 'Seguir foro',
+                    () => kind === 'created' ? deleteForum(forum.id) : kind === 'followed' ? leaveForum(forum.id) : joinForum(forum.id)));
+            container.appendChild(card);
         }
-    })
-    .catch(error => {
-        console.error('Error al cargar los foros:', error);
-        notify("Error al cargar los foros");
-    });
+    } catch (error) { notify(error.message, 'error'); }
 }
+function loadForos() { return loadForumMenu('all'); }
 
 function joinForum(forumId) {
 // Asegúrate de que 'users.id' esté correctamente definido en tu aplicación
 const data = {
-    userId: users[activeUser].id, // ID del usuario activo
+    userId: users[activeUser]?.id, // ID del usuario activo
     forumId: forumId  // ID del foro que se pasa como parámetro
 };
 
@@ -564,7 +458,7 @@ fetch('/joinForum', {
 function leaveForum(forumId) {
 // Asegúrate de que 'users.id' esté correctamente definido en tu aplicación
 const data = {
-    userId: users[activeUser].id, // ID del usuario activo
+    userId: users[activeUser]?.id, // ID del usuario activo
     forumId: forumId  // ID del foro que se pasa como parámetro
 };
 
@@ -589,100 +483,11 @@ fetch('/leaveForum', {
 });
 }
 
-function loadUserForums() {
-const userId = users[activeUser].id;
+function loadUserForums() { return loadForumMenu('followed'); }
+function loadUserCreatedForums() { return loadForumMenu('created'); }
 
-fetch(` /userForums/${userId}`)
-    .then(readResponse)
-    .then(forums => {
-        const container = document.getElementById('forosContainer2');
-        container.innerHTML = ''; // Limpiamos el contenedor
-
-        if (forums.length === 0) {
-            const noForumsMessage = document.createElement('p');
-            noForumsMessage.textContent = 'No hay foros a los que estés unido';
-            noForumsMessage.style.textAlign = 'center';
-            noForumsMessage.style.color = 'gray';
-            container.appendChild(noForumsMessage);
-        } else {
-            forums.forEach((foro, index) => {
-                const uniqueId = `${foro.id}-${index}-${Date.now()}`; // ID único
-                const forumElement = document.createElement('div');
-                forumElement.classList.add('user');
-
-                forumElement.innerHTML = `
-                    <label for="label-${uniqueId}" class="boton">${foro.name}</label>
-                    <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
-                    <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
-                        <h2 style="margin-top: -5px;">${foro.name}</h2>
-                        <p style="margin-top: -10px;">${foro.description}</p>
-                        <p style="font-size: 0.9em; color: gray;">Creado por: <strong>${foro.owner_name}</strong></p>
-                        <label for="view-${uniqueId}" class="boton">Ver Foro</label>
-                        <input type="radio" id="view-${uniqueId}" name="nav" style="display:none;" onclick="loadForumPosts(${foro.id})">
-                        <label for="follow-${uniqueId}" class="boton">Dejar foro</label>
-                        <input type="radio" id="follow-${uniqueId}" name="nav" style="display:none;" onclick="leaveForum(${foro.id})">
-                        <label for="back-${uniqueId}" class="botonV">Volver</label>
-                        <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
-                    </div>
-                `;
-
-                container.appendChild(forumElement);
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error al cargar los foros del usuario:', error);
-        notify('Error al cargar los foros del usuario');
-    });
-}
-
-function loadUserCreatedForums() {
-const userId = users[activeUser].id; // ID del usuario activo
-
-fetch(` /userCreatedForums/${userId}`)
-    .then(readResponse)
-    .then(forums => {
-        const container = document.getElementById('createdForosContainer');
-        container.innerHTML = ''; // Limpiamos el contenedor
-
-        if (forums.length === 0) {
-            const noForumsMessage = document.createElement('p');
-            noForumsMessage.textContent = 'No has creado ningún foro';
-            noForumsMessage.style.textAlign = 'center';
-            noForumsMessage.style.color = 'gray';
-            container.appendChild(noForumsMessage);
-        } else {
-            forums.forEach((foro, index) => {
-                const uniqueId = `${foro.id}-${index}-${Date.now()}`; // ID único
-                const forumElement = document.createElement('div');
-                forumElement.classList.add('user');
-
-                forumElement.innerHTML = `
-                    <label for="label-${uniqueId}" class="boton">${foro.name}</label>
-                    <input type="radio" id="label-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
-                    <div id="menu-${uniqueId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
-                        <h2 style="margin-top: -5px;">${foro.name}</h2>
-                        <p style="margin-top: -10px;">${foro.description}</p>
-                        <label for="view-${uniqueId}" class="boton">Ver Foro</label>
-                        <input type="radio" id="view-${uniqueId}" name="nav" style="display:none;" onclick="loadForumPosts(${foro.id})">
-                        <label for="delete-${uniqueId}" class="boton">Eliminar Foro</label>
-                        <input type="radio" id="delete-${uniqueId}" name="nav" style="display:none;" onclick="deleteForum(${foro.id})">
-                        <label for="back-${uniqueId}" class="botonV">Volver</label>
-                        <input type="radio" id="back-${uniqueId}" name="nav" style="display:none;" onclick="toggle_ForumMenu('menu-${uniqueId}')">
-                    </div>
-                `;
-
-                container.appendChild(forumElement);
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error al cargar los foros creados por el usuario:', error);
-        notify('Error al cargar los foros creados por el usuario');
-    });
-}
 async function deleteForum(forumId) {
-const userId = users[activeUser].id; // ID del usuario activo
+const userId = users[activeUser]?.id; // ID del usuario activo
 
 // Confirmar la eliminación
 const confirmDelete = await confirmAction('¿Estás seguro de que deseas eliminar este foro?');
@@ -804,7 +609,7 @@ async function publishContent(kind, contextId) {
     if (lastMessageContentByContext.get(context) === content) return notify('No podés enviar el mismo texto dos veces seguidas.', 'error');
     const isPost = kind === 'post';
     const payload = isPost ? { username: activeUser, content, sensitive }
-        : { content, sensitive, sender_id: users[activeUser].id, is_private: kind === 'chat' };
+        : { content, sensitive, sender_id: users[activeUser]?.id, is_private: kind === 'chat' };
     const url = isPost ? '/posts' : kind === 'group' ? '/group/messages/' + contextId : '/mensajes/' + contextId;
     publishing = true;
     const sendButton = document.getElementById('publishButton');
@@ -976,7 +781,7 @@ function loadposts(all) {
 function createOrLoadChat(user2Id) {
     document.getElementById('profileHeader').style.display = 'none';
     document.getElementById('postBox').style.display = 'block';
-const user1Id = users[activeUser].id;
+const user1Id = users[activeUser]?.id;
 
 if (!user1Id || !user2Id) {
     notify('IDs de usuario incompletos');
@@ -1026,7 +831,7 @@ function loadGroupMessages(id, all) {
     activeForum = 0; activeChat = ''; activeGroup = id;
     document.getElementById('profileHeader').style.display = 'none';
     document.getElementById('postBox').style.display = 'block';
-    return loadFeed('/group/messages/' + id + '/' + users[activeUser].id, 'groupMessageList', all, true);
+    return loadFeed('/group/messages/' + id + '/' + users[activeUser]?.id, 'groupMessageList', all, true);
 }
 
 function loadForumPosts(id, all) {
@@ -1088,7 +893,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     }
 
     const newpost = document.createElement('li');
-    newpost.className = 'post';
+    newpost.className = 'post postContainer';
     if (created_at) newpost.dataset.createdAt = created_at;
 
     // Convertir fecha a hora local
@@ -1164,7 +969,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             style="opacity: 0; display: none; transition: opacity 0.3s ease; width: 100%; align-items: center; justify-content: center; margin-top: 10px;"
             data-loaded="false">
             <iframe 
-                src="/microReact.html?id=Matesito_${microReactId}" 
+                src="/microReact.html?id=Matesito_${microReactId}&textColor=${document.documentElement.dataset.theme === 'light' ? '%23333333' : '%23ffffff'}" 
                 style="width: 275px; height: 100px; border: none;" 
                 frameborder="0" 
                 loading="lazy" 
@@ -1260,7 +1065,7 @@ function backToPosts() {
 
 // Función para seguir al usuaris
 function followUser(userId) {
-const followerId = users[activeUser].id; // El ID del usuario que está siguiendo
+const followerId = users[activeUser]?.id; // El ID del usuario que está siguiendo
 
 if (!followerId) {
     notify('Error: Usuario activo no encontrado');
@@ -1306,6 +1111,7 @@ fetch('/unfollowUser', {
         notify('Has dejado de seguir a este usuario');
     } else {
         notify(data.message);
+    reloadFG();
     }
 })
 .catch(error => {
@@ -1314,178 +1120,50 @@ fetch('/unfollowUser', {
 });
 }
 
-function loadFollowedUsers() {
-const followerId = users[activeUser]?.id; // ID del usuario activo
-
-fetch(` /followedUsers/${followerId}`)
-    .then(readResponse)
-    .then(users => {
-        const container = document.getElementById('usersContainer');
-        container.innerHTML = ''; // Limpiamos el contenedor
-
-        if (users.length === 0) {
-            // Si no hay usuarios seguidos, mostramos un mensaje
-            const noUsersMessage = document.createElement('p');
-            noUsersMessage.textContent = 'No sigues a ningún usuario';
-            noUsersMessage.style.textAlign = 'center';
-            noUsersMessage.style.color = 'gray';
-            container.appendChild(noUsersMessage);
-        } else {
-            // Renderizamos los usuarios seguidos
-            users.forEach(user => {
-                const userElement = document.createElement('div');
-                userElement.classList.add('user');
-
-                const Id = user.id;
-                const username = user.username;
-
-                userElement.innerHTML = `
-                <label for="${username}" class="boton">${user.username}</label>
-                <input type="radio" id="${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
-                <div id="${Id}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px;">
-                    <label for="${username}${Id}" class="boton">Ver perfil</label>
-                    <input type="radio" id="${username}${Id}" name="nav" style="display:none;" onclick="viewProfile('${username}')">
-                    <label for="${Id}${username}${Id}" class="boton">Dejar de seguir</label>
-                    <input type="radio" id="${Id}${username}${Id}" name="nav" style="display:none;" onclick="unfollowUser(${followerId}, ${Id})">
-                    <label for="${Id}${Id}" class="boton">Chat privado</label>
-                    <input type="radio" id="${Id}${Id}" name="nav" style="display:none;" onclick="createOrLoadChat(${Id})">
-                    
-
-                    <label for="${Id}${username}" class="botonV">Volver</label>
-                    <input type="radio" id="${Id}${username}" name="nav" style="display:none;" onclick="toggle_UserMenu(${Id})">
-                </div>
-                `;
-
-                container.appendChild(userElement);
-            });
+function menuButton(text, action) {
+    const button = document.createElement('button');
+    button.type = 'button'; button.textContent = text; button.addEventListener('click', action);
+    return button;
+}
+async function loadFollowedUsers() {
+    const userId = users[activeUser]?.id;
+    if (!userId) return;
+    const container = document.getElementById('usersContainer');
+    try {
+        const following = await fetch('/followedUsers/' + userId).then(readResponse);
+        container.replaceChildren();
+        if (!following.length) container.textContent = 'Todavía no seguís a nadie. Buscá usuarios para sumarte a su ronda.';
+        for (const user of following) {
+            const card = document.createElement('div'); card.className = 'user-item';
+            const name = document.createElement('h3'); name.textContent = user.username;
+            card.append(name, menuButton('Ver perfil', () => viewProfile(user.username)),
+                menuButton('Chat privado', () => createOrLoadChat(user.id)),
+                menuButton('Dejar de seguir', () => unfollowUser(userId, user.id)));
+            container.appendChild(card);
         }
-    })
-    .catch(error => {
-        console.error('Error al cargar los usuarios seguidos:', error);
-        notify('Error al cargar los usuarios seguidos');
-    });
+    } catch (error) { notify(error.message, 'error'); }
 }
-
-function loadUserGroups() {
-const userId = users[activeUser]?.id; // ID del usuario activo
-
-fetch(` /grupos-usuario/${userId}`)
-.then(readResponse)
-.then(groups => {
-    const container = document.getElementById('joinedGruposContainer');
-    const container1 = document.getElementById('createdGroupsContainer');
-    container.innerHTML = ''; // Limpiamos el contenedor
-    container1.innerHTML = '';
-
-    if (groups.length === 0) {
-        const noGroupsMessage = document.createElement('p');
-        noGroupsMessage.textContent = 'No perteneces a ningún grupo';
-        noGroupsMessage.style.textAlign = 'center';
-        noGroupsMessage.style.color = 'gray';
-        container.appendChild(noGroupsMessage);
-    } else {
-        groups.forEach(group => {
-            const groupElement = document.createElement('div');
-            groupElement.classList.add('group');
-
-            const groupId = group.id;
-            const groupName = group.name;
-            const ownerName = group.owner_name; // Aquí tomamos el nombre del dueño que ya viene del backend
-
-            groupElement.innerHTML = `
-            <label for="radio-${groupId}" class="boton">${groupName}</label>
-            <input type="radio" id="radio-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('menu-${groupId}')">
-
-            <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
-                <label for="dDetailS-${groupId}" class="boton">Ver detalles</label>
-                <input type="radio" id="dDetailS-${groupId}" name="nav" style="display:none;" onclick="toggleDetails('details-${groupId}', ${groupId})">
-                
-                <div id="details-${groupId}" style="display: none;">
-                    <div id="GroupDetailsContainer-${groupId}">
-                        
-                    </div>
-                </div>
-
-                <label for="enter-${groupId}" class="boton">Entrar al chat</label>
-                <input type="radio" id="enter-${groupId}" name="nav" style="display:none;" onclick="loadGroupMessages(${groupId})">
-
-                <label for="leave-${groupId}" class="boton">Salir del grupo</label>
-                <input type="radio" id="leave-${groupId}" name="nav" style="display:none;" onclick="leaveGroup(${groupId})">
-
-                <p style="font-size: 12px; color: gray;">Creado por: ${ownerName}</p>
-                <label for="close-${groupId}" class="botonV">Volver</label>
-                <input type="radio" id="close-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('menu-${groupId}')">
-            </div>
-            `;
-
-            container.appendChild(groupElement);
-        });
-    }
-})
-.catch(error => {
-    console.error('Error al cargar los grupos del usuario:', error);
-    notify('Error al cargar los grupos del usuario');
-});
-}
-
-function loadCreatedGroups() {
-const userId = users[activeUser]?.id; // ID del usuario activo
-
-fetch(` /grupos-creados/${userId}`)
-    .then(readResponse)
-    .then(groups => {
-        const container = document.getElementById('createdGroupsContainer');
-        const container1 = document.getElementById('joinedGruposContainer');
-        container.innerHTML = ''; // Limpiamos el contenedor
-        container1.innerHTML = '';
-
-        if (groups.length === 0) {
-            const noGroupsMessage = document.createElement('p');
-            noGroupsMessage.textContent = 'No has creado ningún grupo';
-            noGroupsMessage.style.textAlign = 'center';
-            noGroupsMessage.style.color = 'gray';
-            container.appendChild(noGroupsMessage);
-        } else {
-            groups.forEach(group => {
-                const groupElement = document.createElement('div');
-                groupElement.classList.add('group');
-
-                const groupId = group.id;
-
-                groupElement.innerHTML = `
-                <label for="radio-${groupId}" class="boton">${group.name}</label>
-                <input type="radio" id="radio-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('menu-${groupId}')">
-
-                <div id="menu-${groupId}" class="dropdown-menu" style="position: absolute; left: 188px; top: -20px; display: none;">
-                    <label for="details-${groupId}b" class="boton">Ver detalles</label>
-                    <input type="radio" id="details-${groupId}b" name="nav" style="display:none;" onclick="toggleDetails('detailss-${groupId}', ${groupId})">
-                    
-                    <div id="detailss-${groupId}" style="display: none;">
-                        <div id="GroupDetailsContainer-${groupId}">
-                            <!-- Los detalles del grupo se cargarán aquí -->
-                        </div>
-                    </div>
-
-                    <label for="enter-${groupId}" class="boton">Entrar al chat</label>
-                    <input type="radio" id="enter-${groupId}" name="nav" style="display:none;" onclick="loadGroupMessages(${groupId})">
-
-                    <label for="delete-${groupId}" class="boton">Eliminar grupo</label>
-                    <input type="radio" id="delete-${groupId}" name="nav" style="display:none;" onclick="deleteGroup(${groupId})">
-
-                    <label for="close-${groupId}" class="botonV">Volver</label>
-                    <input type="radio" id="close-${groupId}" name="nav" style="display:none;" onclick="toggle_GroupMenu('menu-${groupId}')">
-                </div>
-                `;
-
-                container.appendChild(groupElement);
-            });
+async function loadGroups(created) {
+    const userId = users[activeUser]?.id;
+    if (!userId) return;
+    const container = document.getElementById(created ? 'createdGroupsContainer' : 'joinedGruposContainer');
+    try {
+        const groups = await fetch((created ? '/grupos-creados/' : '/grupos-usuario/') + userId).then(readResponse);
+        container.replaceChildren();
+        if (!groups.length) container.textContent = created ? 'Todavía no creaste grupos.' : 'Todavía no pertenecés a un grupo.';
+        for (const group of groups) {
+            const card = document.createElement('div'); card.className = 'group-item';
+            const name = document.createElement('h3'); name.textContent = group.name;
+            const description = document.createElement('p'); description.textContent = group.description;
+            const invite = document.createElement('p'); invite.textContent = 'Código de invitación: ' + group.invite_code;
+            card.append(name, description, invite, menuButton('Entrar al chat', () => loadGroupMessages(group.id, loadAll)),
+                menuButton(created ? 'Eliminar grupo' : 'Salir del grupo', () => created ? deleteGroup(group.id) : leaveGroup(group.id)));
+            container.appendChild(card);
         }
-    })
-    .catch(error => {
-        console.error('Error al cargar los grupos creados:', error);
-        notify('Error al cargar los grupos creados');
-    });
+    } catch (error) { notify(error.message, 'error'); }
 }
+function loadUserGroups() { return loadGroups(false); }
+function loadCreatedGroups() { return loadGroups(true); }
 
 async function deleteGroup(groupId) {
 if (!await confirmAction('¿Eliminar este grupo y sus mensajes?')) return;
@@ -1546,25 +1224,26 @@ if (!Array.isArray(notificaciones) || notificaciones.length === 0) {
 }
 
 notificaciones.forEach(noti => {
-    const notiElemento = document.createElement('div');
+    const notiElemento = document.createElement('button');
+    notiElemento.type = 'button';
     notiElemento.classList.add('Nboton');
 
     let mensaje = '';
     let idNotificacionLeida = false;
 
     // Verificar si el chat_or_group_id corresponde a alguno de los activos
-    if (noti.chat_or_group_id === activeForum || noti.chat_or_group_id === activeChat || noti.chat_or_group_id === activeGroup) {
+    if (noti.chat_or_group_id === `F-${activeForum}` || noti.chat_or_group_id === `C-${activeChat}` || noti.chat_or_group_id === `G-${activeGroup}`) {
         idNotificacionLeida = true; // Marcar como leída automáticamente
     }
 
     const nombre = noti.nombre;
-    const chat_or_group_id = noti.chat_or_group_id;
+    notiElemento.addEventListener('click', () => hideMenus('notifMenu'));
+    const chat_or_group_id = Number(String(noti.chat_or_group_id).replace(/^[CFG]-/, ''));
 
     if (noti.tipo === 'mensaje') {
         mensaje = `Tienes un nuevo mensaje de ${nombre}`;
         notiElemento.addEventListener('click', () => {
-            const numericId = parseInt(String(chat_or_group_id).split('-')[1], 10);
-            if (Number.isFinite(numericId)) createOrLoadChat(numericId);
+            if (Number.isSafeInteger(chat_or_group_id)) loadChatMessages(chat_or_group_id, loadAll);
         });
     } else if (noti.tipo === 'grupo') {
         mensaje = `Tienes nuevos mensajes del grupo ${nombre}`;
@@ -1573,7 +1252,7 @@ notificaciones.forEach(noti => {
         mensaje = `Hay una nueva publicación en el foro ${nombre}`;
         notiElemento.addEventListener('click', () => loadForumPosts(chat_or_group_id, loadAll));
     } else {
-        mensaje = `Tienes un notiicación que no existe, felicidades`;
+        mensaje = 'Tenés una nueva notificación.';
     }
 
     notiElemento.textContent = mensaje;
@@ -1631,7 +1310,9 @@ if (hayNotificaciones){
 }
 
 
+let searchRequest = 0;
 function searchMotor() {
+const request = ++searchRequest;
 const searchInput = document.getElementById('searchInput');
 const searchContainer = document.getElementById('searchconteiner');
 if (!searchInput || !searchContainer) return;
@@ -1646,6 +1327,7 @@ if (query.trim().length < 1) {
 fetch(`/search?query=${encodeURIComponent(query.trim())}`)
     .then(readResponse)
     .then(data => {
+        if (request !== searchRequest) return;
         searchContainer.innerHTML = ''; // Limpiar resultados previos
 
         if (data.foros.length === 0 && data.usuarios.length === 0) {

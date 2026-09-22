@@ -1,0 +1,13 @@
+.account-page .header { margin-left: 0; justify-content: space-between; }
+.account-page .header a { text-decoration: none; }
+.account-page .container { max-width: 720px; padding: 32px 20px 60px; margin: auto; }
+.account-page h1 { font-size: 30px; margin: 0 0 12px; }
+.settings-item { border: 1px solid var(--border-color); background: var(--bg-secondary); border-radius: 24px; padding: 24px; margin-bottom: 20px; }
+.settings-item h2 { margin-top: 0; font-size: 19px; }
+.settings-item label { display: block; margin-bottom: 8px; }
+.settings-item input:not([type="file"]), .settings-item textarea { display: block; width: 100%; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 16px; resize: vertical; }
+.field-hint { color: var(--text-secondary); font-size: 13px; }
+.settings-item #userButton { padding: 0; vertical-align: middle; margin-right: 16px; }
+.settings-item .profile-pic-img { width: 64px; height: 64px; display: block; }
+#togglePasswordButton, #toggleBotonPassword { float: none; margin-right: 10px; vertical-align: middle; }
+#togglePasswordButton img, #toggleBotonPassword img { width: 22px; }

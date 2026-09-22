@@ -21,7 +21,13 @@ const allowedOrigins = (process.env.CORS_ORIGINS || 'https://matesito.com.ar,htt
     .split(',').map(origin => origin.trim()).filter(Boolean);
 const corsOrigin = (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-    return callback(new Error('Origen no permitido'));
+    try {
+        const url = new URL(origin);
+        if (process.env.NODE_ENV !== 'production' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)) return callback(null, true);
+    } catch { /* Reject malformed origins. */ }
+    const error = new Error('Origen no permitido');
+    error.status = 403;
+    return callback(error);
 };
 
 const poolConfig = process.env.DATABASE_URL
@@ -33,7 +39,7 @@ const poolConfig = process.env.DATABASE_URL
         database: process.env.DB_NAME || 'matesito_8s',
         port: Number(process.env.DB_PORT) || 5432
     };
-if (process.env.NODE_ENV === 'production') {
+if (process.env.DB_SSL === 'true' || (process.env.NODE_ENV === 'production' && process.env.DB_SSL !== 'false')) {
     poolConfig.ssl = { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' };
 }
 
@@ -75,6 +81,7 @@ app.use((req, res, next) => {
 });
 
 const db = new Pool(poolConfig);
+db.on('error', error => console.error('Error de conexión inactiva a PostgreSQL:', error.message));
 
 app.use('/scripts.js', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -138,6 +145,22 @@ function validReactionPostId(value) {
 }
 
 
+
+function requestError(status, message) { return Object.assign(new Error(message), { status }); }
+async function transaction(action) {
+    const client = await db.connect();
+    try {
+        await client.query('BEGIN');
+        const result = await action(client);
+        await client.query('COMMIT');
+        return result;
+    } catch (error) {
+        await client.query('ROLLBACK').catch(() => {});
+        throw error;
+    } finally { client.release(); }
+}
+const asyncRoute = action => (req, res, next) => Promise.resolve(action(req, res)).catch(next);
+
  // Obtener la cantidad de reacciones
  app.get('/get/microreact--reactions/:id', async (req, res) => {
     const { id } = req.params;
@@ -165,59 +188,23 @@ function validReactionPostId(value) {
   
   // Actualizar el contador de reacciones
   // Ruta para obtener el número de reacciones
-  app.post('/hit/microreact--reactions/:id/:reaction', requireAuth, async (req, res) => {
+  app.post('/hit/microreact--reactions/:id/:reaction', requireAuth, asyncRoute(async (req, res) => {
     const { id, reaction } = req.params;
-    const userId = req.body.user_id; // Se debe recibir el user_id en el request
-
-    if (!validReactionPostId(id) || !/^[1-5]$/.test(reaction) || !validNumericId(userId) || !sameUser(req, userId)) {
-        return res.status(400).json({ error: 'User ID is required' });
-    }
-
-    try {
-        // Verificar si el usuario ya reaccionó a este post
-        const existingReaction = await db.query(
-            'SELECT reaction_id FROM user_reactions WHERE user_id = $1 AND post_id = $2',
-            [userId, id]
-        );
-
-        if (existingReaction.rows.length > 0) {
-            const previousReaction = existingReaction.rows[0].reaction_id;
-
-            if (String(previousReaction) === reaction) {
-                // Si ya reaccionó con la misma, la eliminamos
-                await db.query('DELETE FROM user_reactions WHERE user_id = $1 AND post_id = $2', [userId, id]);
-                await db.query('UPDATE reactions SET count = count - 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
-                io.emit('reloadReactions', { id });
-                return res.status(200).json({ message: 'Reaction removed' });
-            } else {
-                // Si reaccionó con otra, la cambiamos
-                await db.query('UPDATE user_reactions SET reaction_id = $1 WHERE user_id = $2 AND post_id = $3', [reaction, userId, id]);
-                await db.query('UPDATE reactions SET count = count - 1 WHERE id = $1 AND reaction_id = $2', [id, previousReaction]);
-                await db.query('UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
-                io.emit('reloadReactions', { id });
-                return res.status(200).json({ message: 'Reaction updated' });
-            }
-        } else {
-            // Si no ha reaccionado antes, la agregamos
-            await db.query('INSERT INTO user_reactions (user_id, post_id, reaction_id) VALUES ($1, $2, $3)', [userId, id, reaction]);
-            
-            // Verificar si existe el conteo de la reacción en la tabla 'reactions'
-            const reactionCount = await db.query('SELECT count FROM reactions WHERE id = $1 AND reaction_id = $2', [id, reaction]);
-            if (reactionCount.rows.length === 0) {
-                // Si no existe, insertamos una nueva entrada con conteo inicial de 1
-                await db.query('INSERT INTO reactions (id, reaction_id, count) VALUES ($1, $2, 1)', [id, reaction]);
-            } else {
-                // Si existe, simplemente incrementamos el conteo
-                await db.query('UPDATE reactions SET count = count + 1 WHERE id = $1 AND reaction_id = $2', [id, reaction]);
-            }
-            io.emit('reloadReactions', { id });
-            return res.status(200).json({ message: 'Reaction added' });
-        }
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+    const userId = req.user.id;
+    if (!validReactionPostId(id) || !/^[1-5]$/.test(reaction) || !sameUser(req, req.body.user_id)) throw requestError(400, 'Reacción inválida');
+    await transaction(async client => {
+        await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [id]);
+        const existing = await client.query('SELECT reaction_id FROM user_reactions WHERE user_id = $1 AND post_id = $2', [userId, id]);
+        const previous = existing.rows[0]?.reaction_id;
+        await client.query('DELETE FROM user_reactions WHERE user_id = $1 AND post_id = $2', [userId, id]);
+        if (String(previous) !== reaction) await client.query('INSERT INTO user_reactions (user_id, post_id, reaction_id) VALUES ($1, $2, $3)', [userId, id, reaction]);
+        // Derive totals from actual selections, including a newly selected reaction type.
+        await client.query('DELETE FROM reactions WHERE id = $1', [id]);
+        await client.query('INSERT INTO reactions (id, reaction_id, count) SELECT post_id, reaction_id, COUNT(*) FROM user_reactions WHERE post_id = $1 GROUP BY post_id, reaction_id', [id]);
+    });
+    io.emit('reloadReactions', { id });
+    res.json({ message: 'Reacción actualizada' });
+}));
 
 // Ruta para obtener todas las reacciones del post
 app.get('/get/microreact--reactionss/:id', async (req, res) => {
@@ -386,7 +373,8 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
                 'SELECT 1 FROM participantes WHERE forum_or_group_id = $1 AND user_id = $2 AND is_group = FALSE',
                 [numericForumId, req.user.id]
             );
-            if (!participant.rows.length) { await client.query('ROLLBACK'); return res.status(403).json({ error: 'Acceso denegado' }); }
+            const owner = await client.query('SELECT 1 FROM foros WHERE id = $1 AND owner_id = $2', [numericForumId, req.user.id]);
+            if (!participant.rows.length && !owner.rows.length) { await client.query('ROLLBACK'); return res.status(403).json({ error: 'Acceso denegado' }); }
         }
         // Crear el ID del foro con prefijo
         const formattedForumId = is_private ? `C-${forumId}` : `F-${forumId}`;
@@ -616,7 +604,7 @@ app.put('/updateProfileImage', requireAuth, (req, res) => {
 app.put('/updateDescription', requireAuth, (req, res) => {
     const { username, description } = req.body;
 
-    if (username !== req.user.username || !validText(description, 1000)) {
+    if (username !== req.user.username || typeof description !== 'string' || description.length > 1000) {
         return res.status(400).json({ success: false, message: 'Faltan datos.' });
     }
 
@@ -708,39 +696,19 @@ app.put('/updatePassword', requireAuth, async (req, res) => {
 });
 
 // Crear un foro
-app.post('/foros', requireAuth, (req, res) => {
+app.post('/foros', requireAuth, asyncRoute(async (req, res) => {
     const { name, description, ownerId } = req.body;
-
-    if (!validText(name, 120) || !validText(description, 2000) || !sameUser(req, ownerId)) {
-        return res.status(400).json({ error: 'Datos incompletos' });
-    }
-
-    const checkQuery = 'SELECT id FROM foros WHERE name = $1';
-
-    db.query(checkQuery, [name], (err, result) => {
-        if (err) {
-            console.error('Error al verificar el nombre del foro:', err);
-            return res.status(500).json({ error: 'Error interno del servidor' });
-        }
-
-        if (result.rows.length > 0) {
-            return res.status(400).json({ error: 'El nombre del foro ya está en uso' });
-        }
-
-        // Si el nombre no está en uso, procedemos a insertarlo
-        const insertQuery = 'INSERT INTO foros (name, description, owner_id, created_at) VALUES ($1, $2, $3, $4) RETURNING id';
-
-        db.query(insertQuery, [name, description, ownerId, new Date().toISOString()], (err, insertResult) => {
-            if (err) {
-                console.error('Error al crear el foro:', err);
-                return res.status(500).json({ error: 'Error al crear el foro' });
-            }
-
-            res.status(201).json({ id: insertResult.rows[0].id, name, description });
-            io.emit('reloadFG');
-        });
+    if (!validText(name, 30) || !validText(description, 2000) || !sameUser(req, ownerId)) throw requestError(400, 'Datos del foro inválidos');
+    const forum = await transaction(async client => {
+        const existing = await client.query('SELECT 1 FROM foros WHERE name = $1', [name.trim()]);
+        if (existing.rows.length) throw requestError(409, 'El nombre del foro ya está en uso');
+        const result = await client.query('INSERT INTO foros (name, description, owner_id, created_at) VALUES ($1, $2, $3, NOW()) RETURNING id, name, description', [name.trim(), description.trim(), req.user.id]);
+        await client.query('INSERT INTO participantes (user_id, forum_or_group_id, is_group, joined_at) VALUES ($1, $2, FALSE, NOW())', [req.user.id, result.rows[0].id]);
+        return result.rows[0];
     });
-});
+    io.emit('reloadFG');
+    res.status(201).json(forum);
+}));
 
 app.get('/foros', (req, res) => {
     const query = `
@@ -767,56 +735,18 @@ app.get('/foros', (req, res) => {
     });
 });
 
-app.post('/grupos', requireAuth, async (req, res) => {
+app.post('/grupos', requireAuth, asyncRoute(async (req, res) => {
     const { name, description, ownerId } = req.body;
-
-    // Validar que los campos requeridos estén presentes
-    if (!validText(name, 120) || !validText(description, 2000) || !sameUser(req, ownerId)) {
-        return res.status(400).json('Datos incompletos');
-    }
-
-    try {
-        // Función para generar un código de invitación único
-        async function generateUniqueInviteCode() {
-            let inviteCode;
-            let exists = true;
-
-            while (exists) {
-                inviteCode = Math.random().toString(36).substring(2, 8); // Generar código aleatorio de 6 caracteres
-
-                // Verificar si el código ya existe
-                const result = await db.query('SELECT 1 FROM grupos WHERE invite_code = $1', [inviteCode]);
-                exists = result.rows.length > 0;
-            }
-
-            return inviteCode;
-        }
-
-        // Generar el código único
-        const inviteCode = await generateUniqueInviteCode();
-
-        // Insertar el nuevo grupo en la base de datos
-        const query = `
-            INSERT INTO grupos (name, description, owner_id, invite_code, created_at) 
-            VALUES ($1, $2, $3, $4, $5) 
-            RETURNING id, name, description, invite_code
-        `;
-        const result = await db.query(query, [
-            name,
-            description,
-            ownerId,
-            inviteCode,
-            new Date().toISOString(),
-        ]);
-
-        // Responder con los datos del grupo creado
-
-        res.status(201).json(result.rows[0]);
-    } catch (error) {
-        console.error('Error al crear el grupo:', error);
-        res.status(500).json('Error al crear el grupo');
-    }
-});
+    if (!validText(name, 30) || !validText(description, 2000) || !sameUser(req, ownerId)) throw requestError(400, 'Datos del grupo inválidos');
+    const group = await transaction(async client => {
+        const inviteCode = require('node:crypto').randomBytes(8).toString('hex');
+        const result = await client.query('INSERT INTO grupos (name, description, owner_id, invite_code, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING id, name, description, invite_code', [name.trim(), description.trim(), req.user.id, inviteCode]);
+        await client.query('INSERT INTO participantes (user_id, forum_or_group_id, is_group, joined_at) VALUES ($1, $2, TRUE, NOW())', [req.user.id, result.rows[0].id]);
+        return result.rows[0];
+    });
+    io.emit('reloadFG');
+    res.status(201).json(group);
+}));
 
 app.get('/grupos-creados/:ownerId', requireAuth, async (req, res) => {
     const { ownerId } = req.params;
@@ -843,42 +773,28 @@ app.get('/grupos-creados/:ownerId', requireAuth, async (req, res) => {
     }
 });
 
-app.delete('/grupo/:groupId/:ownerId', requireAuth, async (req, res) => {
-    const { groupId, ownerId } = req.params;
-
-    // Validar que el ID del propietario y del grupo estén presentes
-    if (!validId(groupId) || !sameUser(req, ownerId)) {
-        return res.status(400).json({ error: 'El ID del grupo y el propietario son requeridos' });
-    }
-
-    try {
-        // Verificar si el grupo existe y si el propietario es el dueño del grupo
-        const groupResult = await db.query(
-            'SELECT owner_id FROM grupos WHERE id = $1',
-            [groupId]
-        );
-
-        if (groupResult.rows.length === 0) {
-            return res.status(404).json({ error: 'Grupo no encontrado' });
+app.delete('/grupo/:groupId/:ownerId', requireAuth, asyncRoute(async (req, res) => {
+    const id = req.params.groupId;
+    if (!validNumericId(id)) throw requestError(400, 'ID inválido');
+    await transaction(async client => {
+        const entity = await client.query('SELECT owner_id FROM grupos WHERE id = $1 FOR UPDATE', [id]);
+        if (!entity.rows.length) throw requestError(404, 'Grupo no encontrado');
+        if (!sameUser(req, entity.rows[0].owner_id)) throw requestError(403, 'No tenés permiso para eliminarlo');
+        const context = 'G-' + id;
+        const messages = await client.query('SELECT id FROM mensajes WHERE chat_or_group_id = $1', [context]);
+        for (const message of messages.rows) {
+            const reactionId = 'Matesito_post-' + message.id;
+            await client.query('DELETE FROM user_reactions WHERE post_id = $1', [reactionId]);
+            await client.query('DELETE FROM reactions WHERE id = $1', [reactionId]);
         }
-
-        const groupOwnerId = groupResult.rows[0].owner_id;
-
-        if (parseInt(ownerId) !== groupOwnerId) {
-            return res.status(403).json({ error: 'No tienes permisos para eliminar este grupo' });
-        }
-
-        // Eliminar los participantes asociados al grupo
-        await db.query('DELETE FROM participantes WHERE forum_or_group_id = $1 AND is_group = TRUE', [groupId]);
-        // Eliminar el grupo después de sus referencias dependientes.
-        await db.query('DELETE FROM grupos WHERE id = $1', [groupId]);
-
-        res.status(200).json({ message: 'Grupo eliminado correctamente' });
-    } catch (error) {
-        console.error('Error al eliminar el grupo:', error);
-        res.status(500).json({ error: 'Error al procesar la solicitud' });
-    }
-});
+        await client.query('DELETE FROM notificaciones WHERE chat_or_group_id = $1', [context]);
+        await client.query('DELETE FROM mensajes WHERE chat_or_group_id = $1', [context]);
+        await client.query('DELETE FROM participantes WHERE forum_or_group_id = $1 AND is_group = $2', [id, true]);
+        await client.query('DELETE FROM grupos WHERE id = $1', [id]);
+    });
+    io.emit('reloadFG');
+    res.json({ message: 'Grupo eliminado correctamente' });
+}));
 
 app.post('/unir-grupo', requireAuth, async (req, res) => {
     const { inviteCode, userId } = req.body;
@@ -993,11 +909,17 @@ app.get('/grupos-usuario/:userId', requireAuth, async (req, res) => {
 });
 
 // Ruta para obtener los detalles de un grupo por su ID
-app.get('/grupo/:id', async (req, res) => {
+app.get('/grupo/:id', requireAuth, async (req, res) => {
     const groupId = req.params.id;
     if (!validNumericId(groupId)) return res.status(400).json({ error: 'ID inválido' });
 
     try {
+        const membership = await db.query(
+            'SELECT 1 FROM participantes WHERE forum_or_group_id = $1 AND user_id = $2 AND is_group = TRUE',
+            [groupId, req.user.id]
+        );
+        const owner = await db.query('SELECT 1 FROM grupos WHERE id = $1 AND owner_id = $2', [groupId, req.user.id]);
+        if (!membership.rows.length && !owner.rows.length) return res.status(403).json({ error: 'No perteneces a este grupo' });
         // Consulta para obtener los detalles del grupo por ID
         const query = 'SELECT name, description, invite_code FROM grupos WHERE id = $1';
         const result = await db.query(query, [groupId]);
@@ -1032,70 +954,41 @@ app.get('/userCreatedForums/:userId', requireAuth, (req, res) => {
     });
 });
 
-app.delete('/foros/:forumId', requireAuth, (req, res) => {
-    const forumId = req.params.forumId;
-    const { userId } = req.body; // El usuario que intenta eliminar el foro
-
-    if (!validId(forumId) || !sameUser(req, userId)) {
-        return res.status(400).json('Datos incompletos');
-    }
-
-    // Verificar que el usuario es el propietario del foro
-    const verifyQuery = 'SELECT owner_id FROM foros WHERE id = $1';
-    db.query(verifyQuery, [forumId], (err, result) => {
-        if (err) {
-            console.error('Error al verificar el foro:', err);
-            return res.status(500).json('Error al verificar el foro');
+app.delete('/foros/:forumId', requireAuth, asyncRoute(async (req, res) => {
+    const id = req.params.forumId;
+    if (!validNumericId(id)) throw requestError(400, 'ID inválido');
+    await transaction(async client => {
+        const entity = await client.query('SELECT owner_id FROM foros WHERE id = $1 FOR UPDATE', [id]);
+        if (!entity.rows.length) throw requestError(404, 'Foro no encontrado');
+        if (!sameUser(req, entity.rows[0].owner_id)) throw requestError(403, 'No tenés permiso para eliminarlo');
+        const context = 'F-' + id;
+        const messages = await client.query('SELECT id FROM mensajes WHERE chat_or_group_id = $1', [context]);
+        for (const message of messages.rows) {
+            const reactionId = 'Matesito_post-' + message.id;
+            await client.query('DELETE FROM user_reactions WHERE post_id = $1', [reactionId]);
+            await client.query('DELETE FROM reactions WHERE id = $1', [reactionId]);
         }
-
-        if (result.rows.length === 0 || String(result.rows[0].owner_id) !== String(userId)) {
-            return res.status(403).json('No tienes permiso para eliminar este foro');
-        }
-
-        // Eliminar el foro si es el propietario
-        const deleteQuery = 'DELETE FROM foros WHERE id = $1';
-        db.query(deleteQuery, [forumId], (err) => {
-            if (err) {
-                console.error('Error al eliminar el foro:', err);
-                return res.status(500).json('Error al eliminar el foro');
-            }
-
-            res.status(200).json('Foro eliminado con éxito');
-            io.emit('reloadFG');
-        });
+        await client.query('DELETE FROM notificaciones WHERE chat_or_group_id = $1', [context]);
+        await client.query('DELETE FROM mensajes WHERE chat_or_group_id = $1', [context]);
+        await client.query('DELETE FROM participantes WHERE forum_or_group_id = $1 AND is_group = $2', [id, false]);
+        await client.query('DELETE FROM foros WHERE id = $1', [id]);
     });
-});
+    io.emit('reloadFG');
+    res.json('Foro eliminado con éxito');
+}));
 
-app.post('/joinForum', requireAuth, (req, res) => {
+app.post('/joinForum', requireAuth, asyncRoute(async (req, res) => {
     const { userId, forumId } = req.body;
-
-    if (!validId(forumId) || !sameUser(req, userId)) {
-        return res.status(400).json({ message: 'Datos incompletos' }); // Mensaje claro
-    }
-
-    const checkQuery = 'SELECT * FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = false';
-    db.query(checkQuery, [userId, forumId], (err, result) => {
-        if (err) {
-            console.error('Error al verificar si sigues el foro:', err);
-            return res.status(500).json({ message: 'Error al verificar la el seguimiento' }); // Mensaje de error
-        }
-
-        if (result.rows.length > 0) {
-            return res.status(400).json({ message: 'Ya estás siguiendo este foro' }); // Mensaje de advertencia
-        }
-
-        const insertQuery = 'INSERT INTO participantes (user_id, forum_or_group_id, is_group, joined_at) VALUES ($1, $2, false, $3)';
-        db.query(insertQuery, [userId, forumId, new Date().toISOString()], (err) => {
-            if (err) {
-                console.error('Error al unirse al foro:', err);
-                return res.status(500).json({ message: 'Error al seguir al foro' }); // Mensaje de error
-            }
-
-            res.status(201).json({ message: 'Sigueiendo al foro con éxito' }); // Mensaje de éxito
-            io.emit('reloadFG');
-        });
+    if (!validNumericId(forumId) || !sameUser(req, userId)) throw requestError(400, 'Datos inválidos');
+    await transaction(async client => {
+        const forum = await client.query('SELECT id FROM foros WHERE id = $1 FOR UPDATE', [forumId]);
+        if (!forum.rows.length) throw requestError(404, 'Foro no encontrado');
+        const member = await client.query('SELECT 1 FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = FALSE', [userId, forumId]);
+        if (member.rows.length) throw requestError(409, 'Ya estás siguiendo este foro');
+        await client.query('INSERT INTO participantes (user_id, forum_or_group_id, is_group, joined_at) VALUES ($1, $2, FALSE, NOW())', [userId, forumId]);
     });
-});
+    io.emit('reloadFG'); res.status(201).json({ message: 'Ahora seguís este foro' });
+}));
 
 app.post('/leaveForum', requireAuth, (req, res) => {
     const { userId, forumId } = req.body;
@@ -1154,37 +1047,19 @@ app.get('/userForums/:userId', requireAuth, (req, res) => {
 });
 
 // Seguir un usuario
-app.post('/followUser', requireAuth, (req, res) => {
+app.post('/followUser', requireAuth, asyncRoute(async (req, res) => {
     const { followerId, followedId } = req.body;
-
-    if (!validNumericId(followedId) || !validNumericId(followerId) ||
-        !sameUser(req, followerId) || String(followerId) === String(followedId)) {
-        return res.status(400).json({ message: 'Datos incompletos' });
-    }
-
-    const checkQuery = 'SELECT * FROM seguir WHERE follower_id = $1 AND followed_id = $2';
-    db.query(checkQuery, [followerId, followedId], (err, result) => {
-        if (err) {
-            console.error('Error al verificar si ya sigues a este usuario:', err);
-            return res.status(500).json({ message: 'Error al verificar si ya sigues a este usuario' });
-        }
-
-        if (result.rows.length > 0) {
-            return res.status(400).json({ message: 'Ya sigues a este usuario' });
-        }
-
-        const insertQuery = 'INSERT INTO seguir (follower_id, followed_id, forum_id, created_at) VALUES ($1, $2, NULL, $3)';
-        db.query(insertQuery, [followerId, followedId, new Date().toISOString()], (err) => {
-            if (err) {
-                console.error('Error al seguir al usuario:', err);
-                return res.status(500).json({ message: 'Error al seguir al usuario' });
-            }
-
-            res.status(201).json({ message: 'Ahora sigues a este usuario' });
-            io.emit('reloadFG');
-        });
+    if (!validNumericId(followedId) || !sameUser(req, followerId) || String(followerId) === String(followedId)) throw requestError(400, 'Usuarios inválidos');
+    await transaction(async client => {
+        await client.query('SELECT id FROM users WHERE id = $1 FOR UPDATE', [followerId]);
+        const user = await client.query('SELECT id FROM users WHERE id = $1', [followedId]);
+        if (!user.rows.length) throw requestError(404, 'Usuario no encontrado');
+        const following = await client.query('SELECT 1 FROM seguir WHERE follower_id = $1 AND followed_id = $2', [followerId, followedId]);
+        if (following.rows.length) throw requestError(409, 'Ya seguís a este usuario');
+        await client.query('INSERT INTO seguir (follower_id, followed_id, forum_id, created_at) VALUES ($1, $2, NULL, NOW())', [followerId, followedId]);
     });
-});
+    io.emit('reloadFG'); res.status(201).json({ message: 'Ahora seguís a este usuario' });
+}));
 
 app.get('/followedUsers/:followerId', requireAuth, (req, res) => {
     const { followerId } = req.params;
@@ -1246,7 +1121,7 @@ app.post('/unfollowUser', requireAuth, (req, res) => {
 app.get('/search', (req, res) => {
     const { query } = req.query;  // El término de búsqueda se pasa como parámetro 'query'
 
-    if (!query) {
+    if (!validText(query, 200)) {
         return res.status(400).json({ message: 'Consulta vacía' });
     }
 
@@ -1303,68 +1178,33 @@ app.get('/search', (req, res) => {
 });
 
 // Crear un chat privado
-app.post('/createOrLoadPrivateChat', requireAuth, (req, res) => {
+app.post('/createOrLoadPrivateChat', requireAuth, asyncRoute(async (req, res) => {
     const { user1Id, user2Id } = req.body;
-
-    if (!validNumericId(user2Id) || !validNumericId(user1Id) ||
-        !sameUser(req, user1Id) || String(user1Id) === String(user2Id)) {
-        return res.status(400).json({ error: 'Datos incompletos' });
-    }
-
-    // Verificar si los usuarios se siguen mutuamente usando la tabla `seguir`
-    const checkFollowQuery = `
-    SELECT COUNT(*) = 2 AS bothFollow
-    FROM seguir
-    WHERE (follower_id = $1 AND followed_id = $2)
-    OR (follower_id = $2 AND followed_id = $1);
-    `;
-    db.query(checkFollowQuery, [user1Id, user2Id], (err, followResult) => {
-        if (err) {
-            console.error('Error al verificar si los usuarios se siguen mutuamente:', err);
-            return res.status(500).json({ error: 'Error al verificar las relaciones de seguimiento' });
-        }
-
-        const bothFollow = followResult.rows[0].bothfollow;
-        if (!bothFollow) {
-            return res.status(403).json({ error: 'Ambos usuarios deben seguirse mutuamente para iniciar un chat' });
-        }
-
-        // Verificar si ya existe un chat entre estos dos usuarios
-        const checkExistingChatQuery = `
-            SELECT id FROM chats 
-            WHERE (user1_id = $1 AND user2_id = $2) 
-            OR (user1_id = $2 AND user2_id = $1)
-        `;
-        db.query(checkExistingChatQuery, [user1Id, user2Id], (err, chatResult) => {
-            if (err) {
-                console.error('Error al verificar el chat existente:', err);
-                return res.status(500).json({ error: 'Error al verificar el chat existente' });
-            }
-
-            if (chatResult.rows.length > 0) {
-                const chatId = chatResult.rows[0].id;
-
-                // Retornar el chatId para que el frontend lo utilice
-                return res.status(200).json({ chatId });
-            } else {
-                // Crear un nuevo chat si no existe
-                const createChatQuery = `
-                    INSERT INTO chats (user1_id, user2_id, created_at) 
-                    VALUES ($1, $2, $3) RETURNING id
-                `;
-                db.query(createChatQuery, [user1Id, user2Id, new Date().toISOString()], (err, createResult) => {
-                    if (err) {
-                        console.error('Error al crear el chat privado:', err);
-                        return res.status(500).json({ error: 'Error al crear el chat privado' });
-                    }
-
-                    return res.status(201).json({ chatId: createResult.rows[0].id });
-                    io.emit('reloadFG');
-                });
-            }
-        });
+    if (!validNumericId(user2Id) || !sameUser(req, user1Id) || String(user1Id) === String(user2Id)) throw requestError(400, 'Usuarios inválidos');
+    const chat = await transaction(async client => {
+        const pair = [Number(user1Id), Number(user2Id)].sort((a, b) => a - b);
+        await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', ['chat:' + pair.join(':')]);
+        const existing = await client.query('SELECT id FROM chats WHERE (user1_id = $1 AND user2_id = $2) OR (user1_id = $2 AND user2_id = $1)', pair);
+        // Existing participants retain access to their conversation after unfollowing.
+        if (existing.rows.length) return { id: existing.rows[0].id, created: false };
+        const forward = await client.query('SELECT 1 FROM seguir WHERE follower_id = $1 AND followed_id = $2', pair);
+        const backward = await client.query('SELECT 1 FROM seguir WHERE follower_id = $2 AND followed_id = $1', pair);
+        if (!forward.rows.length || !backward.rows.length) throw requestError(403, 'Ambos usuarios deben seguirse para iniciar un chat');
+        const result = await client.query('INSERT INTO chats (user1_id, user2_id, created_at) VALUES ($1, $2, NOW()) RETURNING id', pair);
+        return { id: result.rows[0].id, created: true };
     });
-});
+    if (chat.created) io.emit('reloadFG');
+    res.status(chat.created ? 201 : 200).json({ chatId: chat.id });
+}));
+
+app.get('/chats', requireAuth, asyncRoute(async (req, res) => {
+    const result = await db.query(
+        `SELECT c.id, c.created_at, u.id AS user_id, u.username, u.image
+         FROM chats c JOIN users u ON u.id = CASE WHEN c.user1_id = $1 THEN c.user2_id ELSE c.user1_id END
+         WHERE c.user1_id = $1 OR c.user2_id = $1 ORDER BY c.created_at DESC`, [req.user.id]
+    );
+    res.json(result.rows);
+}));
 
   app.get('/chat/messages/:chatId', requireAuth, async (req, res) => {
     const { chatId } = req.params;
@@ -1419,7 +1259,8 @@ app.get('/group/messages/:groupId/:userId', requireAuth, async (req, res) => {
             'SELECT 1 FROM participantes WHERE forum_or_group_id = $1 AND user_id = $2 AND is_group = TRUE',
             [groupId, numericUserId]
         );
-        if (!membership.rows.length) return res.status(403).json({ error: 'No perteneces a este grupo' });
+        const owner = await db.query('SELECT 1 FROM grupos WHERE id = $1 AND owner_id = $2', [groupId, req.user.id]);
+        if (!membership.rows.length && !owner.rows.length) return res.status(403).json({ error: 'No perteneces a este grupo' });
         const result = await db.query(
             `SELECT 
                 m.id,
@@ -1487,7 +1328,8 @@ app.post('/group/messages/:groupId', requireAuth, async (req, res) => {
             [groupId, sender_id]
         );
 
-        if (parseInt(isParticipant.rows[0].count) === 0) {
+        const owner = await client.query('SELECT 1 FROM grupos WHERE id = $1 AND owner_id = $2', [groupId, req.user.id]);
+        if (parseInt(isParticipant.rows[0].count) === 0 && !owner.rows.length) {
             await client.query('ROLLBACK');
             return res.status(403).json({ error: 'No tienes permiso para publicar en este grupo.' });
         }
@@ -1561,8 +1403,10 @@ app.get('/notificaciones/:user_id', requireAuth, async (req, res) => {
 
                 } else if (prefix === 'C') {
                     const user = await db.query(
-                        `SELECT username FROM users WHERE id = $1`,
-                        [numericId]
+                        `SELECT u.username FROM chats c JOIN users u
+                         ON u.id = CASE WHEN c.user1_id = $2 THEN c.user2_id ELSE c.user1_id END
+                         WHERE c.id = $1 AND (c.user1_id = $2 OR c.user2_id = $2)`,
+                        [numericId, user_id]
                     );
                     if (user.rows.length > 0) nombre = user.rows[0].username;
                 }
@@ -1675,6 +1519,13 @@ app.use((req, res) => {
         return res.status(404).json({ error: 'Recurso no encontrado' });
     }
     res.status(404).sendFile(path.join(__dirname, 'public', 'error.html'));
+});
+
+app.use((error, req, res, next) => {
+    if (res.headersSent) return next(error);
+    const status = error.status || (error.code === '23505' ? 409 : 500);
+    if (status < 500 && !error.type) return res.status(status).json({ error: error.message });
+    res.status(status).json({ error: status === 413 ? 'El archivo o contenido es demasiado grande' : status === 400 ? 'Solicitud inválida' : status === 403 ? 'Origen no permitido' : 'Error interno del servidor' });
 });
 
 if (require.main === module) server.listen(port, () => {

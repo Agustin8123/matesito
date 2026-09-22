@@ -1,14 +1,3 @@
-function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    const text = document.querySelector('.theme-toggle .nav-text');
-    if (text) text.textContent = theme === 'dark' ? 'Modo claro' : 'Modo oscuro';
-}
-function toggleTheme() {
-    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    applyTheme(theme);
-    try { localStorage.setItem('theme', theme); } catch { /* Storage can be disabled. */ }
-}
-try { applyTheme(localStorage.getItem('theme') || 'dark'); } catch { applyTheme('dark'); }
 function toggleSidebar() {
     const open = document.getElementById('sidebar').classList.toggle('active');
     document.querySelector('.mobile-menu').setAttribute('aria-expanded', String(open));
@@ -23,6 +12,8 @@ function navigateHome() { closeSidebar(); closePanel(); backToPosts(); }
 const panelOrigins = new Map();
 function closePanel() {
     const panel = document.getElementById('navigationPanel');
+    const feedback = panel.querySelector('#feedback-region');
+    if (feedback) document.body.appendChild(feedback);
     if (panel.open) panel.close();
     for (const [menu, marker] of panelOrigins) {
         marker.replaceWith(menu);
@@ -49,7 +40,7 @@ function toggleMenu() {
     openPanel('dropdownMenu', 'Mi cuenta');
 }
 function toggleForumMenu() { openPanel('forumSubMenu', 'Foros'); }
-function toggleGruposMenu() { openPanel('gruposMenu', 'Chats y grupos'); }
+function toggleGruposMenu() { openPanel('gruposMenu', 'Chats y grupos'); loadPrivateChats(); }
 function toggleUserMenu() { openPanel('userSubMenu', 'Siguiendo'); loadFollowedUsers(); }
 function createForumMenu() { closePanel(); toggleVisibility('createForumOverlay', 'flex'); }
 function createGroupMenu() { closePanel(); toggleVisibility('createGroupOverlay', 'flex'); }
@@ -76,3 +67,20 @@ updateUserButton = function () {
     document.getElementById('composerName').textContent = activeUser || 'Tu próximo mate';
     document.getElementById('composerAvatar').src = users[activeUser]?.profileImage || '/res/default-avatar.svg';
 };
+
+async function loadPrivateChats() {
+    const menu = document.getElementById('gruposMenu');
+    let container = document.getElementById('privateChats');
+    if (!container) {
+        container = document.createElement('section'); container.id = 'privateChats'; menu.prepend(container);
+    }
+    container.replaceChildren();
+    const title = document.createElement('h3'); title.textContent = 'Tus conversaciones'; container.appendChild(title);
+    try {
+        const chats = await fetch('/chats').then(readResponse);
+        if (!chats.length) {
+            const empty = document.createElement('p'); empty.textContent = 'Para iniciar un chat, buscá a alguien a quien sigas y que también te siga.'; container.appendChild(empty);
+        }
+        for (const chat of chats) container.appendChild(menuButton(chat.username, () => loadChatMessages(chat.id, loadAll)));
+    } catch (error) { notify(error.message, 'error'); }
+}

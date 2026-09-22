@@ -1,186 +1,62 @@
-// ================================
-// USER ID (localStorage + cookies)
-// ================================
-function getUserID() {
-  const fromLocal = localStorage.getItem("userID");
-  if (fromLocal) return fromLocal;
-
-  const cookies = document.cookie.split("; ");
-  for (const cookie of cookies) {
-    const [name, value] = cookie.split("=");
-    if (name === "userID") {
-      return decodeURIComponent(value);
-    }
-  }
-  return null;
-}
-
-const userID = getUserID();
-
-// ================================
-// URL PARAMS
-// ================================
 const params = new URLSearchParams(window.location.search);
-const decodeParam = value => {
-  try {
-    return decodeURIComponent(value || "");
-  } catch {
-    return "";
-  }
-};
-const id = params.get("id");
+const postReactionId = params.get('id');
+const enabledReactions = new Set((params.get('reactions') || '12345').split('').filter(id => /^[1-5]$/.test(id)));
+let reactionPending = false;
 
-const reactions = (params.get("reactions") || "12345").split("");
-const allowMultiple = !!Number(params.get("allowMultiple") || 0);
-const textColor = decodeParam(params.get("textColor")).trim() || false;
-const bgColor = decodeParam(params.get("bgColor")).trim() || false;
-const font = decodeParam(params.get("font")).trim() || false;
-
-const API_BASE =
-  decodeParam(params.get("api_base")).trim() || "matesito.com.ar";
-
-// Only accept CSS values that cannot terminate a declaration or inject rules.
-const safeColor = value => /^(#[0-9a-f]{3,8}|(?:rgb|hsl)a?\([\d\s,.%+-]+\)|[a-z]+)$/i.test(value) ? value : false;
-const safeFont = value => /^[a-z0-9 ,"'-]+$/i.test(value) ? value : false;
-
-// ================================
-// VALIDACIÓN ID
-// ================================
-if (!id) {
-  document.body.innerHTML = `
-    <div style="background-color:red;color:white;font-size:11.6px;padding:3px;font-family:monospace;">
-      <b>MicroReact ERROR:</b> Falta el parámetro <b>id</b> en la URL
-    </div>`;
-  throw new Error("MicroReact ERROR: Missing ID");
+function reactionUserId() {
+    const cookie = document.cookie.split(';').map(part => part.trim()).find(part => part.startsWith('userID='));
+    return cookie ? decodeURIComponent(cookie.slice(7)) : null;
+}
+async function refreshReactions() {
+    const result = await fetch('/get/microreact--reactionss/' + encodeURIComponent(postReactionId)).then(readResponse);
+    const counts = new Map(result.reactions.map(row => [String(row.reaction_id), row.count]));
+    for (const id of enabledReactions) {
+        const label = document.querySelector('[data-list-id="' + id + '"]');
+        if (label) label.textContent = counts.get(id) || 0;
+    }
 }
 
-// ================================
-// MAIN LOGIC
-// ================================
-reactions.forEach(async function (reaction) {
-  const el = document.querySelector(`[data-reaction-id="${reaction}"]`);
-  const list = document.querySelector(`[data-list-id="${reaction}"]`);
-
-  if (!el || !list) {
-    document.body.innerHTML = `
-      <div style="background-color:red;color:white;font-size:11.6px;padding:3px;font-family:monospace;">
-        <b>MicroReact ERROR:</b> Reaction ID ${reaction} no encontrada
-      </div>`;
-    throw new Error("Reaction element missing");
-  }
-
-  el.style.display = "block";
-  list.style.display = "block";
-
-  // ================================
-  // CLICK
-  // ================================
-  el.addEventListener("click", async function () {
-    if (!userID) {
-      notify("No hay sesión activa.");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `https://${API_BASE}/hit/microreact--reactions/${encodeURIComponent(id)}/${reaction}`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_id: userID }),
-        }
-      );
-      if (!response.ok) {
-        throw new Error(`No se pudo guardar la reacción (${response.status})`);
-      }
-
-      // Animación
-      el.style.opacity = "0";
-      el.style.transform = "scale(0.8) rotate(20deg)";
-      list.style.opacity = "0";
-
-      const originalText = el.innerText;
-
-      setTimeout(async () => {
-        el.innerText = "✔️";
-        el.style.opacity = ".7";
-        el.style.transform = "scale(1)";
-        list.style.opacity = "1";
-
-        const r = await fetch(
-          `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${reaction}`,
-          { credentials: "include" }
-        );
-        if (!r.ok) throw new Error(`No se pudo cargar la reacción (${r.status})`);
-        const json = await r.json();
-        list.innerText = json.value || 0;
-      }, 250);
-
-      setTimeout(() => {
-        el.innerText = originalText;
-        el.style.opacity = "1";
-      }, 1500);
-
-    } catch (err) {
-      console.error("Error en reacción:", err);
-    }
-  });
-
-  // ================================
-  // LOAD INITIAL COUNT
-  // ================================
-  try {
-    const r = await fetch(
-      `https://${API_BASE}/get/microreact--reactions/${encodeURIComponent(id)}?reaction=${reaction}`,
-      { credentials: "include" }
-    );
-    if (!r.ok) throw new Error(`No se pudo cargar la reacción (${r.status})`);
-    const json = await r.json();
-    list.innerText = json.value || 0;
-  } catch {
-    list.innerText = "0";
-  }
-});
-
-// ================================
-// SOCKET UPDATE (si existe)
-// ================================
-if (typeof socket !== "undefined") {
-  socket.on("reloadReactions", async data => {
-    try {
-      const r = await fetch(
-        `https://${API_BASE}/get/microreact--reactionss/${encodeURIComponent(data.id)}`,
-        { credentials: "include" }
-      );
-      const json = await r.json();
-
-      if (json.reactions) {
-        json.reactions.forEach(r => {
-          const el = document.querySelector(`[data-list-id="${r.reaction_id}"]`);
-          if (el) el.innerText = r.count;
+if (!postReactionId || !/^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(postReactionId)) {
+    notify('No se puede cargar esta publicación.', 'error');
+} else {
+    for (const id of enabledReactions) {
+        const button = document.querySelector('[data-reaction-id="' + id + '"]');
+        const label = document.querySelector('[data-list-id="' + id + '"]');
+        if (!button || !label) continue;
+        button.style.display = 'block';
+        label.style.display = 'block';
+        button.setAttribute('role', 'button');
+        button.tabIndex = 0;
+        const react = async () => {
+            if (reactionPending) return;
+            const userId = reactionUserId();
+            if (!userId) return notify('Iniciá sesión para reaccionar.', 'error');
+            reactionPending = true;
+            button.setAttribute('aria-busy', 'true');
+            try {
+                await fetch('/hit/microreact--reactions/' + encodeURIComponent(postReactionId) + '/' + id, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: userId })
+                }).then(readResponse);
+                await refreshReactions();
+            } catch (error) { notify(error.message, 'error'); }
+            finally { reactionPending = false; button.removeAttribute('aria-busy'); }
+        };
+        button.addEventListener('click', react);
+        button.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); react(); }
         });
-      }
-    } catch {
-      console.error("No se pudieron actualizar reacciones");
     }
-  });
+    refreshReactions().catch(error => notify(error.message, 'error'));
+    if (typeof io === 'function') {
+        const reactionSocket = io();
+        reactionSocket.on('reloadReactions', data => {
+            if (data.id === postReactionId) refreshReactions().catch(error => notify(error.message, 'error'));
+        });
+    }
 }
 
-// ================================
-// STYLES
-// ================================
-let css = "";
-
-const validTextColor = safeColor(textColor);
-const validBgColor = safeColor(bgColor);
-const validFont = safeFont(font);
-if (validTextColor) css += `* { color: ${validTextColor} !important }\n`;
-if (validBgColor) css += `body { background-color: ${validBgColor} !important }\n`;
-if (validFont) css += `* { font-family: ${validFont} !important }\n`;
-
-if (css) {
-  const style = document.createElement("style");
-  style.textContent = css;
-  document.head.appendChild(style);
-}
+const safeColor = value => /^(#[0-9a-f]{3,8}|(?:rgb|hsl)a?\([\d\s,.%+-]+\)|[a-z]+)$/i.test(value || '') ? value : null;
+const color = safeColor(params.get('textColor'));
+const background = safeColor(params.get('bgColor'));
+if (color) document.body.style.color = color;
+if (background) document.body.style.backgroundColor = background;

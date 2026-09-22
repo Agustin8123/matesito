@@ -1,212 +1,90 @@
-let users = {};
+let users = Object.create(null);
 let activeUser = '';
 let loginWidgetId;
+const accountRequests = new Set();
 
-   function hideUserSelectOverlay() {
-    document.getElementById('usernameOverlay').style.display = 'none';
+async function accountUpdate(path, body, onSuccess) {
+    if (accountRequests.has(path)) return;
+    accountRequests.add(path);
+    try {
+        const result = await fetch(path, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(readResponse);
+        onSuccess?.(result);
+        notify(result.message || 'Cambios guardados.', 'success');
+    } catch (error) { notify(error.message, 'error'); }
+    finally { accountRequests.delete(path); }
 }
 
-   function updateUsername() {
+function updateUsername() {
     const newUsername = document.getElementById('newUsername').value.trim();
-    if (!newUsername) {
-        notify('El nombre de usuario no puede estar vacío.');
-        return;
-    }
-
-    fetch('/updateUsername', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentUsername: activeUser, newUsername }), // Cambié 'oldUsername' por 'currentUsername'
-    })
-    .then(readResponse)
-    .then(data => {
-        if (data.success) {
-            notify('Nombre de usuario actualizado.');
-            users[newUsername] = users[activeUser];
-            delete users[activeUser];
-            activeUser = newUsername;
-            document.cookie = 'username=' + encodeURIComponent(newUsername) + '; path=/; SameSite=Lax';
-            updateUserButton(); // Actualiza la variable global con el nuevo nombre
-            document.getElementById('newUsername').value = '';
-        } else {
-            notify(data.error || data.message || 'Error al actualizar el nombre de usuario.');
-        }
-    })
-    .catch(error => console.error('Error al actualizar el nombre:', error));
+    if (!newUsername || newUsername.length > 25) return notify('Usá un nombre de entre 1 y 25 caracteres.', 'error');
+    return accountUpdate('/updateUsername', { currentUsername: activeUser, newUsername }, () => {
+        users[newUsername] = users[activeUser]; delete users[activeUser]; activeUser = newUsername;
+        document.cookie = 'username=' + encodeURIComponent(newUsername) + '; path=/; SameSite=Lax';
+        document.getElementById('newUsername').value = '';
+        updateUserButton();
+    });
 }
-
-   function togglePassword() {
-    togglePasswordInput('currentPassword', 'togglePasswordButton');
-}
-
-   function togglePassword1() {
-    togglePasswordInput('newPassword', 'togglePasswordButton');
-}
-
-   function togglePassword2() {
-    togglePasswordInput('passwordInput1', 'toggleBotonPassword');
-}
-
-   function updatePassword() {
+function updatePassword() {
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
-
-    if (!currentPassword || !newPassword) {
-        notify('Ambos campos de contraseña deben estar completos.');
-        return;
-    }
-
-    fetch('/updatePassword', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            username: activeUser, 
-            currentPassword, 
-            newPassword 
-        }),
-    })
-    .then(readResponse)
-    .then(data => {
-        if (data.success) {
-            notify('Contraseña actualizada con éxito.');
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-        } else {
-            notify(data.error || data.message || 'Error al actualizar la contraseña.');
-        }
-    })
-    .catch(error => console.error('Error al actualizar la contraseña:', error));
+    if (!currentPassword || !newPassword.trim() || newPassword.length > 128) return notify('Completá ambas contraseñas (hasta 128 caracteres).', 'error');
+    return accountUpdate('/updatePassword', { username: activeUser, currentPassword, newPassword }, () => {
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+    });
 }
-
 function updateDescription() {
-    const newDescription = document.getElementById('userDescription').value.trim();
-
-    if (!newDescription) {
-        notify('La descripción no puede estar vacía.');
-        return;
-    }
-
-    fetch('/updateDescription', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            username: activeUser, 
-            description: newDescription 
-        }),
-    })
-    .then(readResponse)
-    .then(data => {
-        if (data.success) {
-            notify('Descripción actualizada con éxito.');
-            document.getElementById('userDescription').value = '';
-        } else {
-            notify(data.error || data.message || 'Error al actualizar la descripción.');
-        }
-    })
-    .catch(error => {
-        console.error('Error al actualizar la descripción:', error);
-        notify('No se pudo actualizar la descripción.');
-    });
+    const description = document.getElementById('userDescription').value.trim();
+    if (description.length > 1000) return notify('La descripción puede tener hasta 1.000 caracteres.', 'error');
+    return accountUpdate('/updateDescription', { username: activeUser, description }, () => { users[activeUser].description = description; });
 }
-
-   function updateProfileImage() {
-    const profileImageInput = document.getElementById('profileImage');
-    if (!profileImageInput.files || !profileImageInput.files[0]) {
-        notify('Por favor selecciona una imagen para subir.');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', profileImageInput.files[0]);
-    formData.append('upload_preset', 'matesito'); // Cambia esto por tu preset de Cloudinary
-
-    // Subir la imagen a Cloudinary
-    fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', {
-        method: 'POST',
-        body: formData,
-    })
-    .then(readResponse)
-    .then(data => {
-        const newProfileImageURL = data.secure_url; // Obtener la URL de la imagen subida
-        // Actualizar la URL de la imagen en la base de datos
-        updateProfileImageInDatabase(newProfileImageURL);
-    })
-    .catch(error => {
-        console.error('Error al subir la imagen:', error);
-        notify('No se pudo subir la imagen de perfil. Inténtalo de nuevo.');
-    });
+async function updateProfileImage() {
+    const file = document.getElementById('profileImage').files[0];
+    if (!file || !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) return notify('Seleccioná una imagen de hasta 10 MB.', 'error');
+    if (accountRequests.has('upload')) return;
+    accountRequests.add('upload');
+    try {
+        const form = new FormData(); form.append('file', file); form.append('upload_preset', 'matesito');
+        const uploaded = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', { method: 'POST', body: form }).then(readResponse);
+        if (!uploaded.secure_url) throw new Error('No se pudo subir la imagen.');
+        await accountUpdate('/updateProfileImage', { username: activeUser, profileImage: uploaded.secure_url }, () => {
+            users[activeUser].profileImage = uploaded.secure_url;
+            document.getElementById('profileImage').value = '';
+            updateUserButton();
+        });
+    } catch (error) { notify(error.message, 'error'); }
+    finally { accountRequests.delete('upload'); }
 }
+function togglePassword() { togglePasswordInput('currentPassword', 'togglePasswordButton'); }
+function togglePassword1() { togglePasswordInput('newPassword', 'togglePasswordButton'); }
+function togglePassword2() { togglePasswordInput('passwordInput1', 'toggleBotonPassword'); }
 
-   function updateProfileImageInDatabase(newProfileImageURL) {
-    fetch('/updateProfileImage', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            username: activeUser,
-            profileImage: newProfileImageURL, // Nueva URL de la imagen
-        }),
-    })
-    .then(readResponse)
-    .then(data => {
-        if (data.success) {
-            notify('Imagen de perfil actualizada con éxito.');
-            // Aquí puedes actualizar la UI si es necesario
-        } else {
-            notify('Error al actualizar la imagen de perfil en la base de datos.');
-        }
-    })
-    .catch(error => {
-        console.error('Error al actualizar la imagen de perfil en la base de datos:', error);
-        notify('Error al actualizar la imagen de perfil. Inténtalo de nuevo.');
-    });
+async function loginUser() {
+    const username = document.getElementById('usernameInput').value.trim();
+    const password = document.getElementById('passwordInput1').value;
+    const token = typeof turnstile !== 'undefined' && loginWidgetId !== undefined ? turnstile.getResponse(loginWidgetId) : '';
+    if (!token) return notify('Completá la verificación de seguridad.', 'error');
+    if (accountRequests.has('login')) return;
+    accountRequests.add('login');
+    try {
+        const user = await fetch('/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, token }) }).then(readResponse);
+        await activateUser(user.username);
+        document.getElementById('passwordInput1').value = '';
+    } catch (error) { notify(error.message, 'error'); }
+    finally { accountRequests.delete('login'); turnstile.reset(loginWidgetId); }
 }
-
-function loginUser() {
-const username = document.getElementById('usernameInput').value.trim();
-const password = document.getElementById('passwordInput1').value;
-const usernameOverlay = document.getElementById('usernameOverlay');
-const token = turnstile.getResponse(loginWidgetId);
-
-
-if (!token) {
-    notify("Completa la verificación de seguridad.");
-    return;
-}
-
-fetch('/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password, token })
-})
-.then(readResponse)
-.then(data => {
-    if (data.username) {
-        setActiveUser(data.username); 
-        usernameOverlay.style.display = 'none';
-    } else {
-        notify('Error al iniciar sesión');
-        
-    }
-    if (loginWidgetId !== undefined) turnstile.reset(loginWidgetId);
-
-})
-.catch(error => {
-    notify('Error de conexión');
-    if (loginWidgetId !== undefined) turnstile.reset(loginWidgetId);
-
-});
-}
-
 function Acept1() {
-  const initial = document.getElementById('usernameOverlay');
-  const aviso = document.getElementById('AvisoOverlay');
-  if (loginWidgetId === undefined) {
-    loginWidgetId = turnstile.render('#turnstileLogin', { sitekey: '0x4AAAAAACXaLFPU3wAuzN1y' });
-  } else {
-    turnstile.reset(loginWidgetId);
-  }
-  if (initial) initial.style.display = 'flex';
-  if (aviso) aviso.style.display = 'none';
+    if (typeof turnstile === 'undefined') return notify('La verificación de seguridad todavía no cargó. Intentá de nuevo.', 'error');
+    if (loginWidgetId === undefined) loginWidgetId = turnstile.render('#turnstileLogin', { sitekey: '0x4AAAAAACXaLFPU3wAuzN1y' });
+    else turnstile.reset(loginWidgetId);
+    hideMenus('AvisoOverlay');
+    document.getElementById('usernameOverlay').style.display = 'flex';
 }
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/session');
+        if (response.status === 401) return;
+        const user = await readResponse(response);
+        await activateUser(user.username);
+    } catch (error) { notify(error.message, 'error'); }
+});

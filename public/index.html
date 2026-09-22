@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#000000">
 
     <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
-    <link rel="stylesheet" href="styles.css">
+    
     <link rel="preconnect" href="https://challenges.cloudflare.com">
     <link rel="preconnect" href="https://fonts.googleapis.com"> 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
@@ -195,7 +195,8 @@
 <script src="/scripts2.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async="" defer=""></script>
-  <script>
+  <script>if (typeof io === "function") {
+
     const socket = io();
 
     socket.on('reloadPosts', () => {
@@ -203,24 +204,23 @@
     });
 
     socket.on('reloadFPosts', () => {
-        reloadFPosts();
+        reloadFPosts(); obtenerNotificaciones();
     });
 
     socket.on('reloadGPosts', () => {
-        reloadGPosts();
+        reloadGPosts(); obtenerNotificaciones();
     });
 
     socket.on('reloadCPosts', () => {
-        reloadCPosts();
+        reloadCPosts(); obtenerNotificaciones();
     });
 
     socket.on('reloadFG', () => {
         reloadFG();
     });
-    socket.on('reloadMr', () => {
-        reloadMr();
-    });
-  </script>
+
+  
+}</script>
 
 <dialog id="navigationPanel" class="navigation-panel" aria-labelledby="panelTitle"><div class="panel-heading"><h2 id="panelTitle">Explorar</h2><button type="button" onclick="closePanel()" aria-label="Cerrar panel">×</button></div><div id="panelContent"></div></dialog><div id="menuStore" hidden=""><div class="dropdown-menu" id="rightMenu" style="left: 160px; margin-top: 5px;">
                 <!-- <label for="General" class="boton">Chat General</label>
@@ -228,140 +228,141 @@
                <!-- <label for="Recetas" class="boton">Cocina</label>
                 <input type="radio" id="Recetas" name="nav" style="display:none;" onclick="location.href='recetas'">-->
                 
-                <label for="Foros" class="boton">Foros</label>
-                    <input type="radio" id="Foros" name="nav" style="display:none;" onclick="toggleForumMenu()"> 
+                <button type="button" class="boton" onclick="toggleForumMenu()">Foros</button>
+                     
                 <div id="forumSubMenu" class="dropdown-menu" style="left: 188px; margin-top: -82px;">
                    
-                    <label for="myForos" class="boton">Mis Foros</label>
-                        <input type="radio" id="myForos" name="nav" style="display:none;" onclick="toggleMyForumMenu(); loadUserCreatedForums();">
+                    <button type="button" class="boton" onclick="toggleMyForumMenu(); loadUserCreatedForums();">Mis Foros</button>
+                        
                     <div id="myForumMenu" class="dropdown-menu" style="left: 188px; margin-top: -41px;">
         
-                        <label for="Crearforo" class="boton">Crear Foro</label>
-                            <input type="radio" id="Crearforo" name="nav" style="display:none;" onclick="createForumMenu()">
+                        <button type="button" class="boton" onclick="createForumMenu()">Crear Foro</button>
+                            
 
                             <div id="createdForosContainer" class="foros-container" style="margin-left: -10px;">
                                 <!-- Los foros se renderizarán aquí -->
                             </div>
                             
-                        <label for="Volver6" class="botonV">Volver</label>
-                            <input type="radio" id="Volver6" name="nav" style="display:none;" onclick="toggleMyForumMenu()">
+                        <button type="button" class="botonV" onclick="closePanel()">Volver</button>
+                            
                     
                    </div>
                    
 
                     <!--ver foros seguidos-->
-                    <label for="forosseguidos" class="boton">Foros Seguidos</label>
-                        <input type="radio" id="forosseguidos" name="nav" style="display:none;" onclick="exploreForumMenu2()">
+                    <button type="button" class="boton" onclick="exploreForumMenu2()">Foros Seguidos</button>
+                        
                         <div id="exploreforumMenu2" class="dropdown-menu" style="left: 188px; margin-top: -99px;">  
                             <div id="forosContainer2" class="foros-container" style="margin-left: -10px;">
                                 <!-- Los foros se renderizarán aquí -->
                             </div>
 
-                            <label for="Volver5" class="botonV">Volver</label>
-                                <input type="radio" id="Volver5" name="nav" style="display:none;" onclick="exploreForumMenu2()">
+                            <button type="button" class="botonV" onclick="closePanel()">Volver</button>
+                                
 
                         </div>
 
                     <!--explorar foros-->
-                    <label for="explorarforos" class="boton">Explorar Foros</label>
-                        <input type="radio" id="explorarforos" name="nav" style="display:none;" onclick="exploreForumMenu()">
+                    <button type="button" class="boton" onclick="exploreForumMenu()">Explorar Foros</button>
+                        
                         <div id="exploreforumMenu" class="dropdown-menu" style="left: 188px; margin-top: -156px;">
                             <div id="forosContainer" class="foros-container" style="margin-left: -10px;">
                                 <!--los foros se renderizaran aqui-->
                             </div>
-                            <label for="Volver4" class="botonV">Volver</label>
-                                <input type="radio" id="Volver4" name="nav" style="display:none;" onclick="exploreForumMenu()">
+                            <button type="button" class="botonV" onclick="closePanel()">Volver</button>
+                                
                         </div>    
-                    <label for="Volver3" class="botonV">Volver</label>
-                        <input type="radio" id="Volver3" name="nav" style="display:none;" onclick="toggleForumMenu()">
+                    <button type="button" class="botonV" onclick="closePanel()">Volver</button>
+                        
                 </div>
 
-                <label for="grupos" class="boton">Grupos</label>
-                        <input type="radio" id="grupos" name="nav" style="display:none;" onclick="toggleGruposMenu(); loadUserGroups();">
+                <button type="button" class="boton" onclick="toggleGruposMenu(); loadUserGroups();">Grupos</button>
+                        
                     <div id="gruposMenu" class="dropdown-menu" style="left: 188px; top: -20px;">
                             
-                        <label for="userCreated" class="boton">Administración de grupos</label>
-                            <input type="radio" id="userCreated" name="nav" style="display:none;" onclick="usercreatedGroupMenu(); loadCreatedGroups();">  
+                        <button type="button" class="boton" onclick="usercreatedGroupMenu(); loadCreatedGroups();">Administración de grupos</button>
+                              
                         <div id="userCreatedMenu" class="dropdown-menu" style="left: 188px; top: -20px;"> 
                             <div id="createdGroupsContainer" class="foros-container" style="margin-left: -10px;">
                                 <!-- Los grupos se renderizarán aquí -->
                             </div>
-                            <label for="Volver8" class="botonV">Volver</label>
-                                <input type="radio" id="Volver8" name="nav" style="display:none;" onclick="usercreatedGroupMenu()">
+                            <button type="button" class="botonV" onclick="closePanel()">Volver</button>
+                                
 
                         </div>
 
-                        <label for="userJoined" class="boton">Ver mis grupos</label>
-                            <input type="radio" id="userJoined" name="nav" style="display:none;" onclick="userJoinedGroupMenu(); loadUserGroups()">  
+                        <button type="button" class="boton" onclick="userJoinedGroupMenu(); loadUserGroups()">Ver mis grupos</button>
+                              
                         <div id="userJoinedMenu" class="dropdown-menu" style="left: 188px; top: -20px;"> 
                             <div id="joinedGruposContainer" class="foros-container" style="margin-left: -10px;">
                                 <!-- Los grupos se renderizarán aquí -->
                             </div>
-                            <label for="Volver9" class="botonV">Volver</label>
-                                <input type="radio" id="Volver9" name="nav" style="display:none;" onclick="userJoinedGroupMenu()">
+                            <button type="button" class="botonV" onclick="closePanel()">Volver</button>
+                                
 
                         </div>
 
-                        <label for="Creargrupo" class="boton">Crear grupo</label>
-                            <input type="radio" id="Creargrupo" name="nav" style="display:none;" onclick="createGroupMenu()">   
+                        <button type="button" class="boton" onclick="createGroupMenu()">Crear grupo</button>
+                               
 
-                        <label for="entrargrupo" class="boton">Entrar a un grupo</label>
-                            <input type="radio" id="entrargrupo" name="nav" style="display:none;" onclick="joinGroupMenu()">
+                        <button type="button" class="boton" onclick="joinGroupMenu()">Entrar a un grupo</button>
+                            
     
-                        <label for="Volver7" class="botonV">Volver</label>
-                            <input type="radio" id="Volver7" name="nav" style="display:none;" onclick="toggleGruposMenu()">
+                        <button type="button" class="botonV" onclick="closePanel()">Volver</button>
+                            
                    </div>
 
-                   <label for="Seguidos" class="boton">Usuarios Seguidos</label>
-                   <input type="radio" id="Seguidos" name="nav" style="display:none;" onclick="toggleUserMenu()"> 
+                   <button type="button" class="boton" onclick="toggleUserMenu()">Usuarios Seguidos</button>
+                    
                    <div id="userSubMenu" class="dropdown-menu" style=" left: 188px; margin-top: -180px;">
                    <div id="usersContainer" style="min-height: 86px; margin-left: -10px" class="foros-container">
                        <!-- Los usuarios se renderizarán aquí -->
                    </div>
-                   <label for="Volver2" class="botonV">Volver</label>
-                   <input type="radio" id="Volver2" name="nav" style="display:none;" onclick="toggleUserMenu()">
+                   <button type="button" class="botonV" onclick="closePanel()">Volver</button>
+                   
                 </div>
                 
-                <label for="Cerrar1" class="botonV">Cerrar</label>
-                <input type="radio" id="Cerrar1" name="nav" style="display:none;" onclick="toggleRightMenu()">
+                <button type="button" class="botonV" onclick="closePanel()">Cerrar</button>
+                
             </div><div id="SearchMenu" class="search-menu" style="display: none; left: 110px; top: 15px;">
                 <input type="text" id="searchInput" placeholder="Buscar..." oninput="searchMotor()" style="width: 223px;"> 
                 <div id="searchconteiner" class="SearchContainer foros-container">
                     <!--las busquedas se renderizan aqui-->
                 </div>    
             </div><div class="dropdown-menu" id="dropdownMenu">
-                <label class="boton" onclick="toggleSubMenu2()">Usuario</label>
+                <button type="button" class="boton" onclick="toggleSubMenu2()">Usuario</button>
                 <div class="dropdown-menu" id="subMenu2" style="display: none; position: absolute; left: 172px; margin-top: -41px;">
-                    <label for="configuración de la cuenta" class="boton">configuración de la cuenta</label>
-                    <input type="radio" id="configuración de la cuenta" name="nav" style="display:none;" onclick="location.href='cuenta'">
+                    <button type="button" class="boton" onclick="location.href='cuenta'">configuración de la cuenta</button>
                     
-                    <label for="Cerrar sesión" class="boton">Cerrar sesión</label>
-                    <input type="radio" id="Cerrar sesión" name="nav" style="display:none;" onclick="showUserSelectOverlay(); toggleMenu(); toggleSubMenu2(); closeSesion();">
+                    
+                    <button type="button" class="boton" onclick="closePanel(); closeSesion();">Cerrar sesión</button>
+                    
 
-                    <label for="Volver1" class="botonV">Volver</label>
-                    <input type="radio" id="Volver1" name="nav" style="display:none;" onclick="toggleSubMenu2()">
+                    <button type="button" class="botonV" onclick="closePanel()">Volver</button>
+                    
                 </div>
                 
-                <label for="acercade" class="boton">Acerca de...</label>
-                <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='informacion'">
+                <button type="button" class="boton" onclick="location.href='informacion'">Acerca de...</button>
+                
 
-                <label class="boton" onclick="toggleSubMenu()">Otros</label>
+                <button type="button" class="boton" onclick="toggleSubMenu()">Otros</button>
                 <div class="dropdown-menu" id="subMenu" style="display: none; position: absolute; left: 171px; margin-top: -122px;">
-                    <label for="Politicas" class="boton">Políticas</label>
-                    <input type="radio" id="Politicas" name="nav" style="display:none;" onclick="location.href='Terminos'">
-
-                    <label for="versiones" class="boton">Versiones</label>
-                    <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='versiones'">
-
-                    <label for="Ayuda" class="boton">Ayuda</label>
-                    <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda'">
-
-                    <label for="appd" class="boton">App de Android</label>
-                    <input type="radio" id="appd" name="nav" style="display:none;" onclick="location.href='app'">
+                    <button type="button" class="boton" onclick="location.href='Terminos'">Políticas</button>
                     
-                    <label for="Volver" class="botonV">Volver</label>
-                    <input type="radio" id="Volver" name="nav" style="display:none;" onclick="toggleSubMenu()">
+
+                    <button type="button" class="boton" onclick="location.href='versiones'">Versiones</button>
+                    
+
+                    <button type="button" class="boton" onclick="location.href='Ayuda'">Ayuda</button>
+                    
+
+                    <button type="button" class="boton" onclick="location.href='app'">App de Android</button>
+                    
+                    
+                    <button type="button" class="botonV" onclick="closePanel()">Volver</button>
+                    
                 </div>
-                <label for="Cerrar" class="botonV">Cerrar</label>
-                <input type="radio" id="Cerrar" name="nav" style="display:none;" onclick="toggleMenu()">
-            </div></div><script src="/modern.js"></script></body></html>
+                <button type="button" class="botonV" onclick="closePanel()">Cerrar</button>
+                
+            </div></div><script src="/theme.js"></script><script src="/modern.js"></script>
+</body></html>

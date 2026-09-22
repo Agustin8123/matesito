@@ -7,6 +7,8 @@ function notify(message, type = 'info') {
         region.setAttribute('aria-live', 'polite');
         document.body.appendChild(region);
     }
+    const host = document.querySelector('dialog[open]') || document.body;
+    if (region.parentElement !== host) host.appendChild(region);
     const item = document.createElement('div');
     item.className = `feedback-message ${type}`;
     item.setAttribute('role', type === 'error' ? 'alert' : 'status');
@@ -37,6 +39,8 @@ function confirmAction(message) {
         accept.textContent = 'Confirmar';
         accept.className = 'confirm-accept';
         const finish = result => {
+            const feedback = dialog.querySelector('#feedback-region');
+            if (feedback) document.body.appendChild(feedback);
             dialog.close();
             dialog.remove();
             previousFocus?.focus();

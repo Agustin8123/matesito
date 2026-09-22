@@ -1,4 +1,11 @@
 /* Integration of the saved v2 layout (index.css) with the live application. */
+.dropdown-menu, .search-menu { display: none; }
+.profile-info { display: flex; align-items: center; gap: 20px; }
+.profile-picture-large { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; }
+.media-container { position: relative; }
+.fullscreen-btn { position: absolute; right: 12px; bottom: 12px; }
+.foros-container { overflow: auto; }
+.user-item button, .group-item button { margin: 4px; font-size: 13px; }
 * { box-sizing: border-box; }
 :root { color-scheme: light; --border-color: #e6e6e6; }
 [data-theme="dark"] { color-scheme: dark; --border-color: #303030; }
@@ -64,7 +71,7 @@ a { color: inherit; }
 .posts[aria-busy="true"] { opacity: .65; }
 .profile-info { color: var(--text-primary); }
 .user-profile-box { background: var(--bg-third); border: 0; border-radius: 16px; padding: 12px; }
-.overlay { inset: 0 !important; transform: none !important; padding: 24px; width: 100%; height: 100dvh; background: #0008; backdrop-filter: blur(12px); z-index: 40; overflow-y: auto; }
+.overlay { position: fixed; display: flex; align-items: center; justify-content: center; inset: 0 !important; transform: none !important; padding: 24px; width: 100%; height: 100dvh; background: #0008; backdrop-filter: blur(12px); z-index: 40; overflow-y: auto; }
 .initial-box, .username-box, .user-select-box, .forum-box { background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 28px; width: min(460px, 100%); padding: 30px; box-shadow: 0 20px 80px #0004; max-height: calc(100dvh - 48px); overflow-y: auto; text-align: left; }
 .overlay h2 { font-size: 25px; margin: 0 0 14px; }
 .overlay input:not([type="checkbox"]):not([type="file"]), .overlay textarea, #searchInput { margin: 0 0 14px !important; width: 100% !important; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); color: var(--text-primary); }

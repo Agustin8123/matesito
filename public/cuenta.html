@@ -1,126 +1,65 @@
 <!DOCTYPE html>
-<html lang="es-AR">
+<html lang="es-AR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matesito</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="extras.css">
-    <link rel="preconnect" href="https://challenges.cloudflare.com">
-    <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
-    <link rel="preconnect" href="https://fonts.googleapis.com"> 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi cuenta · Matesito</title>
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" href="/resources/PNG/favicon.png">
+    <link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="/modern.css">
     <link rel="stylesheet" href="/feedback.css">
-    <script src="/feedback.js" defer></script>
+    <link rel="stylesheet" href="/account.css">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="/feedback.js"></script>
 </head>
-<body>
-    <div class="header">
-        <div class="left-section">
-            <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index'" style="cursor:pointer">
-        </div>
-        <div class="menu-toggle" onclick="toggleMenuExtras()">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <div class="nav-buttons" id="navMenu">
-            <label for="index" class="button">Inicio</label>
-            <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index'">
-
-            <label for="versiones" class="button">Versiones</label>
-            <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='versiones'">
-
-            <label for="acercade" class="button">Acerca de...</label>
-            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='informacion'">
-
-            <label for="Ayuda" class="button">Ayuda</label>
-            <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda'">
-        </div>
-    </div>
-
-    <div class="overlay" id="usernameOverlay" style="display: none;">
-
-    <div class="username-box">
-        <input type="text" id="usernameInput" style="margin-left: -25px;" placeholder="Nombre de Usuario">
-        <input type="password" id="passwordInput1" placeholder="Contraseña">
-        <button type="button" id="toggleBotonPassword" onclick="togglePassword2()">
-            <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
-        </button>
-
-        <div class="cf-turnstile" id="turnstileLogin"></div>
-
-        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-            <button onclick="location.href='index'">Volver</button>
-            <button onclick="loginUser()">Ingresar</button>
-        </div>
-    </div>
-</div>
-
-<div class="overlay" id="AvisoOverlay">
-    <div class="initial-box">
-        <h1>Es nesesario que confirmes tu cuenta para continuar.</h1>
-        <button onclick="Acept1()">Aceptar</button>
-    </div>
-</div>
-
-<div class="container" id="appContainer" style="display: none;">
-    <div class="user-settings">
-        <h1 style="text-align: center;">Configuración</h1>  
-    
-        <!-- Cambiar nombre de usuario -->
-        <div class="settings-item">
-            <label for="newUsername"><h2>Nombre de Usuario</h2></label>
-            <input type="text" id="newUsername" placeholder="Nuevo nombre de usuario">
-            <button onclick="updateUsername()">Guardar</button>
-        </div>
-    
-        <!-- Cambiar contraseña -->
-        <div class="settings-item">
-            <h2>Contraseña</h2>
-
-            <label for="currentPassword">Contraseña actual</label>
-            <input type="password" id="currentPassword" placeholder="Contraseña actual">
-
-            <button type="button" id="togglePasswordButton" class="toggle-password" onclick="togglePassword(), togglePassword1()">
-                <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
-            </button>
-
-            <label for="newPassword">Nueva Contraseña</label>
-            <input type="password" id="newPassword" placeholder="Nueva contraseña">
-
-
-            <button onclick="updatePassword()">Cambiar Contraseña</button>
-
-            <!-- Cambiar imagen de perfil -->
-        <div class="settings-item">
-            <label for="profileImage"><h2>Imagen de Perfil</h2></label>
-
+<body class="account-page">
+    <header class="header"><a href="/">← Volver a la ronda</a><button class="theme-toggle" onclick="toggleTheme()"><span class="nav-text">Modo claro</span></button></header>
+    <main class="container" id="appContainer" style="display:none">
+        <div class="page-intro"><h1>Tu cuenta, a tu manera.</h1><p>Actualizá cómo te ve la comunidad.</p></div>
+        <section class="settings-item">
+            <h2>Foto de perfil</h2>
             <input type="file" id="profileImage" accept="image/*" hidden>
-
-            <label for="profileImage" id="userButton" class="profile-picker">
-                <img src="resources/SVG/default-avatar.svg" class="profile-pic-img">
-            </label>
-
-            <button onclick="updateProfileImage()">Subir</button>
+            <button type="button" id="userButton" onclick="document.getElementById('profileImage').click()" aria-label="Elegir foto de perfil"><img src="/res/default-avatar.svg" class="profile-pic-img" alt="Tu avatar"></button>
+            <button type="button" onclick="updateProfileImage()">Guardar foto</button>
+            <p class="field-hint">Una imagen de hasta 10 MB.</p>
+        </section>
+        <section class="settings-item">
+            <h2><label for="newUsername">Nombre de usuario</label></h2>
+            <input id="newUsername" placeholder="Tu nuevo nombre" maxlength="25" autocomplete="username">
+            <button type="button" onclick="updateUsername()">Guardar nombre</button>
+        </section>
+        <section class="settings-item">
+            <h2><label for="userDescription">Sobre vos</label></h2>
+            <textarea id="userDescription" placeholder="Contale un poco de vos a la ronda" rows="4" maxlength="1000"></textarea>
+            <button type="button" onclick="updateDescription()">Guardar descripción</button>
+        </section>
+        <section class="settings-item">
+            <h2>Contraseña</h2>
+            <label for="currentPassword">Contraseña actual</label>
+            <input type="password" id="currentPassword" autocomplete="current-password">
+            <label for="newPassword">Nueva contraseña</label>
+            <input type="password" id="newPassword" autocomplete="new-password" maxlength="128">
+            <button type="button" id="togglePasswordButton" onclick="togglePassword(); togglePassword1()" aria-label="Mostrar u ocultar contraseñas"><img src="/resources/PNG/eyeClose.png" alt="Mostrar contraseñas"></button>
+            <button type="button" onclick="updatePassword()">Cambiar contraseña</button>
+        </section>
+    </main>
+    <div class="overlay" id="AvisoOverlay">
+        <div class="initial-box"><h2>Iniciá sesión para ver tu cuenta.</h2><p>Conectate para editar tu perfil y tus preferencias.</p><button onclick="Acept1()">Ingresar</button> <a href="/">Volver al inicio</a></div>
+    </div>
+    <div class="overlay" id="usernameOverlay" style="display:none">
+        <div class="username-box">
+            <h2>Qué bueno verte de nuevo.</h2>
+            <input id="usernameInput" aria-label="Nombre de usuario" placeholder="Nombre de usuario" autocomplete="username">
+            <input type="password" id="passwordInput1" aria-label="Contraseña" placeholder="Contraseña" autocomplete="current-password">
+            <button id="toggleBotonPassword" onclick="togglePassword2()" aria-label="Mostrar u ocultar contraseña"><img src="/resources/PNG/eyeClose.png" alt="Mostrar contraseña"></button>
+            <div id="turnstileLogin"></div>
+            <button onclick="loginUser()">Ingresar</button> <a href="/">Volver al inicio</a>
         </div>
-
-
-        <!-- Cambiar descripción -->
-        <div class="settings-item">
-            <label for="userDescription"><h2>Descripción</h2></label>
-            <textarea id="userDescription" placeholder="Escribe tu nueva descripción" rows="3"></textarea>
-            <button onclick="updateDescription()">Guardar</button>
-        </div>
-    </div>    
-</div>
-
-<script src="utils.js"></script>
-<script src="scripts c.js"></script>
-<script
-  src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
-  async
-  defer
-></script>
+    </div>
+    <script src="/utils.js"></script>
+    <script src="/scripts%20c.js"></script>
+    <script src="/theme.js"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 </body>
 </html>

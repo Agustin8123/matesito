@@ -336,7 +336,7 @@
 
   function num(v) {
     const n = parseFloat(v);
-    return Number.isNaN(n) ? null : n;
+    return Number.isFinite(n) ? n : null;
   }
 
   function formatRuntime(seconds) {
@@ -365,21 +365,21 @@
   }
 
   function render(d) {
-    const state = classify(d['ups.status']);
+    const state = d._error ? { word: 'SIN CONEXIÓN', cls: 'warn' } : classify(d['ups.status']);
     els.hero.className = 'hero ' + state.cls;
     els.stateWord.textContent = state.word;
     els.upsMeta.textContent = d._error
       ? 'controlador ' + (d['driver.name'] || '?') + ' — última lectura con error: ' + d._error
       : 'controlador ' + (d['driver.name'] || '?') + ', protocolo ' + (d['driver.parameter.protocol'] || '?');
 
-    const charge = num(d['battery.charge']) ?? 0;
-    els.chargeValue.textContent = Math.round(charge);
-    els.chargeArc.style.strokeDashoffset = String(CIRC * (1 - charge / 100));
+    const charge = num(d['battery.charge']);
+    els.chargeValue.textContent = charge === null ? '—' : Math.round(charge);
+    els.chargeArc.style.strokeDashoffset = String(CIRC * (1 - Math.max(0, Math.min(charge ?? 0, 100)) / 100));
     els.chargeArc.style.stroke = charge <= 20 ? 'var(--crit)' : charge <= 50 ? 'var(--warn)' : 'var(--ok)';
 
-    const load = num(d['ups.load']) ?? 0;
-    els.loadValue.textContent = Math.round(load);
-    els.loadBar.style.width = Math.min(load, 100) + '%';
+    const load = num(d['ups.load']);
+    els.loadValue.textContent = load === null ? '—' : Math.round(load);
+    els.loadBar.style.width = Math.max(0, Math.min(load ?? 0, 100)) + '%';
     els.loadBar.style.background = load >= 90 ? 'var(--crit)' : load >= 70 ? 'var(--warn)' : 'var(--ok)';
 
     const runtimeSec = num(d['battery.runtime']);
@@ -396,7 +396,7 @@
     els.voltIn.textContent = vIn === null ? '—' : vIn.toFixed(1);
     els.voltOut.textContent = vOut === null ? '—' : vOut.toFixed(1);
 
-    if (vIn !== null) {
+    if (vIn !== null && !d._error) {
       history.push(vIn);
       if (history.length > MAX_HISTORY) history.shift();
       drawTrace();
@@ -411,11 +411,16 @@
       ['Puerto', d['driver.parameter.port'] || '—'],
       ['Beeper', d['ups.beeper.status'] || '—'],
     ];
-    els.manifest.innerHTML = rows
-      .map(([k, v]) => '<div class="row"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>')
-      .join('');
-
-    els.lastUpdate.textContent = 'actualizado ' + new Date().toLocaleTimeString('es-AR');
+    els.manifest.replaceChildren();
+    for (const [key, value] of rows) {
+      const row = document.createElement('div'); row.className = 'row';
+      const label = document.createElement('span'); label.className = 'k'; label.textContent = key;
+      const cell = document.createElement('span'); cell.className = 'v'; cell.textContent = value;
+      row.append(label, cell); els.manifest.appendChild(row);
+    }
+    els.lastUpdate.textContent = d._lastGoodAt
+      ? 'última lectura válida ' + new Date(d._lastGoodAt).toLocaleTimeString('es-AR')
+      : 'sin lecturas válidas';
   }
 
   const source = new EventSource('/api/ups/stream');
