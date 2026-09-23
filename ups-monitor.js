@@ -25,6 +25,10 @@ function attachUpsMonitor(app, opts = {}) {
   } = opts;
 
   const target = `${upsName}@${upsHost}`;
+  const sampleSystem = require('./system-monitor')();
+  let system = null;
+  let systemError = null;
+  let polling = false;
   let latest = null;
   let lastError = null;
   let lastGoodAt = null;
@@ -42,6 +46,8 @@ function attachUpsMonitor(app, opts = {}) {
   function currentPayload() {
     return {
       ...(latest || {}),
+      _system: system,
+      _systemError: systemError,
       _error: lastError,
       _lastGoodAt: lastGoodAt,
     };
@@ -59,6 +65,8 @@ function attachUpsMonitor(app, opts = {}) {
       // problema sin que la pantalla quede en blanco.
       lastError = err.message;
     }
+    await systemJob;
+    polling = false;
     const payload = `data: ${JSON.stringify(currentPayload())}\n\n`;
     for (const res of clients) res.write(payload);
   }
@@ -68,7 +76,7 @@ function attachUpsMonitor(app, opts = {}) {
   timer.unref?.();
 
   app.get(path, (req, res) => {
-    if (!latest) {
+    if (!latest && !system) {
       return res.status(503).json({ error: lastError || 'todavía sin lecturas' });
     }
     res.json(currentPayload());

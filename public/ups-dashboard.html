@@ -221,7 +221,7 @@
   }
 </style>
 <link rel="stylesheet" href="/index.css"><link rel="stylesheet" href="/modern.css"><link rel="stylesheet" href="/panels.css"><link rel="stylesheet" href="/pages.css"></head>
-<body class="document-page dashboard-page"><a class="skip-link" href="#page-content">Saltar al contenido</a><aside class="sidebar" id="sidebar"><a class="brand" href="/"><img class="logo" src="/res/logo.svg" alt="">Matesito</a><nav class="sidebar-nav" aria-label="Comunidad"><a class="sidebar-nav-element" href="/"><img class="nav-ic" src="/res/sidebar-icons/home.svg" alt=""><span class="nav-text">Inicio</span></a><a class="sidebar-nav-element" href="/#foros"><img class="nav-ic" src="/res/sidebar-icons/foros.svg" alt=""><span class="nav-text">Foros</span></a><a class="sidebar-nav-element" href="/#chats"><img class="nav-ic" src="/res/sidebar-icons/chats.svg" alt=""><span class="nav-text">Chats y grupos</span></a><a class="sidebar-nav-element" href="/#siguiendo"><img class="nav-ic" src="/res/sidebar-icons/followers.svg" alt=""><span class="nav-text">Siguiendo</span></a><a class="sidebar-nav-element" href="/#notificaciones"><img class="nav-ic" src="/res/sidebar-icons/notifications.svg" alt=""><span class="nav-text">Notificaciones</span></a></nav><nav class="document-links" aria-label="Sobre Matesito"><a href="/informacion.html">Información</a><a href="/versiones.html">Versiones</a><a href="/Ayuda.html">Ayuda</a><a href="/Terminos.html">Términos y privacidad</a><a href="/app.html">App para Android</a><a href="/cuenta.html">Mi cuenta</a></nav><div class="sidebar-bottom"><button class="theme-toggle sidebar-nav-element" onclick="toggleTheme()"><span class="nav-ic" aria-hidden="true">◐</span><span class="nav-text">Modo claro</span></button><div class="sidebar-footer">Hecho para compartir un buen mate.</div></div></aside><button class="nav-backdrop" onclick="closeSidebar()" aria-label="Cerrar navegación" hidden=""></button><header class="header"><button class="mobile-menu icon-button" onclick="toggleSidebar()" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir navegación"><img src="/res/hamburguesa-con-queso-amigo.svg" alt=""></button><span>Estado del servidor</span><a class="back-link" href="/" aria-label="Volver al inicio"><img class="ui-icon" src="/res/back.svg" alt=""> Volver a la ronda</a></header><main id="page-content" class="document-main"><div class="document-hero"><h1>Estado del servidor</h1></div><div class="panel">
+<body class="document-page dashboard-page"><a class="skip-link" href="#page-content">Saltar al contenido</a><aside class="sidebar" id="sidebar"><a class="brand" href="/"><img class="logo" src="/res/logo.svg" alt="">Matesito</a><nav class="sidebar-nav" aria-label="Comunidad"><a class="sidebar-nav-element" href="/"><img class="nav-ic" src="/res/sidebar-icons/home.svg" alt=""><span class="nav-text">Inicio</span></a><a class="sidebar-nav-element" href="/#foros"><img class="nav-ic" src="/res/sidebar-icons/foros.svg" alt=""><span class="nav-text">Foros</span></a><a class="sidebar-nav-element" href="/#chats"><img class="nav-ic" src="/res/sidebar-icons/chats.svg" alt=""><span class="nav-text">Chats y grupos</span></a><a class="sidebar-nav-element" href="/#siguiendo"><img class="nav-ic" src="/res/sidebar-icons/followers.svg" alt=""><span class="nav-text">Siguiendo</span></a><a class="sidebar-nav-element" href="/#notificaciones"><img class="nav-ic" src="/res/sidebar-icons/notifications.svg" alt=""><span class="nav-text">Notificaciones</span></a></nav><nav class="document-links" aria-label="Sobre Matesito"><a href="/informacion.html">Información</a><a href="/versiones.html">Versiones</a><a href="/Ayuda.html">Ayuda</a><a href="/Terminos.html">Términos y privacidad</a><a href="/app.html">App para Android</a><a href="/cuenta.html">Mi cuenta</a></nav><div class="sidebar-bottom"><button class="theme-toggle sidebar-nav-element" onclick="toggleTheme()"><span class="nav-ic" aria-hidden="true">◐</span><span class="nav-text">Modo claro</span></button><div class="sidebar-footer">Hecho para compartir un buen mate.</div></div></aside><button class="nav-backdrop" onclick="closeSidebar()" aria-label="Cerrar navegación" hidden=""></button><header class="header"><button class="mobile-menu icon-button" onclick="toggleSidebar()" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir navegación"><img src="/res/hamburguesa-con-queso-amigo.svg" alt=""></button><span>Estado del servidor</span><a class="back-link" href="/" aria-label="Volver al inicio"><img class="ui-icon" src="/res/back.svg" alt=""> Volver a la ronda</a></header><main id="page-content" class="document-main"><div class="document-hero"><h1>Estado del servidor</h1></div><section class="hardware-panel" aria-labelledby="hardwareTitle"><h2 id="hardwareTitle">Recursos del servidor</h2><p id="hardwareStatus">Esperando la primera lectura…</p><div class="hardware-summary"><article><h3>Procesador</h3><strong id="cpuTotal">—</strong><p>Uso total</p></article><article><h3>Memoria RAM</h3><strong id="ramTotal">—</strong><progress id="ramBar" max="100" value="0" aria-label="Uso de memoria RAM"></progress><p id="ramDetail">Esperando datos…</p></article></div><h3>Temperaturas</h3><div id="temperatures" class="hardware-grid"></div><h3>Núcleos e hilos</h3><p>Cada CPU lógica representa un hilo. Se agrupan por procesador y núcleo cuando el sistema informa esa relación.</p><div id="cpuThreads" class="hardware-grid"></div></section><div class="panel">
     <header class="hero" id="hero">
       <div class="hero-top">
         <span class="state-dot"></span>
@@ -258,7 +258,7 @@
           </div>
           <div class="bar-track"><div class="bar-fill" id="loadBar"></div></div>
         </div>
-        <span class="meter-label">Carga del sistema</span>
+        <span class="meter-label">Carga del UPS</span>
       </div>
 
       <div class="meter">
@@ -290,7 +290,7 @@
     <section class="manifest" id="manifest"></section>
 
     <footer class="foot" id="lastUpdate">esperando datos…</footer>
-  </div></main><script>
+  </div></main><script src="/hardware-dashboard.js"></script><script>
 (function () {
   const CIRC = 2 * Math.PI * 52;
   const MAX_HISTORY = 60;
@@ -360,6 +360,7 @@
   }
 
   function render(d) {
+    renderHardware(d._system, d._systemError);
     const state = d._error ? { word: 'SIN CONEXIÓN', cls: 'warn' } : classify(d['ups.status']);
     els.hero.className = 'hero ' + state.cls;
     els.stateWord.textContent = state.word;
@@ -401,7 +402,7 @@
       ['Autonomía estimada', runtimeSec !== null ? formatRuntime(runtimeSec) : 'sin calibrar (runtimecal)'],
       ['Tensión de batería', d['battery.voltage'] ? d['battery.voltage'] + ' V' : '—'],
       ['Frecuencia', d['input.frequency'] ? d['input.frequency'] + ' Hz' : '—'],
-      ['Temperatura', d['ups.temperature'] ? d['ups.temperature'] + ' °C' : '—'],
+      ['Temperatura del UPS', d['ups.temperature'] ? d['ups.temperature'] + ' °C' : '—'],
       ['Firmware', d['ups.firmware'] || '—'],
       ['Puerto', d['driver.parameter.port'] || '—'],
       ['Beeper', d['ups.beeper.status'] || '—'],
@@ -424,6 +425,7 @@
   };
   source.onerror = () => {
     els.lastUpdate.textContent = 'reconectando…';
+    document.getElementById('hardwareStatus').textContent = 'Sin conexión. Se muestran las últimas lecturas recibidas.';
   };
 })();
 </script><script src="/theme.js"></script><script src="/site-shell.js"></script></body></html>
