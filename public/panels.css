@@ -1,0 +1,54 @@
+[hidden] { display: none !important; }
+.feed-pagination { list-style: none; text-align: center; padding: 24px; }
+.feed-update { display: block; width: 100%; margin: 16px 0; color: var(--accent-text); }
+:root { --accent-text: #b52629; }
+[data-theme="dark"] { --accent-text: #ff898b; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.ui-icon, .icon-button img, .panel-heading-icon { width: 22px; height: 22px; object-fit: contain; filter: var(--svg-filter); flex-shrink: 0; }
+.icon-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; padding: 10px; }
+#postMediaButton span:not(.visually-hidden) { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.navigation-panel { width: min(720px, calc(100vw - 32px)); padding: 28px; }
+.panel-heading { padding-bottom: 22px; border-bottom: 1px solid var(--border-color); }
+.panel-heading h2 { flex: 1; }
+.panel-heading-icon { width: 28px; height: 28px; }
+.panel-intro { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 20px 0; }
+.panel-intro p, .panel-description { color: var(--text-secondary); line-height: 1.6; margin: 0; }
+.panel-description { margin: 20px 0; }
+.panel-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.primary-action { background: var(--accent-color); color: #fff; }
+.primary-action:hover { background: #a62a2d; }
+.panel-tabs { display: flex; gap: 4px; padding: 5px; background: var(--bg-secondary); border-radius: 16px; margin-bottom: 20px; }
+.panel-tabs button { flex: 1; background: transparent; border-radius: 12px; font-size: 14px; padding: 12px 8px; }
+.panel-tabs button[aria-selected="true"] { background: var(--bg-primary); box-shadow: 0 2px 6px #0001; color: var(--accent-text); font-weight: 700; }
+.panel-search { display: flex; gap: 10px; align-items: center; padding: 0 14px; border: 1px solid var(--border-color); border-radius: 14px; margin: 0 0 20px; background: var(--bg-secondary); }
+.panel-search input, .panel-search #searchInput { width: 100% !important; min-width: 0; margin: 0 !important; background: transparent; color: var(--text-primary); border: 0; padding: 14px 0; }
+.community-list { display: grid; gap: 12px; max-height: none; }
+.community-list > p, .panel-empty { padding: 28px 20px; text-align: center; color: var(--text-secondary); line-height: 1.7; background: var(--bg-secondary); border-radius: 18px; margin: 0; }
+.community-list .forum-item, .community-list .user-item, .community-list .group-item, .chat-card { border: 1px solid var(--border-color); padding: 20px; background: var(--bg-secondary); border-radius: 18px; }
+.community-list h3 { font-size: 19px; margin: 0 0 8px; }
+.community-list p { line-height: 1.6; }
+.community-list button { font-size: 14px; margin: 6px 6px 0 0; }
+.community-list button:first-of-type { color: var(--accent-text); }
+.community-list .Nboton { width: 100%; padding: 20px; text-align: left; border-radius: 16px; margin: 0; line-height: 1.6; }
+.chat-card { display: flex; align-items: center; gap: 14px; text-align: left; width: 100%; }
+.chat-card img { width: 42px; height: 42px; border-radius: 50%; }
+.chat-card span { flex: 1; font-weight: 600; overflow-wrap: anywhere; }
+.account-identity { padding: 28px 0; font-size: 26px; font-weight: 700; overflow-wrap: anywhere; }
+.account-links { display: grid; gap: 8px; }
+.account-links a { display: flex; align-items: center; gap: 12px; padding: 18px; border-radius: 14px; background: var(--bg-secondary); text-decoration: none; }
+.account-links a span { margin-left: auto; }
+.danger-action { color: var(--accent-text); }
+.form-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.form-heading button { margin: 0; font-size: 24px; }
+.form-hint { color: var(--text-secondary); line-height: 1.6; }
+.forum-box label { display: block; margin: 14px 0 8px; font-weight: 600; }
+.forum-box textarea { min-height: 110px; resize: vertical; }
+.invite-details { padding: 12px 0; color: var(--text-secondary); }
+.invite-details summary { cursor: pointer; }
+.invite-details code { display: block; padding: 12px; user-select: all; overflow-wrap: anywhere; }
+.community-list .SearchContainer { width: 100%; text-align: left; }
+.community-list .SearchContainer .user-item { display: flex; gap: 14px; align-items: center; padding: 10px; border: 0; background: transparent; }
+.community-list .SearchContainer .profile-picture { width: 42px; height: 42px; object-fit: cover; border-radius: 50%; }
+body:has(.navigation-panel[open]) { overflow: hidden; }
+@media(max-width: 768px) { .sidebar:not(.active) { visibility: hidden; } .sidebar.active { visibility: visible; } }
+@media(max-width: 768px) { .navigation-panel { padding: 20px; max-height: 90dvh; } .panel-tabs button { font-size: 12px; } .panel-intro > p { width: 100%; } .panel-heading h2 { font-size: 22px; } }

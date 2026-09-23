@@ -13,6 +13,7 @@ async function refreshReactions() {
     for (const id of enabledReactions) {
         const label = document.querySelector('[data-list-id="' + id + '"]');
         if (label) label.textContent = counts.get(id) || 0;
+        document.querySelector('[data-reaction-id="' + id + '"]')?.setAttribute('aria-pressed', String(String(result.selected) === id));
     }
 }
 

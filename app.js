@@ -1,3 +1,4 @@
+const { queryFeed, feedResponse } = require('./feed-pagination');
 const express = require('express');
 const { Server } = require('socket.io');
 const { Pool } = require('pg');
@@ -13,10 +14,10 @@ if (require.main === module) require('./ups-monitor')(app);
 app.disable('x-powered-by');
 const port = Number(process.env.PORT) || 3000;
 const jwtSecret = process.env.JWT_SECRET;
-if (!jwtSecret && process.env.NODE_ENV === 'production') {
-    throw new Error('JWT_SECRET es obligatorio en producción');
+if (!jwtSecret) {
+    throw new Error('JWT_SECRET es obligatorio');
 }
-const authSecret = jwtSecret || 'development-only-change-me';
+const authSecret = jwtSecret;
 const allowedOrigins = (process.env.CORS_ORIGINS || 'https://matesito.com.ar,http://localhost,capacitor://localhost')
     .split(',').map(origin => origin.trim()).filter(Boolean);
 const corsOrigin = (origin, callback) => {
@@ -104,11 +105,16 @@ function getToken(req) {
     catch { return null; }
 }
 
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
     const token = getToken(req);
     if (!token) return res.status(401).json({ error: 'Autenticación requerida' });
     try {
-        req.user = jwt.verify(token, authSecret);
+        req.user = jwt.verify(token, authSecret, { algorithms: ['HS256'] });
+        const result = await db.query('SELECT id, username, auth_version FROM users WHERE id = $1', [req.user.id]);
+        const user = result.rows[0];
+        if (!user || Number(req.user.auth_version || 0) !== Number(user.auth_version || 0)) return res.status(401).json({ error: 'Sesión inválida o expirada' });
+        req.user = user;
+        res.setHeader('Cache-Control', 'no-store');
         next();
     } catch {
         return res.status(401).json({ error: 'Sesión inválida o expirada' });
@@ -141,7 +147,44 @@ function validNumericId(value) {
 }
 
 function validReactionPostId(value) {
-    return typeof value === 'string' && /^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(value);
+    return typeof value === 'string' && /^Matesito_post-(?:[CFG]-)?[1-9]\d{0,15}$/.test(value);
+}
+
+async function reactionAccess(req, res, next) {
+    try {
+        const id = req.params.id;
+        if (!validReactionPostId(id)) throw requestError(400, 'ID inválido');
+        const target = id.slice('Matesito_post-'.length);
+        if (/^\d+$/.test(target)) {
+            const post = await db.query('SELECT 1 FROM posts WHERE id = $1', [target]);
+            if (!post.rows.length) throw requestError(404, 'Publicación no encontrada');
+            req.reactionPublic = true;
+            return next();
+        }
+        if (!req.user) return requireAuth(req, res, () => reactionAccess(req, res, next));
+        const message = (await db.query('SELECT chat_or_group_id, sender_id FROM mensajes WHERE id = $1', [target])).rows[0];
+        if (!message) throw requestError(404, 'Publicación no encontrada');
+        const context = /^([CFG])-([1-9]\d*)$/.exec(message.chat_or_group_id);
+        if (!context) throw requestError(404, 'Contexto no encontrado');
+        const [, kind, entityId] = context;
+        req.reactionContext = message.chat_or_group_id;
+        req.reactionAuthor = message.sender_id;
+        if (kind === 'C') {
+            const chat = await db.query('SELECT 1 FROM chats WHERE id = $1 AND (user1_id = $2 OR user2_id = $2)', [entityId, req.user.id]);
+            if (!chat.rows.length) throw requestError(403, 'Acceso denegado');
+        } else if (kind === 'G') {
+            const member = await db.query('SELECT 1 FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = TRUE', [req.user.id, entityId]);
+            const owner = await db.query('SELECT 1 FROM grupos WHERE owner_id = $1 AND id = $2', [req.user.id, entityId]);
+            if (!member.rows.length && !owner.rows.length) throw requestError(403, 'Acceso denegado');
+            if (Number(message.sender_id) !== Number(req.user.id)) {
+                const sender = await db.query('SELECT 1 FROM participantes WHERE user_id = $1 AND forum_or_group_id = $2 AND is_group = TRUE', [message.sender_id, entityId]);
+                const following = await db.query('SELECT 1 FROM seguir WHERE follower_id = $1 AND followed_id = $2', [req.user.id, message.sender_id]);
+                const follower = await db.query('SELECT 1 FROM seguir WHERE follower_id = $1 AND followed_id = $2', [message.sender_id, req.user.id]);
+                if (!sender.rows.length || !following.rows.length || !follower.rows.length) throw requestError(403, 'Acceso denegado');
+            }
+        } else req.reactionPublic = true;
+        next();
+    } catch (error) { next(error); }
 }
 
 
@@ -162,7 +205,7 @@ async function transaction(action) {
 const asyncRoute = action => (req, res, next) => Promise.resolve(action(req, res)).catch(next);
 
  // Obtener la cantidad de reacciones
- app.get('/get/microreact--reactions/:id', async (req, res) => {
+ app.get('/get/microreact--reactions/:id', reactionAccess, async (req, res) => {
     const { id } = req.params;
     const reaction = req.query.reaction;
   
@@ -188,7 +231,7 @@ const asyncRoute = action => (req, res, next) => Promise.resolve(action(req, res
   
   // Actualizar el contador de reacciones
   // Ruta para obtener el número de reacciones
-  app.post('/hit/microreact--reactions/:id/:reaction', requireAuth, asyncRoute(async (req, res) => {
+  app.post('/hit/microreact--reactions/:id/:reaction', requireAuth, reactionAccess, asyncRoute(async (req, res) => {
     const { id, reaction } = req.params;
     const userId = req.user.id;
     if (!validReactionPostId(id) || !/^[1-5]$/.test(reaction) || !sameUser(req, req.body.user_id)) throw requestError(400, 'Reacción inválida');
@@ -202,12 +245,13 @@ const asyncRoute = action => (req, res, next) => Promise.resolve(action(req, res
         await client.query('DELETE FROM reactions WHERE id = $1', [id]);
         await client.query('INSERT INTO reactions (id, reaction_id, count) SELECT post_id, reaction_id, COUNT(*) FROM user_reactions WHERE post_id = $1 GROUP BY post_id, reaction_id', [id]);
     });
-    io.emit('reloadReactions', { id });
+    if (req.reactionPublic) io.emit('reloadReactions', { id });
+    else await emitPrivateUpdate(req.reactionContext, req.reactionAuthor, 'reloadReactions', { id });
     res.json({ message: 'Reacción actualizada' });
 }));
 
 // Ruta para obtener todas las reacciones del post
-app.get('/get/microreact--reactionss/:id', async (req, res) => {
+app.get('/get/microreact--reactionss/:id', reactionAccess, async (req, res) => {
     const { id } = req.params;
     if (!validReactionPostId(id)) return res.status(400).json({ error: 'ID inválido' });
   
@@ -223,7 +267,11 @@ app.get('/get/microreact--reactionss/:id', async (req, res) => {
             count: row.count || 0, // Asegurar que el conteo no sea null
         }));
 
-        res.status(200).json({ reactions });
+        let selected = null;
+        const token = getToken(req);
+        if (token) { try { const user = jwt.verify(token, authSecret, { algorithms: ['HS256'] }); selected = (await db.query('SELECT reaction_id FROM user_reactions WHERE user_id = $1 AND post_id = $2', [user.id, id])).rows[0]?.reaction_id || null; } catch {} }
+        res.setHeader('Cache-Control', 'no-store');
+        res.status(200).json({ reactions, selected });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -233,9 +281,7 @@ app.get('/get/microreact--reactionss/:id', async (req, res) => {
   app.get('/api/reactions/totals', async (req, res) => {
     try {
         const result = await db.query(`
-            SELECT id, SUM(count) AS total
-            FROM reactions
-            GROUP BY id
+            SELECT r.id, SUM(r.count) AS total FROM reactions r JOIN posts p ON r.id = 'Matesito_post-' || p.id::text GROUP BY r.id
         `);
         const totals = {};
         result.rows.forEach(row => {
@@ -288,12 +334,12 @@ app.post('/login', async (req, res) => {
     }
 
     try {
-        const results = await db.query('SELECT id, username, password FROM public.users WHERE username = $1', [username.trim()]);
+        const results = await db.query('SELECT id, username, password, auth_version FROM public.users WHERE username = $1', [username.trim()]);
         if (!results.rows.length || !(await bcryptjs.compare(password, results.rows[0].password))) {
             return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
         }
         const user = results.rows[0];
-        const authToken = jwt.sign({ id: user.id, username: user.username }, authSecret, { expiresIn: '7d' });
+        const authToken = jwt.sign({ id: user.id, username: user.username, auth_version: user.auth_version || 0 }, authSecret, { expiresIn: '7d' });
         setAuthCookie(res, authToken);
         return res.status(200).json({ id: user.id, username: user.username });
     } catch (err) {
@@ -425,7 +471,8 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
         }
 
         await client.query('COMMIT');
-        io.emit(is_private ? 'reloadCPosts' : 'reloadFPosts');
+        if (is_private) await emitPrivateUpdate(formattedForumId, req.user.id, 'reloadCPosts');
+        else io.emit('reloadFPosts');
         res.status(201).json(mensaje);
 
     } catch (error) {
@@ -454,7 +501,7 @@ app.get('/mensajes/:forumId', requireAuth, async (req, res) => {
             if (!forum.rows.length) return res.status(404).json({ error: 'Foro no encontrado' });
         }
         const formattedId = isPrivate ? `C-${forumId}` : `F-${forumId}`;
-        const result = await db.query(
+        const result = await queryFeed(req, db,
             `SELECT 
                 m.id,
                 m.chat_or_group_id, 
@@ -474,83 +521,26 @@ app.get('/mensajes/:forumId', requireAuth, async (req, res) => {
             [formattedId]
         );
 
-        res.status(200).json(result.rows);
+        res.status(200).json(feedResponse(result));
     } catch (error) {
         console.error('Error al cargar los mensajes:', error);
-        res.status(500).json({ error: 'Error al cargar los mensajes' });
+        res.status(error.status || 500).json({ error: 'Error al cargar los mensajes' });
     }
 });
 
 
-// Obtener todos los posts
-app.get('/posts', (req, res) => {
-    const query = `
-        SELECT 
-        t.id AS postId, t.username, t.content, t.media, t.mediatype, t.created_at, t.sensitive,
-        u.id AS userId, u.image AS profilePicture
-        FROM posts t
-        LEFT JOIN public.users u ON t.username = u.username
-        ORDER BY t.created_at DESC
-    `;
-    
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error al obtener los posts:', err);
-            return res.status(500).json({ error: 'Error al obtener los posts' });
-        }
-        
-        // Mapear los resultados para incluir los IDs
-        const posts = results.rows.map(post => ({
-            postId: post.postid, // ID del post
-            userId: post.userid, // ID del usuario
-            username: post.username,
-            content: post.content,
-            media: post.media || null,
-            mediaType: post.mediatype || null,
-            created_at: post.created_at,
-            profilePicture: post.profilepicture || null,
-            sensitive: !!post.sensitive // Asegúrate de que sea un booleano
-        }));
-
-        // Devolver los posts con los IDs incluidos
-        res.status(200).json(posts);
-    });
-});
-
-app.get('/posts/user/:username', (req, res) => {
-    const { username } = req.params;
-    const query = `
-        SELECT 
-        t.id AS postId, t.username, t.content, t.media, t.mediatype, t.created_at, t.sensitive,
-        u.id AS userId, u.image AS profilePicture
-        FROM posts t
-        LEFT JOIN public.users u ON t.username = u.username
-        WHERE t.username = $1
-        ORDER BY t.created_at DESC
-    `;
-    
-    db.query(query, [username], (err, results) => {
-        if (err) {
-            console.error('Error al obtener los posts del usuario:', err);
-            return res.status(500).json({ error: 'Error al obtener los posts del usuario' });
-        }
-
-        const posts = results.rows.map(post => ({
-            postId: post.postid, // ID del post
-            userId: post.userid, // ID del usuario
-            username: post.username,
-            content: post.content,
-            media: post.media || null,
-            mediaType: post.mediatype || null,
-            created_at: post.created_at,
-            profilePicture: post.profilepicture || null,
-            sensitive: !!post.sensitive // Asegúrate de que sea un booleano
-        }));
-
-        res.status(200).json(posts);
-    });
-});
-
+function mapPost(post) {
+    return { postId: post.postid, userId: post.userid, username: post.username, content: post.content,
+        media: post.media || null, mediaType: post.mediatype || null, created_at: post.created_at,
+        profilePicture: post.profilepicture || null, sensitive: !!post.sensitive };
+}
+for (const route of ['/posts', '/posts/user/:username']) app.get(route, asyncRoute(async (req, res) => {
+    const username = req.params.username;
+    const result = await queryFeed(req, db, `SELECT t.id AS postid, t.username, t.content, t.media, t.mediatype, t.created_at, t.sensitive,
+        u.id AS userid, u.image AS profilepicture FROM posts t LEFT JOIN users u ON t.username = u.username
+        ${username ? 'WHERE t.username = $1' : ''} ORDER BY t.created_at DESC, t.id DESC`, username ? [username] : [], 'postid');
+    res.json(feedResponse(result, result.rows.map(mapPost)));
+}));
 
 const path = require('path');
 
@@ -644,7 +634,7 @@ app.put('/updateUsername', requireAuth, async (req, res) => {
         // Los posts históricos usan el nombre como vínculo con el autor.
         await client.query('UPDATE posts SET username = $1 WHERE username = $2', [normalized, oldName]);
         await client.query('COMMIT');
-        setAuthCookie(res, jwt.sign({ id: req.user.id, username: normalized }, authSecret, { expiresIn: '7d' }));
+        setAuthCookie(res, jwt.sign({ id: req.user.id, username: normalized, auth_version: req.user.auth_version || 0 }, authSecret, { expiresIn: '7d' }));
         res.json({ success: true, message: 'Nombre de usuario actualizado con éxito' });
     } catch (error) {
         if (client) await client.query('ROLLBACK').catch(() => {});
@@ -679,7 +669,7 @@ app.put('/updatePassword', requireAuth, async (req, res) => {
         }
 
         const hashedPassword = await bcryptjs.hash(newPassword, 10);
-        const updateQuery = 'UPDATE public.users SET password = $1 WHERE username = $2';
+        const updateQuery = 'UPDATE public.users SET password = $1, auth_version = COALESCE(auth_version, 0) + 1 WHERE username = $2';
         db.query(updateQuery, [hashedPassword, username], (err, result) => {
             if (err) {
                 console.error('Error al actualizar la contraseña:', err);
@@ -687,6 +677,7 @@ app.put('/updatePassword', requireAuth, async (req, res) => {
             }
 
             if (result.rowCount > 0) {
+                setAuthCookie(res, jwt.sign({ id: req.user.id, username, auth_version: Number(req.user.auth_version || 0) + 1 }, authSecret, { expiresIn: '7d' }));
                 res.status(200).json({ success: true, message: 'Contraseña actualizada con éxito' });
             } else {
                 res.status(404).json({ success: false, message: 'Usuario no encontrado' });
@@ -1217,7 +1208,7 @@ app.get('/chats', requireAuth, asyncRoute(async (req, res) => {
               [chatId, req.user.id]
           );
           if (!chat.rows.length) return res.status(403).json({ error: 'Acceso denegado' });
-          const result = await db.query(
+          const result = await queryFeed(req, db,
             `SELECT 
                 m.id,
                 m.chat_or_group_id, 
@@ -1237,10 +1228,10 @@ app.get('/chats', requireAuth, asyncRoute(async (req, res) => {
             [formattedChatId]
         );
 
-        res.status(200).json(result.rows);
+        res.status(200).json(feedResponse(result));
     } catch (error) {
         console.error('Error al cargar los mensajes del chat:', error);
-        res.status(500).json({ error: 'Error al cargar los mensajes del chat' });
+        res.status(error.status || 500).json({ error: 'Error al cargar los mensajes del chat' });
     }
 });
 
@@ -1261,7 +1252,7 @@ app.get('/group/messages/:groupId/:userId', requireAuth, async (req, res) => {
         );
         const owner = await db.query('SELECT 1 FROM grupos WHERE id = $1 AND owner_id = $2', [groupId, req.user.id]);
         if (!membership.rows.length && !owner.rows.length) return res.status(403).json({ error: 'No perteneces a este grupo' });
-        const result = await db.query(
+        const result = await queryFeed(req, db,
             `SELECT 
                 m.id,
                 m.chat_or_group_id, 
@@ -1278,30 +1269,19 @@ app.get('/group/messages/:groupId/:userId', requireAuth, async (req, res) => {
             INNER JOIN users u ON m.sender_id = u.id
             WHERE m.chat_or_group_id = $1  -- Aquí buscará "G-3"
             AND m.is_private = FALSE
-            AND (
-                (
-                    m.sender_id IN (
-                        SELECT user_id 
-                        FROM participantes 
-                        WHERE forum_or_group_id = $2 AND is_group = TRUE -- Aquí usamos el ID numérico
-                    )
-                    AND m.sender_id IN (
-                        SELECT followed_id FROM seguir WHERE follower_id = $3
-                    )
-                    AND m.sender_id IN (
-                        SELECT follower_id FROM seguir WHERE followed_id = $3
-                    )
-                )
-                OR m.sender_id = $3 
-            )
+            AND (m.sender_id = $3 OR (
+                m.sender_id IN (SELECT user_id FROM participantes WHERE forum_or_group_id = $2 AND is_group = TRUE)
+                AND m.sender_id IN (SELECT followed_id FROM seguir WHERE follower_id = $3)
+                AND m.sender_id IN (SELECT follower_id FROM seguir WHERE followed_id = $3)
+            ))
             ORDER BY m.created_at ASC`,
-            [formattedGroupId, groupId, numericUserId] // Pasamos 3 parámetros
+            [formattedGroupId, groupId, numericUserId]
         );
 
-        res.status(200).json(result.rows);
+        res.status(200).json(feedResponse(result));
     } catch (error) {
         console.error('Error al cargar los mensajes del grupo:', error);
-        res.status(500).json({ error: 'Error al cargar los mensajes del grupo' });
+        res.status(error.status || 500).json({ error: 'Error al cargar los mensajes del grupo' });
     }
 });
 
@@ -1352,12 +1332,14 @@ app.post('/group/messages/:groupId', requireAuth, async (req, res) => {
         await client.query(
             `INSERT INTO notificaciones (user_id, tipo, referencia_id, chat_or_group_id)
              SELECT user_id, 'grupo', $1, $2 FROM participantes
-             WHERE forum_or_group_id = $3 AND is_group = TRUE AND user_id != $4`,
+             WHERE forum_or_group_id = $3 AND is_group = TRUE AND user_id != $4
+             AND user_id IN (SELECT follower_id FROM seguir WHERE followed_id = $4)
+             AND user_id IN (SELECT followed_id FROM seguir WHERE follower_id = $4)`,
             [formattedId, formattedGroupId, groupId, sender_id]
         );
 
         await client.query('COMMIT');
-        io.emit('reloadGPosts');
+        await emitPrivateUpdate(formattedGroupId, req.user.id, 'reloadGPosts');
         res.status(201).json(mensaje);
     } catch (error) {
         if (client) await client.query('ROLLBACK').catch(() => {});
@@ -1374,14 +1356,26 @@ app.get('/notificaciones/:user_id', requireAuth, async (req, res) => {
         const notificaciones = await db.query(
             `SELECT n.id, n.tipo, n.referencia_id, n.chat_or_group_id, n.leido
              FROM notificaciones n
-             WHERE n.user_id = $1 AND n.leido = FALSE;`,
+             WHERE n.user_id = $1 AND n.leido = FALSE
+             AND (n.chat_or_group_id IN (SELECT 'F-' || id::text FROM foros)
+                  OR n.chat_or_group_id IN (SELECT 'C-' || id::text FROM chats WHERE user1_id=$1 OR user2_id=$1)
+                  OR n.referencia_id IN (
+                      SELECT m.id FROM mensajes m LEFT JOIN participantes p
+                      ON p.user_id=m.sender_id AND 'G-' || p.forum_or_group_id::text=m.chat_or_group_id AND p.is_group=TRUE
+                      WHERE (m.chat_or_group_id IN (SELECT 'G-' || forum_or_group_id::text FROM participantes WHERE user_id=$1 AND is_group=TRUE)
+                             OR m.chat_or_group_id IN (SELECT 'G-' || id::text FROM grupos WHERE owner_id=$1))
+                      AND (m.sender_id=$1 OR (p.user_id IS NOT NULL
+                           AND m.sender_id IN (SELECT followed_id FROM seguir WHERE follower_id=$1)
+                           AND m.sender_id IN (SELECT follower_id FROM seguir WHERE followed_id=$1)))))
+             ORDER BY n.id DESC LIMIT 100`,
             [user_id]
         );
 
         const notiDetalles = await Promise.all(
             notificaciones.rows.map(async (noti) => {
 
-                const rawId = noti.chat_or_group_id; // "C-5", "G-3", "F-2"
+                const rawId = String(noti.chat_or_group_id || '');
+                if (!/^[CFG]-[1-9]\d*$/.test(rawId)) return null; // "C-5", "G-3", "F-2"
                 const prefix = rawId.split('-')[0];
                 const numericId = parseInt(rawId.split('-')[1], 10);
 
@@ -1392,9 +1386,18 @@ app.get('/notificaciones/:user_id', requireAuth, async (req, res) => {
                         `SELECT name FROM foros WHERE id = $1`,
                         [numericId]
                     );
-                    if (foro.rows.length > 0) nombre = foro.rows[0].name;
+                    if (!foro.rows.length) return null;
+                    nombre = foro.rows[0].name;
 
                 } else if (prefix === 'G') {
+                    const visible = await db.query(`SELECT 1 FROM mensajes m WHERE m.id = $1
+                        AND (m.chat_or_group_id IN (SELECT 'G-' || forum_or_group_id::text FROM participantes WHERE user_id=$2 AND is_group=TRUE)
+                             OR m.chat_or_group_id IN (SELECT 'G-' || id::text FROM grupos WHERE owner_id=$2))
+                        AND (m.sender_id=$2 OR (
+                            m.sender_id IN (SELECT user_id FROM participantes WHERE forum_or_group_id=$3 AND is_group=TRUE)
+                            AND m.sender_id IN (SELECT followed_id FROM seguir WHERE follower_id=$2)
+                            AND m.sender_id IN (SELECT follower_id FROM seguir WHERE followed_id=$2)))`, [noti.referencia_id, user_id, numericId]);
+                    if (!visible.rows.length) return null;
                     const grupo = await db.query(
                         `SELECT name FROM grupos WHERE id = $1`,
                         [numericId]
@@ -1408,7 +1411,8 @@ app.get('/notificaciones/:user_id', requireAuth, async (req, res) => {
                          WHERE c.id = $1 AND (c.user1_id = $2 OR c.user2_id = $2)`,
                         [numericId, user_id]
                     );
-                    if (user.rows.length > 0) nombre = user.rows[0].username;
+                    if (!user.rows.length) return null;
+                    nombre = user.rows[0].username;
                 }
 
                 return {
@@ -1422,7 +1426,7 @@ app.get('/notificaciones/:user_id', requireAuth, async (req, res) => {
             })
         );
 
-        res.json(notiDetalles);
+        res.json(notiDetalles.filter(Boolean));
 
     } catch (error) {
         console.error('Error al obtener notificaciones:', error);
@@ -1433,7 +1437,8 @@ app.get('/notificaciones/:user_id', requireAuth, async (req, res) => {
 
 app.put('/notificaciones/:user_id/leer', requireAuth, async (req, res) => {
     const { user_id } = req.params;
-    const { id } = req.body; // Cambié referencia_id por id
+    const { id } = req.body;
+    if (id !== undefined && !validNumericId(id)) return res.status(400).json({ error: 'ID inválido' });
     if (!sameUser(req, user_id)) return res.status(403).json({ error: 'Acceso denegado' });
     try {
         const result = id
@@ -1498,16 +1503,37 @@ io.on('connection', (socket) => {
 
 });
 
-io.use((socket, next) => {
-    const token = socket.handshake.auth && socket.handshake.auth.token;
+io.use(async (socket, next) => {
+    const token = getToken(socket.request) || socket.handshake.auth?.token;
     if (!token) return next();
     try {
-        socket.user = jwt.verify(token, authSecret);
+        const claims = jwt.verify(token, authSecret, { algorithms: ['HS256'] });
+        const user = (await db.query('SELECT id, auth_version FROM users WHERE id = $1', [claims.id])).rows[0];
+        if (!user || Number(user.auth_version || 0) !== Number(claims.auth_version || 0)) throw new Error('Sesión inválida');
+        socket.join('user:' + user.id);
         next();
-    } catch {
-        next(new Error('Sesión inválida'));
-    }
+    } catch { next(new Error('Sesión inválida')); }
 });
+
+// Private events are delivered only to people allowed to read the message.
+async function emitPrivateUpdate(context, author, event, payload) {
+    try {
+        const [kind, id] = context.split('-');
+        let recipients = [];
+        if (kind === 'C') {
+            const chat = (await db.query('SELECT user1_id, user2_id FROM chats WHERE id = $1', [id])).rows[0];
+            if (chat) recipients = [chat.user1_id, chat.user2_id];
+        } else if (kind === 'G') {
+            const result = await db.query(`SELECT u.id FROM users u WHERE
+                (u.id IN (SELECT user_id FROM participantes WHERE forum_or_group_id = $1 AND is_group = TRUE)
+                 OR u.id IN (SELECT owner_id FROM grupos WHERE id = $1))
+                AND (u.id = $2 OR (u.id IN (SELECT follower_id FROM seguir WHERE followed_id = $2)
+                AND u.id IN (SELECT followed_id FROM seguir WHERE follower_id = $2)))`, [id, author]);
+            recipients = result.rows.map(row => row.id);
+        }
+        for (const id of recipients) io.to('user:' + id).emit(event, payload);
+    } catch (error) { console.error('No se pudo enviar el aviso en tiempo real:', error.message); }
+}
 
 app.post('/logout', (req, res) => {
     setAuthCookie(res, '', 0);

@@ -11,7 +11,7 @@ const postList = 'postList';
 const messageList = 'messageList';
 const groupMessageList = 'groupMessageList';
 const profileList = 'profileList';
-const unicPostList = 'unicPostList';  
+const unicPostList = 'unicPostList';
 
 let mantenimiento = false;
 
@@ -39,6 +39,13 @@ async function closeSesion() {
         if (!response.ok) throw new Error('No se pudo cerrar la sesión.');
         users = Object.create(null);
         activeUser = '';
+        feedObserver?.disconnect();
+        feedState = null;
+        ++feedRequest;
+        ++notificationRequest;
+        window.communitySocket?.disconnect().connect();
+        closePanel();
+        for (const id of ['postList', 'profileList', 'forumList', 'messageList', 'groupMessageList', 'renderNotif']) document.getElementById(id)?.replaceChildren();
         lastMessageContentByContext.clear();
         for (const name of ['username', 'userID']) document.cookie = name + '=; Max-Age=0; path=/;';
         try { localStorage.removeItem('userID'); } catch { /* Storage can be disabled. */ }
@@ -61,11 +68,11 @@ function HideMenus(...menuIds) {
 function showOnlyMenu(activeId) {
     // Obtener todos los contenedores
     const containers = [
-        'postList', 
-        'profileList', 
-        'unicPostList', 
-        'forumList', 
-        'messageList', 
+        'postList',
+        'profileList',
+        'unicPostList',
+        'forumList',
+        'messageList',
         'groupMessageList'
     ];
 
@@ -100,12 +107,12 @@ const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'm
 
 document.addEventListener("DOMContentLoaded", function() {
 document.getElementById('initialOverlay').style.display = 'none';
-updateUserButton(); 
+updateUserButton();
 });
 
 function reloadPosts(){
     buttonsState();
-} 
+}
 
 function reloadFG(){
     if (!users[activeUser]?.id) return;
@@ -115,7 +122,7 @@ function reloadFG(){
     loadUserGroups();
     loadForos();
     loadFollowedUsers();
-} 
+}
 
 document.getElementById('acceptTermsCheckbox').addEventListener('change', function() {
 const createButton = document.getElementById('createUserButton');
@@ -249,133 +256,41 @@ async function addNewUser() {
     finally { authPending = false; button.disabled = !document.getElementById('acceptTermsCheckbox').checked; turnstile.reset(registerWidgetId); }
 }
 
-function createForum() {
-const forumName = document.getElementById('forumName').value.trim();
-const forumDescription = document.getElementById('forumDescription').value.trim();
-const ownerId = users[activeUser]?.id;
-
-if (forumName.length > 30) {
-    notify('El nombre del foro no puede tener más de 30 caracteres.');
-    return;
+const communityRequests = new Set();
+async function submitCommunity(kind) {
+    if (communityRequests.has(kind)) return;
+    const joining = kind === 'join';
+    const id = joining ? 'joinGrupoMenu' : kind === 'forum' ? 'createForumOverlay' : 'createGroupOverlay';
+    const form = document.getElementById(id);
+    const ownerId = users[activeUser]?.id;
+    if (!ownerId) return notify('Iniciá sesión para continuar.', 'error');
+    const nameInput = document.getElementById(kind === 'forum' ? 'forumName' : 'groupName');
+    const descriptionInput = document.getElementById(kind === 'forum' ? 'forumDescription' : 'groupDescription');
+    const inviteInput = document.getElementById('inviteCode');
+    const name = joining ? '' : nameInput.value.trim();
+    const description = joining ? '' : descriptionInput.value.trim();
+    const inviteCode = inviteInput.value.trim();
+    if (joining ? !inviteCode : !name || !description) return notify('Completá todos los campos.', 'error');
+    if (!joining && (name.length > 30 || description.length > 2000)) return notify('Usá hasta 30 caracteres para el nombre y 2000 para la descripción.', 'error');
+    communityRequests.add(kind);
+    const controls = [...form.querySelectorAll('input, textarea, button')];
+    controls.forEach(control => control.disabled = true);
+    form.setAttribute('aria-busy', 'true');
+    try {
+        await fetch(joining ? '/unir-grupo' : kind === 'forum' ? '/foros' : '/grupos', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(joining ? { inviteCode, userId: ownerId } : { name, description, ownerId })
+        }).then(readResponse);
+        if (joining) inviteInput.value = '';
+        else { nameInput.value = ''; descriptionInput.value = ''; }
+        if (form.style.display !== 'none') await closeCommunityForm(id);
+        notify(joining ? 'Ya sos parte del grupo.' : kind === 'forum' ? 'Foro creado correctamente.' : 'Grupo creado. Encontrá su código en Invitar al grupo.');
+    } catch (error) { notify(error.message, 'error'); }
+    finally { controls.forEach(control => control.disabled = false); communityRequests.delete(kind); form.removeAttribute('aria-busy'); }
 }
-
-if (!forumName || !forumDescription || !ownerId) {
-    notify("Por favor, completa todos los campos.");
-    return;
-}
-
-const forumData = {
-    name: forumName,
-    description: forumDescription,
-    ownerId: parseInt(ownerId),
-};
-
-fetch('/foros', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(forumData),
-})
-.then(readResponse)
-.then(data => {
-    if (data.error) {
-        notify(`Error: ${data.error}`); // Manejar error si el foro ya existe
-    } else {
-        notify(`Foro creado exitosamente: ${data.name}`);
-        reloadFG();
-        document.getElementById('forumName').value = '';
-        document.getElementById('forumDescription').value = '';
-        createForumMenu();
-    }
-})
-.catch(error => {
-    notify(`Error: ${error.message}`);
-});
-}
-
-function createGroup() {
-const groupName = document.getElementById('groupName').value.trim();
-const groupDescription = document.getElementById('groupDescription').value.trim();
-const ownerId = users[activeUser]?.id;
-
-// Validar longitud del nombre del grupo
-if (groupName.length > 30) {
-    notify('El nombre del grupo no puede tener más de 30 caracteres.');
-    return;
-}
-
-// Validar que todos los campos estén completos
-if (!groupName || !groupDescription || !ownerId) {
-    notify("Por favor, completa todos los campos.");
-    return;
-}
-
-// Crear el objeto de datos para enviar al backend
-const groupData = {
-    name: groupName,
-    description: groupDescription,
-    ownerId: parseInt(ownerId),
-};
-
-// Enviar la solicitud al backend
-fetch('/grupos', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(groupData),
-})
-.then(response => {
-    if (!response.ok) {
-        throw new Error('Error al crear el grupo');
-    }
-    return response.json();
-})
-.then(data => {
-    // Mostrar un mensaje de éxito y limpiar los campos
-    notify(`Grupo creado exitosamente: ${data.name} con código de invitación: ${data.invite_code}`);
-    document.getElementById('groupName').value = '';
-    document.getElementById('groupDescription').value = '';
-    document.getElementById('inviteCode').value = `${data.invite_code}`;
-    reloadFG();
-    createGroupMenu();
-})
-.catch(error => {
-    notify(`Error: ${error.message}`);
-});
-}
-
-function joinGroup() {
-const inviteCode = document.getElementById('inviteCode').value.trim();
-const userId = users[activeUser]?.id;
-if (!userId) return;
-
-if (!inviteCode) {
-    notify('Por favor, ingresa un código de invitación.');
-    return;
-}
-
-fetch('/unir-grupo', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ inviteCode, userId }),
-})
-.then(response => {
-    if (!response.ok) {
-        return response.json().then(data => { throw new Error(data.error); });
-    }
-    return response.json();
-})
-.then(data => {
-    notify(data.message);
-    reloadFG();
-    // Opcional: redirigir o actualizar la interfaz
-})
-.catch(error => {
-    notify(`Error: ${error.message}`);
-});
-}
+function createForum() { return submitCommunity('forum'); }
+function createGroup() { return submitCommunity('group'); }
+function joinGroup() { return submitCommunity('join'); }
 
 async function leaveGroup(groupId) {
 const userId = users[activeUser]?.id;
@@ -423,7 +338,7 @@ async function loadForumMenu(kind) {
                     () => kind === 'created' ? deleteForum(forum.id) : kind === 'followed' ? leaveForum(forum.id) : joinForum(forum.id)));
             container.appendChild(card);
         }
-    } catch (error) { notify(error.message, 'error'); }
+    } catch (error) { container.replaceChildren(); const message = document.createElement('p'); message.textContent = error.message; container.append(message, menuButton('Reintentar', () => loadForumMenu(kind))); }
 }
 function loadForos() { return loadForumMenu('all'); }
 
@@ -528,7 +443,8 @@ function updatePostMediaButton(fileName = '') {
     const button = document.getElementById('postMediaButton');
     if (!button) return;
     const label = button.querySelector('span');
-    if (label) label.textContent = fileName || 'Seleccionar archivo';
+    if (label) { label.textContent = fileName || 'Seleccionar archivo'; label.classList.toggle('visually-hidden', !fileName); }
+    const remove = document.getElementById('removeMediaButton'); if (remove) remove.hidden = !fileName;
     button.title = fileName || 'Seleccionar archivo';
 }
 
@@ -564,7 +480,7 @@ function updatePostMediaButton(fileName = '') {
         updatePostMediaButton(selectedFile.name);
     } else {
         updatePostMediaButton();
-    } 
+    }
 }
 
   function wherePost() {
@@ -711,64 +627,84 @@ toggleButton.textContent = showSensitiveContent
 buttonsState();
 }
 
-function togglePostLoad() {
-loadAll = !loadAll; // Alternar estado
-const button = document.getElementById('loadAllPostsButton');
-
-// Cambiar texto del botón basado en el estado
-button.textContent = loadAll ? 'últimos 12 posts' : 'Todos los posts';
-
-// Llamar a buttonsState para recargar los posts según el estado actual
-buttonsState();
-}
+function togglePostLoad() { return loadNextPage(); }
 
 let feedRequest = 0;
 
+let feedState = null;
+let feedObserver = null;
 async function loadFeed(url, listId, all, messages = false) {
+    feedObserver?.disconnect();
     const request = ++feedRequest;
     const list = document.getElementById(listId);
     showOnlyMenu(listId);
+    list.replaceChildren();
+    document.getElementById('feed-update')?.remove();
+    feedState = { request, url, listId, messages, cursor: null, pending: false, ended: false, seen: new Set() };
+    return loadNextPage();
+}
+async function loadNextPage() {
+    const state = feedState;
+    if (!state || state.pending || state.ended) return;
+    state.pending = true;
+    const list = document.getElementById(state.listId);
     list.setAttribute('aria-busy', 'true');
+    list.querySelector('.feed-pagination')?.remove();
+    feedObserver?.disconnect();
+    const query = new URLSearchParams({ limit: '12', sensitive: showSensitiveContent ? 'show' : 'hide', order: ordenarReacciones ? (invertirOrden ? 'reactions-asc' : 'reactions') : invertirOrden ? 'oldest' : 'newest' });
+    if (state.cursor) query.set('cursor', state.cursor);
+    let failed = false;
     try {
-        let rows = await fetch(url).then(readResponse);
+        const payload = await fetch(state.url + (state.url.includes('?') ? '&' : '?') + query).then(readResponse);
+        if (state !== feedState) return;
+        let rows = Array.isArray(payload) ? payload : payload.items;
         if (!Array.isArray(rows)) throw new Error('El servidor devolvió una lista inválida.');
-        if (request !== feedRequest) return;
-        // Filtrar antes de limitar, para no perder posts visibles por los sensibles.
-        rows = rows.filter(row => showSensitiveContent || !row.sensitive);
-        rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        const totals = ordenarReacciones ? await cargarTotalesDeReacciones() : {};
-        if (request !== feedRequest) return;
-        if (ordenarReacciones) rows.sort((a, b) =>
-            Number(totals['Matesito_post-' + (b.postId ?? b.id)] || 0) - Number(totals['Matesito_post-' + (a.postId ?? a.id)] || 0));
-        if (!all) rows = rows.slice(0, 12);
-        if (invertirOrden) rows.reverse();
-        list.replaceChildren();
-        rows.forEach(row => addpostToList(row.content, row.media,
-            messages ? row.media_type : row.mediaType, row.username,
-            messages ? row.image : row.profilePicture, row.sensitive, row.created_at,
-            messages ? row.sender_id : row.userId, messages ? row.id : row.postId, listId));
-        if (!rows.length) {
-            const empty = document.createElement('li');
-            empty.className = 'feed-state';
-            empty.textContent = 'No hay publicaciones para mostrar con estos filtros.';
-            list.appendChild(empty);
+        // Compatibility with older API clients; the current API filters and orders in SQL.
+        if (Array.isArray(payload)) {
+            rows = rows.filter(row => showSensitiveContent || !row.sensitive);
+            rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            if (invertirOrden) rows.reverse();
+            rows = rows.slice(0, 12);
+        }
+        for (const row of rows) {
+            const key = String(row.postId ?? row.id);
+            if (state.seen.has(key)) continue;
+            state.seen.add(key);
+            addpostToList(row.content, row.media, state.messages ? row.media_type : row.mediaType, row.username,
+                state.messages ? row.image : row.profilePicture, row.sensitive, row.created_at,
+                state.messages ? row.sender_id : row.userId, state.messages ? row.id : row.postId, state.listId);
+        }
+        state.cursor = payload.nextCursor || null;
+        state.ended = !state.cursor;
+        if (!state.seen.size) {
+            const empty = document.createElement('li'); empty.className = 'feed-state';
+            empty.textContent = 'No hay publicaciones para mostrar con estos filtros.'; list.append(empty);
         }
     } catch (error) {
-        if (request !== feedRequest) return;
+        if (state !== feedState) return;
+        failed = true;
         notify('No se pudieron cargar las publicaciones: ' + error.message, 'error');
-        if (!list.children.length) {
-            const state = document.createElement('li');
-            state.className = 'feed-state';
-            state.textContent = 'No pudimos cargar el contenido. ';
-            const retry = document.createElement('button');
-            retry.textContent = 'Reintentar';
-            retry.addEventListener('click', buttonsState);
-            state.appendChild(retry);
-            list.appendChild(state);
-        }
     } finally {
-        if (request === feedRequest) list.setAttribute('aria-busy', 'false');
+        state.pending = false;
+        if (state === feedState) {
+            list.setAttribute('aria-busy', 'false');
+            if (!state.ended || failed) {
+                const footer = document.createElement('li'); footer.className = 'feed-pagination';
+                const button = menuButton(failed ? 'Reintentar carga' : 'Cargar 12 más', loadNextPage);
+                footer.append(button); list.append(footer);
+                if (!failed && typeof IntersectionObserver === 'function') {
+                    feedObserver = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting)) loadNextPage(); }, { rootMargin: '250px' });
+                    feedObserver.observe(footer);
+                }
+            }
+        }
     }
+}
+function queueFeedUpdate() {
+    if (!feedState || document.getElementById('feed-update')) return;
+    const button = menuButton('Hay novedades. Actualizar publicaciones', () => buttonsState());
+    button.id = 'feed-update'; button.className = 'feed-update';
+    document.getElementById(feedState.listId).before(button);
 }
 
 function loadposts(all) {
@@ -893,6 +829,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     }
 
     const newpost = document.createElement('li');
+    newpost.dataset.postId = String(postId);
     newpost.className = 'post postContainer';
     if (created_at) newpost.dataset.createdAt = created_at;
 
@@ -910,19 +847,19 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         if (mediaType.startsWith('image/')) {
             mediaHTML = `
             <div class="media-container">
-                <img src="${escapeHTML(media)}" alt="Imagen subida por ${escapeHTML(username)}" class="preview-media clickable">
+                <img src="${escapeHTML(media)}" loading="lazy" decoding="async" alt="Imagen subida por ${escapeHTML(username)}" class="preview-media clickable">
                 <button class="fullscreen-btn" onclick="openFullscreen(this.previousElementSibling)">⛶</button>
-            </div>`; 
+            </div>`;
         } else if (mediaType.startsWith('video/')) {
             mediaHTML = `<div>
-                            <video controls class="preview-media clickable">
+                            <video preload="none" controls class="preview-media clickable">
                                 <source src="${escapeHTML(media)}" type="${escapeHTML(mediaType)}">
                                 Tu navegador no soporta la reproducción de video.
                             </video>
                         </div>`;
         } else if (mediaType.startsWith('audio/')) {
             mediaHTML = `<div>
-                            <audio controls class="preview-media clickable">
+                            <audio preload="none" controls class="preview-media clickable">
                                 <source src="${escapeHTML(media)}" type="${escapeHTML(mediaType)}">
                                 Tu navegador no soporta la reproducción de audio.
                             </audio>
@@ -964,15 +901,15 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             <button onclick="followUser(${userId})">Seguir</button>
         </div>
         ${contentHTML}
-        <button class="toggle-reactions" onclick="toggleReactions('${microReactId}')">💬 Reacciones</button>
-        <div id="reactions-${microReactId}" 
+        <button class="toggle-reactions icon-button" aria-label="Mostrar u ocultar reacciones" title="Reacciones" onclick="toggleReactions('${microReactId}')"><img src="/res/react.svg" alt=""></button>
+        <div id="reactions-${microReactId}"
             style="opacity: 0; display: none; transition: opacity 0.3s ease; width: 100%; align-items: center; justify-content: center; margin-top: 10px;"
             data-loaded="false">
-            <iframe 
-                src="/microReact.html?id=Matesito_${microReactId}&textColor=${document.documentElement.dataset.theme === 'light' ? '%23333333' : '%23ffffff'}" 
-                style="width: 275px; height: 100px; border: none;" 
-                frameborder="0" 
-                loading="lazy" 
+            <iframe
+                data-src="/microReact.html?id=Matesito_${microReactId}&textColor=${document.documentElement.dataset.theme === 'light' ? '%23333333' : '%23ffffff'}"
+                style="width: 275px; height: 100px; border: none;"
+                frameborder="0"
+                loading="lazy"
                 title="Deja una reacción">
             </iframe>
         </div>
@@ -983,6 +920,12 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 
 function toggleReactions(postId) {
     const reactionsContainer = document.getElementById(`reactions-${postId}`);
+    const frame = reactionsContainer?.querySelector('iframe');
+    if (frame && !frame.getAttribute('src')) {
+        const url = new URL(frame.dataset.src, location.origin);
+        url.searchParams.set('textColor', document.documentElement.dataset.theme === 'light' ? '#333333' : '#ffffff');
+        frame.src = url.href;
+    }
 
     if (reactionsContainer) {
         if (reactionsContainer.dataset.loaded === "false") {
@@ -995,7 +938,7 @@ function toggleReactions(postId) {
         } else {
             // Alternar visibilidad
             if (reactionsContainer.style.opacity === "0") {
-                reactionsContainer.style.display = "flex"; 
+                reactionsContainer.style.display = "flex";
                 setTimeout(() => {
                     reactionsContainer.style.opacity = "1";
                 }, 50);
@@ -1141,7 +1084,7 @@ async function loadFollowedUsers() {
                 menuButton('Dejar de seguir', () => unfollowUser(userId, user.id)));
             container.appendChild(card);
         }
-    } catch (error) { notify(error.message, 'error'); }
+    } catch (error) { container.replaceChildren(); const message = document.createElement('p'); message.textContent = error.message; container.append(message, menuButton('Reintentar', () => loadFollowedUsers())); }
 }
 async function loadGroups(created) {
     const userId = users[activeUser]?.id;
@@ -1155,12 +1098,16 @@ async function loadGroups(created) {
             const card = document.createElement('div'); card.className = 'group-item';
             const name = document.createElement('h3'); name.textContent = group.name;
             const description = document.createElement('p'); description.textContent = group.description;
-            const invite = document.createElement('p'); invite.textContent = 'Código de invitación: ' + group.invite_code;
+            const invite = document.createElement('details'); invite.className = 'invite-details';
+            const summary = document.createElement('summary'); summary.textContent = 'Invitar al grupo';
+            const code = document.createElement('code'); code.textContent = group.invite_code || 'Código no disponible';
+            invite.append(summary, code);
+            if (group.invite_code) invite.appendChild(menuButton('Copiar código', async () => { try { await navigator.clipboard.writeText(group.invite_code); notify('Código copiado'); } catch { notify('No se pudo copiar. Seleccioná el código para copiarlo manualmente.', 'error'); } }));
             card.append(name, description, invite, menuButton('Entrar al chat', () => loadGroupMessages(group.id, loadAll)),
                 menuButton(created ? 'Eliminar grupo' : 'Salir del grupo', () => created ? deleteGroup(group.id) : leaveGroup(group.id)));
             container.appendChild(card);
         }
-    } catch (error) { notify(error.message, 'error'); }
+    } catch (error) { container.replaceChildren(); const message = document.createElement('p'); message.textContent = error.message; container.append(message, menuButton('Reintentar', () => loadGroups(created))); }
 }
 function loadUserGroups() { return loadGroups(false); }
 function loadCreatedGroups() { return loadGroups(true); }
@@ -1188,7 +1135,9 @@ fetch(` /grupo/${groupId}/${userId}`, {
 }
 
 
+let notificationRequest = 0;
 async function obtenerNotificaciones() {
+const request = ++notificationRequest;
 const user = users[activeUser];
 const contenedor = document.getElementById('renderNotif');
 if (!user || !user.id || !contenedor) return;
@@ -1197,6 +1146,7 @@ const userId = user.id;
 try {
     const response = await fetch(`/notificaciones/${userId}`, { credentials: 'same-origin' });
     const payload = await response.json();
+    if (request !== notificationRequest || users[activeUser]?.id !== userId) return;
     if (!response.ok) {
         if (response.status === 401 || response.status === 403) return;
         throw new Error(payload.error || 'No se pudieron obtener las notificaciones');
@@ -1206,7 +1156,10 @@ try {
     renderizarNotificaciones(notificaciones);
     actualizarIndicadorNotificaciones(notificaciones.length > 0);
 } catch (error) {
+    if (request !== notificationRequest) return;
     console.error('Error al obtener notificaciones:', error);
+    contenedor.textContent = 'No se pudieron cargar las notificaciones.';
+    contenedor.appendChild(menuButton('Reintentar', obtenerNotificaciones));
 }
 }
 
@@ -1233,7 +1186,8 @@ notificaciones.forEach(noti => {
 
     // Verificar si el chat_or_group_id corresponde a alguno de los activos
     if (noti.chat_or_group_id === `F-${activeForum}` || noti.chat_or_group_id === `C-${activeChat}` || noti.chat_or_group_id === `G-${activeGroup}`) {
-        idNotificacionLeida = true; // Marcar como leída automáticamente
+        idNotificacionLeida = [...document.querySelectorAll('.post[data-post-id]')].some(post =>
+            post.dataset.postId === String(noti.referencia_id) && post.parentElement.style.display === 'block');
     }
 
     const nombre = noti.nombre;
@@ -1256,7 +1210,7 @@ notificaciones.forEach(noti => {
     }
 
     notiElemento.textContent = mensaje;
-    notiElemento.dataset.id = noti.referencia_id;
+    notiElemento.dataset.id = noti.id;
 
     // Si la notificación debe ser marcada como leída automáticamente
     if (idNotificacionLeida) {
@@ -1319,8 +1273,8 @@ if (!searchInput || !searchContainer) return;
 const query = searchInput.value;
 
 // Si el campo está vacío, limpiar y salir
-if (query.trim().length < 1) { 
-    searchContainer.innerHTML = ''; // Limpiar resultados
+if (query.trim().length < 1) {
+    searchContainer.innerHTML = '<p>Escribí un nombre para empezar.</p>';
     return; // Detener la ejecución
 }
 
@@ -1336,7 +1290,8 @@ fetch(`/search?query=${encodeURIComponent(query.trim())}`)
 
         // Mostrar foros
         data.foros.forEach(foro => {
-            const foroElement = document.createElement('div');
+            const foroElement = document.createElement('button');
+            foroElement.type = 'button';
             foroElement.classList.add('SearchContainer', 'forum-item'); // Agregar clases
             const foroLabel = document.createElement('p');
             const foroStrong = document.createElement('strong');
@@ -1352,7 +1307,8 @@ fetch(`/search?query=${encodeURIComponent(query.trim())}`)
 
         // Mostrar usuarios
         data.usuarios.forEach(user => {
-            const userElement = document.createElement('div');
+            const userElement = document.createElement('button');
+            userElement.type = 'button';
             userElement.classList.add('SearchContainer'); // Agregar clase
             const userItem = document.createElement('div');
             userItem.className = 'SearchContainer user-item';
@@ -1374,6 +1330,8 @@ fetch(`/search?query=${encodeURIComponent(query.trim())}`)
         });
     })
     .catch(error => {
+        if (request !== searchRequest) return;
+        searchContainer.textContent = 'No se pudo completar la búsqueda. Volvé a intentar.';
         console.error('Error al buscar:', error);
         notify('Error al procesar la búsqueda');
     });
@@ -1387,6 +1345,7 @@ async function init() {
         if (response.status === 401) { showUserSelectOverlay(); return; }
         const session = await readResponse(response);
         await activateUser(session.username);
+        if (typeof openRequestedPanel === 'function') openRequestedPanel();
     } catch (error) {
         notify('No se pudo recuperar la sesión: ' + error.message, 'error');
         showUserSelectOverlay();

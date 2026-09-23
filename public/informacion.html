@@ -1,48 +1,20 @@
-<!DOCTYPE html>
-<html lang="es-AR">
-<head>
+<!DOCTYPE html><html lang="es-AR"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Información</title>
-    <link rel="stylesheet" href="extras.css">
+    <title>Información · Matesito</title>
 
-    <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
-    <link rel="preconnect" href="https://fonts.googleapis.com"> 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-        <script src="utils.js"></script>
-    <link rel="stylesheet" href="/feedback.css">
-    <script src="/feedback.js" defer></script>
-</head>
-<body>
 
-    <div class="header">
-        <div class="left-section">
-            <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index.html'" style="cursor:pointer">
-        </div>
-        <div class="menu-toggle" onclick="toggleMenuExtras()">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <div class="nav-buttons" id="navMenu">
-            <label for="index" class="button">Inicio</label>
-            <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
+    <link rel="icon" href="/resources/PNG/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 
-            <label for="versiones" class="button">Versiones</label>
-            <input type="radio" id="versiones" name="nav" style="display:none;" onclick="location.href='versiones.html'">
 
-            <label for="acercade" class="button">Terminos</label>
-            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='Terminos.html'">
 
-            <label for="Ayuda" class="button">Ayuda</label>
-            <input type="radio" id="Ayuda" name="nav" style="display:none;" onclick="location.href='Ayuda.html'">
-        </div>
-    </div>
 
-    <div class="content content-informacion"  ">
+<link rel="stylesheet" href="/index.css"><link rel="stylesheet" href="/modern.css"><link rel="stylesheet" href="/panels.css"><link rel="stylesheet" href="/pages.css"></head>
+<body class="document-page"><a class="skip-link" href="#page-content">Saltar al contenido</a><aside class="sidebar" id="sidebar"><a class="brand" href="/"><img class="logo" src="/res/logo.svg" alt="">Matesito</a><nav class="sidebar-nav" aria-label="Comunidad"><a class="sidebar-nav-element" href="/"><img class="nav-ic" src="/res/sidebar-icons/home.svg" alt=""><span class="nav-text">Inicio</span></a><a class="sidebar-nav-element" href="/#foros"><img class="nav-ic" src="/res/sidebar-icons/foros.svg" alt=""><span class="nav-text">Foros</span></a><a class="sidebar-nav-element" href="/#chats"><img class="nav-ic" src="/res/sidebar-icons/chats.svg" alt=""><span class="nav-text">Chats y grupos</span></a><a class="sidebar-nav-element" href="/#siguiendo"><img class="nav-ic" src="/res/sidebar-icons/followers.svg" alt=""><span class="nav-text">Siguiendo</span></a><a class="sidebar-nav-element" href="/#notificaciones"><img class="nav-ic" src="/res/sidebar-icons/notifications.svg" alt=""><span class="nav-text">Notificaciones</span></a></nav><nav class="document-links" aria-label="Sobre Matesito"><a href="/informacion.html" aria-current="page">Información</a><a href="/versiones.html">Versiones</a><a href="/Ayuda.html">Ayuda</a><a href="/Terminos.html">Términos y privacidad</a><a href="/app.html">App para Android</a><a href="/cuenta.html">Mi cuenta</a></nav><div class="sidebar-bottom"><button class="theme-toggle sidebar-nav-element" onclick="toggleTheme()"><span class="nav-text">Modo claro</span></button><div class="sidebar-footer">Hecho para compartir un buen mate.</div></div></aside><button class="nav-backdrop" onclick="closeSidebar()" aria-label="Cerrar navegación" hidden=""></button><header class="header"><button class="mobile-menu icon-button" onclick="toggleSidebar()" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir navegación"><img src="/res/hamburguesa-con-queso-amigo.svg" alt=""></button><span>Información</span><a class="back-link" href="/" aria-label="Volver al inicio"><img class="ui-icon" src="/res/back.svg" alt=""> Volver a la ronda</a></header><main id="page-content" class="document-main"><div class="document-hero"><span class="eyebrow">MATESITO / INFORMACIÓN</span><h1>Una ronda con historia.</h1><p>Conocé el proyecto, las personas y los servicios detrás de Matesito.</p></div><div class="document-content" "="">
         <div class="version-box version-box-informacion">
-            <h1>Sobre Matesito...</h1>
+            <h2>Sobre Matesito...</h2>
             <p>
                 Hola, me llamo Agustín Couette (Agustin8 para los amigos) y soy el creador y dueño de Matesito, recientemente FeFe (SquaredFe) se sumó al equipo para contribuir con un nuevo diseño de la pagina. Matesito surgió como una idea loca, un día simplemente pensé: "¿Será muy difícil hacer una red social?"
                 y acto seguido empecé a hacer una para responderme mi pregunta.<br>
@@ -51,43 +23,39 @@
                 Por ahora no tengo pensado dejar de actualizar Matesito, tengo muchas ideas que quiero implementar, y estoy emocionado por hacerlo. No sé si voy a poder hacer realidad todo, pero no lo pienso abandonar hasta que me sienta satisfecho.
                 <br><br>
                 Tengo un canal de difusión de WhatsApp en el que voy publicando novedades sobre Matesito, como las nuevas actualizaciones, avisos de mantenimiento y comunicados especiales. Puedes unirte al canal mediante este link o este código QR:<br>
-                <a href="https://whatsapp.com/channel/0029VauaHTO6xCSY8fonqp3q" 
-                    style="color: #ffffff; text-decoration: underline; cursor: pointer; display: block; text-align: center; margin-top: 10px;" 
-                    target="_blank">
+                <a href="https://whatsapp.com/channel/0029VauaHTO6xCSY8fonqp3q" target="_blank" rel="noopener noreferrer">
                     https://whatsapp.com/channel/0029VauaHTO6xCSY8fonqp3q
                 </a>
-                
-                <img src="resources/JPG/Qr.jpg" alt="Logo" style="border-radius: 15px; max-width: 100%; height: auto; display: block; margin: 25px auto;">
+
+                <img src="/resources/JPG/Qr.jpg" alt="Logo">
                 <br>
-                <h2>Matesito utiliza los siguientes servicios de terceros:</h2>
-                <h3>Cloudflare Tunnel:</h3> 
+                </p><h2>Matesito utiliza los siguientes servicios de terceros:</h2>
+                <h3>Cloudflare Tunnel:</h3>
                 <p>
-                    Cloudflare Tunnel es un servicio que brinda la empresa Cloudflare, este servicio redirije todo el trafico que ingresa al dominio 
+                    Cloudflare Tunnel es un servicio que brinda la empresa Cloudflare, este servicio redirije todo el trafico que ingresa al dominio
                     "matesito.com.ar" a los servidores oficiales de Matesito.
                 </p>
                 <h3>Cloudinary:</h3>
                 <p>
-                    Es una empresa que brinda un servicio para almacenar archivos, es donde se guardan todas las fotos, videos y audios que 
+                    Es una empresa que brinda un servicio para almacenar archivos, es donde se guardan todas las fotos, videos y audios que
                     se suben en Matesito. Actualmente está funcionando con el plan gratuito.
                 </p>
-                <h3>MicroReact:</h3> 
+                <h3>MicroReact:</h3>
                 <p>
                     Es el sistema de reacciones de Matesito, es de código abierto y fue desarrollado por Tiago Rangel.<br>
                     Matesito utiliza una versión modificada de MicroReact. Esta modificación consiste en simplemente funcionar con un contador
                     interno de la API de Matesito, en lugar del contador de Jason Cameron, Abacus, con el que funcionaba originalmente. además
                     se añadió una logica que recuerda la ultima reacción de cada usuario en cada post, así el usuario puede eliminar su reacción, o cambiarla.<br>
-                    Puedes ver la página oficial de MicroReact <a href="https://microreact.pages.dev" style="color: #9c0e31; text-decoration: underline; cursor: pointer;" target="_blank">aquí</a>.
+                    Puedes ver la página oficial de MicroReact <a href="https://microreact.pages.dev" target="_blank" rel="noopener noreferrer">aquí</a>.
                 </p><br><br>
 
                 <h2>Servicios de terceros que matesito alguna vez usó:</h2>
-                <h3>Render:</h3> 
+                <h3>Render:</h3>
                 <p>
-                    Render es una empresa que, entre otras cosas, brinda un muy buen alojamiento de servicios web. Es decir, 
-                    Matesito funcionba en sus servidores. También es donde estána alojada la base de datos 
+                    Render es una empresa que, entre otras cosas, brinda un muy buen alojamiento de servicios web. Es decir,
+                    Matesito funcionba en sus servidores. También es donde estána alojada la base de datos
                     que guarda todos los textos que se suben en Matesito. Este servicio se dejó de usar en la version 1.2.16 donde se migraron a los servidores oficiales de matesito.
                 </p>
-            </p>
+            <p></p>
         </div>
-    </div>
-</body>
-</html>
+    </div></main><script src="/theme.js"></script><script src="/site-shell.js"></script></body></html>

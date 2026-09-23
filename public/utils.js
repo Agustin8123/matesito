@@ -93,6 +93,7 @@ function HideOverlays() {
 
 // Obtiene detalles del usuario y activa la sesión en la UI
 function activateUser(username) {
+    window.communitySocket?.disconnect().connect();
   return fetch('/getUserDetails', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

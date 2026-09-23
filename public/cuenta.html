@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="es-AR" data-theme="dark">
-<head>
+<!DOCTYPE html><html lang="es-AR" data-theme="dark"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mi cuenta · Matesito</title>
@@ -10,16 +8,16 @@
     <link rel="stylesheet" href="/modern.css">
     <link rel="stylesheet" href="/feedback.css">
     <link rel="stylesheet" href="/account.css">
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <script src="/feedback.js"></script>
-</head>
-<body class="account-page">
-    <header class="header"><a href="/">← Volver a la ronda</a><button class="theme-toggle" onclick="toggleTheme()"><span class="nav-text">Modo claro</span></button></header>
-    <main class="container" id="appContainer" style="display:none">
+<link rel="stylesheet" href="/panels.css"><link rel="stylesheet" href="/pages.css"></head>
+<body class="account-page document-page account-shell">
+    <a class="skip-link" href="#page-content">Saltar al contenido</a><aside class="sidebar" id="sidebar"><a class="brand" href="/"><img class="logo" src="/res/logo.svg" alt="">Matesito</a><nav class="sidebar-nav" aria-label="Comunidad"><a class="sidebar-nav-element" href="/"><img class="nav-ic" src="/res/sidebar-icons/home.svg" alt=""><span class="nav-text">Inicio</span></a><a class="sidebar-nav-element" href="/#foros"><img class="nav-ic" src="/res/sidebar-icons/foros.svg" alt=""><span class="nav-text">Foros</span></a><a class="sidebar-nav-element" href="/#chats"><img class="nav-ic" src="/res/sidebar-icons/chats.svg" alt=""><span class="nav-text">Chats y grupos</span></a><a class="sidebar-nav-element" href="/#siguiendo"><img class="nav-ic" src="/res/sidebar-icons/followers.svg" alt=""><span class="nav-text">Siguiendo</span></a><a class="sidebar-nav-element" href="/#notificaciones"><img class="nav-ic" src="/res/sidebar-icons/notifications.svg" alt=""><span class="nav-text">Notificaciones</span></a></nav><nav class="document-links" aria-label="Sobre Matesito"><a href="/informacion.html">Información</a><a href="/versiones.html">Versiones</a><a href="/Ayuda.html">Ayuda</a><a href="/Terminos.html">Términos y privacidad</a><a href="/app.html">App para Android</a><a href="/cuenta.html" aria-current="page">Mi cuenta</a></nav><div class="sidebar-bottom"><button class="theme-toggle sidebar-nav-element" onclick="toggleTheme()"><span class="nav-text">Modo claro</span></button><div class="sidebar-footer">Hecho para compartir un buen mate.</div></div></aside><button class="nav-backdrop" onclick="closeSidebar()" aria-label="Cerrar navegación" hidden=""></button><header class="header"><button class="mobile-menu icon-button" onclick="toggleSidebar()" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir navegación"><img src="/res/hamburguesa-con-queso-amigo.svg" alt=""></button><span>Mi cuenta</span><a class="back-link" href="/" aria-label="Volver al inicio"><img class="ui-icon" src="/res/back.svg" alt=""> Volver a la ronda</a></header>
+    <main class="container document-main" id="appContainer" style="display:none"><span id="page-content"></span>
         <div class="page-intro"><h1>Tu cuenta, a tu manera.</h1><p>Actualizá cómo te ve la comunidad.</p></div>
         <section class="settings-item">
             <h2>Foto de perfil</h2>
-            <input type="file" id="profileImage" accept="image/*" hidden>
+            <input type="file" id="profileImage" accept="image/*" hidden="">
             <button type="button" id="userButton" onclick="document.getElementById('profileImage').click()" aria-label="Elegir foto de perfil"><img src="/res/default-avatar.svg" class="profile-pic-img" alt="Tu avatar"></button>
             <button type="button" onclick="updateProfileImage()">Guardar foto</button>
             <p class="field-hint">Una imagen de hasta 10 MB.</p>
@@ -60,6 +58,7 @@
     <script src="/utils.js"></script>
     <script src="/scripts%20c.js"></script>
     <script src="/theme.js"></script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
-</body>
-</html>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async="" defer=""></script>
+
+
+<script src="/site-shell.js"></script></body></html>

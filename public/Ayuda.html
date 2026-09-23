@@ -1,87 +1,50 @@
-<!DOCTYPE html>
-<html lang="es-AR">
-<head>
+<!DOCTYPE html><html lang="es-AR"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayuda</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com"> 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="extras.css">
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-    <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
-        <script src="/utils.js"></script>
-    <link rel="stylesheet" href="/feedback.css">
-    <script src="/feedback.js" defer></script>
-</head>
-<body>
+    <title>Centro de ayuda · Matesito</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 
-    <div class="header">
-        <div class="left-section">
-            <img src="resources/PNG/matesito-logo.png" alt="Logo" class="logo" onclick="location.href='index.html'" style="cursor:pointer">
-        </div>
-        <div class="menu-toggle" onclick="toggleMenuExtras()">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <div class="nav-buttons" id="navMenu">
-            <label for="index" class="button">Inicio</label>
-            <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
 
-            <label for="informacion" class="button">Acerca De</label>
-            <input type="radio" id="informacion" name="nav" style="display:none;" onclick="location.href='informacion.html'">
+    <link rel="icon" href="/resources/PNG/favicon.png" type="image/png">
 
-            <label for="acercade" class="button">Terminos</label>
-            <input type="radio" id="acercade" name="nav" style="display:none;" onclick="location.href='Terminos.html'">
 
-            <label for="Versiones" class="button">Versiones</label>
-            <input type="radio" id="Versiones" name="nav" style="display:none;" onclick="location.href='versiones.html'">
-        </div>
-    </div>
 
-    <div class="content"  ">
+<link rel="stylesheet" href="/index.css"><link rel="stylesheet" href="/modern.css"><link rel="stylesheet" href="/panels.css"><link rel="stylesheet" href="/pages.css"></head>
+<body class="document-page"><a class="skip-link" href="#page-content">Saltar al contenido</a><aside class="sidebar" id="sidebar"><a class="brand" href="/"><img class="logo" src="/res/logo.svg" alt="">Matesito</a><nav class="sidebar-nav" aria-label="Comunidad"><a class="sidebar-nav-element" href="/"><img class="nav-ic" src="/res/sidebar-icons/home.svg" alt=""><span class="nav-text">Inicio</span></a><a class="sidebar-nav-element" href="/#foros"><img class="nav-ic" src="/res/sidebar-icons/foros.svg" alt=""><span class="nav-text">Foros</span></a><a class="sidebar-nav-element" href="/#chats"><img class="nav-ic" src="/res/sidebar-icons/chats.svg" alt=""><span class="nav-text">Chats y grupos</span></a><a class="sidebar-nav-element" href="/#siguiendo"><img class="nav-ic" src="/res/sidebar-icons/followers.svg" alt=""><span class="nav-text">Siguiendo</span></a><a class="sidebar-nav-element" href="/#notificaciones"><img class="nav-ic" src="/res/sidebar-icons/notifications.svg" alt=""><span class="nav-text">Notificaciones</span></a></nav><nav class="document-links" aria-label="Sobre Matesito"><a href="/informacion.html">Información</a><a href="/versiones.html">Versiones</a><a href="/Ayuda.html" aria-current="page">Ayuda</a><a href="/Terminos.html">Términos y privacidad</a><a href="/app.html">App para Android</a><a href="/cuenta.html">Mi cuenta</a></nav><div class="sidebar-bottom"><button class="theme-toggle sidebar-nav-element" onclick="toggleTheme()"><span class="nav-text">Modo claro</span></button><div class="sidebar-footer">Hecho para compartir un buen mate.</div></div></aside><button class="nav-backdrop" onclick="closeSidebar()" aria-label="Cerrar navegación" hidden=""></button><header class="header"><button class="mobile-menu icon-button" onclick="toggleSidebar()" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir navegación"><img src="/res/hamburguesa-con-queso-amigo.svg" alt=""></button><span>Centro de ayuda</span><a class="back-link" href="/" aria-label="Volver al inicio"><img class="ui-icon" src="/res/back.svg" alt=""> Volver a la ronda</a></header><main id="page-content" class="document-main"><div class="document-hero"><span class="eyebrow">MATESITO / CENTRO DE AYUDA</span><h1>Estamos para darte una mano.</h1><p>Respuestas y canales de contacto para disfrutar de la comunidad.</p></div><div class="document-content" "=""><a href="mailto:matesito.soporte@gmail.com" class="document-button">Escribir a soporte</a>
         <div class="version-box">
-            <h1 style="text-align: center;">¿Necesitas ayuda?</h1><br>
-            <h2>Quiero borrar un post, mensaje o cuenta</h2>
+            <h2>¿Necesitas ayuda?</h2><br>
+            <details class="release-card"><summary>Quiero borrar un post, mensaje o cuenta</summary><div class="release-body">
             <p>
-                Actualmente, Matesito no tiene estas opciones en la página, pero serán añadidas en un futuro no muy lejano. 
+                Actualmente, Matesito no tiene estas opciones en la página, pero serán añadidas en un futuro no muy lejano.
                 Mientras tanto, si deseas borrar algo, puedes pedirlo al correo de soporte "matesito.soporte@gmail.com".
             </p>
-            <h2>Olvidé mi contraseña y/o usuario</h2>
+            </div></details><details class="release-card"><summary>Olvidé mi contraseña y/o usuario</summary><div class="release-body">
             <p>
-                Debido a que Matesito no le pide a los usuarios su correo electrónico, no hay forma de que el usuario 
+                Debido a que Matesito no le pide a los usuarios su correo electrónico, no hay forma de que el usuario
                 pueda por sí mismo recuperar su cuenta. Por esto, existen dos opciones:<br>
                 * Puedes simplemente crear otra cuenta.<br>
-                * Si realmente deseas recuperar tu cuenta existente, debes contactar al correo de soporte "matesito.soporte@gmail.com" 
+                * Si realmente deseas recuperar tu cuenta existente, debes contactar al correo de soporte "matesito.soporte@gmail.com"
                 adjuntando pruebas suficientes de que eres el legítimo dueño de esa cuenta.
-            </p>  
-            <h2>Quiero reportar un usuario o contenido</h2>
+            </p>
+            </div></details><details class="release-card"><summary>Quiero reportar un usuario o contenido</summary><div class="release-body">
             <p>
-                Si encontraste algo que crees que no debería estar en Matesito, puedes enviar un correo a "matesito.soporte@gmail.com" 
-                con una descripción del contenido y dónde se encuentra. El administrador tomará las acciones que considere necesarias, 
-                y se te enviará una respuesta indicando qué acciones se tomaron, por qué se tomaron y un agradecimiento por contribuir 
+                Si encontraste algo que crees que no debería estar en Matesito, puedes enviar un correo a "matesito.soporte@gmail.com"
+                con una descripción del contenido y dónde se encuentra. El administrador tomará las acciones que considere necesarias,
+                y se te enviará una respuesta indicando qué acciones se tomaron, por qué se tomaron y un agradecimiento por contribuir
                 a que Matesito sea algo bueno para todos.
             </p>
-            <h2>Encontré un bug o error en la plataforma</h2>
+            </div></details><details class="release-card"><summary>Encontré un bug o error en la plataforma</summary><div class="release-body">
             <p>
                 Cualquier bug o error que encuentres, Matesito te agradecerá infinitamente si lo reportas al correo de soporte "matesito.soporte@gmail.com" con una descripción
-                del problema. De esta forma estás haciendo que el trabajo de desarrollo sea más fácil y rápido, además de que mejorarás la experiencia del resto de personas 
+                del problema. De esta forma estás haciendo que el trabajo de desarrollo sea más fácil y rápido, además de que mejorarás la experiencia del resto de personas
                 que usan Matesito.
             </p>
-            <h2>Aclaraciones</h2>
+            </div></details><details class="release-card"><summary>Aclaraciones</summary><div class="release-body">
             <p>
-                Nunca compartas las credenciales de tu cuenta con nadie. Nadie, sea o no parte del equipo de Matesito, debe pedirte tu usuario o contraseña. Si alguien lo hace, avisa 
+                Nunca compartas las credenciales de tu cuenta con nadie. Nadie, sea o no parte del equipo de Matesito, debe pedirte tu usuario o contraseña. Si alguien lo hace, avisa
                 inmediatamente al correo de soporte "matesito.soporte@gmail.com".
                 <br><br>
-            </p>            
-        </div>
-    </div>
-
-    <script>
-        function toggleMenu() {
-            const navMenu = document.getElementById('navMenu');
-            navMenu.classList.toggle('open');
-        }
-    </script>
-</body>
-</html>
+            </p>
+        </div></details></div>
+    </div></main><script src="/theme.js"></script><script src="/site-shell.js"></script></body></html>

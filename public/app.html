@@ -1,92 +1,67 @@
-<!DOCTYPE html>
-<html lang="es-AR">
-<head>
+<!DOCTYPE html><html lang="es-AR"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Matesito</title>
-    <link rel="icon" href="resources/PNG/favicon.png" type="image/png">
-    <link rel="stylesheet" href="app_styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com"> 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <title>Matesito para Android · Matesito</title>
+    <link rel="icon" href="/resources/PNG/favicon.png" type="image/png">
 
-</head>
-<body>
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-        AOS.init({duration: 600});
-    </script>
-    <div class="header">
-        <img src="resources/PNG/matesito-logo.png" alt="" class="logo" onclick="location.href='index.html'" >
-        <div class="blurPiola"></div>
-        <div class="left-section">
-        </div>
-        <div class="nav-buttons">
-            <label for="index" class="button">Volver</label>
-            <input type="radio" id="index" name="nav" style="display:none;" onclick="location.href='index.html'">
-        </div>
-    </div>
-    <div class="center">
-        <img src="res/app/Frame.png" class="iconCenter">
-        <h1 class="appTitle">La app de Matesito</h1>
-        <h4 class="appTitle">...ya esta aqui</h1>
-    </div>
-    <div class="tabContainer">
-        <div class="tab1 aos-init aos-animate" data-aos="self-blur">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+
+
+<link rel="stylesheet" href="/index.css"><link rel="stylesheet" href="/modern.css"><link rel="stylesheet" href="/panels.css"><link rel="stylesheet" href="/pages.css"></head>
+<body class="document-page"><a class="skip-link" href="#page-content">Saltar al contenido</a><aside class="sidebar" id="sidebar"><a class="brand" href="/"><img class="logo" src="/res/logo.svg" alt="">Matesito</a><nav class="sidebar-nav" aria-label="Comunidad"><a class="sidebar-nav-element" href="/"><img class="nav-ic" src="/res/sidebar-icons/home.svg" alt=""><span class="nav-text">Inicio</span></a><a class="sidebar-nav-element" href="/#foros"><img class="nav-ic" src="/res/sidebar-icons/foros.svg" alt=""><span class="nav-text">Foros</span></a><a class="sidebar-nav-element" href="/#chats"><img class="nav-ic" src="/res/sidebar-icons/chats.svg" alt=""><span class="nav-text">Chats y grupos</span></a><a class="sidebar-nav-element" href="/#siguiendo"><img class="nav-ic" src="/res/sidebar-icons/followers.svg" alt=""><span class="nav-text">Siguiendo</span></a><a class="sidebar-nav-element" href="/#notificaciones"><img class="nav-ic" src="/res/sidebar-icons/notifications.svg" alt=""><span class="nav-text">Notificaciones</span></a></nav><nav class="document-links" aria-label="Sobre Matesito"><a href="/informacion.html">Información</a><a href="/versiones.html">Versiones</a><a href="/Ayuda.html">Ayuda</a><a href="/Terminos.html">Términos y privacidad</a><a href="/app.html" aria-current="page">App para Android</a><a href="/cuenta.html">Mi cuenta</a></nav><div class="sidebar-bottom"><button class="theme-toggle sidebar-nav-element" onclick="toggleTheme()"><span class="nav-text">Modo claro</span></button><div class="sidebar-footer">Hecho para compartir un buen mate.</div></div></aside><button class="nav-backdrop" onclick="closeSidebar()" aria-label="Cerrar navegación" hidden=""></button><header class="header"><button class="mobile-menu icon-button" onclick="toggleSidebar()" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir navegación"><img src="/res/hamburguesa-con-queso-amigo.svg" alt=""></button><span>Matesito para Android</span><a class="back-link" href="/" aria-label="Volver al inicio"><img class="ui-icon" src="/res/back.svg" alt=""> Volver a la ronda</a></header><main id="page-content" class="document-main"><div class="document-hero"><span class="eyebrow">MATESITO / MATESITO PARA ANDROID</span><h1>Tu ronda va con vos.</h1><p>Llevá Matesito en el bolsillo.</p></div><div class="document-content app-content"><div class="center">
+        <img src="/res/app/Frame.png" class="iconCenter">
+        <h2>La app de Matesito</h2>
+        <h4 class="appTitle">...ya esta aqui</h4>
+    </div><div class="tabContainer">
+        <div class="tab1 aos-init aos-animate">
             <div class="double">
-                <h1>Diseñada para ser estable</h1>
+                <h2>Diseñada para ser estable</h2>
                 <h4>Tras un ciclo de vigilia ininterrumpida y sacrificio sistémico, hemos forjado la infraestructura definitiva de la comunicación nacional, consolidando la red social argentina más estable e inexpugnable de la historia contemporánea. Esta arquitectura, blindada bajo protocolos de resiliencia extrema, redefine el paradigma de la estabilidad digital mediante una pureza algorítmica que garantiza una persistencia absoluta ante cualquier colapso de la red global</h4>
             </div>
-            <img src="res/app/Group 36.png" alt="" class="imageside">
+            <img src="/res/app/Group 36.png" alt="" class="imageside">
         </div>
-        <div class="tab1 aos-init aos-animate" data-aos="self-blur">
-            <img src="res/app/Group 35.png" alt="" class="imageside">
+        <div class="tab1 aos-init aos-animate">
+            <img src="/res/app/Group 35.png" alt="" class="imageside">
             <div class="double">
-                <h1>Eficiente y veloz</h1>
+                <h2>Eficiente y veloz</h2>
                 <h4>Sometimos la arquitectura a un protocolo de estrés heurístico mediante +1400 validaciones en 200 terminales heterogéneos, refinando la dinámica de fluidos y la sincronización V-Sync en hilos de UI. Tras una reingeniería de bytecode, consolidamos un empaquetamiento inferior a 30MB, logrando una eficiencia térmica y una latencia de respuesta que redefine los estándares de la computación móvil</h4>
             </div>
         </div>
-        <div class="featuresHighlight" data-aos="self-blur">
-            <div class="columnFeature" data-aos="zoom-out">
+        <div class="featuresHighlight">
+            <div class="columnFeature">
                 <h4>Optimización de la app</h4>
-                <img class="imgFeature" src="res/app/Vector 28.png" alt="">
+                <img class="imgFeature" src="/res/app/Vector 28.png" alt="">
                 <h4 class="percentageFeature">60.7%</h4>
             </div>
-            <div class="columnFeature" data-aos="zoom-out">
+            <div class="columnFeature">
                 <h4>Velocidad de la app</h4>
-                <img class="imgFeature" src="res/app/Vector 28.png" alt="">
+                <img class="imgFeature" src="/res/app/Vector 28.png" alt="">
                 <h4 class="percentageFeature">44.1%</h4>
             </div>
-            <div class="columnFeature" data-aos="zoom-out">
+            <div class="columnFeature">
                 <h4>Tamaño neto de la app</h4>
-                <img class="imgFeature" src="res/app/Vector 29.png" alt="">
+                <img class="imgFeature" src="/res/app/Vector 29.png" alt="">
                 <h4 class="percentageFeature red">69.4%</h4>
             </div>
         </div>
-        <div class="flexVert" data-aos="flip-up" data-aos-delay="300">
-            <img src="res/app/Group 37.png" alt="" class="imageCenter" >
+        <div class="flexVert">
+            <img src="/res/app/Group 37.png" alt="" class="imageCenter">
             <div class="double">
-                <h1 class="hCenter">Seguro, al 100%</h1>
+                <h2>Seguro, al 100%</h2>
                 <h4 class="hCenter">Presentamos Matesito Mobile Architecture v1.0, la culminación de la ingeniería de software aplicada a la experiencia del usuario digital.  Este desarrollo no es simplemente una aplicación, sino un ecosistema blindado diseñado bajo los más estrictos estándares de la industria tecnológica actual.</h4>
             </div>
         </div>
-        <div class="tab1 aos-init aos-animate" data-aos="flip-up">
+        <div class="tab1 aos-init aos-animate">
             <div class="double">
-                <h1>La estructura perfecta</h1>
+                <h2>La estructura perfecta</h2>
                 <h4>El génesis de la infraestructura de Matesito representó un desafío hercúleo que llevó a la élite de ingeniería al límite de la resistencia humana, forzándola a resolver la entropía estructural de los contenidos mediante una base de datos de integridad absoluta y latencia imperceptible. Tras una vigilia de desesperación técnica y esfuerzo cognitivo extremo, se alcanzó una armonización impecable entre el motor de renderizado y la persistencia de datos, logrando una optimización de punteros y consultas que redefine los estándares de la industria digital mediante una pureza algorítmica inexpugnable</h4>
             </div>
-            <img src="res/app/Group 38.png" alt="" class="imageside">
+            <img src="/res/app/Group 38.png" alt="" class="imageside">
         </div>
-    </div>
-    <img src="res/app/preview3.png" alt="" class="fullWImg" data-aos="self-blur" data-aos-duration="9000" data-aos-delay="800">
-    <div class = "buttonDiv" data-aos="self-blur" >
-        <img src="res/app/androidLogo.png" class="small" >
+    </div><img src="/res/app/preview3.png" alt="" class="fullWImg"><div class="buttonDiv">
+        <img src="/res/app/androidLogo.png" class="small">
         <a href="https://github.com/squaredfe/matesito-app/releases/latest/download/app-debug.apk" class="download" target="_blank" rel="noopener noreferrer">
-            <img src="res/app/download.svg" alt="Descargar aplicación" class="download">
+            <img src="/res/app/download.svg" alt="Descargar aplicación" class="download">
         </a>
-    </div>
-    
-    <h6>TODO LO MOSTRADO Y PRESENTADO ESTA EXAGERADAMENTE ESCRITO PARA CAUSAR GRACIA Y HUMOR, GRACIAS POR USAR MATESITO.</h6>
-</body>
-</html>
+    </div><h6>TODO LO MOSTRADO Y PRESENTADO ESTA EXAGERADAMENTE ESCRITO PARA CAUSAR GRACIA Y HUMOR, GRACIAS POR USAR MATESITO.</h6></div></main><script src="/theme.js"></script><script src="/site-shell.js"></script></body></html>

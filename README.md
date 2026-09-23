@@ -5,26 +5,33 @@ Aplicación Express + PostgreSQL + Socket.IO, con interfaz web sin compilación.
 ## Ejecutar
 
 1. Usar Node.js 22 o posterior y ejecutar `npm ci`.
-2. Copiar `.env.example` a `.env` y completar la conexión a la base existente, `JWT_SECRET` y `TURNSTILE_SECRET`.
-3. Ejecutar `npm start`.
+2. Copiar `.env.example` a `.env` y completar la conexión a la base existente, `JWT_SECRET` y `TURNSTILE_SECRET`. `JWT_SECRET` es obligatorio también en desarrollo.
+3. Aplicar `schema.sql` siguiendo las instrucciones de actualización de abajo.
+4. Ejecutar `npm start`.
 
 En producción, configurar `NODE_ENV=production`, un secreto JWT propio y los orígenes permitidos. La conexión a PostgreSQL usa TLS en producción; `DB_SSL=false` permite configurar explícitamente una base local sin TLS. No se incluyen credenciales ni cambios automáticos de esquema.
 
-## Verificación
+## Actualizar a 1.3.0
 
-`npm test` ejecuta pruebas del servidor HTTP y la interfaz. Se usa `pg-mem` con un esquema de prueba inferido del SQL de la aplicación y JSDOM para los flujos del navegador. Las pruebas no acceden a producción. Los bloqueos de PostgreSQL se simulan; no prueban la concurrencia ni las restricciones reales del esquema desplegado.
+Detener la aplicación, respaldar la base existente y aplicar **schema.sql antes de arrancar el código 1.3.0**. El nuevo campo `users.auth_version` es necesario para validar sesiones. Usar el nombre real de la base y los parámetros de conexión de tu servidor; estos ejemplos usan `matesito_8s`:
 
-`node test/preview.cjs` abre un servidor de revisión visual en `http://127.0.0.1:3100`. La ruta `/__preview/login` inicia una cuenta ficticia en una base descartable. Este servidor está limitado a loopback, no se usa con `npm start` y no debe desplegarse. Sus datos se pierden al cerrarlo.
+```sh
+pg_dump -Fc --dbname matesito_8s --file matesito-pre-1.3.0.dump
+psql -X --set ON_ERROR_STOP=on --dbname matesito_8s --file schema.sql
+npm ci
+npm start
+```
 
-## Cambios corregidos
+El archivo sirve para crear el esquema vacío y para actualizar el esquema usado por esta aplicación. Se ejecuta dentro de una transacción y admite reaplicación. Convierte flags antiguos 0/1 a booleanos, ajusta la secuencia de IDs de mensajes textuales y las secuencias numéricas, incorpora membresías de propietarios e índices para paginación. Conserva cuentas, posts, mensajes y reacciones. No crea usuarios de PostgreSQL ni cambia claves de acceso.
 
-- Publicación: booleanos compatibles con el backend, validación HTTP, borradores conservados ante errores, adjuntos comprobados, bloqueo de doble envío y recarga explícita sin depender del socket.
-- Listas: renderizado independiente del último elemento, filtrado antes del límite, estados vacíos y de error, protección contra respuestas atrasadas y ordenamiento sin depender de reacciones cuando no se utilizan.
-- Sesiones y cuenta: sesión autenticada al registrarse, recuperación desde cookie HttpOnly, cierre de sesión real, errores de perfil visibles y conservación de publicaciones al cambiar el nombre.
-- Foros y grupos: membresía del creador, compatibilidad con propietarios antiguos, listados independientes, eliminación transaccional de dependencias y códigos de invitación restringidos a miembros y propietarios.
-- Chats y avisos: bandeja de conversaciones, destinos y nombres correctos en notificaciones.
-- Reacciones: IDs exactos, cambios y eliminación coherentes, operaciones transaccionales, cliente del mismo origen y eventos limitados al post correspondiente.
-- Interfaz: integración del diseño v2 guardado en `index.css` y `res/`, barra lateral, temas persistentes, adaptación móvil, cuenta renovada y mensajes/confirmaciones sin `alert` ni `confirm` del navegador.
-- Otros: escape de datos en menús y dashboard UPS, estados sin conexión, iconos de instalación y rutas de imágenes corregidas.
+Las fechas históricas nulas se representan con `1970-01-01 UTC` para poder paginar sin perder filas; no se inventa una fecha de publicación reciente. Las claves foráneas nuevas usan `NOT VALID`: protegen nuevas escrituras y permiten conservar registros históricos huérfanos. `posts.username` no añade una clave foránea, para conservar publicaciones de autores antiguos. Los IDs F-/C-/G- y el seguimiento mutuo se validan en el servidor.
 
-El mantenimiento del cliente queda desactivado en `public/scripts.js`. La validación de despliegue requiere probar con la base y las claves reales: persistencia después de reiniciar, restricciones del esquema, Turnstile, Cloudinary, Socket.IO detrás del proxy y el dispositivo UPS. Esos servicios no se reemplazan con los dobles de prueba en el servidor normal.
+Las secuencias de PostgreSQL pueden avanzar aunque una transacción falle: pueden quedar saltos entre IDs, pero no se reutilizan IDs ni se eliminan filas. El esquema no modifica claves foráneas personalizadas que ya existan; una estructura distinta de la usada por la aplicación requiere revisar su volcado antes de migrar.
+
+Si existen duplicados en nombres únicos, membresías, pares de chat o selecciones de reacciones, o tipos incompatibles no contemplados, la migración aborta sin borrar datos. Revisar el error antes de reiniciar; no continuar sin `ON_ERROR_STOP` ni eliminar registros a ciegas. El script se probó contra un esquema vacío y variantes antiguas representativas, no contra un volcado de tu base real. Para volver al código anterior después de una migración fallida, ejecutar `ROLLBACK` si la sesión SQL quedó abierta; el respaldo permite recuperar cambios posteriores si fuera necesario.
+
+Después de arrancar, comprobar login, publicación, la segunda tanda de 12, reacciones, un chat privado y un grupo entre seguidores mutuos. Cambiar la contraseña invalida las cookies/tokens anteriores; la sesión que realiza el cambio recibe una cookie renovada.
+
+El mantenimiento del cliente queda desactivado en `public/scripts.js`. Para verificar el despliegue, comprobar la persistencia después de reiniciar, Turnstile, Cloudinary, Socket.IO detrás del proxy y el dispositivo UPS con la configuración real.
+
+Las novedades de esta versión se encuentran en la pestaña Versiones (`public/versiones.html`).
