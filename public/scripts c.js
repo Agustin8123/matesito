@@ -44,11 +44,9 @@ async function updateProfileImage() {
     if (accountRequests.has('upload')) return;
     accountRequests.add('upload');
     try {
-        const form = new FormData(); form.append('file', file); form.append('upload_preset', 'matesito');
-        const uploaded = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', { method: 'POST', body: form }).then(readResponse);
-        if (!uploaded.secure_url) throw new Error('No se pudo subir la imagen.');
-        await accountUpdate('/updateProfileImage', { username: activeUser, profileImage: uploaded.secure_url }, () => {
-            users[activeUser].profileImage = uploaded.secure_url;
+        const uploaded = await uploadMedia(file);
+        await accountUpdate('/updateProfileImage', { username: activeUser, profileImage: uploaded.url }, () => {
+            users[activeUser].profileImage = uploaded.url;
             document.getElementById('profileImage').value = '';
             updateUserButton();
         });

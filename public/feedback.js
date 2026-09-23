@@ -66,3 +66,9 @@ async function readResponse(response) {
     if (data === null) throw new Error('El servidor devolvió una respuesta inválida.');
     return data;
 }
+
+async function uploadMedia(file) {
+    const uploaded = await fetch('/api/uploads', { method: 'POST', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file }).then(readResponse);
+    if (!uploaded.url || !uploaded.mediaType) throw new Error('El servidor no confirmó el archivo subido.');
+    return uploaded;
+}

@@ -82,6 +82,7 @@ app.use((req, res, next) => {
 });
 
 const db = new Pool(poolConfig);
+require('./storage')(app, requireAuth);
 db.on('error', error => console.error('Error de conexión inactiva a PostgreSQL:', error.message));
 
 app.use('/scripts.js', (req, res, next) => {
@@ -388,7 +389,7 @@ app.post('/posts', requireAuth, (req, res) => {
                 return res.status(500).json('Error al publicar el post');
             }
             const postId = result.rows[0].id;
-            io.emit('reloadPosts');
+            io.emit('reloadPosts', { id: postId });
             res.status(201).json({ id: postId, content, media, mediaType });
         });
     });
@@ -471,8 +472,8 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
         }
 
         await client.query('COMMIT');
-        if (is_private) await emitPrivateUpdate(formattedForumId, req.user.id, 'reloadCPosts');
-        else io.emit('reloadFPosts');
+        if (is_private) await emitPrivateUpdate(formattedForumId, req.user.id, 'reloadCPosts', { id: formattedId });
+        else io.emit('reloadFPosts', { id: formattedId });
         res.status(201).json(mensaje);
 
     } catch (error) {
@@ -1339,7 +1340,7 @@ app.post('/group/messages/:groupId', requireAuth, async (req, res) => {
         );
 
         await client.query('COMMIT');
-        await emitPrivateUpdate(formattedGroupId, req.user.id, 'reloadGPosts');
+        await emitPrivateUpdate(formattedGroupId, req.user.id, 'reloadGPosts', { id: formattedId });
         res.status(201).json(mensaje);
     } catch (error) {
         if (client) await client.query('ROLLBACK').catch(() => {});

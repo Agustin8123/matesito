@@ -25,8 +25,9 @@
         <button class="sidebar-nav-element" onclick="toggleBell()" id="puntoNotificacion"><img class="nav-ic" src="/res/sidebar-icons/notifications.svg" alt="" id="iconoNotificacion"><span class="nav-text">Notificaciones</span></button>
         <button class="sidebar-nav-element" onclick="toggleForumMenu()"><img class="nav-ic" src="/res/sidebar-icons/foros.svg" alt=""><span class="nav-text">Foros</span></button>
     </nav>
+    <nav class="document-links" aria-label="Sobre Matesito"><a href="/informacion.html">Información</a><a href="/versiones.html">Versiones</a><a href="/Ayuda.html">Ayuda</a><a href="/Terminos.html">Términos y privacidad</a><a href="/app.html">App para Android</a><a href="/cuenta.html">Mi cuenta</a></nav>
     <div class="sidebar-bottom"><button class="sidebar-nav-element theme-toggle" onclick="toggleTheme()"><span class="nav-ic" aria-hidden="true">◐</span><span class="nav-text">Modo claro</span></button>
-    <div class="sidebar-footer"><a href="/versiones">Versiones</a><a href="/informacion">Acerca de</a><a href="/Ayuda">Ayuda</a><a href="/Terminos">Términos</a><a href="/app">App Android</a><br>Hecho para compartir un buen mate.</div></div></aside>
+    <div class="sidebar-footer">Hecho para compartir un buen mate.</div></div></aside>
     <div class="header app-header"><button class="mobile-menu icon-button" type="button" onclick="toggleSidebar()" aria-label="Abrir navegación" aria-expanded="false"><img class="ui-icon" src="/res/hamburguesa-con-queso-amigo.svg" alt=""></button>
     <h1 id="pageTitle" class="visually-hidden">Inicio</h1>
     <button type="button" onclick="toggleSearch()" aria-label="Buscar usuarios y foros" class="header-search"><img class="ui-icon" src="/resources/SVG/search.svg" alt=""><span>Buscar personas y foros</span></button>
@@ -192,20 +193,20 @@
 
     const socket = window.communitySocket = io();
 
-    socket.on('reloadPosts', () => {
-        if (document.getElementById('postList').style.display === 'block') queueFeedUpdate();
+    socket.on('reloadPosts', data => {
+        queueFeedUpdate(data);
     });
 
-    socket.on('reloadFPosts', () => {
-        queueFeedUpdate(); obtenerNotificaciones();
+    socket.on('reloadFPosts', data => {
+        queueFeedUpdate(data); obtenerNotificaciones();
     });
 
-    socket.on('reloadGPosts', () => {
-        queueFeedUpdate(); obtenerNotificaciones();
+    socket.on('reloadGPosts', data => {
+        queueFeedUpdate(data); obtenerNotificaciones();
     });
 
-    socket.on('reloadCPosts', () => {
-        queueFeedUpdate(); obtenerNotificaciones();
+    socket.on('reloadCPosts', data => {
+        queueFeedUpdate(data); obtenerNotificaciones();
     });
 
     socket.on('reloadFG', () => {

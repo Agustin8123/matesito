@@ -32,6 +32,27 @@ Si existen duplicados en nombres únicos, membresías, pares de chat o seleccion
 
 Después de arrancar, comprobar login, publicación, la segunda tanda de 12, reacciones, un chat privado y un grupo entre seguidores mutuos. Cambiar la contraseña invalida las cookies/tokens anteriores; la sesión que realiza el cambio recibe una cookie renovada.
 
-El mantenimiento del cliente queda desactivado en `public/scripts.js`. Para verificar el despliegue, comprobar la persistencia después de reiniciar, Turnstile, Cloudinary, Socket.IO detrás del proxy y el dispositivo UPS con la configuración real.
+El mantenimiento del cliente queda desactivado en `public/scripts.js`. Para verificar el despliegue, comprobar la persistencia después de reiniciar, Turnstile, la carga de archivos locales y la lectura de adjuntos antiguos de Cloudinary, Socket.IO detrás del proxy y el dispositivo UPS con la configuración real.
 
 Las novedades de esta versión se encuentran en la pestaña Versiones (`public/versiones.html`).
+
+## Almacenamiento de archivos
+
+Las nuevas imágenes, audios y videos se guardan en el servidor. Las URLs existentes de Cloudinary y otros adjuntos externos siguen funcionando: no se descargan, reescriben ni eliminan. No hace falta otra migración SQL; se guardan las nuevas rutas /uploads/ en los campos existentes.
+
+Definir UPLOAD_DIR en .env con una ruta absoluta persistente, fuera del repositorio, y dar permiso de lectura y escritura al usuario que ejecuta Node. Por ejemplo, si el servicio corre como agustin:
+
+```sh
+sudo install -d -o agustin -g agustin -m 750 /var/lib/matesito/uploads
+```
+
+```dotenv
+UPLOAD_DIR=/var/lib/matesito/uploads
+UPLOAD_MAX_MB=50
+```
+
+Sin UPLOAD_DIR se usa la carpeta uploads del proyecto, excluida de Git. No eliminar esa carpeta al desplegar. En contenedores, montar un volumen persistente. Respaldar UPLOAD_DIR junto con PostgreSQL: el respaldo SQL contiene las rutas, no los archivos. Si se cambia de carpeta después de subir archivos, copiar su contenido conservando los nombres antes de arrancar con la ruta nueva.
+
+El límite predeterminado es 50 MB por archivo y 10 MB para imágenes. Las subidas requieren sesión, se escriben por partes en disco y se validan por firma de formato; no se permiten SVG ni HTML. Se eliminan archivos parciales ante errores normales o desconexiones. Tras un cierre forzado pueden quedar archivos ocultos .part, que se pueden retirar con la app detenida. Los adjuntos son accesibles por su URL, igual que los enlaces anteriores de Cloudinary; el permiso de leer mensajes sigue controlándose en la app. No se borran automáticamente archivos al eliminar publicaciones, para evitar romper referencias compartidas.
+
+Si usás Nginx, configurar en el bloque server existente client_max_body_size 50m (o el límite elegido), mantener /api/uploads y /uploads/ dirigidos al proceso Node, y permitir hasta 120 segundos para las subidas. Express sirve los archivos con soporte de rangos para audio y video. El directorio debe existir en un disco con espacio suficiente. Reiniciar el servicio después de cambiar .env.

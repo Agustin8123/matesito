@@ -238,17 +238,16 @@ async function addNewUser() {
     authPending = true;
     const button = document.getElementById('createUserButton'); button.disabled = true;
     try {
-        let profileImage = '/resources/SVG/default-avatar.svg';
         const file = fileInput.files[0];
-        if (file) {
-            if (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) throw new Error('Elegí una imagen de hasta 10 MB.');
-            const form = new FormData(); form.append('file', file); form.append('upload_preset', 'matesito');
-            const upload = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', { method: 'POST', body: form }).then(readResponse);
-            if (!upload.secure_url) throw new Error('No se pudo subir la imagen.');
-            profileImage = upload.secure_url;
-        }
-        const user = await fetch('/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, profileImage, token }) }).then(readResponse);
+        if (file && (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024)) throw new Error('Elegí una imagen de hasta 10 MB.');
+        const user = await fetch('/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, token }) }).then(readResponse);
         if (!user.id) throw new Error('No se pudo confirmar la creación de la cuenta.');
+        if (file) {
+            try {
+                const uploaded = await uploadMedia(file);
+                await fetch('/updateProfileImage', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: user.username, profileImage: uploaded.url }) }).then(readResponse);
+            } catch (error) { notify('Tu cuenta se creó, pero no se guardó la foto. Podés reintentar desde Mi cuenta. ' + error.message, 'error'); }
+        }
         usernameInput.value = ''; passwordInput.value = ''; fileInput.value = '';
         await activateUser(user.username);
         notify('Tu cuenta está lista. ¡Bienvenido a la ronda!', 'success');
@@ -533,13 +532,9 @@ async function publishContent(kind, contextId) {
     document.getElementById('loading').style.display = 'block';
     try {
         if (file) {
-            const form = new FormData();
-            form.append('file', file);
-            form.append('upload_preset', 'matesito');
-            const uploaded = await fetch('https://api.cloudinary.com/v1_1/dtzl420mq/upload', { method: 'POST', body: form }).then(readResponse);
-            if (!uploaded.secure_url) throw new Error('No se recibió el archivo subido. Tu texto sigue guardado.');
-            payload.media = uploaded.secure_url;
-            payload.mediaType = file.type;
+            const uploaded = await uploadMedia(file);
+            payload.media = uploaded.url;
+            payload.mediaType = uploaded.mediaType;
         }
         const saved = await fetch(url, {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
@@ -556,11 +551,7 @@ async function publishContent(kind, contextId) {
         if (sensitiveInput.checked === sensitive) sensitiveInput.checked = false;
         notify(isPost ? 'Tu post se publicó correctamente.' : 'Mensaje enviado.', 'success');
         if (sensitive && !showSensitiveContent) notify('El contenido sensible está oculto por el filtro actual.');
-        // Recargar explícitamente: la publicación no depende de Socket.IO.
-        if (isPost && document.getElementById('postList').style.display === 'block') await loadposts(loadAll);
-        if (kind === 'forum' && activeForum === contextId) await loadForumPosts(contextId, loadAll);
-        if (kind === 'chat' && activeChat === contextId) await loadChatMessages(contextId, loadAll);
-        if (kind === 'group' && activeGroup === contextId) await loadGroupMessages(contextId, loadAll);
+        await queueFeedUpdate({ id: saved.id });
     } catch (error) {
         notify(error.message || 'No se pudo publicar. Intentá nuevamente.', 'error');
     } finally {
@@ -700,11 +691,39 @@ async function loadNextPage() {
         }
     }
 }
-function queueFeedUpdate() {
-    if (!feedState || document.getElementById('feed-update')) return;
-    const button = menuButton('Hay novedades. Actualizar publicaciones', () => buttonsState());
-    button.id = 'feed-update'; button.className = 'feed-update';
-    document.getElementById(feedState.listId).before(button);
+async function queueFeedUpdate(data) {
+    const state = feedState;
+    if (!state || !data?.id || state.seen.has(String(data.id))) return;
+    if (state.messages !== /^[CFG]-/.test(String(data.id))) return;
+    // Fetch through the current feed: its membership, author and sensitive filters still apply.
+    const query = new URLSearchParams({ limit: '12', item: String(data.id), sensitive: showSensitiveContent ? 'show' : 'hide' });
+    try {
+        const payload = await fetch(state.url + (state.url.includes('?') ? '&' : '?') + query).then(readResponse);
+        if (state !== feedState) return;
+        const list = document.getElementById(state.listId);
+        for (const row of payload.items || []) {
+            const key = String(row.postId ?? row.id);
+            if (state.seen.has(key)) continue;
+            const anchor = [...list.children].find(el => el.classList.contains('post') && el.getBoundingClientRect().bottom > 0);
+            const offset = anchor?.getBoundingClientRect().top;
+            const keepPosition = anchor && window.scrollY > 100;
+            state.seen.add(key);
+            list.querySelector('.feed-state')?.remove();
+            addpostToList(row.content, row.media, state.messages ? row.media_type : row.mediaType, row.username,
+                state.messages ? row.image : row.profilePicture, row.sensitive, row.created_at,
+                state.messages ? row.sender_id : row.userId, row.postId ?? row.id, state.listId);
+            const added = list.lastElementChild;
+            if (ordenarReacciones ? !invertirOrden : invertirOrden) list.insertBefore(added, list.querySelector('.feed-pagination'));
+            else list.prepend(added);
+            if (keepPosition) window.scrollBy(0, anchor.getBoundingClientRect().top - offset);
+        }
+    } catch (error) {
+        if (state !== feedState) return;
+        // A retry loads only this item; it never replaces the existing feed.
+        const retry = menuButton('Reintentar cargar la publicación nueva', () => { retry.remove(); queueFeedUpdate(data); });
+        retry.className = 'feed-update';
+        document.getElementById(state.listId).before(retry);
+    }
 }
 
 function loadposts(all) {

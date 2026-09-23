@@ -22,9 +22,6 @@
 .document-content img { display: block; max-width: 100%; height: auto; border-radius: 18px; margin: 24px auto; }
 .document-content img[src*="Qr.jpg"] { width: 220px; }
 .document-content .image_error { width: 280px; }
-.document-links { display: grid; gap: 3px; border-top: 1px solid var(--border-color); margin: 24px 16px 0; padding-top: 14px; }
-.document-links a { text-decoration: none; padding: 8px 14px; color: var(--text-secondary); font-size: 14px; border-radius: 10px; }
-.document-links a:hover, .document-links a[aria-current="page"] { background: var(--bg-third); color: var(--text-primary); }
 .document-button { display: inline-flex; align-items: center; gap: 10px; background: var(--accent-color); color: #fff !important; border-radius: 14px; padding: 12px 20px; margin: 0 0 24px; text-decoration: none; font-weight: 600; }
 .release-card { border: 1px solid var(--border-color); background: var(--bg-secondary); border-radius: 18px; margin-bottom: 14px; overflow: hidden; }
 .release-card summary { padding: 22px 24px; cursor: pointer; font-size: 18px; font-weight: 600; }

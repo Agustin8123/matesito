@@ -21,6 +21,10 @@ async function queryFeed(req, db, sql, values = [], idColumn = 'id') {
     const direction = ascending ? 'ASC' : 'DESC';
     const total = byReactions ? 'COALESCE(score.total, 0)' : '0';
     const predicates = sensitive ? [] : ['feed.sensitive IS NOT TRUE'];
+    if (req.query.item !== undefined) {
+        if (!/^(?:[CFG]-)?\d+$/.test(req.query.item)) throw invalid();
+        predicates.push('feed.' + idColumn + ' = ' + bind(req.query.item));
+    }
     if (cursor) {
         const time = bind(cursor.time), id = bind(cursor.id);
         const byTime = `(feed.created_at ${operator} ${time}::timestamptz OR (feed.created_at = ${time}::timestamptz AND feed.${idColumn} ${operator} ${id}))`;
