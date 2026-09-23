@@ -131,7 +131,7 @@ a { color: inherit; }
 /* Composer and feed controls */
 .composer-actions .sensitive-check { margin-left: 0; }
 #publishButton { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-#publishButton .pour-icon { width: 28px; height: 28px; filter: none; }
+#publishButton .pour-icon { width: 22px; height: 28px; object-fit: contain; flex-shrink: 0; filter: none; }
 .feed-filters summary { text-align: center; list-style-position: inside; }
 .feed-filters .contenedorBotones { justify-content: center; gap: 10px; }
 .feed-filters button { display: inline-flex !important; align-items: center; justify-content: center; min-height: 40px; border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-secondary); transition: background .15s, border-color .15s; }
