@@ -127,3 +127,17 @@ a { color: inherit; }
     .welcome-copy { padding: 20px 4px 4px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* Composer and feed controls */
+.composer-actions .sensitive-check { margin-left: 0; }
+#publishButton { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+#publishButton .pour-icon { width: 28px; height: 28px; filter: none; }
+.feed-filters summary { text-align: center; list-style-position: inside; }
+.feed-filters .contenedorBotones { justify-content: center; gap: 10px; }
+.feed-filters button { display: inline-flex !important; align-items: center; justify-content: center; min-height: 40px; border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-secondary); transition: background .15s, border-color .15s; }
+.feed-filters button:hover { background: var(--hover-bg); border-color: var(--accent-color); }
+.feed-filters button:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 3px; }
+#Loadpostsbutton, #bto { width: 42px; padding: 9px; flex-shrink: 0; }
+#bto::before { content: ''; width: 22px; height: 22px; background: currentColor; mask: url('/res/order-arrows.svg') center / contain no-repeat; }
+#bto[data-direction="down"]::before { transform: rotate(180deg); }
+@media (max-width: 768px) { .composer-actions .sensitive-check { order: 0; width: auto; } }

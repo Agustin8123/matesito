@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es-AR">
   <head>
     <title>MicroReact Embed</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      const embedTheme = new URLSearchParams(location.search).get('theme') === 'light' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = embedTheme;
+      document.documentElement.style.colorScheme = embedTheme;
+    </script>
 
     <style>     
       body,
@@ -18,8 +23,11 @@
         max-height: 100vh;
         overflow: hidden;
         font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, "Geist Sans", Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, Helvetica, Apple Color Emoji, Arial, Segoe UI Emoji, Segoe UI Symbol;
-        color: black;
+        background: transparent;
+        color: #ffffff;
       }
+      html[data-theme="light"] body { color: #333333; }
+      body { box-sizing: border-box; padding: 6px; }
       .reactions,
       .list {
         display: flex;

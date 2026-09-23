@@ -7,6 +7,7 @@ function applyTheme(theme) {
     if (meta) meta.content = chosen === 'dark' ? '#0a0a0a' : '#ffffff';
     for (const frame of document.querySelectorAll('iframe[src*="/microReact.html"]')) {
         const url = new URL(frame.src);
+        url.searchParams.set('theme', chosen);
         url.searchParams.set('textColor', chosen === 'dark' ? '#ffffff' : '#333333');
         frame.src = url.href;
     }

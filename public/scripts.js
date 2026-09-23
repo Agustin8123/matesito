@@ -529,7 +529,7 @@ async function publishContent(kind, contextId) {
     const url = isPost ? '/posts' : kind === 'group' ? '/group/messages/' + contextId : '/mensajes/' + contextId;
     publishing = true;
     const sendButton = document.getElementById('publishButton');
-    if (sendButton) { sendButton.disabled = true; sendButton.textContent = 'Publicando…'; }
+    if (sendButton) { sendButton.disabled = true; sendButton.querySelector('span').textContent = 'Publicando…'; }
     document.getElementById('loading').style.display = 'block';
     try {
         if (file) {
@@ -566,7 +566,7 @@ async function publishContent(kind, contextId) {
     } finally {
         publishing = false;
         document.getElementById('loading').style.display = 'none';
-        if (sendButton) { sendButton.disabled = false; sendButton.textContent = 'Cebar'; }
+        if (sendButton) { sendButton.disabled = false; sendButton.querySelector('span').textContent = 'Cebar'; }
     }
 }
 
@@ -777,14 +777,18 @@ function loadForumPosts(id, all) {
     return loadFeed('/mensajes/' + id, 'forumList', all, true);
 }
 
+function updateOrderButton(button) {
+    const label = (ordenarReacciones ? 'Más reacciones' : 'Más nuevos') + (invertirOrden ? ' abajo' : ' arriba');
+    button.textContent = '';
+    button.dataset.direction = invertirOrden ? 'down' : 'up';
+    button.title = label;
+    button.setAttribute('aria-label', label);
+}
+
 function toggleOrden(button) {
     invertirOrden = !invertirOrden;
 
-    if (ordenarReacciones) {
-        button.textContent = invertirOrden ? 'Más reacciones abajo' : 'Más reacciones arriba';
-    } else {
-        button.textContent = invertirOrden ? 'Más nuevos abajo' : 'Más nuevos arriba';
-    }
+    updateOrderButton(button);
 
     reloadPosts(); // Recargar los posts con la nueva configuración
 }
@@ -799,11 +803,7 @@ function toggleOrdenR(button) {
 
     // Actualizar el texto del botón principal
     const ordenButton = document.getElementById('bto');
-    if (ordenButton) {
-        ordenButton.textContent = ordenarReacciones
-            ? (invertirOrden ? 'Más reacciones abajo' : 'Más reacciones arriba')
-            : (invertirOrden ? 'Más nuevos abajo' : 'Más nuevos arriba');
-    }
+    if (ordenButton) updateOrderButton(ordenButton);
 
     // Actualizar el texto del botón que alterna ordenar por reacciones
     button.textContent = ordenarReacciones ? 'Ordenado por reacciones' : 'Ordenar por reacciones';
@@ -907,7 +907,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             data-loaded="false">
             <iframe
                 data-src="/microReact.html?id=Matesito_${microReactId}&textColor=${document.documentElement.dataset.theme === 'light' ? '%23333333' : '%23ffffff'}"
-                style="width: 275px; height: 100px; border: none;"
+                style="width: 275px; max-width: 100%; height: 100px; border: none; background: transparent;"
                 frameborder="0"
                 loading="lazy"
                 title="Deja una reacción">
@@ -923,6 +923,7 @@ function toggleReactions(postId) {
     const frame = reactionsContainer?.querySelector('iframe');
     if (frame && !frame.getAttribute('src')) {
         const url = new URL(frame.dataset.src, location.origin);
+        url.searchParams.set('theme', document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
         url.searchParams.set('textColor', document.documentElement.dataset.theme === 'light' ? '#333333' : '#ffffff');
         frame.src = url.href;
     }

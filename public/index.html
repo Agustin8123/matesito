@@ -27,9 +27,10 @@
     </nav>
     <div class="sidebar-bottom"><button class="sidebar-nav-element theme-toggle" onclick="toggleTheme()"><span class="nav-ic" aria-hidden="true">◐</span><span class="nav-text">Modo claro</span></button>
     <div class="sidebar-footer"><a href="/versiones">Versiones</a><a href="/informacion">Acerca de</a><a href="/Ayuda">Ayuda</a><a href="/Terminos">Términos</a><a href="/app">App Android</a><br>Hecho para compartir un buen mate.</div></div></aside>
-    <div class="header"><button class="mobile-menu icon-button" type="button" onclick="toggleSidebar()" aria-label="Abrir navegación" aria-expanded="false"><img class="ui-icon" src="/res/hamburguesa-con-queso-amigo.svg" alt=""></button>
-    <h1 id="pageTitle">Inicio</h1>
-    <div class="header-actions"><button type="button" onclick="toggleSearch()" aria-label="Buscar usuarios y foros" class="icon-button" title="Buscar"><img class="ui-icon" src="/resources/SVG/search.svg" alt=""></button><button id="userButton" type="button" onclick="toggleMenu()" aria-label="Mi cuenta"></button></div>
+    <div class="header app-header"><button class="mobile-menu icon-button" type="button" onclick="toggleSidebar()" aria-label="Abrir navegación" aria-expanded="false"><img class="ui-icon" src="/res/hamburguesa-con-queso-amigo.svg" alt=""></button>
+    <h1 id="pageTitle" class="visually-hidden">Inicio</h1>
+    <button type="button" onclick="toggleSearch()" aria-label="Buscar usuarios y foros" class="header-search"><img class="ui-icon" src="/resources/SVG/search.svg" alt=""><span>Buscar personas y foros</span></button>
+    <div class="header-actions"><button id="userButton" type="button" onclick="toggleMenu()" aria-label="Mi cuenta"></button></div>
     <div class="loader-container" id="loading" style="display:none" role="status" aria-label="Publicando"><div class="loader"></div></div></div>
 
     <div class="container right-side" id="appContainer"><div class="page-intro"><h2>La ronda está abierta.</h2><p>Compartí lo que pensás. Siempre hay lugar para uno más.</p></div>
@@ -49,7 +50,7 @@
             <input id="postMedia" type="file" accept="image/*, video/*, audio/*" style="display:none;" onchange="handleFileSelect(event)">
 
             <!-- Botón para enviar el post -->
-            <button class="post-button post-button-send" onclick="wherePost()" id="publishButton">Cebar</button>
+            <button class="post-button post-button-send" onclick="wherePost()" id="publishButton"><img class="pour-icon" src="/res/cebar.svg" alt=""><span>Cebar</span></button>
             </div>
 
         </div>
@@ -76,10 +77,9 @@
 
         <details class="feed-filters"><summary>Personalizar publicaciones</summary><div class="contenedorBotones">
             <button id="toggleButton" class="button" style="margin: 10px auto; display: block;" onclick="toggleSensitiveContent()">Mostrar contenido sensible</button>
-            <button id="Loadpostsbutton" class="button" style="margin: 10px auto; display: block;" onclick="buttonsState();">Recargar posts</button>
-            <p class="field-hint">Las publicaciones se cargan de a 12 al bajar.</p>
-        </div><div class="contenedorBotones">
-            <button id="bto" class="button" style="margin: 10px auto; display: block;" onclick="toggleOrden(this);">Más nuevos arriba</button>
+            <button id="Loadpostsbutton" class="button" style="margin: 10px auto; display: block;" onclick="buttonsState();" aria-label="Recargar publicaciones" title="Recargar publicaciones"><img class="ui-icon" src="/res/reload.svg" alt=""></button>
+
+            <button id="bto" class="button" style="margin: 10px auto; display: block;" onclick="toggleOrden(this);" title="Más nuevos arriba" aria-label="Más nuevos arriba" data-direction="up"></button>
             <button class="button" style="margin: 10px auto; display: block;" onclick="toggleOrdenR(this); ">Más reacciones</button>
         </div></details><ul id="postList" class="posts" style="display: block;"></ul>
         <ul id="profileList" class="posts" style="display: none;"></ul>
