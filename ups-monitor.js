@@ -54,6 +54,9 @@ function attachUpsMonitor(app, opts = {}) {
   }
 
   async function tick() {
+    if (polling) return;
+    polling = true;
+    const systemJob = sampleSystem().then(value => { system = value; systemError = null; }).catch(() => { systemError = "No se pudo leer el hardware"; });
     try {
       latest = await pollOnce();
       lastError = null;
