@@ -1468,17 +1468,20 @@ require('./public-posts')(app, db);
 app.get('/manifest.webmanifest', (req, res) => res.redirect(308, '/manifest.json'));
 
 
-app.use(express.static(path.join(__dirname, 'public'), {
-    etag: true, lastModified: true, maxAge: 0,
-    setHeaders: res => res.setHeader('Cache-Control', 'public, no-cache')
-}));
+// Keep historical root URLs while organizing physical files by type.
+for (const directory of ['', 'html', 'css', 'scripts', 'json']) {
+    app.use(express.static(path.join(__dirname, 'public', directory), {
+        etag: true, lastModified: true, maxAge: 0, redirect: false,
+        setHeaders: res => res.setHeader('Cache-Control', 'public, no-cache')
+    }));
+}
 
 app.get('/:page?', (req, res) => {
     const page = req.params.page || 'index';
-    if (!/^[a-zA-Z0-9_-]+$/.test(page)) return res.status(404).sendFile(path.join(__dirname, 'public', 'error.html'));
-    const filePath = path.join(__dirname, 'public', `${page}.html`);
+    if (!/^[a-zA-Z0-9_-]+$/.test(page)) return res.status(404).sendFile(path.join(__dirname, 'public', 'html', 'error.html'));
+    const filePath = path.join(__dirname, 'public', 'html', `${page}.html`);
     res.sendFile(filePath, err => {
-        if (err) res.status(404).sendFile(path.join(__dirname, 'public', 'error.html'));
+        if (err) res.status(404).sendFile(path.join(__dirname, 'public', 'html', 'error.html'));
     });
 });
 
@@ -1544,7 +1547,7 @@ app.use((req, res) => {
     if (req.path.startsWith('/api') || req.path.startsWith('/get') || req.path.startsWith('/hit')) {
         return res.status(404).json({ error: 'Recurso no encontrado' });
     }
-    res.status(404).sendFile(path.join(__dirname, 'public', 'error.html'));
+    res.status(404).sendFile(path.join(__dirname, 'public', 'html', 'error.html'));
 });
 
 app.use((error, req, res, next) => {

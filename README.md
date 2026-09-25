@@ -32,9 +32,9 @@ Si existen duplicados en nombres únicos, membresías, pares de chat o seleccion
 
 Después de arrancar, comprobar login, publicación, la segunda tanda de 12, reacciones, un chat privado y un grupo entre seguidores mutuos. Cambiar la contraseña invalida las cookies/tokens anteriores; la sesión que realiza el cambio recibe una cookie renovada.
 
-El mantenimiento del cliente queda desactivado en `public/scripts.js`. Para verificar el despliegue, comprobar la persistencia después de reiniciar, Turnstile, la carga de archivos locales y la lectura de adjuntos antiguos de Cloudinary, Socket.IO detrás del proxy y el dispositivo UPS con la configuración real.
+El mantenimiento del cliente queda desactivado en `public/scripts/scripts.js`. Para verificar el despliegue, comprobar la persistencia después de reiniciar, Turnstile, la carga de archivos locales y la lectura de adjuntos antiguos de Cloudinary, Socket.IO detrás del proxy y el dispositivo UPS con la configuración real.
 
-Las novedades de esta versión se encuentran en la pestaña Versiones (`public/versiones.html`).
+Las novedades de esta versión se encuentran en la pestaña Versiones (`public/html/versiones.html`).
 
 ## Almacenamiento de archivos
 
@@ -76,4 +76,8 @@ La grabadora del editor requiere HTTPS (o localhost), permiso de micrófono y Me
 
 Las dependencias no se versionan: instalar con npm ci --omit=dev. Los assets estáticos usan ETag y revalidación HTTP; el navegador comprueba si cambiaron antes de descargarlos otra vez. Los datos privados mantienen sus restricciones de caché.
 
-La cuenta usa public/account.js; los controles compartidos están en public/utils.js, los paneles en public/modern.js y la carga de archivos en public/feedback.js. Las reacciones integradas reutilizan la conexión de la página. Las carpetas appAndroid y cssViejo conservan el proyecto Android y la referencia histórica de diseño; uploads contiene datos persistentes y no se limpia al actualizar.
+La cuenta usa public/scripts/account.js; los controles compartidos están en public/scripts/utils.js, los paneles en public/scripts/modern.js y la carga de archivos en public/scripts/feedback.js. Las reacciones integradas reutilizan la conexión de la página. Las carpetas appAndroid y cssViejo conservan el proyecto Android y la referencia histórica de diseño; uploads contiene datos persistentes y no se limpia al actualizar.
+
+## Archivos públicos
+
+public/html contiene las páginas, public/css los estilos, public/scripts el JavaScript y public/json el manifiesto. res y resources conservan los recursos gráficos existentes. Express conserva las URLs originales: /index.html, /scripts.js, /modern.css, /manifest.json y /sw.js siguen funcionando sin redirecciones. Las páginas sin extensión, los enlaces /p/ID y las rutas de archivos subidos también mantienen sus direcciones. El service worker continúa sirviéndose en /sw.js para conservar su alcance.

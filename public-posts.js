@@ -1,13 +1,13 @@
-const linkifyPost = require('./public/post-links');
+const linkifyPost = require('./public/scripts/post-links');
 const fs = require('fs');
 const path = require('path');
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const publicMessages = "m.chat_or_group_id = 'F-' || f.id::text AND m.is_private IS NOT TRUE";
 module.exports = function mountPublicPosts(app, db) {
     const origin = new URL(process.env.PUBLIC_URL || 'https://matesito.com.ar').origin;
-    const template = fs.readFileSync(path.join(__dirname, 'public/informacion.html'), 'utf8');
+    const template = fs.readFileSync(path.join(__dirname, 'public/html/informacion.html'), 'utf8');
     const wrap = handler => (req, res, next) => Promise.resolve(handler(req, res)).catch(next);
-    const notFound = res => res.status(404).sendFile(path.join(__dirname, 'public/error.html'));
+    const notFound = res => res.status(404).sendFile(path.join(__dirname, 'public/html/error.html'));
     app.get('/p/:id', wrap(async (req, res) => {
         const id = req.params.id;
         if (!/^(?:F-)?[1-9]\d{0,14}$/.test(id)) return notFound(res);
