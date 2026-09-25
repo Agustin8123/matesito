@@ -39,20 +39,26 @@ module.exports = function mountStorage(app, requireAuth) {
         pending.add(req.user.id);
         let handle;
         let bytes = 0;
-        let header = Buffer.alloc(0);
+        const header = Buffer.alloc(4096);
+        let headerLength = 0;
+        let detected = null;
         let expired = false;
         const timer = setTimeout(() => { expired = true; req.destroy(); }, 120000);
         try {
             const space = await fs.promises.statfs(root);
-            if (space.bavail * space.bsize < limit + 128 * 1024 * 1024) throw Object.assign(new Error('No hay espacio disponible para subir archivos.'), { status: 507 });
+            if (space.bavail * space.bsize < pending.size * limit + 128 * 1024 * 1024) throw Object.assign(new Error('No hay espacio disponible para subir archivos.'), { status: 507 });
             handle = await fs.promises.open(temp, 'wx', 0o600);
             for await (const chunk of req) {
                 bytes += chunk.length;
                 if (bytes > limit) throw Object.assign(new Error(`El límite es ${maxMB} MB por archivo.`), { status: 413 });
-                if (header.length < 4096) header = Buffer.concat([header, chunk.subarray(0, 4096 - header.length)]);
+                if (headerLength < header.length) {
+                    headerLength += chunk.copy(header, headerLength, 0, Math.min(chunk.length, header.length - headerLength));
+                    detected = detectMedia(header.subarray(0, headerLength));
+                }
+                if (detected?.[1].startsWith('image/') && bytes > 10 * 1024 * 1024) throw Object.assign(new Error('Las imágenes pueden pesar hasta 10 MB.'), { status: 413 });
                 await handle.writeFile(chunk);
             }
-            let media = detectMedia(header);
+            let media = detected || detectMedia(header.subarray(0, headerLength));
             if (!media || !bytes || expired) throw Object.assign(new Error('Formato no admitido. Usá JPEG, PNG, GIF, WebP, AVIF, MP3, WAV, OGG, MP4 o WebM.'), { status: 415 });
             if (media[0] === 'mp4' && req.headers['content-type']?.split(';')[0] === 'audio/mp4') media = ['m4a', 'audio/mp4'];
             if (media[0] === 'webm' && req.headers['content-type']?.split(';')[0] === 'audio/webm') media = ['webm', 'audio/webm'];

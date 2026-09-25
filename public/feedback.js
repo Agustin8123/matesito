@@ -67,8 +67,18 @@ async function readResponse(response) {
     return data;
 }
 
-async function uploadMedia(file) {
-    const uploaded = await fetch('/api/uploads', { method: 'POST', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file }).then(readResponse);
-    if (!uploaded.url || !uploaded.mediaType) throw new Error('El servidor no confirmó el archivo subido.');
-    return uploaded;
+// Reuse a successful upload when publishing is retried; entries disappear with the File.
+const uploadedFiles = new WeakMap();
+function uploadMedia(file) {
+    const owner = document.cookie.split(';').map(value => value.trim()).find(value => value.startsWith('userID=')) || '';
+    const cached = uploadedFiles.get(file);
+    if (cached && cached.owner === owner && Date.now() - cached.at < 15 * 60 * 1000) return cached.promise;
+    const entry = { owner, at: Date.now() };
+    entry.promise = fetch('/api/uploads', { method: 'POST', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file })
+        .then(readResponse).then(uploaded => {
+            if (!uploaded.url || !uploaded.mediaType) throw new Error('El servidor no confirmó el archivo subido.');
+            return uploaded;
+        }).catch(error => { if (uploadedFiles.get(file) === entry) uploadedFiles.delete(file); throw error; });
+    uploadedFiles.set(file, entry);
+    return entry.promise;
 }

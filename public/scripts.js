@@ -28,11 +28,6 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
 }
 
-function ToggleVisibility(elementId) {
-    const element = document.getElementById(elementId);
-    element.style.display = 'block';
-}
-
 async function closeSesion() {
     try {
         const response = await fetch('/logout', { method: 'POST' });
@@ -40,6 +35,7 @@ async function closeSesion() {
         users = Object.create(null);
         activeUser = '';
         feedObserver?.disconnect();
+        feedState?.controller?.abort();
         feedState = null;
         ++feedRequest;
         ++notificationRequest;
@@ -57,14 +53,7 @@ async function closeSesion() {
 }
 
 // Función para ocultar múltiples menús
-function HideMenus(...menuIds) {
-    menuIds.forEach(menuId => {
-        const menu = document.getElementById(menuId);
-        if (menu && menu.style.display !== 'none') {
-            menu.style.display = 'none';
-        }
-    });
-}
+
 
 function showOnlyMenu(activeId) {
     // Obtener todos los contenedores
@@ -86,23 +75,7 @@ function showOnlyMenu(activeId) {
     });
 }
 
-function updateUserButton() {
-const userButton = document.querySelector('#userButton');
-if (!userButton) return;
 
-// Usar la imagen del usuario activo, o una predeterminada si no existe
-const userImage = users[activeUser] && users[activeUser].profileImage
-    ? users[activeUser].profileImage
-    : 'resources/SVG/default-avatar.svg'; // Imagen predeterminada
-
-// Configurar el botón con la imagen y el nombre del usuario
-userButton.replaceChildren();
-const image = document.createElement('img');
-image.src = userImage;
-image.alt = activeUser || 'Usuario';
-image.className = 'profile-pic-img';
-userButton.appendChild(image);
-}
 
 const forbiddenWords = ['⣿', 'droga', 'droja', 'dr0ga', 'drogu3', 'drogaa', 'merca', 'falopa', 'cocaína', 'kok4', 'c0ca', 'cocaína', 'marihuana', 'weed', 'hierba', 'porro', 'mota', 'cannabis', '4:20', 'maría', '420', 'hachís', 'thc', 'éxtasis', 'éxt4sis', 'xtc', 'mdma', 'éxtasis', 'lsd', 'ácido', 'trips', 'lsd', 'd.r.o.g.a', 'dro@g@', 'DrOgA', 'dRoJA'];
 
@@ -115,14 +88,16 @@ function reloadPosts(){
     buttonsState();
 }
 
-function reloadFG(){
-    if (!users[activeUser]?.id) return;
-    loadCreatedGroups();
-    loadUserCreatedForums();
-    loadUserForums();
-    loadUserGroups();
-    loadForos();
-    loadFollowedUsers();
+function reloadFG() {
+    // Only refresh visible panels, not every hidden list on every community event.
+    const panel = document.getElementById('navigationPanel');
+    if (!panel?.open) return;
+    const selected = panel.querySelector('[role="tab"][aria-selected="true"]');
+    if (selected) {
+        const section = selected.getAttribute('aria-controls');
+        const group = section.startsWith('forum') ? 'forums' : 'chats';
+        selectPanelTab(group, section);
+    } else if (panel.querySelector('#userSubMenu')) loadFollowedUsers();
 }
 
 document.getElementById('acceptTermsCheckbox').addEventListener('change', function() {
@@ -133,8 +108,6 @@ if (this.checked) {
     createButton.disabled = true; // Deshabilitar el botón si no está marcado
 }
 });
-
-
 
 function verMant(valor) {
 if (valor === true) {
@@ -229,11 +202,6 @@ async function browseAsGuest() {
 function showUserSelectOverlay() {
 if (typeof closePanel === 'function') closePanel();
 document.getElementById('initialOverlay').style.display = 'flex';
-}
-
-function hideUserSelectOverlay() {
-document.getElementById('userSelectOverlay').style.display = 'none';
-document.querySelector('.header button').style.display = 'block';
 }
 
 async function addNewUser() {
@@ -410,7 +378,7 @@ fetch('/leaveForum', {
 });
 }
 
-function loadUserForums() { return loadForumMenu('followed'); }
+
 function loadUserCreatedForums() { return loadForumMenu('created'); }
 
 async function deleteForum(forumId) {
@@ -590,24 +558,6 @@ if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
 
 let showSensitiveContent = false;
 
-function reloadFPosts() {
-    if (activeForum != '') {
-        loadForumPosts(activeForum, loadAll);
-    }
-}
-
-function reloadGPosts() {
-    if (activeGroup != '') {
-        loadGroupMessages(activeGroup, loadAll);
-    }
-}
-
-function reloadCPosts() {
-    if (activeChat != '') {
-        loadChatMessages(activeChat, loadAll);
-    }
-}
-
 function buttonsState() {
     if (document.getElementById('profileList').style.display === 'block') return viewProfile(currentProfileUsername);
     if (document.getElementById('forumList').style.display === 'block') return loadForumPosts(activeForum, loadAll);
@@ -631,8 +581,6 @@ toggleButton.textContent = showSensitiveContent
 buttonsState();
 }
 
-function togglePostLoad() { return loadNextPage(); }
-
 let feedRequest = 0;
 
 let feedState = null;
@@ -640,12 +588,13 @@ let feedObserver = null;
 async function loadFeed(url, listId, all, messages = false) {
     document.getElementById('appContainer').style.display = 'block';
     feedObserver?.disconnect();
+    feedState?.controller?.abort();
     const request = ++feedRequest;
     const list = document.getElementById(listId);
     showOnlyMenu(listId);
     list.replaceChildren();
     document.getElementById('feed-update')?.remove();
-    feedState = { request, url, listId, messages, cursor: null, pending: false, ended: false, seen: new Set() };
+    feedState = { request, url, listId, messages, cursor: null, pending: false, ended: false, seen: new Set(), updates: new Set(), controller: new AbortController() };
     return loadNextPage();
 }
 async function loadNextPage() {
@@ -660,7 +609,7 @@ async function loadNextPage() {
     if (state.cursor) query.set('cursor', state.cursor);
     let failed = false;
     try {
-        const payload = await fetch(state.url + (state.url.includes('?') ? '&' : '?') + query).then(readResponse);
+        const payload = await fetch(state.url + (state.url.includes('?') ? '&' : '?') + query, { signal: state.controller.signal }).then(readResponse);
         if (state !== feedState) return;
         let rows = Array.isArray(payload) ? payload : payload.items;
         if (!Array.isArray(rows)) throw new Error('El servidor devolvió una lista inválida.');
@@ -686,7 +635,7 @@ async function loadNextPage() {
             empty.textContent = 'No hay publicaciones para mostrar con estos filtros.'; list.append(empty);
         }
     } catch (error) {
-        if (state !== feedState) return;
+        if (state !== feedState || error.name === 'AbortError') return;
         failed = true;
         notify('No se pudieron cargar las publicaciones: ' + error.message, 'error');
     } finally {
@@ -709,10 +658,13 @@ async function queueFeedUpdate(data) {
     const state = feedState;
     if (!state || !data?.id || state.seen.has(String(data.id))) return;
     if (state.messages !== /^[CFG]-/.test(String(data.id))) return;
+    const updateId = String(data.id);
+    if (state.updates.has(updateId)) return;
+    state.updates.add(updateId);
     // Fetch through the current feed: its membership, author and sensitive filters still apply.
     const query = new URLSearchParams({ limit: '12', item: String(data.id), sensitive: showSensitiveContent ? 'show' : 'hide' });
     try {
-        const payload = await fetch(state.url + (state.url.includes('?') ? '&' : '?') + query).then(readResponse);
+        const payload = await fetch(state.url + (state.url.includes('?') ? '&' : '?') + query, { signal: state.controller.signal }).then(readResponse);
         if (state !== feedState) return;
         const list = document.getElementById(state.listId);
         for (const row of payload.items || []) {
@@ -737,7 +689,7 @@ async function queueFeedUpdate(data) {
         const retry = menuButton('Reintentar cargar la publicación nueva', () => { retry.remove(); queueFeedUpdate(data); });
         retry.className = 'feed-update';
         document.getElementById(state.listId).before(retry);
-    }
+    } finally { state.updates.delete(updateId); }
 }
 
 function loadposts(all) {
@@ -842,16 +794,6 @@ function toggleOrdenR(button) {
     button.textContent = ordenarReacciones ? 'Ordenado por reacciones' : 'Ordenar por reacciones';
 
     reloadPosts(); // Volver a cargar los posts aplicando la nueva configuración
-}
-
-async function cargarTotalesDeReacciones() {
-    try {
-        const response = await fetch('/api/reactions/totals');
-        return await readResponse(response);
-    } catch (error) {
-        console.error('Error al cargar los totales de reacciones:', error);
-        return {};
-    }
 }
 
 function addpostToList(content, media, mediaType, username, profilePicture, sensitive, created_at, userId, postId, listId, invertirOrden, esUltimoPost) {
@@ -1310,7 +1252,15 @@ if (hayNotificaciones){
 
 
 let searchRequest = 0;
+let searchTimer;
+let searchController;
 function searchMotor() {
+    ++searchRequest;
+    clearTimeout(searchTimer);
+    searchController?.abort();
+    searchTimer = setTimeout(runSearch, 200);
+}
+function runSearch() {
 const request = ++searchRequest;
 const searchInput = document.getElementById('searchInput');
 const searchContainer = document.getElementById('searchconteiner');
@@ -1323,7 +1273,8 @@ if (query.trim().length < 1) {
     return; // Detener la ejecución
 }
 
-fetch(`/search?query=${encodeURIComponent(query.trim())}`)
+searchController = new AbortController();
+fetch(`/search?query=${encodeURIComponent(query.trim())}`, { signal: searchController.signal })
     .then(readResponse)
     .then(data => {
         if (request !== searchRequest) return;
@@ -1375,7 +1326,7 @@ fetch(`/search?query=${encodeURIComponent(query.trim())}`)
         });
     })
     .catch(error => {
-        if (request !== searchRequest) return;
+        if (request !== searchRequest || error.name === 'AbortError') return;
         searchContainer.textContent = 'No se pudo completar la búsqueda. Volvé a intentar.';
         console.error('Error al buscar:', error);
         notify('Error al procesar la búsqueda');
@@ -1396,13 +1347,6 @@ async function init() {
         notify('No se pudo recuperar la sesión: ' + error.message, 'error');
         showUserSelectOverlay();
     }
-}
-
-function scrollPosts() {
-    let containers = document.querySelectorAll(".posts");
-    containers.forEach(container => {
-        container.scrollTop = invertirOrden ? container.scrollHeight : 0;
-    });
 }
 
 //al cargar página

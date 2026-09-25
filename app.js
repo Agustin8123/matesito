@@ -85,13 +85,6 @@ const db = new Pool(poolConfig);
 require('./storage')(app, requireAuth);
 db.on('error', error => console.error('Error de conexión inactiva a PostgreSQL:', error.message));
 
-app.use('/scripts.js', (req, res, next) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  next();
-});
-
 // Verificar conexión
 if (require.main === module) db.query('SELECT 1')
   .then(() => console.log('Conexión a la base de datos PostgreSQL exitosa'))
@@ -1472,15 +1465,12 @@ app.get('/session', requireAuth, async (req, res) => {
 });
 
 require('./public-posts')(app, db);
+app.get('/manifest.webmanifest', (req, res) => res.redirect(308, '/manifest.json'));
+
 
 app.use(express.static(path.join(__dirname, 'public'), {
-    etag: false,
-    lastModified: false,
-    setHeaders: (res, path) => {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-    }
+    etag: true, lastModified: true, maxAge: 0,
+    setHeaders: res => res.setHeader('Cache-Control', 'public, no-cache')
 }));
 
 app.get('/:page?', (req, res) => {

@@ -71,3 +71,9 @@ El botón Compartir copia /p/ID para publicaciones y /p/F-ID para mensajes de fo
 PUBLIC_URL define el origen canónico (por defecto https://matesito.com.ar). /sitemap.xml es un índice dinámico con páginas públicas y tandas de 1.000 publicaciones de la base; /robots.txt lo anuncia. Reemplaza al XML estático anterior y no requiere cambios SQL. Se puede enviar https://matesito.com.ar/sitemap.xml a Search Console. El descubrimiento no garantiza la indexación por los buscadores.
 
 La grabadora del editor requiere HTTPS (o localhost), permiso de micrófono y MediaRecorder compatible. Permite escuchar y adjuntar hasta 5 minutos o 10 MB; no publica automáticamente. En navegadores sin soporte se puede seguir adjuntando audio desde un archivo.
+
+## Organización y despliegue
+
+Las dependencias no se versionan: instalar con npm ci --omit=dev. Los assets estáticos usan ETag y revalidación HTTP; el navegador comprueba si cambiaron antes de descargarlos otra vez. Los datos privados mantienen sus restricciones de caché.
+
+La cuenta usa public/account.js; los controles compartidos están en public/utils.js, los paneles en public/modern.js y la carga de archivos en public/feedback.js. Las reacciones integradas reutilizan la conexión de la página. Las carpetas appAndroid y cssViejo conservan el proyecto Android y la referencia histórica de diseño; uploads contiene datos persistentes y no se limpia al actualizar.

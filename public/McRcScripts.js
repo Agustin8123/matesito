@@ -5,9 +5,18 @@ let reactionPending = false;
 
 function reactionUserId() {
     const cookie = document.cookie.split(';').map(part => part.trim()).find(part => part.startsWith('userID='));
-    return cookie ? decodeURIComponent(cookie.slice(7)) : null;
+    try { return cookie ? decodeURIComponent(cookie.slice(7)) : null; } catch { return null; }
 }
-async function refreshReactions() {
+let refreshInFlight = null;
+let refreshAgain = false;
+function refreshReactions() {
+    if (refreshInFlight) { refreshAgain = true; return refreshInFlight; }
+    refreshInFlight = (async () => {
+        do { refreshAgain = false; await readReactions(); } while (refreshAgain);
+    })().finally(() => { refreshInFlight = null; });
+    return refreshInFlight;
+}
+async function readReactions() {
     const result = await fetch('/get/microreact--reactionss/' + encodeURIComponent(postReactionId)).then(readResponse);
     const counts = new Map(result.reactions.map(row => [String(row.reaction_id), row.count]));
     for (const id of enabledReactions) {
@@ -49,10 +58,14 @@ if (!postReactionId || !/^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(postReactionId)) {
     }
     refreshReactions().catch(error => notify(error.message, 'error'));
     if (typeof io === 'function') {
-        const reactionSocket = io();
-        reactionSocket.on('reloadReactions', data => {
+        let host = window;
+        try { if (parent.location.origin === location.origin) host = parent; } catch {}
+        const reactionSocket = host.communitySocket || host.sharedReactionSocket || (host.sharedReactionSocket = io());
+        const listener = data => {
             if (data.id === postReactionId) refreshReactions().catch(error => notify(error.message, 'error'));
-        });
+        };
+        reactionSocket.on('reloadReactions', listener);
+        window.addEventListener('pagehide', () => reactionSocket.off('reloadReactions', listener), { once: true });
     }
 }
 
@@ -61,3 +74,10 @@ const color = safeColor(params.get('textColor'));
 const background = safeColor(params.get('bgColor'));
 if (color) document.body.style.color = color;
 if (background) document.body.style.backgroundColor = background;
+
+function applyReactionTheme(theme) {
+    const chosen = theme === 'light' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = chosen;
+    document.documentElement.style.colorScheme = chosen;
+    document.body.style.color = chosen === 'light' ? '#333333' : '#ffffff';
+}

@@ -1,9 +1,4 @@
-function toggleVisibility(elementId, displayType = 'block') {
-  const element = document.getElementById(elementId);
-  if (!element) return;
-  const current = element.style.display;
-  element.style.display = (current === 'none' || current === '') ? displayType : 'none';
-}
+
 
 function hideMenus(...menuIds) {
   menuIds.forEach(menuId => {
@@ -11,14 +6,6 @@ function hideMenus(...menuIds) {
     if (el) el.style.display = 'none';
   });
 }
-
-function toggleMenuExtras() {
-            const navMenu = document.getElementById('navMenu');
-            if (!navMenu) return;
-            navMenu.classList.toggle('open');
-        }
-
-
 
 function updateUserButton() {
 const userButton = document.querySelector('#userButton');
@@ -74,21 +61,6 @@ function togglePasswordInput(inputId, toggleButtonId, openIcon = 'resources/PNG/
 }
 
 // Realiza el POST a /login y devuelve la respuesta JSON
-function performLoginCommon(username, password, loginPath = '/login') {
-  return fetch(loginPath, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
-  }).then(resp => resp.json());
-}
-
-function setActiveUser(username) {
-    // Usar la función común definida en utils.js
-    return activateUser(username).catch(error => {
-        console.error('Error al activar usuario:', error);
-        notify('Error al obtener los detalles del usuario.');
-    });
-}
 
 function HideOverlays() {
   hideMenus('initialOverlay', 'usernameOverlay', 'userSelectOverlay', 'AvisoOverlay', 'AvisoOverlay1');
@@ -162,4 +134,22 @@ function safeDate(value) {
   if (!value) return '';
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? '' : date.toLocaleString();
+}
+
+function openFullscreen(element) {
+  if (element.requestFullscreen) {
+      element.requestFullscreen();
+  } else if (element.webkitRequestFullscreen) { /* Safari */
+      element.webkitRequestFullscreen();
+  } else if (element.msRequestFullscreen) { /* IE11 */
+      element.msRequestFullscreen();
+  }
+}
+
+  function togglePassword() {
+  togglePasswordInput('newPasswordInput', 'togglePasswordButton');
+}
+
+  function togglePassword1() {
+  togglePasswordInput('passwordInput', 'togglePasswordBoton');
 }

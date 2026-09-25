@@ -6,6 +6,7 @@ function applyTheme(theme) {
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = chosen === 'dark' ? '#0a0a0a' : '#ffffff';
     for (const frame of document.querySelectorAll('iframe[src*="/microReact.html"]')) {
+        if (frame.contentWindow?.applyReactionTheme) { frame.contentWindow.applyReactionTheme(chosen); continue; }
         const url = new URL(frame.src);
         url.searchParams.set('theme', chosen);
         url.searchParams.set('textColor', chosen === 'dark' ? '#ffffff' : '#333333');
