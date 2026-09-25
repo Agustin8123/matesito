@@ -2,8 +2,10 @@
 .dropdown-menu, .search-menu { display: none; }
 .profile-info { display: flex; align-items: center; gap: 20px; }
 .profile-picture-large { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; }
-.media-container { position: relative; }
-.fullscreen-btn { position: absolute; right: 12px; bottom: 12px; }
+.media-container { position: relative; display: inline-block; max-width: 100%; margin-top: 16px; vertical-align: top; line-height: 0; }
+.media-container > .preview-media { display: block; margin: 0; }
+.fullscreen-btn { position: absolute; right: 12px; bottom: 12px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; border-radius: 50%; background: #000b; color: #fff; line-height: 1; }
+.fullscreen-btn:hover { background: #000e; }
 .foros-container { overflow: auto; }
 .user-item button, .group-item button { margin: 4px; font-size: 13px; }
 * { box-sizing: border-box; }

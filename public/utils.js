@@ -53,7 +53,10 @@ function togglePasswordInput(inputId, toggleButtonId, openIcon = 'resources/PNG/
   const toggleButton = document.getElementById(toggleButtonId);
   if (!passwordInput || !toggleButton) return;
 
-  if (passwordInput.type === 'password') {
+  const showing = passwordInput.type === 'password';
+  toggleButton.setAttribute('aria-label', showing ? 'Ocultar contraseña' : 'Mostrar contraseña');
+  toggleButton.setAttribute('aria-pressed', String(showing));
+  if (showing) {
     passwordInput.type = 'text';
     toggleButton.replaceChildren();
     const image = document.createElement('img');

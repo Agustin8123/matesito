@@ -105,13 +105,9 @@
 
 <!-- Overlay de Usuario Existente -->
 <div class="overlay" id="usernameOverlay" style="display: none;">
-    <div class="username-box"><h2>Qué bueno verte de nuevo.</h2>
+    <div class="username-box auth-card"><h2>Qué bueno verte de nuevo.</h2>
         <input type="text" id="usernameInput" style="margin-left: -25px;" placeholder="Nombre de Usuario" aria-label="Nombre de usuario" autocomplete="username">
-        <input type="password" id="passwordInput" placeholder="Contraseña" aria-label="Contraseña" autocomplete="current-password">
-
-        <button type="button" id="togglePasswordBoton" onclick="togglePassword1()">
-            <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
-        </button>
+        <div class="auth-password"><input type="password" id="passwordInput" placeholder="Contraseña" aria-label="Contraseña" autocomplete="current-password"><button type="button" id="togglePasswordBoton" class="auth-password-toggle" onclick="togglePassword1()" aria-label="Mostrar contraseña" aria-pressed="false"><img src="/resources/PNG/eyeClose.png" alt=""></button></div>
 
         <!-- Casilla para recordar la sesión -->
         <div class="rem-container">
@@ -158,16 +154,10 @@
 </div>
 
 <div class="overlay" id="userSelectOverlay" style="display: none;">
-    <div class="user-select-box"><h2>Hacete un lugar en la ronda.</h2>
+    <div class="user-select-box auth-card"><h2>Hacete un lugar en la ronda.</h2>
         <input type="text" id="newUsernameInput" placeholder="Nuevo usuario" aria-label="Nuevo nombre de usuario" autocomplete="username">
-        <input type="password" id="newPasswordInput" placeholder="Contraseña" aria-label="Nueva contraseña" autocomplete="new-password">
-
-        <button type="button" id="togglePasswordButton" onclick="togglePassword()">
-            <img src="resources/PNG/eyeClose.png" alt="Ver/Ocultar Contraseña">
-        </button>
-        <label for="newProfileImage" class="custom-file-upload button">
-            Seleccionar imagen de perfil
-        </label>
+        <div class="auth-password"><input type="password" id="newPasswordInput" placeholder="Contraseña" aria-label="Nueva contraseña" autocomplete="new-password"><button type="button" id="togglePasswordButton" class="auth-password-toggle" onclick="togglePassword()" aria-label="Mostrar contraseña" aria-pressed="false"><img src="/resources/PNG/eyeClose.png" alt=""></button></div>
+        <button type="button" class="icon-button auth-photo" onclick="document.getElementById('newProfileImage').click()" aria-label="Seleccionar imagen de perfil" title="Seleccionar imagen de perfil"><img src="/res/image.svg" alt=""></button>
         <input id="newProfileImage" type="file" accept="image/*" style="display:none;">
 
         <div class="terms-container">

@@ -50,7 +50,8 @@ async function closeSesion() {
         for (const name of ['username', 'userID']) document.cookie = name + '=; Max-Age=0; path=/;';
         try { localStorage.removeItem('userID'); } catch { /* Storage can be disabled. */ }
         updateUserButton();
-        document.getElementById('appContainer').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        await loadposts(loadAll);
         document.getElementById('initialOverlay').style.display = 'flex';
     } catch (error) { notify(error.message, 'error'); }
 }
@@ -215,7 +216,10 @@ function checkRememberedUser() {
     }
 }
 
+let welcomeDismissed = false;
 async function browseAsGuest() {
+    welcomeDismissed = true;
+    document.getElementById('appContainer').style.display = 'block';
     hideMenus('initialOverlay', 'usernameOverlay', 'userSelectOverlay');
     if (!feedState) await loadposts(loadAll);
     if (typeof openRequestedPanel === 'function') openRequestedPanel();
@@ -634,6 +638,7 @@ let feedRequest = 0;
 let feedState = null;
 let feedObserver = null;
 async function loadFeed(url, listId, all, messages = false) {
+    document.getElementById('appContainer').style.display = 'block';
     feedObserver?.disconnect();
     const request = ++feedRequest;
     const list = document.getElementById(listId);
@@ -1380,9 +1385,10 @@ fetch(`/search?query=${encodeURIComponent(query.trim())}`)
 async function init() {
     checkRememberedUser();
     HideOverlays();
+    loadposts(loadAll);
     try {
         const response = await fetch('/session');
-        if (response.status === 401) { await loadposts(loadAll); showUserSelectOverlay(); return; }
+        if (response.status === 401) { if (!welcomeDismissed) showUserSelectOverlay(); return; }
         const session = await readResponse(response);
         await activateUser(session.username);
         if (typeof openRequestedPanel === 'function') openRequestedPanel();
@@ -1400,7 +1406,9 @@ function scrollPosts() {
 }
 
 //al cargar página
-window.onload = function() {
-verMant(mantenimiento);
-init();
-};
+function startCommunity() {
+    verMant(mantenimiento);
+    init();
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startCommunity, { once: true });
+else startCommunity();
