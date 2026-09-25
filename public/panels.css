@@ -98,3 +98,6 @@ body:has(.navigation-panel[open]) { overflow: hidden; }
 .auth-card .auth-password-toggle img { width: 22px; height: 22px; object-fit: contain; filter: var(--svg-filter); }
 .overlay .auth-card .auth-photo { margin: 0 auto 8px; }
 @media (max-width: 400px) { .overlay .auth-card { padding: 22px 12px; } }
+.audio-recorder audio { width: 100%; margin-block: 16px; }
+.recording-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-block: 16px; }
+.audio-recorder p { color: var(--text-secondary); line-height: 1.6; }

@@ -531,10 +531,10 @@ async function publishContent(kind, contextId) {
     const sensitiveInput = document.getElementById('sensitiveContentCheckbox');
     const file = selectedFile;
     const sensitive = sensitiveInput.checked;
-    if (!content || content.length > 10000) return notify('Escribí un texto de entre 1 y 10.000 caracteres.', 'error');
+    if ((!content && !file) || content.length > 10000) return notify('Escribí un texto o adjuntá una imagen, audio o video. El texto admite hasta 10.000 caracteres.', 'error');
     if (containsForbiddenWords(content)) return notify('Revisá el contenido: puede infringir los términos y condiciones.', 'error');
     const context = kind + ':' + (contextId || activeUser);
-    if (lastMessageContentByContext.get(context) === content) return notify('No podés enviar el mismo texto dos veces seguidas.', 'error');
+    if (!file && lastMessageContentByContext.get(context) === content) return notify('No podés enviar el mismo texto dos veces seguidas.', 'error');
     const isPost = kind === 'post';
     const payload = isPost ? { username: activeUser, content, sensitive }
         : { content, sensitive, sender_id: users[activeUser]?.id, is_private: kind === 'chat' };

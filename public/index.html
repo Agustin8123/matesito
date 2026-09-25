@@ -44,9 +44,9 @@
                 ¿Es contenido sensible?
             </label>
 
-           <button type="button" class="post-button icon-button" id="postMediaButton" onclick="selectAttachment()" aria-label="Adjuntar imagen, audio o video"><img src="/res/image.svg" alt="">
+           <button type="button" class="post-button icon-button" id="postMediaButton" onclick="selectAttachment()" aria-label="Subir archivos: imágenes, audios o videos" title="Subir archivos"><img src="/res/attach.svg" alt="">
                 <span class="visually-hidden">Seleccionar archivo</span>
-            </button><button type="button" class="icon-button" title="Adjuntar GIF" aria-label="Adjuntar GIF" onclick="selectGif()"><img class="ui-icon" src="/res/gif.svg" alt=""></button><button type="button" id="removeMediaButton" class="icon-button" hidden="" aria-label="Quitar archivo adjunto" onclick="clearSelectedMedia()">×</button>
+            </button><button type="button" class="icon-button" title="Adjuntar GIF" aria-label="Adjuntar GIF" onclick="selectGif()"><img class="ui-icon" src="/res/gif.svg" alt=""></button><button type="button" class="icon-button" onclick="openAudioRecorder()" aria-label="Grabar audio" title="Grabar audio"><img src="/res/microphone.svg" alt=""></button><button type="button" id="removeMediaButton" class="icon-button" hidden="" aria-label="Quitar archivo adjunto" onclick="clearSelectedMedia()">×</button>
 
             <input id="postMedia" type="file" accept="image/*, video/*, audio/*" style="display:none;" onchange="handleFileSelect(event)">
 
@@ -229,4 +229,4 @@
             <!--Aquí se renderizaran las notificaciones-->
         </div></section></div><script src="/theme.js"></script><script src="/modern.js"></script>
 
-<script src="/share-post.js"></script></body></html>
+<script src="/share-post.js"></script><script src="/audio-recorder.js"></script></body></html>

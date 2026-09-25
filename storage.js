@@ -54,8 +54,9 @@ module.exports = function mountStorage(app, requireAuth) {
             }
             let media = detectMedia(header);
             if (!media || !bytes || expired) throw Object.assign(new Error('Formato no admitido. Usá JPEG, PNG, GIF, WebP, AVIF, MP3, WAV, OGG, MP4 o WebM.'), { status: 415 });
-            if (media[0] === 'webm' && req.headers['content-type'] === 'audio/webm') media = ['webm', 'audio/webm'];
-            if (media[0] === 'ogg' && req.headers['content-type'] === 'video/ogg') media = ['ogv', 'video/ogg'];
+            if (media[0] === 'mp4' && req.headers['content-type']?.split(';')[0] === 'audio/mp4') media = ['m4a', 'audio/mp4'];
+            if (media[0] === 'webm' && req.headers['content-type']?.split(';')[0] === 'audio/webm') media = ['webm', 'audio/webm'];
+            if (media[0] === 'ogg' && req.headers['content-type']?.split(';')[0] === 'video/ogg') media = ['ogv', 'video/ogg'];
             if (media[1].startsWith('image/') && bytes > 10 * 1024 * 1024) throw Object.assign(new Error('Las imágenes pueden pesar hasta 10 MB.'), { status: 413 });
             await handle.close(); handle = null;
             const name = randomUUID() + '.' + media[0];

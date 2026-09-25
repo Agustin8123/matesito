@@ -351,11 +351,18 @@ app.post('/login', async (req, res) => {
 ;
 
 // Crear un nuevo post
+
+function validPublication(content, media, mediaType) {
+    if (typeof content !== 'string' || content.length > 10000) return false;
+    const attached = validText(media, 2000000) && /^(image|audio|video)\/[a-z0-9.+-]+(?:;.*)?$/i.test(mediaType || '');
+    return content.trim().length > 0 || attached;
+}
+
 app.post('/posts', requireAuth, (req, res) => {
     const { username, content, media, mediaType, sensitive } = req.body;
 
     // Verifica si el usuario y el contenido están presentes
-    if (username !== req.user.username || !validText(content, 10000) ||
+    if (username !== req.user.username || !validPublication(content, media, mediaType) ||
         (media !== undefined && media !== null && !validText(media, 2000000)) ||
         (mediaType !== undefined && mediaType !== null && !validText(mediaType, 100))) {
         return res.status(400).json('Faltan datos requeridos');
@@ -369,7 +376,7 @@ app.post('/posts', requireAuth, (req, res) => {
         }
 
         const lastpost = result.rows[0];
-        if (lastpost && lastpost.content === content) {
+        if (lastpost && lastpost.content === content && (lastpost.media || null) === (media || null)) {
             return res.status(400).json('No puedes enviar el mismo post que el anterior.');
         }
 
@@ -399,7 +406,7 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
     const { forumId } = req.params;
     const { content, sensitive, sender_id, created_at, media, mediaType, is_private } = req.body;
 
-    if (!validId(forumId) || !sameUser(req, sender_id) || !validText(content, 10000) ||
+    if (!validId(forumId) || !sameUser(req, sender_id) || !validPublication(content, media, mediaType) ||
         (sensitive !== undefined && typeof sensitive !== 'boolean') ||
         (is_private !== undefined && typeof is_private !== 'boolean')) {
         return res.status(400).json({ error: 'Contenido o remitente inválido' });
@@ -1290,7 +1297,7 @@ app.post('/group/messages/:groupId', requireAuth, async (req, res) => {
     const { groupId } = req.params;
     const { content, sensitive, sender_id, media, mediaType } = req.body;
 
-    if (!validId(groupId) || !sameUser(req, sender_id) || !validText(content, 10000) ||
+    if (!validId(groupId) || !sameUser(req, sender_id) || !validPublication(content, media, mediaType) ||
         (sensitive !== undefined && typeof sensitive !== 'boolean') ||
         (media !== undefined && media !== null && !validText(media, 2000000)) ||
         (mediaType !== undefined && mediaType !== null && !validText(mediaType, 100))) {
