@@ -74,3 +74,16 @@
 .thread-meter { margin-top: 12px; font-size: 13px; }
 .thread-meter span { display: block; margin-bottom: 6px; }
 @media (max-width: 560px) { .hardware-summary { grid-template-columns: 1fr; } }
+
+/* Center document content within the space beside the navigation. */
+.document-page { display: block; }
+.document-main, .account-shell .container.document-main { box-sizing: border-box; width: calc(100% - 264px); max-width: 1200px; margin-left: max(264px, calc((100% + 264px - 1200px) / 2)); margin-right: auto; }
+.document-hero { margin-inline: auto; }
+.document-content { width: 100%; margin-inline: auto; }
+.dashboard-page .panel, .dashboard-page .hardware-panel { margin-inline: auto; }
+.app-content .buttonDiv img.small { width: clamp(120px, 20vw, 180px); height: auto; max-width: 45%; }
+.error-page .document-hero, .error-page .document-content { text-align: center; }
+.error-page .image_error { width: min(280px, 70%); }
+@media (max-width: 768px) {
+    .document-main, .account-shell .container.document-main { width: 100%; margin-inline: auto; }
+}

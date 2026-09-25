@@ -72,3 +72,12 @@ body:has(.navigation-panel[open]) { overflow: hidden; }
 .document-links a { text-decoration: none; padding: 8px 14px; color: var(--text-secondary); font-size: 14px; border-radius: 10px; }
 .document-links a:hover, .document-links a[aria-current="page"] { background: var(--bg-third); color: var(--text-primary); }
 .sidebar { height: 100dvh; overflow-y: auto; }
+
+.welcome-card { position: relative; }
+.welcome-card .welcome-close { position: absolute; top: 12px; right: 12px; margin: 0; width: 40px; height: 40px; font-size: 28px; z-index: 1; background: var(--bg-third); color: var(--text-primary); }
+.welcome-copy { padding-top: 36px; }
+
+.share-post-button { margin-left: 10px; vertical-align: middle; }
+.public-post-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 24px; }
+.document-main article.post h1 { font-size: 24px; overflow-wrap: anywhere; }
+.document-main article.post time { display: block; color: var(--text-secondary); margin-bottom: 24px; }

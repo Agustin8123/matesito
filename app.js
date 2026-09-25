@@ -484,7 +484,7 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
 });
 
 
-app.get('/mensajes/:forumId', requireAuth, async (req, res) => {
+app.get('/mensajes/:forumId', (req, res, next) => req.query.private === 'true' ? requireAuth(req, res, next) : next(), async (req, res) => {
     const { forumId } = req.params;
     const isPrivate = req.query.private === 'true'; // opcional, según cómo lo llames desde frontend
     if (!validNumericId(forumId)) return res.status(400).json({ error: 'ID inválido' });
@@ -496,7 +496,7 @@ app.get('/mensajes/:forumId', requireAuth, async (req, res) => {
             );
             if (!chat.rows.length) return res.status(403).json({ error: 'Acceso denegado' });
         } else {
-            // Los foros son legibles por cualquier usuario autenticado; los chats
+            // Los foros son públicos, también para visitantes; los chats
             // privados se restringen al participante anterior.
             const forum = await db.query('SELECT 1 FROM foros WHERE id = $1', [forumId]);
             if (!forum.rows.length) return res.status(404).json({ error: 'Foro no encontrado' });
@@ -1463,6 +1463,8 @@ app.get('/session', requireAuth, async (req, res) => {
         res.json(user);
     } catch (error) { res.status(500).json({ error: 'No se pudo recuperar la sesión' }); }
 });
+
+require('./public-posts')(app, db);
 
 app.use(express.static(path.join(__dirname, 'public'), {
     etag: false,

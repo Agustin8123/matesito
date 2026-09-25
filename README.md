@@ -63,3 +63,9 @@ El panel de estado muestra CPU total, uso por hilo y promedio por núcleo, RAM u
 CPU y RAM se obtienen del sistema operativo. En Linux, la topología y las temperaturas se leen de /sys y /proc, sin ejecutar comandos como root ni instalar dependencias adicionales. Si el hardware, la máquina virtual o los permisos del servicio no exponen sensores, el panel indica que no hay temperatura disponible. Las etiquetas de sensores permiten distinguir CPU, discos y otros dispositivos; no todas las temperaturas pertenecen al procesador. En contenedores, las métricas pueden corresponder al host y no a los límites asignados al contenedor.
 
 La caída del UPS no interrumpe las métricas del servidor. Si se corta el canal de eventos, la página identifica los valores como últimas lecturas recibidas. Reiniciar Node después de actualizar para activar el muestreo nuevo.
+
+## Enlaces públicos y sitemap
+
+El botón Compartir copia /p/ID para publicaciones y /p/F-ID para mensajes de foros públicos. Cada enlace devuelve HTML con el contenido de una sola publicación, metadatos Open Graph y URL canónica, sin necesitar sesión o JavaScript para leer el texto. Los archivos antiguos de Cloudinary también funcionan en estas páginas. Los contenidos sensibles mantienen su aviso y usan noindex. Los IDs de chats y grupos no admiten enlaces públicos.
+
+PUBLIC_URL define el origen canónico (por defecto https://matesito.com.ar). /sitemap.xml es un índice dinámico con páginas públicas y tandas de 1.000 publicaciones de la base; /robots.txt lo anuncia. Reemplaza al XML estático anterior y no requiere cambios SQL. Se puede enviar https://matesito.com.ar/sitemap.xml a Search Console. El descubrimiento no garantiza la indexación por los buscadores.

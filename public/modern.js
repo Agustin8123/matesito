@@ -43,8 +43,8 @@ function toggleMenu() {
     document.getElementById('accountPanelIdentity').textContent = activeUser;
 }
 function toggleForumMenu() { openPanel('forumSubMenu', 'Foros'); return selectPanelTab('forums', 'forumExplore'); }
-function toggleGruposMenu() { openPanel('gruposMenu', 'Chats y grupos'); return selectPanelTab('chats', 'chatInbox'); }
-function toggleUserMenu() { openPanel('userSubMenu', 'Siguiendo'); loadFollowedUsers(); }
+function toggleGruposMenu() { if (!activeUser) return showUserSelectOverlay(); openPanel('gruposMenu', 'Chats y grupos'); return selectPanelTab('chats', 'chatInbox'); }
+function toggleUserMenu() { if (!activeUser) return showUserSelectOverlay(); openPanel('userSubMenu', 'Siguiendo'); loadFollowedUsers(); }
 function createForumMenu() { openCommunityForm('createForumOverlay'); }
 function createGroupMenu() { openCommunityForm('createGroupOverlay'); }
 function joinGroupMenu() { openCommunityForm('joinGrupoMenu'); }
@@ -95,6 +95,7 @@ const panelTabs = {
     chats: { chatInbox: loadPrivateChats, groupJoined: loadUserGroups, groupOwned: loadCreatedGroups }
 };
 async function selectPanelTab(group, selected) {
+    if (!activeUser && selected !== 'forumExplore') return showUserSelectOverlay();
     const tabs = panelTabs[group];
     if (!tabs || !tabs[selected]) return;
     for (const id of Object.keys(tabs)) {
@@ -134,7 +135,7 @@ document.querySelectorAll('.panel-tabs').forEach(tablist => tablist.addEventList
     const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
     tabs[next].focus(); tabs[next].click();
 }));
-function toggleBell() { openPanel('notificationsPanel', 'Notificaciones'); obtenerNotificaciones(); }
+function toggleBell() { if (!activeUser) return showUserSelectOverlay(); openPanel('notificationsPanel', 'Notificaciones'); obtenerNotificaciones(); }
 let markingNotifications = false;
 async function markAllNotificationsRead() {
     const userId = users[activeUser]?.id;
@@ -150,6 +151,7 @@ async function markAllNotificationsRead() {
 }
 
 function openCommunityForm(id) {
+    if (!activeUser) return showUserSelectOverlay();
     const form = document.getElementById(id);
     if (form.style.display === 'flex') return closeCommunityForm(id);
     closePanel(); closeSidebar(); form.style.display = 'flex'; form.querySelector('input')?.focus();
@@ -176,6 +178,6 @@ function selectAttachment() { const input = document.getElementById('postMedia')
 function clearSelectedMedia() { selectedFile = null; document.getElementById('postMedia').value = ''; updatePostMediaButton(); }
 function openRequestedPanel() {
     const routes = { '#foros': toggleForumMenu, '#chats': toggleGruposMenu, '#siguiendo': toggleUserMenu, '#notificaciones': toggleBell, '#buscar': toggleSearch };
-    if (activeUser) routes[location.hash]?.();
+    if (activeUser || ['#foros', '#buscar'].includes(location.hash)) routes[location.hash]?.();
 }
 window.addEventListener('hashchange', openRequestedPanel);

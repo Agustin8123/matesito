@@ -100,7 +100,7 @@
 </div>
     <!-- Contenedor principal de la aplicación -->
 <div class="overlay" id="initialOverlay">
-    <div class="initial-box welcome-card"><img class="welcome-image" src="/res/login.png" alt="Un espacio para compartir"><div class="welcome-copy"><h2>Un mate.<br>Mil conversaciones.</h2><p>Sumate a la comunidad. Compartí tus ideas, encontrá tu foro y quedate a charlar.</p><button class="primary" onclick="useExistingUser()">Tengo una cuenta</button> <button onclick="createNewUser()">Crear cuenta</button><small>Matesito sigue creciendo. Si encontrás un problema, <a href="mailto:matesito.soporte@gmail.com">escribinos</a>.</small></div></div>
+    <div class="initial-box welcome-card"><button type="button" class="welcome-close icon-button" onclick="browseAsGuest()" aria-label="Cerrar y explorar sin iniciar sesión" title="Explorar sin iniciar sesión">×</button><img class="welcome-image" src="/res/login.png" alt="Un espacio para compartir"><div class="welcome-copy"><h2>Un mate.<br>Mil conversaciones.</h2><p>Sumate a la comunidad. Compartí tus ideas, encontrá tu foro y quedate a charlar.</p><button class="primary" onclick="useExistingUser()">Tengo una cuenta</button> <button onclick="createNewUser()">Crear cuenta</button><small>Matesito sigue creciendo. Si encontrás un problema, <a href="mailto:matesito.soporte@gmail.com">escribinos</a>.</small></div></div>
 </div>
 
 <!-- Overlay de Usuario Existente -->
@@ -239,4 +239,4 @@
             <!--Aquí se renderizaran las notificaciones-->
         </div></section></div><script src="/theme.js"></script><script src="/modern.js"></script>
 
-</body></html>
+<script src="/share-post.js"></script></body></html>

@@ -215,7 +215,15 @@ function checkRememberedUser() {
     }
 }
 
+async function browseAsGuest() {
+    hideMenus('initialOverlay', 'usernameOverlay', 'userSelectOverlay');
+    if (!feedState) await loadposts(loadAll);
+    if (typeof openRequestedPanel === 'function') openRequestedPanel();
+    document.querySelector('.header-search')?.focus();
+}
+
 function showUserSelectOverlay() {
+if (typeof closePanel === 'function') closePanel();
 document.getElementById('initialOverlay').style.display = 'flex';
 }
 
@@ -342,6 +350,7 @@ async function loadForumMenu(kind) {
 function loadForos() { return loadForumMenu('all'); }
 
 function joinForum(forumId) {
+if (!users[activeUser]?.id) return showUserSelectOverlay();
 // Asegúrate de que 'users.id' esté correctamente definido en tu aplicación
 const data = {
     userId: users[activeUser]?.id, // ID del usuario activo
@@ -934,6 +943,13 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         </div>
     `;
 
+    if (/^(?:F-)?[1-9]\d*$/.test(String(postId))) {
+        const share = document.createElement('button');
+        share.type = 'button'; share.className = 'share-post-button'; share.textContent = 'Compartir';
+        share.title = 'Copiar enlace de esta publicación';
+        share.addEventListener('click', () => sharePost(postId));
+        newpost.querySelector('.toggle-reactions').after(share);
+    }
     postList.appendChild(newpost);
 }
 
@@ -1031,7 +1047,7 @@ function followUser(userId) {
 const followerId = users[activeUser]?.id; // El ID del usuario que está siguiendo
 
 if (!followerId) {
-    notify('Error: Usuario activo no encontrado');
+    showUserSelectOverlay();
     return;
 }
 
@@ -1362,7 +1378,7 @@ async function init() {
     HideOverlays();
     try {
         const response = await fetch('/session');
-        if (response.status === 401) { showUserSelectOverlay(); return; }
+        if (response.status === 401) { await loadposts(loadAll); showUserSelectOverlay(); return; }
         const session = await readResponse(response);
         await activateUser(session.username);
         if (typeof openRequestedPanel === 'function') openRequestedPanel();
