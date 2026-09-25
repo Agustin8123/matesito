@@ -101,3 +101,7 @@ body:has(.navigation-panel[open]) { overflow: hidden; }
 .audio-recorder audio { width: 100%; margin-block: 16px; }
 .recording-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-block: 16px; }
 .audio-recorder p { color: var(--text-secondary); line-height: 1.6; }
+
+.post .post-link { color: var(--accent-text, var(--text-primary)); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.post .post-link:hover { text-decoration-thickness: 2px; }
+.post .post-link:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; border-radius: 2px; }

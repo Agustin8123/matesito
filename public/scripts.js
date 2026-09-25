@@ -906,12 +906,12 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
                 <p>⚠ Este contenido ha sido marcado como sensible</p>
                 <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">Mostrar contenido</button>
                 <div class="hidden-content clickable" style="display:none;">
-                    ${escapeHTML(content)}
+                    ${linkifyPost(content)}
                     ${mediaHTML}
                 </div>
             </div>`
             : `<div class="post-content clickable">
-            <div class="post-text">${escapeHTML(content)}</div>
+            <div class="post-text">${linkifyPost(content)}</div>
             ${mediaHTML}
         </div>`;
 

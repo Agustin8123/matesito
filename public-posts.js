@@ -1,3 +1,4 @@
+const linkifyPost = require('./public/post-links');
 const fs = require('fs');
 const path = require('path');
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -30,7 +31,7 @@ module.exports = function mountPublicPosts(app, db) {
         }
         const date = new Date(post.created_at);
         const time = Number.isFinite(date.getTime()) ? `<time datetime="${date.toISOString()}">${esc(date.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' }))}</time>` : '';
-        let content = `<div class="post-text">${esc(post.content)}</div>${media}`;
+        let content = `<div class="post-text">${linkifyPost(post.content)}</div>${media}`;
         if (post.sensitive) content = `<details><summary>Contenido sensible · Mostrar publicación</summary>${content}</details>`;
         let avatar = '/res/default-avatar.svg';
         try { const u = new URL(post.image, origin); if (post.image && ['http:', 'https:'].includes(u.protocol)) avatar = u.href; } catch {}
