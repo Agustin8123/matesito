@@ -20,3 +20,16 @@ async function sharePost(id) {
         dialog.querySelector('input').select();
     }
 }
+
+function toggleSharedReactions() {
+    const container = document.getElementById('sharedReactions');
+    const frame = container.querySelector('iframe');
+    container.hidden = !container.hidden;
+    if (!container.hidden && !frame.getAttribute('src')) {
+        const url = new URL(frame.dataset.src, location.origin);
+        const theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+        url.searchParams.set('theme', theme);
+        url.searchParams.set('textColor', theme === 'light' ? '#333333' : '#ffffff');
+        frame.src = url.href;
+    }
+}

@@ -12,8 +12,8 @@ module.exports = function mountPublicPosts(app, db) {
         if (!/^(?:F-)?[1-9]\d{0,14}$/.test(id)) return notFound(res);
         const forum = id.startsWith('F-');
         const { rows } = forum
-            ? await db.query(`SELECT m.id, m.content, m.media, m.media_type AS mediatype, m.sensitive, m.created_at, u.username FROM mensajes m JOIN foros f ON ${publicMessages} LEFT JOIN users u ON u.id = m.sender_id WHERE m.id = $1`, [id])
-            : await db.query('SELECT id, username, content, media, mediatype, sensitive, created_at FROM posts WHERE id = $1', [id]);
+            ? await db.query(`SELECT m.id, m.content, m.media, m.media_type AS mediatype, m.sensitive, m.created_at, u.username, u.image FROM mensajes m JOIN foros f ON ${publicMessages} LEFT JOIN users u ON u.id = m.sender_id WHERE m.id = $1`, [id])
+            : await db.query('SELECT p.id, p.username, p.content, p.media, p.mediatype, p.sensitive, p.created_at, u.image FROM posts p LEFT JOIN users u ON u.username = p.username WHERE p.id = $1', [id]);
         const post = rows[0];
         if (!post) return notFound(res);
         const canonical = origin + '/p/' + id;
@@ -32,7 +32,10 @@ module.exports = function mountPublicPosts(app, db) {
         const time = Number.isFinite(date.getTime()) ? `<time datetime="${date.toISOString()}">${esc(date.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' }))}</time>` : '';
         let content = `<div class="post-text">${esc(post.content)}</div>${media}`;
         if (post.sensitive) content = `<details><summary>Contenido sensible · Mostrar publicación</summary>${content}</details>`;
-        const main = `<main id="page-content" class="document-main"><article class="post postContainer"><h1>${esc(title)}</h1>${time}${content}<div class="public-post-actions"><button type="button" onclick="sharePost('${id}')">Compartir enlace</button><a href="/">Volver a la ronda</a></div></article></main>`;
+        let avatar = '/res/default-avatar.svg';
+        try { const u = new URL(post.image, origin); if (post.image && ['http:', 'https:'].includes(u.protocol)) avatar = u.href; } catch {}
+        const main = `<main id="page-content" class="document-main shared-feed"><h1 class="visually-hidden">${esc(title)}</h1><article class="post postContainer"><div class="post-header"><div class="post-user-info"><span class="username"><img class="profile-pic-img" src="${esc(avatar)}" alt=""><span class="username-text">${esc(post.username || 'Usuario')}</span></span><span class="post-time">${time}</span></div></div><div class="post-content">${content}</div><div class="post-actions"><button type="button" class="toggle-reactions icon-button" aria-label="Mostrar u ocultar reacciones" title="Reacciones" onclick="toggleSharedReactions()"><img src="/res/react.svg" alt=""></button><button type="button" class="share-post-button icon-button" onclick="sharePost('${id}')" title="Copiar enlace de esta publicación" aria-label="Compartir publicación"><img src="/res/share.svg" alt=""></button></div><div id="sharedReactions" hidden><iframe data-src="/microReact.html?id=Matesito_post-${id}" title="Deja una reacción" loading="lazy"></iframe></div></article></main>`;
+
         let html = template.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${esc(title)}</title>`)
             .replace(/<main\b[\s\S]*?<\/main>/, () => main)
             .replace('aria-current="page"', '')

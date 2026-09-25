@@ -945,10 +945,14 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
 
     if (/^(?:F-)?[1-9]\d*$/.test(String(postId))) {
         const share = document.createElement('button');
-        share.type = 'button'; share.className = 'share-post-button'; share.textContent = 'Compartir';
+        share.type = 'button'; share.className = 'share-post-button icon-button';
+        share.setAttribute('aria-label', 'Compartir publicación');
+        const icon = document.createElement('img'); icon.src = '/res/share.svg'; icon.alt = ''; share.append(icon);
         share.title = 'Copiar enlace de esta publicación';
         share.addEventListener('click', () => sharePost(postId));
-        newpost.querySelector('.toggle-reactions').after(share);
+        const reactions = newpost.querySelector('.toggle-reactions');
+        const actions = document.createElement('div'); actions.className = 'post-actions';
+        reactions.before(actions); actions.append(reactions, share);
     }
     postList.appendChild(newpost);
 }
