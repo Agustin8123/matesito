@@ -141,3 +141,27 @@ body:has(.navigation-panel[open]) { overflow: hidden; }
  .post .user-profile-box button { flex: 1 1 90px; }
 }
 .moderation-item { padding:16px 0; border-bottom:1px solid var(--border-color); }
+
+.gif-picker { box-sizing: border-box; width: min(760px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); padding: 24px; overflow-y: auto; scrollbar-gutter: stable; }
+.gif-picker .community-dialog-heading { margin-bottom: 16px; }
+.gif-intro, .gif-status { color: var(--text-secondary); line-height: 1.5; margin: 12px 0; }
+.gif-search-form { display: flex; align-items: stretch; gap: 12px; margin: 18px 0 12px; }
+.gif-picker .gif-search-form input { flex: 1; width: 0; min-width: 0; margin: 0; }
+.gif-search-form button { flex-shrink: 0; margin: 0; padding: 12px 20px; border-radius: 12px; background: var(--accent-color); color: white; }
+.gif-attribution { display: inline-block; font-size: 12px; font-weight: 700; text-decoration: none; color: var(--text-secondary); }
+.gif-attribution img { display: block; width: 150px; max-width: 100%; height: auto; background: #121212; border-radius: 4px; }
+.gif-picker .gif-results { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding: 4px; }
+.gif-card { min-width: 0; border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-secondary); overflow: hidden; }
+.gif-picker .gif-card button { display: block; margin: 0; border-radius: 0; background: transparent; }
+.gif-picker .gif-card img { height: 150px; object-fit: contain; }
+.gif-card a { display: block; padding: 9px 10px; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gif-card:hover { border-color: var(--accent-color); }
+.gif-card:focus-within { outline: 2px solid var(--accent-color); outline-offset: 2px; }
+.gif-picker > button { display: block; margin: 20px auto 0; }
+@media(max-width: 540px) {
+ .gif-picker { padding: 18px; max-height: calc(100dvh - 24px); }
+ .gif-picker .gif-results { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+ .gif-picker .gif-card img { height: 120px; }
+ .gif-search-form { gap: 8px; }
+ .gif-search-form button { padding-inline: 14px; }
+}

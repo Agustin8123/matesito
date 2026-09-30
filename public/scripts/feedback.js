@@ -70,7 +70,11 @@ async function readResponse(response) {
 // Reuse a successful upload when publishing is retried; entries disappear with the File.
 const uploadedFiles = new WeakMap();
 function uploadMedia(file, options = {}) {
-    if (file.url && file.type === 'image/gif' && new URL(file.url).origin === 'https://upload.wikimedia.org') return Promise.resolve({ url: file.url, mediaType: file.type });
+    if (file.url && file.type === 'image/gif') {
+        const remote = new URL(file.url);
+        if (remote.protocol === 'https:' && (remote.hostname === 'upload.wikimedia.org' || /^(?:media\d*|i)\.giphy\.com$/.test(remote.hostname))) return Promise.resolve({ url: remote.href, mediaType: file.type });
+        return Promise.reject(new Error('El enlace del GIF no pertenece a un proveedor admitido.'));
+    }
     const owner = document.cookie.split(';').map(value => value.trim()).find(value => value.startsWith('userID=')) || '';
     const cached = uploadedFiles.get(file);
     if (cached && cached.owner === owner && Date.now() - cached.at < 15 * 60 * 1000) return cached.promise;

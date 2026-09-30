@@ -31,7 +31,7 @@ Los adjuntos nuevos quedan registrados por propietario. Antes de publicarlos sol
 
 Las imágenes se decodifican y recodifican sin metadatos personales, con hasta 40 millones de píxeles y 300 cuadros. Las imágenes estáticas tienen variantes de 384 y 960 píxeles. Los audios y videos se inspeccionan con ffprobe, con hasta una hora y 16 millones de píxeles por cuadro; la grabadora sigue limitada a cinco minutos o 10 MB. Los límites por tamaño de subida también se siguen aplicando. Esta inspección no equivale a un antivirus ni garantiza la reproducción en todos los navegadores.
 
-El buscador de GIFs usa Wikimedia Commons, acepta solo resultados declarados como dominio público o CC0 y muestra la página de origen. No requiere una clave comercial. Necesita acceso HTTPS saliente a commons.wikimedia.org; el navegador carga los GIFs desde upload.wikimedia.org.
+El buscador de GIFs usa GIPHY. Crear una aplicación web/API en https://developers.giphy.com/dashboard/ y configurar GIPHY_API_KEY en .env; reiniciar Node. La clave web se entrega al navegador, que consulta directamente api.giphy.com siguiendo la integración del proveedor; no usar una credencial privada de otro servicio. Revisar los límites y la habilitación para producción en GIPHY. Sin clave se informa que la búsqueda no está configurada; se pueden seguir adjuntando GIFs desde archivos. Los GIFs del catálogo no se presentan como dominio público ni CC0. Los adjuntos anteriores de Wikimedia siguen funcionando.
 
 Los borradores se guardan en memoria por cuenta y destino mientras la página está abierta. Se limpian al cerrar sesión; no se almacenan mensajes privados en el service worker. La pantalla sin conexión y un grupo reducido de recursos públicos sí pueden conservarse.
 
