@@ -1,5 +1,5 @@
--- Matesito 1.3.0 — PostgreSQL, esquema inicial y actualización compatible.
--- Aplicar ANTES de arrancar 1.3.0, con la aplicación detenida y un respaldo.
+-- Matesito 1.3.6 — PostgreSQL, esquema inicial y actualización compatible.
+-- Aplicar ANTES de arrancar 1.3.6, con la aplicación detenida y un respaldo.
 -- psql -X --set ON_ERROR_STOP=on --dbname matesito --file schema.sql
 -- No elimina publicaciones, cuentas, mensajes ni reacciones históricas.
 -- Si hay duplicados o tipos incompatibles, aborta toda la transacción.
@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS user_reactions (
 );
 
 -- Columnas añadidas en refactors previos y 1.3.0.
+ALTER TABLE users ALTER COLUMN password TYPE text;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS image text;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS description text;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_version integer NOT NULL DEFAULT 0;
@@ -177,4 +178,29 @@ END $$;
 SELECT setval('message_ids', GREATEST(
     COALESCE((SELECT max(substring(id from '[0-9]+$')::bigint) FROM mensajes), 0),
     (SELECT last_value FROM message_ids), 1), true);
+-- Herramientas de comunidad (1.3.3).
+CREATE TABLE IF NOT EXISTS user_blocks (
+ user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ blocked_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ PRIMARY KEY(user_id,blocked_id), CHECK(user_id<>blocked_id)
+);
+CREATE INDEX IF NOT EXISTS user_blocks_reverse_idx ON user_blocks(blocked_id,user_id);
+CREATE TABLE IF NOT EXISTS content_reports (
+ id bigserial PRIMARY KEY, reporter_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ target_id text NOT NULL, reason text NOT NULL, forum_id integer REFERENCES foros(id) ON DELETE CASCADE,
+ status text NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','dismissed','removed')),
+ created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(reporter_id,target_id)
+);
+CREATE INDEX IF NOT EXISTS content_reports_pending_idx ON content_reports(forum_id,id) WHERE status='pending';
+ALTER TABLE notificaciones ADD COLUMN IF NOT EXISTS actor_id integer REFERENCES users(id) ON DELETE CASCADE;
+ALTER TABLE notificaciones ADD COLUMN IF NOT EXISTS reaction_id integer;
+CREATE UNIQUE INDEX IF NOT EXISTS notification_reaction_actor_idx ON notificaciones(user_id,referencia_id,actor_id) WHERE tipo='reaccion';
+CREATE TABLE IF NOT EXISTS publication_requests (
+ user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE, request_id uuid NOT NULL,
+ request_hash text NOT NULL, response jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now(),
+ PRIMARY KEY(user_id,request_id)
+);
+CREATE INDEX IF NOT EXISTS publication_requests_created_idx ON publication_requests(created_at);
+CREATE TABLE IF NOT EXISTS media_assets(name text PRIMARY KEY, owner_id integer NOT NULL REFERENCES users(id), created_at timestamptz NOT NULL DEFAULT now());
+CREATE INDEX IF NOT EXISTS media_assets_created_idx ON media_assets(created_at);
 COMMIT;

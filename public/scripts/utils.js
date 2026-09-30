@@ -138,7 +138,7 @@ function safeDate(value) {
 
 function openFullscreen(element) {
   if (element.requestFullscreen) {
-      element.requestFullscreen();
+      element.requestFullscreen().catch(() => notify('No se pudo abrir la pantalla completa.', 'error'));
   } else if (element.webkitRequestFullscreen) { /* Safari */
       element.webkitRequestFullscreen();
   } else if (element.msRequestFullscreen) { /* IE11 */

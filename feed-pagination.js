@@ -1,10 +1,10 @@
 const invalid = () => Object.assign(new Error('Paginación inválida'), { status: 400 });
 
 async function queryFeed(req, db, sql, values = [], idColumn = 'id') {
-    if (req.query.limit === undefined) return db.query(sql, values);
+    const legacy = req.query.limit === undefined;
     const order = req.query.order || 'newest';
     const sensitive = req.query.sensitive === 'show';
-    if (req.query.limit !== '12' || !['newest', 'oldest', 'reactions', 'reactions-asc'].includes(order)) throw invalid();
+    if ((!legacy && req.query.limit !== '12') || !['newest', 'oldest', 'reactions', 'reactions-asc'].includes(order)) throw invalid();
     const byReactions = order.startsWith('reactions');
     let cursor;
     if (req.query.cursor) {
@@ -21,9 +21,16 @@ async function queryFeed(req, db, sql, values = [], idColumn = 'id') {
     const direction = ascending ? 'ASC' : 'DESC';
     const total = byReactions ? 'COALESCE(score.total, 0)' : '0';
     const predicates = sensitive ? [] : ['feed.sensitive IS NOT TRUE'];
+    if (req.user) predicates.push(`NOT EXISTS (SELECT 1 FROM user_blocks b WHERE b.user_id=${bind(req.user.id)} AND b.blocked_id=feed.${idColumn === 'postid' ? 'userid' : 'sender_id'})`);
     if (req.query.item !== undefined) {
         if (!/^(?:[CFG]-)?\d+$/.test(req.query.item)) throw invalid();
         predicates.push('feed.' + idColumn + ' = ' + bind(req.query.item));
+    }
+    if (req.query.items !== undefined) {
+        if (typeof req.query.items !== 'string') throw invalid();
+        const ids = req.query.items.split(',');
+        if (!ids.length || ids.length > 12 || ids.some(id => !/^(?:[CFG]-)?[1-9]\d*$/.test(id))) throw invalid();
+        predicates.push('feed.' + idColumn + '::text = ANY(' + bind(ids) + '::text[])');
     }
     if (cursor) {
         const time = bind(cursor.time), id = bind(cursor.id);
@@ -45,7 +52,8 @@ async function queryFeed(req, db, sql, values = [], idColumn = 'id') {
     const nextCursor = result.rows.length > 12 && last ? Buffer.from(JSON.stringify({
         id: String(last[idColumn]), time: last.cursor_time, total: Number(last.reaction_total), order, sensitive
     })).toString('base64url') : null;
-    return { rows: rows.map(({ cursor_time, reaction_total, ...row }) => row), nextCursor };
+    const items = rows.map(({ cursor_time, ...row }) => row);
+    return legacy ? { rows: items } : { rows: items, nextCursor };
 }
 function feedResponse(result, items = result.rows) {
     return 'nextCursor' in result ? { items, nextCursor: result.nextCursor } : items;

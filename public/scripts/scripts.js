@@ -34,6 +34,9 @@ async function closeSesion() {
         if (!response.ok) throw new Error('No se pudo cerrar la sesión.');
         users = Object.create(null);
         activeUser = '';
+        document.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());
+        clearCommunityMenus();
+        clearComposerDrafts();
         feedObserver?.disconnect();
         feedState?.controller?.abort();
         feedState = null;
@@ -43,6 +46,7 @@ async function closeSesion() {
         closePanel();
         for (const id of ['postList', 'profileList', 'forumList', 'messageList', 'groupMessageList', 'renderNotif']) document.getElementById(id)?.replaceChildren();
         lastMessageContentByContext.clear();
+        publicationKeys.clear();
         for (const name of ['username', 'userID']) document.cookie = name + '=; Max-Age=0; path=/;';
         try { localStorage.removeItem('userID'); } catch { /* Storage can be disabled. */ }
         updateUserButton();
@@ -299,14 +303,52 @@ fetch('/salir-grupo', {
 });
 }
 
-async function loadForumMenu(kind) {
+async function fetchMenuPage(url, offset, request) {
+    const response = await fetch(url + (url.includes('?') ? '&' : '?') + 'offset=' + offset, { signal: request.controller.signal });
+    request.next = response.headers.get('X-Next-Offset');
+    return readResponse(response);
+}
+function addMenuContinuation(container, request, load) {
+    container.querySelector('.menu-more')?.remove();
+    if (request.next === null) return;
+    const button = menuButton('Cargar más', () => { button.disabled = true; load(Number(request.next)); });
+    button.className = 'menu-more'; container.append(button);
+}
+// Cada lista conserva únicamente su solicitud más reciente.
+const menuRequests = new Map();
+function beginMenuRequest(container) {
+    menuRequests.get(container)?.controller.abort();
+    const controller = new AbortController();
+    const owner = users[activeUser]?.id;
+    const request = {
+        controller,
+        current: () => menuRequests.get(container) === request && !controller.signal.aborted && users[activeUser]?.id === owner,
+        finish: () => { if (menuRequests.get(container) === request) menuRequests.delete(container); }
+    };
+    menuRequests.set(container, request);
+    return request;
+}
+function clearCommunityMenus() {
+    for (const request of menuRequests.values()) request.controller.abort();
+    menuRequests.clear();
+    for (const id of ['forosContainer', 'forosContainer2', 'createdForosContainer', 'usersContainer', 'createdGroupsContainer', 'joinedGruposContainer', 'privateChats']) {
+        const container = document.getElementById(id);
+        container?.replaceChildren();
+        container?.removeAttribute('aria-busy');
+    }
+}
+
+async function loadForumMenu(kind, offset = 0) {
     const userId = users[activeUser]?.id;
     if (kind !== 'all' && !userId) return;
     const container = document.getElementById(kind === 'all' ? 'forosContainer' : kind === 'followed' ? 'forosContainer2' : 'createdForosContainer');
     const url = kind === 'all' ? '/foros' : kind === 'followed' ? '/userForums/' + userId : '/userCreatedForums/' + userId;
+    if (!container) return;
+    const request = beginMenuRequest(container);
     try {
-        const forums = await fetch(url).then(readResponse);
-        container.replaceChildren();
+        const forums = await fetchMenuPage(url, offset, request);
+        if (!request.current()) return;
+        if (!offset) container.replaceChildren();
         if (!forums.length) container.textContent = 'No hay foros en esta lista todavía.';
         for (const forum of forums) {
             const card = document.createElement('div'); card.className = 'forum-item';
@@ -317,7 +359,8 @@ async function loadForumMenu(kind) {
                     () => kind === 'created' ? deleteForum(forum.id) : kind === 'followed' ? leaveForum(forum.id) : joinForum(forum.id)));
             container.appendChild(card);
         }
-    } catch (error) { container.replaceChildren(); const message = document.createElement('p'); message.textContent = error.message; container.append(message, menuButton('Reintentar', () => loadForumMenu(kind))); }
+        addMenuContinuation(container, request, next => loadForumMenu(kind, next));
+    } catch (error) { if (!request.current()) return; container.replaceChildren(); const message = document.createElement('p'); message.textContent = error.message; container.append(message, menuButton('Reintentar', () => loadForumMenu(kind))); } finally { request.finish(); }
 }
 function loadForos() { return loadForumMenu('all'); }
 
@@ -426,6 +469,7 @@ function updatePostMediaButton(fileName = '') {
     if (label) { label.textContent = fileName || 'Seleccionar archivo'; label.classList.toggle('visually-hidden', !fileName); }
     const remove = document.getElementById('removeMediaButton'); if (remove) remove.hidden = !fileName;
     button.title = fileName || 'Seleccionar archivo';
+    if (typeof previewAttachment === 'function') previewAttachment();
 }
 
   function handleFileSelect(event) {
@@ -486,6 +530,7 @@ function updatePostMediaButton(fileName = '') {
 const lastMessageContentByContext = new Map();
 
 let publishing = false;
+const publicationKeys = new Map();
 
 async function publishContent(kind, contextId) {
     if (publishing) return;
@@ -506,22 +551,40 @@ async function publishContent(kind, contextId) {
     const isPost = kind === 'post';
     const payload = isPost ? { username: activeUser, content, sensitive }
         : { content, sensitive, sender_id: users[activeUser]?.id, is_private: kind === 'chat' };
+    const previousSend = publicationKeys.get(context);
+    const sameSend = previousSend && previousSend.content === content && previousSend.file === file && previousSend.sensitive === sensitive;
+    const requestId = sameSend ? previousSend.id : crypto.randomUUID();
+    const pendingSend = sameSend ? previousSend : { id: requestId, content, file, sensitive };
+    publicationKeys.set(context, pendingSend);
+    payload.requestId = requestId;
     const url = isPost ? '/posts' : kind === 'group' ? '/group/messages/' + contextId : '/mensajes/' + contextId;
     publishing = true;
+    const owner = users[activeUser]?.id;
+    const draftKey = composerKey;
+    const controller = publishController = new AbortController();
     const sendButton = document.getElementById('publishButton');
     if (sendButton) { sendButton.disabled = true; sendButton.querySelector('span').textContent = 'Publicando…'; }
     document.getElementById('loading').style.display = 'block';
     try {
         if (file) {
-            const uploaded = await uploadMedia(file);
+            setUploadProgress(0);
+            const uploaded = pendingSend.uploaded || await uploadMedia(file, { signal: controller.signal, onProgress: setUploadProgress });
+            if (controller.signal.aborted || users[activeUser]?.id !== owner) throw new DOMException('Envío cancelado', 'AbortError');
+            if (!uploaded?.url) throw new Error('No se pudo confirmar la subida del archivo.');
+            pendingSend.uploaded = uploaded;
             payload.media = uploaded.url;
             payload.mediaType = uploaded.mediaType;
         }
+        document.getElementById('uploadStatus').hidden = true;
+        if (controller.signal.aborted || users[activeUser]?.id !== owner) throw new DOMException('Envío cancelado', 'AbortError');
         const saved = await fetch(url, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+            signal: controller.signal, method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
         }).then(readResponse);
         if (!saved.id) throw new Error('El servidor no confirmó la publicación.');
+        if (users[activeUser]?.id !== owner) return;
+        publicationKeys.delete(context);
         lastMessageContentByContext.set(context, content);
+        if (composerKey === draftKey) {
         // No borrar texto ni archivos que el usuario cambió durante la petición.
         if (input.value.trim() === content) input.value = '';
         if (selectedFile === file) {
@@ -530,13 +593,20 @@ async function publishContent(kind, contextId) {
             updatePostMediaButton();
         }
         if (sensitiveInput.checked === sensitive) sensitiveInput.checked = false;
+        saveComposerDraft();
+        } else {
+            const draft = composerDrafts.get(draftKey);
+            if (draft?.text.trim() === content && draft.file === file && draft.sensitive === sensitive) composerDrafts.delete(draftKey);
+        }
         notify(isPost ? 'Tu post se publicó correctamente.' : 'Mensaje enviado.', 'success');
         if (sensitive && !showSensitiveContent) notify('El contenido sensible está oculto por el filtro actual.');
         await queueFeedUpdate({ id: saved.id });
     } catch (error) {
-        notify(error.message || 'No se pudo publicar. Intentá nuevamente.', 'error');
+        if (users[activeUser]?.id === owner) notify(error.name === 'AbortError' ? 'Subida cancelada. Conservamos tu borrador.' : error.message || 'No se pudo publicar. Intentá nuevamente.', error.name === 'AbortError' ? 'info' : 'error');
     } finally {
         publishing = false;
+        publishController = null;
+        document.getElementById('uploadStatus').hidden = true;
         document.getElementById('loading').style.display = 'none';
         if (sendButton) { sendButton.disabled = false; sendButton.querySelector('span').textContent = 'Cebar'; }
     }
@@ -590,10 +660,11 @@ async function loadFeed(url, listId, all, messages = false) {
     feedObserver?.disconnect();
     feedState?.controller?.abort();
     const request = ++feedRequest;
+    switchComposerDraft(url);
     const list = document.getElementById(listId);
     showOnlyMenu(listId);
     list.replaceChildren();
-    document.getElementById('feed-update')?.remove();
+    document.querySelectorAll('.feed-update').forEach(el => el.remove());
     feedState = { request, url, listId, messages, cursor: null, pending: false, ended: false, seen: new Set(), updates: new Set(), controller: new AbortController() };
     return loadNextPage();
 }
@@ -624,9 +695,11 @@ async function loadNextPage() {
             const key = String(row.postId ?? row.id);
             if (state.seen.has(key)) continue;
             state.seen.add(key);
-            addpostToList(row.content, row.media, state.messages ? row.media_type : row.mediaType, row.username,
+            const card = addpostToList(row.content, row.media, state.messages ? row.media_type : row.mediaType, row.username,
                 state.messages ? row.image : row.profilePicture, row.sensitive, row.created_at,
                 state.messages ? row.sender_id : row.userId, state.messages ? row.id : row.postId, state.listId);
+            card.dataset.score = String(row.reactionTotal ?? row.reaction_total ?? 0);
+            positionFeedCard(list, card);
         }
         state.cursor = payload.nextCursor || null;
         state.ended = !state.cursor;
@@ -662,12 +735,38 @@ async function queueFeedUpdate(data) {
     if (state.updates.has(updateId)) return;
     state.updates.add(updateId);
     // Fetch through the current feed: its membership, author and sensitive filters still apply.
-    const query = new URLSearchParams({ limit: '12', item: String(data.id), sensitive: showSensitiveContent ? 'show' : 'hide' });
+    const query = new URLSearchParams({ limit: '12', item: String(data.id), sensitive: showSensitiveContent ? 'show' : 'hide', order: ordenarReacciones ? (invertirOrden ? 'reactions-asc' : 'reactions') : invertirOrden ? 'oldest' : 'newest' });
     try {
         const payload = await fetch(state.url + (state.url.includes('?') ? '&' : '?') + query, { signal: state.controller.signal }).then(readResponse);
         if (state !== feedState) return;
         const list = document.getElementById(state.listId);
-        for (const row of payload.items || []) {
+        insertFeedRows(state, payload.items || []);
+    } catch (error) {
+        if (state !== feedState) return;
+        // A retry loads only this item; it never replaces the existing feed.
+        const retry = menuButton('Reintentar cargar la publicación nueva', () => { retry.remove(); queueFeedUpdate(data); });
+        retry.className = 'feed-update';
+        document.getElementById(state.listId).before(retry);
+    } finally { state.updates.delete(updateId); }
+}
+
+function positionFeedCard(list, added) {
+    const ascending = invertirOrden;
+    const compare = other => {
+        let delta = ordenarReacciones ? Number(added.dataset.score || 0) - Number(other.dataset.score || 0) : 0;
+        if (!delta) delta = new Date(added.dataset.createdAt) - new Date(other.dataset.createdAt);
+        if (!delta) {
+            const left = BigInt(added.dataset.postId.replace(/^[CFG]-/, '')), right = BigInt(other.dataset.postId.replace(/^[CFG]-/, ''));
+            delta = left < right ? -1 : left > right ? 1 : 0;
+        }
+        return ascending ? delta : -delta;
+    };
+    const before = [...list.children].find(other => other !== added && other.classList.contains('post') && compare(other) < 0);
+    list.insertBefore(added, before || list.querySelector('.feed-pagination'));
+}
+function insertFeedRows(state, rows) {
+    const list = document.getElementById(state.listId);
+        for (const row of rows) {
             const key = String(row.postId ?? row.id);
             if (state.seen.has(key)) continue;
             const anchor = [...list.children].find(el => el.classList.contains('post') && el.getBoundingClientRect().bottom > 0);
@@ -679,19 +778,31 @@ async function queueFeedUpdate(data) {
                 state.messages ? row.image : row.profilePicture, row.sensitive, row.created_at,
                 state.messages ? row.sender_id : row.userId, row.postId ?? row.id, state.listId);
             const added = list.lastElementChild;
-            if (ordenarReacciones ? !invertirOrden : invertirOrden) list.insertBefore(added, list.querySelector('.feed-pagination'));
-            else list.prepend(added);
+            added.dataset.score = String(row.reactionTotal ?? row.reaction_total ?? 0);
+            positionFeedCard(list, added);
             if (keepPosition) window.scrollBy(0, anchor.getBoundingClientRect().top - offset);
         }
-    } catch (error) {
-        if (state !== feedState) return;
-        // A retry loads only this item; it never replaces the existing feed.
-        const retry = menuButton('Reintentar cargar la publicación nueva', () => { retry.remove(); queueFeedUpdate(data); });
-        retry.className = 'feed-update';
-        document.getElementById(state.listId).before(retry);
-    } finally { state.updates.delete(updateId); }
 }
-
+let reconnectJob = null;
+async function reconcileFeed() {
+    if (reconnectJob) return reconnectJob;
+    const state = feedState; if (!state) return;
+    reconnectJob = (async () => {
+        let cursor = null, reached = false;
+        do {
+            const query = new URLSearchParams({ limit: '12', order: 'newest', sensitive: showSensitiveContent ? 'show' : 'hide' });
+            if (cursor) query.set('cursor', cursor);
+            const payload = await fetch(state.url + (state.url.includes('?') ? '&' : '?') + query, { signal: state.controller.signal }).then(readResponse);
+            if (state !== feedState) return;
+            reached = payload.items.some(row => state.seen.has(String(row.postId ?? row.id)));
+            if (ordenarReacciones) for (const row of payload.items) await queueFeedUpdate({ id: row.postId ?? row.id });
+            else insertFeedRows(state, payload.items);
+            cursor = payload.nextCursor;
+        } while (cursor && !reached);
+        if (users[activeUser]?.id) await obtenerNotificaciones();
+    })().catch(error => { if (error.name !== 'AbortError') notify('No se pudieron recuperar todas las novedades. Reintentá recargando.', 'error'); }).finally(() => { reconnectJob = null; });
+    return reconnectJob;
+}
 function loadposts(all) {
     activeForum = 0; activeChat = ''; activeGroup = '';
     document.getElementById('profileHeader').style.display = 'none';
@@ -822,7 +933,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         if (mediaType.startsWith('image/')) {
             mediaHTML = `
             <div class="media-container">
-                <img src="${escapeHTML(media)}" loading="lazy" decoding="async" alt="Imagen subida por ${escapeHTML(username)}" class="preview-media clickable">
+                <img src="${escapeHTML(media)}" ${/^\/uploads\/[0-9a-f-]+\.(png|jpg|webp|avif)$/.test(media) ? `srcset="${escapeHTML(media)}?width=384 384w, ${escapeHTML(media)}?width=960 960w" sizes="(max-width:768px) 90vw, 650px"` : ''} loading="lazy" decoding="async" alt="Imagen subida por ${escapeHTML(username)}" class="preview-media clickable">
                 <button class="fullscreen-btn" onclick="openFullscreen(this.previousElementSibling)">⛶</button>
             </div>`;
         } else if (mediaType.startsWith('video/')) {
@@ -864,29 +975,22 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
      newpost.innerHTML = `
         <div class="post-header">
             <div class="post-user-info">
-                <span class="username" onclick="toggleUserProfileBox('${uniqueId}')">
+                <button type="button" class="username profile-trigger" onclick="toggleUserProfileBox('${uniqueId}')" aria-controls="${uniqueId}" aria-expanded="false">
                 ${profilePicHTML}
                 <span class="username-text">${escapeHTML(username)}</span>
-            </span>
+            </button>
                 <span class="post-time">${localTime}</span>
             </div>
         </div>
         <div class="user-profile-box" id="${uniqueId}" style="display:none; margin-bottom: 8px">
             <button onclick="viewProfile(${escapeHTML(JSON.stringify(String(username)))})">Ver perfil</button>
-            <button onclick="followUser(${userId})">Seguir</button>
+            <button onclick="followUser(${userId})">Seguir</button>${Number(userId) !== Number(users[activeUser]?.id) ? `<button onclick="blockUser(${userId})">Bloquear</button>` : ''}
         </div>
         ${contentHTML}
-        <button class="toggle-reactions icon-button" aria-label="Mostrar u ocultar reacciones" title="Reacciones" onclick="toggleReactions('${microReactId}')"><img src="/res/react.svg" alt=""></button>
+        <button id="toggle-reactions-${microReactId}" class="toggle-reactions icon-button" aria-controls="reactions-${microReactId}" aria-expanded="false" aria-label="Mostrar u ocultar reacciones" title="Reacciones" onclick="toggleReactions('${microReactId}')"><img src="/res/react.svg" alt=""></button>
         <div id="reactions-${microReactId}"
-            style="opacity: 0; display: none; transition: opacity 0.3s ease; width: 100%; align-items: center; justify-content: center; margin-top: 10px;"
-            data-loaded="false">
-            <iframe
-                data-src="/microReact.html?id=Matesito_${microReactId}&textColor=${document.documentElement.dataset.theme === 'light' ? '%23333333' : '%23ffffff'}"
-                style="width: 275px; max-width: 100%; height: 100px; border: none; background: transparent;"
-                frameborder="0"
-                loading="lazy"
-                title="Deja una reacción">
-            </iframe>
+            style="opacity: 0; display: none; width: 100%; align-items: center; justify-content: center; margin-top: 10px;">
+            <mate-reactions data-id="Matesito_${microReactId}"></mate-reactions>
         </div>
     `;
 
@@ -901,46 +1005,25 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
         const actions = document.createElement('div'); actions.className = 'post-actions';
         reactions.before(actions); actions.append(reactions, share);
     }
+    addPublicationTools(newpost, postId, userId, content, sensitive);
     postList.appendChild(newpost);
+    return newpost;
 }
 
 function toggleReactions(postId) {
     const reactionsContainer = document.getElementById(`reactions-${postId}`);
-    const frame = reactionsContainer?.querySelector('iframe');
-    if (frame && !frame.getAttribute('src')) {
-        const url = new URL(frame.dataset.src, location.origin);
-        url.searchParams.set('theme', document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
-        url.searchParams.set('textColor', document.documentElement.dataset.theme === 'light' ? '#333333' : '#ffffff');
-        frame.src = url.href;
-    }
-
     if (reactionsContainer) {
-        if (reactionsContainer.dataset.loaded === "false") {
-            // Primera vez que se muestra
-            reactionsContainer.style.display = "flex"; // Se hace visible
-            setTimeout(() => {
-                reactionsContainer.style.opacity = "1"; // Se muestra suavemente
-            }, 50);
-            reactionsContainer.dataset.loaded = "true"; // Marcamos como cargado
-        } else {
-            // Alternar visibilidad
-            if (reactionsContainer.style.opacity === "0") {
-                reactionsContainer.style.display = "flex";
-                setTimeout(() => {
-                    reactionsContainer.style.opacity = "1";
-                }, 50);
-            } else {
-                reactionsContainer.style.opacity = "0";
-                setTimeout(() => {
-                    reactionsContainer.style.display = "none";
-                }, 300); // Esperamos la transición antes de ocultarlo
-            }
-        }
+        const open = reactionsContainer.style.display === 'none';
+        reactionsContainer.style.display = open ? 'flex' : 'none';
+        if (open) reactionsContainer.querySelector('mate-reactions')?.activate();
+        reactionsContainer.style.opacity = open ? '1' : '0';
+        document.getElementById(`toggle-reactions-${postId}`)?.setAttribute('aria-expanded', String(open));
     }
 }
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
 function toggleUserProfileBox(uniqueId) {
+    document.querySelectorAll('.profile-trigger').forEach(button => button.setAttribute('aria-expanded', String(button.getAttribute('aria-controls') === uniqueId && activeMenuId !== uniqueId)));
     const userProfileBox = document.getElementById(uniqueId);
 
     if (activeMenuId === uniqueId) {
@@ -1055,13 +1138,16 @@ function menuButton(text, action) {
     button.type = 'button'; button.textContent = text; button.addEventListener('click', action);
     return button;
 }
-async function loadFollowedUsers() {
+async function loadFollowedUsers(offset = 0) {
     const userId = users[activeUser]?.id;
     if (!userId) return;
     const container = document.getElementById('usersContainer');
+    if (!container) return;
+    const request = beginMenuRequest(container);
     try {
-        const following = await fetch('/followedUsers/' + userId).then(readResponse);
-        container.replaceChildren();
+        const following = await fetchMenuPage('/followedUsers/' + userId, offset, request);
+        if (!request.current()) return;
+        if (!offset) container.replaceChildren();
         if (!following.length) container.textContent = 'Todavía no seguís a nadie. Buscá usuarios para sumarte a su ronda.';
         for (const user of following) {
             const card = document.createElement('div'); card.className = 'user-item';
@@ -1071,15 +1157,19 @@ async function loadFollowedUsers() {
                 menuButton('Dejar de seguir', () => unfollowUser(userId, user.id)));
             container.appendChild(card);
         }
-    } catch (error) { container.replaceChildren(); const message = document.createElement('p'); message.textContent = error.message; container.append(message, menuButton('Reintentar', () => loadFollowedUsers())); }
+        addMenuContinuation(container, request, loadFollowedUsers);
+    } catch (error) { if (!request.current()) return; container.replaceChildren(); const message = document.createElement('p'); message.textContent = error.message; container.append(message, menuButton('Reintentar', () => loadFollowedUsers())); } finally { request.finish(); }
 }
-async function loadGroups(created) {
+async function loadGroups(created, offset = 0) {
     const userId = users[activeUser]?.id;
     if (!userId) return;
     const container = document.getElementById(created ? 'createdGroupsContainer' : 'joinedGruposContainer');
+    if (!container) return;
+    const request = beginMenuRequest(container);
     try {
-        const groups = await fetch((created ? '/grupos-creados/' : '/grupos-usuario/') + userId).then(readResponse);
-        container.replaceChildren();
+        const groups = await fetchMenuPage((created ? '/grupos-creados/' : '/grupos-usuario/') + userId, offset, request);
+        if (!request.current()) return;
+        if (!offset) container.replaceChildren();
         if (!groups.length) container.textContent = created ? 'Todavía no creaste grupos.' : 'Todavía no pertenecés a un grupo.';
         for (const group of groups) {
             const card = document.createElement('div'); card.className = 'group-item';
@@ -1094,7 +1184,8 @@ async function loadGroups(created) {
                 menuButton(created ? 'Eliminar grupo' : 'Salir del grupo', () => created ? deleteGroup(group.id) : leaveGroup(group.id)));
             container.appendChild(card);
         }
-    } catch (error) { container.replaceChildren(); const message = document.createElement('p'); message.textContent = error.message; container.append(message, menuButton('Reintentar', () => loadGroups(created))); }
+        addMenuContinuation(container, request, next => loadGroups(created, next));
+    } catch (error) { if (!request.current()) return; container.replaceChildren(); const message = document.createElement('p'); message.textContent = error.message; container.append(message, menuButton('Reintentar', () => loadGroups(created))); } finally { request.finish(); }
 }
 function loadUserGroups() { return loadGroups(false); }
 function loadCreatedGroups() { return loadGroups(true); }
@@ -1181,7 +1272,16 @@ notificaciones.forEach(noti => {
     notiElemento.addEventListener('click', () => hideMenus('notifMenu'));
     const chat_or_group_id = Number(String(noti.chat_or_group_id).replace(/^[CFG]-/, ''));
 
-    if (noti.tipo === 'mensaje') {
+    if (noti.tipo === 'reaccion') {
+        idNotificacionLeida = false;
+        const reactionNames = { 1: 'me gusta', 2: 'me encanta', 3: 'me divierte', 4: 'me sorprende', 5: 'me entristece' };
+        mensaje = (noti.actor || 'Alguien') + ' reaccionó con ' + (reactionNames[noti.reaction_id] || 'una reacción') + ' a tu publicación.';
+        notiElemento.addEventListener('click', () => {
+            if (/^(?:F-)?[1-9]\d*$/.test(String(noti.referencia_id))) location.href = '/p/' + noti.referencia_id;
+            else if (String(noti.chat_or_group_id).startsWith('C-')) loadChatMessages(chat_or_group_id, loadAll);
+            else if (String(noti.chat_or_group_id).startsWith('G-')) loadGroupMessages(chat_or_group_id, loadAll);
+        });
+    } else if (noti.tipo === 'mensaje') {
         mensaje = `Tienes un nuevo mensaje de ${nombre}`;
         notiElemento.addEventListener('click', () => {
             if (Number.isSafeInteger(chat_or_group_id)) loadChatMessages(chat_or_group_id, loadAll);
@@ -1220,6 +1320,7 @@ async function marcarComoLeida(userId, notiId, elemento) {
 try {
     const response = await fetch(`/notificaciones/${userId}/leer`, {
         method: 'PUT',
+        keepalive: true,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: notiId }) // Ahora envía el ID correcto
     });
@@ -1260,7 +1361,7 @@ function searchMotor() {
     searchController?.abort();
     searchTimer = setTimeout(runSearch, 200);
 }
-function runSearch() {
+function runSearch(offset = 0) {
 const request = ++searchRequest;
 const searchInput = document.getElementById('searchInput');
 const searchContainer = document.getElementById('searchconteiner');
@@ -1274,16 +1375,20 @@ if (query.trim().length < 1) {
 }
 
 searchController = new AbortController();
-fetch(`/search?query=${encodeURIComponent(query.trim())}`, { signal: searchController.signal })
+fetch(`/search?query=${encodeURIComponent(query.trim())}&offset=${offset}`, { signal: searchController.signal })
     .then(readResponse)
     .then(data => {
         if (request !== searchRequest) return;
-        searchContainer.innerHTML = ''; // Limpiar resultados previos
+        if (!offset) searchContainer.innerHTML = '';
+        searchContainer.querySelector('.search-more')?.remove();
 
         if (data.foros.length === 0 && data.usuarios.length === 0) {
             searchContainer.innerHTML = '<p>No se encontraron resultados.</p>';
         }
 
+        if (data.nextOffset !== null && data.nextOffset !== undefined) {
+            const more = menuButton('Cargar más resultados', () => runSearch(data.nextOffset)); more.className = 'search-more'; searchContainer.append(more);
+        }
         // Mostrar foros
         data.foros.forEach(foro => {
             const foroElement = document.createElement('button');
@@ -1345,7 +1450,7 @@ async function init() {
         if (typeof openRequestedPanel === 'function') openRequestedPanel();
     } catch (error) {
         notify('No se pudo recuperar la sesión: ' + error.message, 'error');
-        showUserSelectOverlay();
+        if (!welcomeDismissed) showUserSelectOverlay();
     }
 }
 

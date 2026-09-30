@@ -34,14 +34,15 @@
     <div class="header-actions"><button id="userButton" type="button" onclick="toggleMenu()" aria-label="Mi cuenta"></button></div>
     <div class="loader-container" id="loading" style="display:none" role="status" aria-label="Publicando"><div class="loader"></div></div></div>
 
-    <div class="container right-side" id="appContainer"><div class="page-intro"><h2>La ronda está abierta.</h2><p>Compartí lo que pensás. Siempre hay lugar para uno más.</p></div>
+    <div class="container right-side" id="appContainer"><p id="connectionStatus" role="status" hidden></p><div class="page-intro"><h2>La ronda está abierta.</h2><p>Compartí lo que pensás. Siempre hay lugar para uno más.</p></div>
         <div class="post-box dialogPostContainer" id="postBox"><div class="authorContainer"><img class="avatarPost" id="composerAvatar" src="/res/default-avatar.svg" alt="Tu avatar"><div><span class="authorName" id="composerName">Tu próximo mate</span><span class="composer-hint" id="composerContext">Compartí con la comunidad</span></div></div>
             <textarea id="postContent" rows="3" placeholder="¿Qué vas a cebar?" inputmode="text" lang="es" maxlength="10000" aria-label="Texto de la publicación"></textarea>
 
+            <div id="attachmentPreview" hidden></div><div id="uploadStatus" hidden role="status"><span></span><progress max="100" value="0" aria-label="Progreso de subida"></progress><button type="button" onclick="cancelUpload()">Cancelar subida</button></div>
             <div class="contenedorBotones composer-actions buttonsSec">
-                 <label class="sensitive-check">
-                <input type="checkbox" id="sensitiveContentCheckbox" style="margin-top: 15px;">
-                ¿Es contenido sensible?
+                 <label class="sensitive-check" title="Marcar contenido sensible">
+                <input type="checkbox" id="sensitiveContentCheckbox" aria-label="Contenido sensible" style="margin-top: 15px;">
+                <span class="sensitive-label">¿Es contenido sensible?</span><span class="sensitive-mobile" aria-hidden="true">18+</span>
             </label>
 
            <button type="button" class="post-button icon-button" id="postMediaButton" onclick="selectAttachment()" aria-label="Subir archivos: imágenes, audios o videos" title="Subir archivos"><img src="/res/attach.svg" alt="">
@@ -51,7 +52,7 @@
             <input id="postMedia" type="file" accept="image/*, video/*, audio/*" style="display:none;" onchange="handleFileSelect(event)">
 
             <!-- Botón para enviar el post -->
-            <button class="post-button post-button-send" onclick="wherePost()" id="publishButton"><img class="pour-icon" src="/res/cebar.svg" alt=""><span>Cebar</span></button>
+            <button class="post-button post-button-send" onclick="wherePost()" id="publishButton" aria-label="Publicar con Cebar" title="Cebar"><img class="pour-icon" src="/res/cebar.svg" alt=""><span>Cebar</span></button>
             </div>
 
         </div>
@@ -176,7 +177,7 @@
 </div>
 <script src="/utils.js"></script>
 <script src="/post-links.js"></script>
-<script src="/scripts.js"></script>
+<script src="/scripts.js"></script><script src="/composer.js"></script><script src="/live-updates.js"></script><script src="/community-tools.js"></script>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async="" defer=""></script>
@@ -184,22 +185,29 @@
 
     const socket = window.communitySocket = io();
 
+    socket.on('connect', () => { setConnectionStatus(''); reconcileFeed(); });
+    socket.on('disconnect', () => setConnectionStatus('Conexión interrumpida. Intentando reconectar…'));
+    socket.on('connect_error', () => setConnectionStatus('No se pudo conectar. Reintentando…'));
     socket.on('reloadPosts', data => {
-        queueFeedUpdate(data);
+        scheduleFeedUpdate(data);
     });
 
     socket.on('reloadFPosts', data => {
-        queueFeedUpdate(data); obtenerNotificaciones();
+        scheduleFeedUpdate(data); scheduleNotifications();
     });
 
     socket.on('reloadGPosts', data => {
-        queueFeedUpdate(data); obtenerNotificaciones();
+        scheduleFeedUpdate(data); scheduleNotifications();
     });
 
     socket.on('reloadCPosts', data => {
-        queueFeedUpdate(data); obtenerNotificaciones();
+        scheduleFeedUpdate(data); scheduleNotifications();
     });
 
+    socket.on('sessionExpired', () => { notify('La sesión cambió o venció. Iniciá sesión de nuevo.', 'error'); closeSesion(); });
+    socket.on('notificationsChanged', scheduleNotifications);
+    socket.on('publicationChanged', refreshPublication);
+    socket.on('reloadReactions', data => { if (ordenarReacciones) refreshPublication({ id: data.id.replace(/^Matesito_post-/, '') }); });
     socket.on('reloadFG', () => {
         reloadFG();
     });
@@ -226,8 +234,8 @@
 </section>
 <section id="userSubMenu" class="workspace-panel"><div class="panel-intro"><p>Las personas que hacen tu ronda.</p><button onclick="toggleSearch()"><img class="ui-icon" src="/resources/SVG/search.svg" alt=""> Buscar personas</button></div><div id="usersContainer" class="community-list"></div></section>
 <section id="SearchMenu" class="workspace-panel"><p class="panel-description">Buscá personas y foros de la comunidad.</p><label class="panel-search"><img class="ui-icon" src="/resources/SVG/search.svg" alt=""><input type="search" id="searchInput" placeholder="¿A quién o qué estás buscando?" aria-label="Buscar personas y foros" oninput="searchMotor()"></label><div id="searchconteiner" class="community-list"><p class="panel-empty">Escribí un nombre para empezar.</p></div></section>
-<section id="dropdownMenu" class="workspace-panel"><div id="accountPanelIdentity" class="account-identity"></div><div class="account-links"><a href="/cuenta"><img class="ui-icon" src="/res/default-avatar.svg" alt=""> Editar mi perfil <span aria-hidden="true">↗</span></a><a href="/informacion">Conocé Matesito <span aria-hidden="true">↗</span></a><a href="/versiones">Novedades y versiones <span aria-hidden="true">↗</span></a><a href="/Ayuda">Centro de ayuda <span aria-hidden="true">↗</span></a><a href="/Terminos">Términos y privacidad <span aria-hidden="true">↗</span></a><button class="danger-action" onclick="closePanel();closeSesion()">Cerrar sesión</button></div></section><section id="notificationsPanel" class="workspace-panel"><div class="panel-intro"><p>Lo que está pasando en tu ronda.</p><button onclick="markAllNotificationsRead()">Marcar todas como leídas</button></div><div id="renderNotif" class="community-list">
+<section id="dropdownMenu" class="workspace-panel"><button type="button" onclick="openBlockedUsers()">Cuentas bloqueadas</button><button type="button" onclick="openModeration()">Moderar denuncias</button><div id="accountPanelIdentity" class="account-identity"></div><div class="account-links"><a href="/cuenta"><img class="ui-icon" src="/res/default-avatar.svg" alt=""> Editar mi perfil <span aria-hidden="true">↗</span></a><a href="/informacion">Conocé Matesito <span aria-hidden="true">↗</span></a><a href="/versiones">Novedades y versiones <span aria-hidden="true">↗</span></a><a href="/Ayuda">Centro de ayuda <span aria-hidden="true">↗</span></a><a href="/Terminos">Términos y privacidad <span aria-hidden="true">↗</span></a><button class="danger-action" onclick="closePanel();closeSesion()">Cerrar sesión</button></div></section><section id="notificationsPanel" class="workspace-panel"><div class="panel-intro"><p>Lo que está pasando en tu ronda.</p><button onclick="markAllNotificationsRead()">Marcar todas como leídas</button></div><div id="renderNotif" class="community-list">
             <!--Aquí se renderizaran las notificaciones-->
         </div></section></div><script src="/theme.js"></script><script src="/modern.js"></script>
 
-<script src="/share-post.js"></script><script src="/audio-recorder.js"></script></body></html>
+<script src="/reactions.js"></script><script src="/share-post.js"></script><script src="/gif-picker.js"></script><script src="/audio-recorder.js"></script></body></html>

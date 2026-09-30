@@ -97,6 +97,11 @@ function attachUpsMonitor(app, opts = {}) {
     clients.add(res);
     req.on('close', () => clients.delete(res));
   });
+  return () => {
+    clearInterval(timer);
+    for (const res of clients) res.end();
+    clients.clear();
+  };
 }
 
 module.exports = attachUpsMonitor;

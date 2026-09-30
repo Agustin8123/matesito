@@ -1,13 +1,26 @@
 const linkifyPost = require('./public/scripts/post-links');
-const fs = require('fs');
-const path = require('path');
+const renderPage = require('./page-renderer');
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const publicMessages = "m.chat_or_group_id = 'F-' || f.id::text AND m.is_private IS NOT TRUE";
 module.exports = function mountPublicPosts(app, db) {
     const origin = new URL(process.env.PUBLIC_URL || 'https://matesito.com.ar').origin;
-    const template = fs.readFileSync(path.join(__dirname, 'public/html/informacion.html'), 'utf8');
+    const template = renderPage('informacion');
+    const sitemapCache = new Map();
+    app.use((req,res,next) => {
+        if (!/^\/sitemap(?:-pages|-posts-[1-9]\d*)?\.xml$/.test(req.path)) return next();
+        const hit = sitemapCache.get(req.path);
+        if (hit && Date.now() - hit.at < 300000) return res.type('application/xml').set('Cache-Control','public, max-age=300').send(hit.body);
+        const send = res.send.bind(res);
+        res.send = body => {
+            if (res.statusCode === 200 && typeof body === 'string') {
+                if (sitemapCache.size >= 100) sitemapCache.delete(sitemapCache.keys().next().value);
+                sitemapCache.set(req.path,{ body,at:Date.now() });
+            }
+            return send(body);
+        }; next();
+    });
     const wrap = handler => (req, res, next) => Promise.resolve(handler(req, res)).catch(next);
-    const notFound = res => res.status(404).sendFile(path.join(__dirname, 'public/html/error.html'));
+    const notFound = res => res.status(404).type('html').send(renderPage('error'));
     app.get('/p/:id', wrap(async (req, res) => {
         const id = req.params.id;
         if (!/^(?:F-)?[1-9]\d{0,14}$/.test(id)) return notFound(res);
@@ -35,7 +48,7 @@ module.exports = function mountPublicPosts(app, db) {
         if (post.sensitive) content = `<details><summary>Contenido sensible · Mostrar publicación</summary>${content}</details>`;
         let avatar = '/res/default-avatar.svg';
         try { const u = new URL(post.image, origin); if (post.image && ['http:', 'https:'].includes(u.protocol)) avatar = u.href; } catch {}
-        const main = `<main id="page-content" class="document-main shared-feed"><h1 class="visually-hidden">${esc(title)}</h1><article class="post postContainer"><div class="post-header"><div class="post-user-info"><span class="username"><img class="profile-pic-img" src="${esc(avatar)}" alt=""><span class="username-text">${esc(post.username || 'Usuario')}</span></span><span class="post-time">${time}</span></div></div><div class="post-content">${content}</div><div class="post-actions"><button type="button" class="toggle-reactions icon-button" aria-label="Mostrar u ocultar reacciones" title="Reacciones" onclick="toggleSharedReactions()"><img src="/res/react.svg" alt=""></button><button type="button" class="share-post-button icon-button" onclick="sharePost('${id}')" title="Copiar enlace de esta publicación" aria-label="Compartir publicación"><img src="/res/share.svg" alt=""></button></div><div id="sharedReactions" hidden><iframe data-src="/microReact.html?id=Matesito_post-${id}" title="Deja una reacción" loading="lazy"></iframe></div></article></main>`;
+        const main = `<main id="page-content" class="document-main shared-feed"><h1 class="visually-hidden">${esc(title)}</h1><article class="post postContainer"><div class="post-header"><div class="post-user-info"><span class="username"><img class="profile-pic-img" src="${esc(avatar)}" alt=""><span class="username-text">${esc(post.username || 'Usuario')}</span></span><span class="post-time">${time}</span></div></div><div class="post-content">${content}</div><div class="post-actions"><button type="button" class="toggle-reactions icon-button" aria-label="Mostrar u ocultar reacciones" title="Reacciones" onclick="toggleSharedReactions()"><img src="/res/react.svg" alt=""></button><button type="button" class="share-post-button icon-button" onclick="sharePost('${id}')" title="Copiar enlace de esta publicación" aria-label="Compartir publicación"><img src="/res/share.svg" alt=""></button></div><div id="sharedReactions" hidden><mate-reactions data-id="Matesito_post-${id}"></mate-reactions></div></article></main>`;
 
         let html = template.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${esc(title)}</title>`)
             .replace(/<main\b[\s\S]*?<\/main>/, () => main)
@@ -43,7 +56,7 @@ module.exports = function mountPublicPosts(app, db) {
             .replace('<span>Información</span>', '<span>Publicación</span>');
         const meta = `<link rel="canonical" href="${esc(canonical)}"><meta name="description" content="${esc(description)}"><meta property="og:type" content="article"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${esc(canonical)}">`;
         html = html.replace('</head>', () => meta + (post.sensitive ? '<meta name="robots" content="noindex,follow">' : '') + (!post.sensitive && mediaURL && post.mediatype?.startsWith('image/') ? `<meta property="og:image" content="${esc(mediaURL)}">` : '') + '<link rel="stylesheet" href="/feedback.css"></head>');
-        html = html.replace('</body>', '<script src="/feedback.js"></script><script src="/share-post.js"></script></body>');
+        html = html.replace('</body>', '<script src="/feedback.js"></script><script src="/socket.io/socket.io.js"></script><script src="/reactions.js"></script><script src="/share-post.js"></script></body>');
         res.set('Cache-Control', 'no-cache').type('html').send(html);
     }));
     const xml = (res, root, body) => res.type('application/xml').set('Cache-Control', 'public, max-age=300').send(`<?xml version="1.0" encoding="UTF-8"?><${root} xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body}</${root}>`);

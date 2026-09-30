@@ -10,6 +10,7 @@ function navigateHome() { closeSidebar(); closePanel(); backToPosts(); }
 
 // Keep the existing menu handlers when moving menus into the new dialog.
 const panelOrigins = new Map();
+let panelPreviousFocus;
 function closePanel() {
     const panel = document.getElementById('navigationPanel');
     const feedback = panel.querySelector('#feedback-region');
@@ -20,9 +21,13 @@ function closePanel() {
         menu.style.display = 'none';
     }
     panelOrigins.clear();
+    if (panelPreviousFocus?.isConnected) panelPreviousFocus.focus();
+    panelPreviousFocus = null;
 }
 function openPanel(id, title) {
+    const previous = document.activeElement;
     closePanel(); closeSidebar();
+    panelPreviousFocus = previous;
     const menu = document.getElementById(id);
     if (!menu) return;
     const marker = document.createComment('menu location');
@@ -71,11 +76,14 @@ updateUserButton = function () {
     document.getElementById('composerAvatar').src = users[activeUser]?.profileImage || '/res/default-avatar.svg';
 };
 
-async function loadPrivateChats() {
+async function loadPrivateChats(offset = 0) {
     const container = document.getElementById('privateChats');
+    if (!container || !users[activeUser]?.id) return;
+    const request = beginMenuRequest(container);
     try {
-        const chats = await fetch('/chats').then(readResponse);
-        container.replaceChildren();
+        const chats = await fetchMenuPage('/chats', offset, request);
+        if (!request.current()) return;
+        if (!offset) container.replaceChildren();
         if (!chats.length) {
             const empty = document.createElement('p'); empty.textContent = 'Tu próxima conversación empieza acá. Para chatear, ambos tienen que seguirse.';
             container.append(empty, menuButton('Buscar personas', toggleSearch));
@@ -87,13 +95,15 @@ async function loadPrivateChats() {
             const icon = document.createElement('img'); icon.src = '/res/sidebar-icons/chats.svg'; icon.className = 'ui-icon'; icon.alt = '';
             card.append(avatar, name, icon); container.appendChild(card);
         }
-    } catch (error) { container.replaceChildren(); const message = document.createElement('p'); message.textContent = error.message; container.append(message, menuButton('Reintentar', loadPrivateChats)); }
+        addMenuContinuation(container, request, loadPrivateChats);
+    } catch (error) { if (!request.current()) return; container.replaceChildren(); const message = document.createElement('p'); message.textContent = error.message; container.append(message, menuButton('Reintentar', () => loadPrivateChats())); } finally { request.finish(); }
 }
 
 const panelTabs = {
     forums: { forumExplore: loadForos, forumFollowing: () => loadForumMenu('followed'), forumOwned: () => loadForumMenu('created') },
     chats: { chatInbox: loadPrivateChats, groupJoined: loadUserGroups, groupOwned: loadCreatedGroups }
 };
+const panelLoads = new WeakMap();
 async function selectPanelTab(group, selected) {
     if (!activeUser && selected !== 'forumExplore') return showUserSelectOverlay();
     const tabs = panelTabs[group];
@@ -106,12 +116,17 @@ async function selectPanelTab(group, selected) {
     }
     const section = document.getElementById(selected);
     const list = section.querySelector('.community-list');
+    const load = {};
+    panelLoads.set(list, load);
     list.textContent = 'Cargando…';
     list.setAttribute('aria-busy', 'true');
     try { await tabs[selected](); }
     finally {
-        list.removeAttribute('aria-busy');
-        filterPanelCards(section.closest('.workspace-panel').querySelector('input[type="search"]'));
+        if (panelLoads.get(list) === load) {
+            panelLoads.delete(list);
+            list.removeAttribute('aria-busy');
+            filterPanelCards(section.closest('.workspace-panel').querySelector('input[type="search"]'));
+        }
     }
 }
 function filterPanelCards(input) {
@@ -173,7 +188,6 @@ document.querySelectorAll('#createForumOverlay, #createGroupOverlay, #joinGrupoM
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     });
 });
-function selectGif() { const input = document.getElementById('postMedia'); input.accept = 'image/gif'; input.click(); }
 function selectAttachment() { const input = document.getElementById('postMedia'); input.accept = 'image/*,audio/*,video/*'; input.click(); }
 function clearSelectedMedia() { selectedFile = null; document.getElementById('postMedia').value = ''; updatePostMediaButton(); }
 function openRequestedPanel() {

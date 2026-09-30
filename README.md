@@ -11,7 +11,57 @@ Aplicación Express + PostgreSQL + Socket.IO, con interfaz web sin compilación.
 
 En producción, configurar `NODE_ENV=production`, un secreto JWT propio y los orígenes permitidos. La conexión a PostgreSQL usa TLS en producción; `DB_SSL=false` permite configurar explícitamente una base local sin TLS. No se incluyen credenciales ni cambios automáticos de esquema.
 
-## Actualizar a 1.3.0
+## Actualizar a 1.3.6 (incluye 1.3.3–1.3.5)
+
+Esta actualización necesita **aplicar schema.sql con la app detenida antes de arrancar**. Agrega bloqueos, denuncias, notificaciones por reacciones, registro de adjuntos e identificadores de envío; amplía el campo de contraseña sin borrar las existentes.
+
+1. Detener el servicio real de Matesito y respaldar PostgreSQL y UPLOAD_DIR mientras no haya escrituras.
+2. Instalar FFmpeg con el gestor de paquetes del servidor (en Debian/Ubuntu: `sudo apt install ffmpeg`). Comprobar `ffprobe -version`. Los nuevos audios y videos necesitan este ejecutable; FFPROBE_PATH permite indicar su ruta.
+3. Actualizar el código y ejecutar `npm ci --omit=dev`. Sharp instala el procesador de imágenes correspondiente al sistema; no copiar node_modules de Windows a Linux.
+4. Aplicar `psql -X --set ON_ERROR_STOP=on --dbname matesito_8s --file schema.sql` con las credenciales reales del servidor.
+5. Configurar ADMIN_USER_IDS con los IDs numéricos de las cuentas administradoras. Los propietarios de foros moderan sus propios foros; las denuncias de Inicio requieren un administrador.
+6. Si hay un proxy local, configurar TRUST_PROXY=loopback solo cuando ese sea el proxy real. No confiar indiscriminadamente en encabezados de Internet.
+7. Reiniciar el servicio. Confirmar /health/live y /health/ready, y recorrer las comprobaciones de abajo.
+
+Las versiones 1.3.3 a 1.3.6 están separadas en el changelog. La versión de instalación es 1.3.6. Las páginas HTML se componen al arrancar: reiniciar después de actualizar plantillas o Versiones.
+
+### Archivos nuevos y privacidad
+
+Los adjuntos nuevos quedan registrados por propietario. Antes de publicarlos solo su propietario puede descargarlos; una referencia pública los hace públicos. Los adjuntos usados únicamente en chats o grupos se entregan a participantes autorizados, respetando el seguimiento mutuo de los grupos. Se sirven sin caché compartida. Los archivos locales anteriores y los enlaces de Cloudinary conservan su comportamiento previo; no se migran ni se descargan.
+
+Las imágenes se decodifican y recodifican sin metadatos personales, con hasta 40 millones de píxeles y 300 cuadros. Las imágenes estáticas tienen variantes de 384 y 960 píxeles. Los audios y videos se inspeccionan con ffprobe, con hasta una hora y 16 millones de píxeles por cuadro; la grabadora sigue limitada a cinco minutos o 10 MB. Los límites por tamaño de subida también se siguen aplicando. Esta inspección no equivale a un antivirus ni garantiza la reproducción en todos los navegadores.
+
+El buscador de GIFs usa Wikimedia Commons, acepta solo resultados declarados como dominio público o CC0 y muestra la página de origen. No requiere una clave comercial. Necesita acceso HTTPS saliente a commons.wikimedia.org; el navegador carga los GIFs desde upload.wikimedia.org.
+
+Los borradores se guardan en memoria por cuenta y destino mientras la página está abierta. Se limpian al cerrar sesión; no se almacenan mensajes privados en el service worker. La pantalla sin conexión y un grupo reducido de recursos públicos sí pueden conservarse.
+
+### Limpieza del almacenamiento
+
+`npm run maintenance` muestra hasta 1.000 archivos registrados sin referencias y con más de siete días. **No borra nada por defecto.** Revisar el listado y el respaldo antes de ejecutar `npm run maintenance -- --apply`. El modo de aplicación vuelve a comprobar las referencias bajo bloqueo, elimina únicamente esos archivos y sus miniaturas, y retira identificadores de envío de más de treinta días. No limpia Cloudinary, archivos antiguos sin registro ni carpetas enteras. Repetir el comando si hay más de 1.000 candidatos.
+
+### Comprobaciones después de desplegar
+
+- Entrar como invitado: Inicio, foro público, reacciones consultables y enlace /p/ID. Publicar y reaccionar deben pedir sesión.
+- Iniciar sesión con una cuenta existente, cerrar sesión y cambiar de cuenta. Confirmar que las listas y borradores privados se limpien.
+- Publicar texto, imagen, GIF online, audio y video; cancelar una subida y reintentar un envío. Confirmar que no aparezcan duplicados.
+- Cargar más de doce posts, cambiar el orden y simular una desconexión. Las novedades deben recuperarse sin vaciar lo leído.
+- Reaccionar desde otra cuenta, cambiar la reacción y retirarla. Revisar el aviso del autor y confirmar que no se avise a sí mismo.
+- Editar y eliminar una publicación propia; una petición equivalente de otra cuenta debe devolver 403. Revisar también los enlaces compartidos.
+- Denunciar un post público y resolverlo desde su administrador; bloquear y desbloquear una cuenta. El bloqueo no elimina el historial de conversaciones.
+- Subir un archivo a un chat y comprobar su URL con participante, tercero e invitado. Los dos últimos no deben poder leerlo. Repetir con un grupo y seguidores mutuos.
+- Comprobar el editor a 320 y 360 px, los diálogos con teclado y la navegación de las páginas secundarias.
+
+### Respaldo y recuperación
+
+Con el servicio detenido, usar `pg_dump -Fc --dbname matesito_8s --file matesito-backup.dump` y archivar el UPLOAD_DIR real en un respaldo separado. El SQL no contiene las imágenes, audios ni videos. Probar la recuperación en una base distinta, por ejemplo creando una base vacía y ejecutando `pg_restore --exit-on-error --dbname matesito_restore matesito-backup.dump`; copiar los adjuntos a un directorio separado y arrancar una instancia de comprobación contra ambos. No sobrescribir producción durante la prueba.
+
+Después de migrar contraseñas a scrypt, una versión antigua que solo entienda bcrypt no puede autenticar esas cuentas. Para volver a una versión anterior hace falta restaurar el respaldo coherente de código, base y adjuntos, o mantener un lector compatible con scrypt. No basta con hacer checkout del código anterior.
+
+El acceso al panel interno y /api/ups requiere una sesión cuyo ID figure en ADMIN_USER_IDS. No se publica información de ese panel en el changelog. El servidor atiende SIGTERM/SIGINT para cerrar conexiones y drenar peticiones; el proxy o supervisor debe conceder al menos quince segundos.
+
+Los límites de solicitudes están en memoria por proceso. Si se escala a varias instancias, complementarlos en el proxy o con un almacén compartido. Las consultas de búsqueda y orden por reacciones deben medirse con EXPLAIN ANALYZE sobre una copia representativa antes de añadir índices específicos; los resultados de una base vacía no sustituyen esa medición.
+
+## Actualizar desde versiones anteriores a 1.3.0
 
 Detener la aplicación, respaldar la base existente y aplicar **schema.sql antes de arrancar el código 1.3.0**. El nuevo campo `users.auth_version` es necesario para validar sesiones. Usar el nombre real de la base y los parámetros de conexión de tu servidor; estos ejemplos usan `matesito_8s`:
 
@@ -38,7 +88,7 @@ Las novedades de esta versión se encuentran en la pestaña Versiones (`public/h
 
 ## Almacenamiento de archivos
 
-Las nuevas imágenes, audios y videos se guardan en el servidor. Las URLs existentes de Cloudinary y otros adjuntos externos siguen funcionando: no se descargan, reescriben ni eliminan. No hace falta otra migración SQL; se guardan las nuevas rutas /uploads/ en los campos existentes.
+Las nuevas imágenes, audios y videos se guardan en el servidor. Las URLs existentes de Cloudinary y otros adjuntos externos siguen funcionando: no se descargan, reescriben ni eliminan. Las rutas /uploads/ siguen en los campos existentes; desde 1.3.4 también se registra la propiedad de cada archivo nuevo en media_assets. Aplicar schema.sql antes de arrancar esta versión.
 
 Definir UPLOAD_DIR en .env con una ruta absoluta persistente, fuera del repositorio, y dar permiso de lectura y escritura al usuario que ejecuta Node. Por ejemplo, si el servicio corre como agustin:
 
@@ -53,7 +103,7 @@ UPLOAD_MAX_MB=50
 
 Sin UPLOAD_DIR se usa la carpeta uploads del proyecto, excluida de Git. No eliminar esa carpeta al desplegar. En contenedores, montar un volumen persistente. Respaldar UPLOAD_DIR junto con PostgreSQL: el respaldo SQL contiene las rutas, no los archivos. Si se cambia de carpeta después de subir archivos, copiar su contenido conservando los nombres antes de arrancar con la ruta nueva.
 
-El límite predeterminado es 50 MB por archivo y 10 MB para imágenes. Las subidas requieren sesión, se escriben por partes en disco y se validan por firma de formato; no se permiten SVG ni HTML. Se eliminan archivos parciales ante errores normales o desconexiones. Tras un cierre forzado pueden quedar archivos ocultos .part, que se pueden retirar con la app detenida. Los adjuntos son accesibles por su URL, igual que los enlaces anteriores de Cloudinary; el permiso de leer mensajes sigue controlándose en la app. No se borran automáticamente archivos al eliminar publicaciones, para evitar romper referencias compartidas.
+El límite predeterminado es 50 MB por archivo y 10 MB para imágenes. Las subidas requieren sesión, se escriben por partes en disco y se validan por firma de formato; no se permiten SVG ni HTML. Se eliminan archivos parciales ante errores normales o desconexiones. Tras un cierre forzado pueden quedar archivos ocultos .part, que se pueden retirar con la app detenida. Ese comportamiento se conserva para archivos anteriores. Los archivos registrados desde 1.3.4 tienen control de acceso según las referencias que los usan, como se describe arriba. No se borran automáticamente archivos al eliminar publicaciones, para evitar romper referencias compartidas.
 
 Si usás Nginx, configurar en el bloque server existente client_max_body_size 50m (o el límite elegido), mantener /api/uploads y /uploads/ dirigidos al proceso Node, y permitir hasta 120 segundos para las subidas. Express sirve los archivos con soporte de rangos para audio y video. El directorio debe existir en un disco con espacio suficiente. Reiniciar el servicio después de cambiar .env.
 ## Métricas del servidor

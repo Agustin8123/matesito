@@ -105,3 +105,10 @@ body:has(.navigation-panel[open]) { overflow: hidden; }
 .post .post-link { color: var(--accent-text, var(--text-primary)); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
 .post .post-link:hover { text-decoration-thickness: 2px; }
 .post .post-link:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; border-radius: 2px; }
+
+.community-dialog textarea { display:block; width:100%; min-height:120px; margin:12px 0; }
+.community-dialog label { display:block; margin:12px 0; }
+.publication-tools { margin-left:auto; }
+.publication-tools summary { cursor:pointer; }
+.publication-tools button { margin:4px; }
+.moderation-item { padding:16px 0; border-bottom:1px solid var(--border-color); }

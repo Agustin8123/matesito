@@ -2,6 +2,7 @@ async function openAudioRecorder() {
     if (!users[activeUser]?.id) return showUserSelectOverlay();
     if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) return notify('Este navegador no permite grabar audio. Usá HTTPS y un navegador compatible, o adjuntá un archivo.', 'error');
     if (document.getElementById('audioRecorder')) return;
+    const owner = users[activeUser].id, destination = composerKey;
     const dialog = document.createElement('dialog'); dialog.id = 'audioRecorder'; dialog.className = 'navigation-panel audio-recorder';
     dialog.setAttribute('aria-labelledby', 'audioRecorderTitle');
     dialog.innerHTML = '<h2 id="audioRecorderTitle">Grabar audio</h2><p class="recording-status" role="status">Esperando permiso para el micrófono…</p><audio controls hidden></audio><div class="recording-actions"><button type="button" data-stop disabled>Detener</button><button type="button" data-use hidden>Adjuntar audio</button><button type="button" data-cancel>Cancelar</button></div><p>Hasta 5 minutos o 10 MB. Podés escucharlo antes de adjuntarlo y publicarlo con Cebar.</p>';
@@ -15,7 +16,10 @@ async function openAudioRecorder() {
         stream?.getTracks().forEach(track => track.stop());
     }
     function close() {
+        if (closed) return;
         closed = true;
+        window.removeEventListener('pagehide', close);
+        const preview = dialog.querySelector('audio'); preview.pause(); preview.removeAttribute('src'); preview.load();
         if (recorder?.state === 'recording') recorder.stop();
         release();
         if (previewURL) URL.revokeObjectURL(previewURL);
@@ -25,10 +29,10 @@ async function openAudioRecorder() {
     dialog.querySelector('[data-cancel]').onclick = close;
     dialog.addEventListener('cancel', event => { event.preventDefault(); close(); });
     window.addEventListener('pagehide', close, { once: true });
-    dialog.addEventListener('close', () => window.removeEventListener('pagehide', close), { once: true });
+    dialog.addEventListener('close', close, { once: true });
     stop.onclick = finish;
     dialog.querySelector('[data-use]').onclick = () => {
-        if (!blob?.size || !users[activeUser]?.id) return close();
+        if (!blob?.size || users[activeUser]?.id !== owner || composerKey !== destination) return close();
         const extension = blob.type.includes('mp4') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm';
         selectedFile = new File([blob], 'audio-' + Date.now() + '.' + extension, { type: blob.type });
         document.getElementById('postMedia').value = '';
@@ -68,6 +72,7 @@ async function openAudioRecorder() {
             if (seconds >= 300) finish();
         }, 500);
     } catch (error) {
+        if (closed) return;
         close();
         notify(error.name === 'NotAllowedError' ? 'No se habilitó el micrófono. Podés permitirlo desde el navegador o adjuntar un audio.' : error.name === 'NotFoundError' ? 'No se encontró un micrófono.' : error.message, 'error');
     }

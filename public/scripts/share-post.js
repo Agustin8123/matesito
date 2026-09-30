@@ -1,6 +1,15 @@
 async function sharePost(id) {
     if (!/^(?:F-)?[1-9]\d*$/.test(String(id))) return;
     const url = new URL('/p/' + id, location.origin).href;
+    if (typeof navigator.share === 'function') {
+        try {
+            await navigator.share({ title: 'Publicación en Matesito', url });
+            return;
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            // Si el dispositivo no permite compartir, ofrecer el enlace.
+        }
+    }
     try {
         await navigator.clipboard.writeText(url);
         notify('Enlace copiado. Ya podés compartir esta publicación.', 'success');
@@ -23,13 +32,6 @@ async function sharePost(id) {
 
 function toggleSharedReactions() {
     const container = document.getElementById('sharedReactions');
-    const frame = container.querySelector('iframe');
     container.hidden = !container.hidden;
-    if (!container.hidden && !frame.getAttribute('src')) {
-        const url = new URL(frame.dataset.src, location.origin);
-        const theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
-        url.searchParams.set('theme', theme);
-        url.searchParams.set('textColor', theme === 'light' ? '#333333' : '#ffffff');
-        frame.src = url.href;
-    }
+    if (!container.hidden) container.querySelector('mate-reactions')?.activate();
 }

@@ -2,7 +2,7 @@ const { queryFeed, feedResponse } = require('./feed-pagination');
 const express = require('express');
 const { Server } = require('socket.io');
 const { Pool } = require('pg');
-const bcryptjs = require('bcryptjs');
+const bcryptjs = require('./passwords');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
@@ -10,8 +10,10 @@ const http = require('http');
 
 require('dotenv').config();
 const app = express();
-if (require.main === module) require('./ups-monitor')(app);
+
 app.disable('x-powered-by');
+if (process.env.TRUST_PROXY) app.set('trust proxy', process.env.TRUST_PROXY.split(',').map(value => value.trim()));
+app.use(require('./request-limits')());
 const port = Number(process.env.PORT) || 3000;
 const jwtSecret = process.env.JWT_SECRET;
 if (!jwtSecret) {
@@ -81,8 +83,12 @@ app.use((req, res, next) => {
     next();
 });
 
+poolConfig.connectionTimeoutMillis = 5000;
+poolConfig.statement_timeout = 15000;
+poolConfig.idleTimeoutMillis = 30000;
 const db = new Pool(poolConfig);
-require('./storage')(app, requireAuth);
+require('./storage')(app, requireAuth, db);
+const { claimMedia } = require('./media-access');
 db.on('error', error => console.error('Error de conexión inactiva a PostgreSQL:', error.message));
 
 // Verificar conexión
@@ -110,9 +116,25 @@ async function requireAuth(req, res, next) {
         req.user = user;
         res.setHeader('Cache-Control', 'no-store');
         next();
-    } catch {
-        return res.status(401).json({ error: 'Sesión inválida o expirada' });
+    } catch (error) {
+        if (['JsonWebTokenError', 'TokenExpiredError', 'NotBeforeError'].includes(error.name)) return res.status(401).json({ error: 'Sesión inválida o expirada' });
+        return res.status(503).json({ error: 'No se pudo verificar la sesión. Reintentá en un momento.' });
     }
+}
+
+async function optionalAuth(req, res, next) {
+    if (!getToken(req)) return next();
+    let claims;
+    try { claims = jwt.verify(getToken(req), authSecret, { algorithms: ['HS256'] }); } catch { return next(); }
+    try {
+        const user = (await db.query('SELECT id, username, auth_version FROM users WHERE id=$1', [claims.id])).rows[0];
+        if (user && Number(user.auth_version || 0) === Number(claims.auth_version || 0)) { req.user = user; res.set('Cache-Control', 'no-store'); }
+        next();
+    } catch (error) { next(Object.assign(new Error('La base de datos no está disponible. Reintentá.'), { status: 503 })); }
+}
+async function assertNotBlocked(client, first, second) {
+    const blocked = await client.query('SELECT 1 FROM user_blocks WHERE (user_id=$1 AND blocked_id=$2) OR (user_id=$2 AND blocked_id=$1)', [first, second]);
+    if (blocked.rows.length) throw requestError(403, 'No se puede interactuar con esta cuenta');
 }
 
 function setAuthCookie(res, token, maxAge = 7 * 24 * 60 * 60) {
@@ -150,19 +172,26 @@ async function reactionAccess(req, res, next) {
         if (!validReactionPostId(id)) throw requestError(400, 'ID inválido');
         const target = id.slice('Matesito_post-'.length);
         if (/^\d+$/.test(target)) {
-            const post = await db.query('SELECT 1 FROM posts WHERE id = $1', [target]);
+            const post = await db.query('SELECT u.id AS author_id FROM posts p LEFT JOIN users u ON u.username=p.username WHERE p.id=$1', [target]);
             if (!post.rows.length) throw requestError(404, 'Publicación no encontrada');
             req.reactionPublic = true;
+            req.reactionAuthor = post.rows[0].author_id;
+            req.reactionContext = 'P-' + target;
             return next();
         }
-        if (!req.user) return requireAuth(req, res, () => reactionAccess(req, res, next));
-        const message = (await db.query('SELECT chat_or_group_id, sender_id FROM mensajes WHERE id = $1', [target])).rows[0];
+        const message = (await db.query('SELECT chat_or_group_id, sender_id, is_private FROM mensajes WHERE id = $1', [target])).rows[0];
         if (!message) throw requestError(404, 'Publicación no encontrada');
         const context = /^([CFG])-([1-9]\d*)$/.exec(message.chat_or_group_id);
         if (!context) throw requestError(404, 'Contexto no encontrado');
         const [, kind, entityId] = context;
         req.reactionContext = message.chat_or_group_id;
         req.reactionAuthor = message.sender_id;
+        if (kind === 'F') {
+            const forum = await db.query('SELECT 1 FROM foros WHERE id=$1', [entityId]);
+            if (!forum.rows.length || message.is_private) throw requestError(404, 'Publicación no encontrada');
+            req.reactionPublic = true; return next();
+        }
+        if (!req.user) return requireAuth(req, res, () => reactionAccess(req, res, next));
         if (kind === 'C') {
             const chat = await db.query('SELECT 1 FROM chats WHERE id = $1 AND (user1_id = $2 OR user2_id = $2)', [entityId, req.user.id]);
             if (!chat.rows.length) throw requestError(403, 'Acceso denegado');
@@ -229,18 +258,29 @@ const asyncRoute = action => (req, res, next) => Promise.resolve(action(req, res
     const { id, reaction } = req.params;
     const userId = req.user.id;
     if (!validReactionPostId(id) || !/^[1-5]$/.test(reaction) || !sameUser(req, req.body.user_id)) throw requestError(400, 'Reacción inválida');
+    const recipient = Number(req.reactionAuthor);
+    if (recipient && recipient !== req.user.id) await assertNotBlocked(db, req.user.id, recipient);
     await transaction(async client => {
         await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [id]);
         const existing = await client.query('SELECT reaction_id FROM user_reactions WHERE user_id = $1 AND post_id = $2', [userId, id]);
         const previous = existing.rows[0]?.reaction_id;
         await client.query('DELETE FROM user_reactions WHERE user_id = $1 AND post_id = $2', [userId, id]);
         if (String(previous) !== reaction) await client.query('INSERT INTO user_reactions (user_id, post_id, reaction_id) VALUES ($1, $2, $3)', [userId, id, reaction]);
+        if (recipient && recipient !== req.user.id) {
+            if (String(previous) === reaction) await client.query("DELETE FROM notificaciones WHERE user_id=$1 AND tipo='reaccion' AND referencia_id=$2 AND actor_id=$3", [recipient, id.slice('Matesito_post-'.length), userId]);
+            else await client.query(`INSERT INTO notificaciones(user_id,tipo,referencia_id,chat_or_group_id,actor_id,reaction_id)
+                VALUES ($1,'reaccion',$2,$3,$4,$5)
+                ON CONFLICT (user_id,referencia_id,actor_id) WHERE tipo='reaccion'
+                DO UPDATE SET reaction_id=EXCLUDED.reaction_id,leido=FALSE`,
+                [recipient,id.slice('Matesito_post-'.length),req.reactionContext,userId,Number(reaction)]);
+        }
         // Derive totals from actual selections, including a newly selected reaction type.
         await client.query('DELETE FROM reactions WHERE id = $1', [id]);
         await client.query('INSERT INTO reactions (id, reaction_id, count) SELECT post_id, reaction_id, COUNT(*) FROM user_reactions WHERE post_id = $1 GROUP BY post_id, reaction_id', [id]);
     });
     if (req.reactionPublic) io.emit('reloadReactions', { id });
     else await emitPrivateUpdate(req.reactionContext, req.reactionAuthor, 'reloadReactions', { id });
+    if (recipient && recipient !== req.user.id) io.to('user:' + recipient).emit('notificationsChanged');
     res.json({ message: 'Reacción actualizada' });
 }));
 
@@ -289,8 +329,9 @@ app.get('/get/microreact--reactionss/:id', reactionAccess, async (req, res) => {
 });
 
 // Crear nuevo usuario
-app.post('/users', async (req, res) => {
+app.post('/users', asyncRoute(async (req, res) => {
     const { username, password, profileImage, description, token } = req.body;
+    if (String(profileImage || '').includes('/uploads/')) return res.status(400).json({ error: 'Subí la foto después de crear tu cuenta' });
 
     if (!validText(username, 25) || !validText(password, 128)) {
         return res.status(400).json({ error: 'Usuario o contraseña inválidos' });
@@ -313,7 +354,7 @@ app.post('/users', async (req, res) => {
         console.error('Error al insertar usuario:', err);
         res.status(err.code === '23505' ? 409 : 500).json({ error: 'Error al crear el usuario' });
     }
-});
+}));
 
 // Iniciar sesión con un usuario existente
 app.post('/login', async (req, res) => {
@@ -333,6 +374,10 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
         }
         const user = results.rows[0];
+        if (bcryptjs.needsUpgrade(user.password)) {
+            const upgraded = await bcryptjs.hash(password);
+            await db.query('UPDATE users SET password=$1 WHERE id=$2 AND password=$3', [upgraded, user.id, user.password]);
+        }
         const authToken = jwt.sign({ id: user.id, username: user.username, auth_version: user.auth_version || 0 }, authSecret, { expiresIn: '7d' });
         setAuthCookie(res, authToken);
         return res.status(200).json({ id: user.id, username: user.username });
@@ -351,49 +396,41 @@ function validPublication(content, media, mediaType) {
     return content.trim().length > 0 || attached;
 }
 
-app.post('/posts', requireAuth, (req, res) => {
+async function replayPublication(client, req) {
+    const key = req.body.requestId;
+    if (key === undefined) return null;
+    if (typeof key !== 'string' || !/^[0-9a-f-]{36}$/i.test(key)) throw requestError(400, 'Identificador de envío inválido');
+    const hash = require('crypto').createHash('sha256').update(req.path + JSON.stringify(req.body)).digest('hex');
+    req.publicationHash = hash;
+    await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', ['send:' + req.user.id + ':' + key]);
+    const previous = (await client.query('SELECT request_hash,response FROM publication_requests WHERE user_id=$1 AND request_id=$2', [req.user.id, key])).rows[0];
+    if (previous && previous.request_hash !== hash) throw requestError(409, 'Este envío corresponde a otro contenido');
+    return previous?.response || null;
+}
+async function rememberPublication(client, req, response) {
+    if (!req.publicationHash) return;
+    await client.query('INSERT INTO publication_requests(user_id,request_id,request_hash,response) VALUES ($1,$2,$3,$4)', [req.user.id,req.body.requestId,req.publicationHash,JSON.stringify(response)]);
+}
+app.post('/posts', requireAuth, asyncRoute(async (req, res) => {
     const { username, content, media, mediaType, sensitive } = req.body;
-
-    // Verifica si el usuario y el contenido están presentes
     if (username !== req.user.username || !validPublication(content, media, mediaType) ||
-        (media !== undefined && media !== null && !validText(media, 2000000)) ||
-        (mediaType !== undefined && mediaType !== null && !validText(mediaType, 100))) {
-        return res.status(400).json('Faltan datos requeridos');
-    }
-
-    const checkQuery = 'SELECT * FROM posts WHERE username = $1 ORDER BY created_at DESC LIMIT 1';
-    db.query(checkQuery, [username], (err, result) => {
-        if (err) {
-            console.error('Error al verificar post previo:', err);
-            return res.status(500).json('Error al verificar el post');
-        }
-
-        const lastpost = result.rows[0];
-        if (lastpost && lastpost.content === content && (lastpost.media || null) === (media || null)) {
-            return res.status(400).json('No puedes enviar el mismo post que el anterior.');
-        }
-
-        if (sensitive !== undefined && typeof sensitive !== 'boolean') {
-            return res.status(400).json('El campo sensitive debe ser booleano');
-        }
-        const isSensitive = sensitive === true;
-        const query = `
-        INSERT INTO posts (username, content, media, mediatype, sensitive, created_at) 
-        VALUES ($1, $2, $3, $4, $5, $6) 
-        RETURNING id`;
-
-        const params = [username, content, media || null, mediaType || null, isSensitive, new Date().toISOString()];
-        db.query(query, params, (err, result) => {
-            if (err) {
-                console.error('Error al insertar el post:', err);
-                return res.status(500).json('Error al publicar el post');
-            }
-            const postId = result.rows[0].id;
-            io.emit('reloadPosts', { id: postId });
-            res.status(201).json({ id: postId, content, media, mediaType });
-        });
+        (media != null && !validText(media, 2000000)) || (mediaType != null && !validText(mediaType,100)) ||
+        (sensitive !== undefined && typeof sensitive !== 'boolean')) throw requestError(400, 'Contenido inválido');
+    let replayed = false;
+    const saved = await transaction(async client => {
+        const replay = await replayPublication(client, req);
+        if (replay) { replayed = true; return replay; }
+        await claimMedia(client, req, media);
+        await client.query('SELECT id FROM users WHERE id=$1 FOR UPDATE', [req.user.id]);
+        const last = (await client.query('SELECT content,media FROM posts WHERE username=$1 ORDER BY created_at DESC,id DESC LIMIT 1', [username])).rows[0];
+        if (last && last.content === content && (last.media || null) === (media || null)) throw requestError(409, 'No podés enviar el mismo post dos veces seguidas');
+        const row = (await client.query('INSERT INTO posts(username,content,media,mediatype,sensitive,created_at) VALUES ($1,$2,$3,$4,$5,NOW()) RETURNING id', [username,content,media || null,mediaType || null,sensitive === true])).rows[0];
+        const response = { id: row.id, content, media, mediaType };
+        await rememberPublication(client, req, response); return response;
     });
-});
+    if (!replayed) io.emit('reloadPosts', { id: saved.id });
+    res.status(201).json(saved);
+}));
 
 app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
     const { forumId } = req.params;
@@ -408,6 +445,9 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
     try {
         client = await db.connect();
         await client.query('BEGIN');
+        const replay = await replayPublication(client, req);
+        if (replay) { await client.query('COMMIT'); return res.status(201).json(replay); }
+        await claimMedia(client, req, media);
         const numericForumId = Number(forumId);
         if (is_private) {
             const chat = await client.query(
@@ -415,6 +455,8 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
                 [numericForumId, req.user.id]
             );
             if (!chat.rows.length) { await client.query('ROLLBACK'); return res.status(403).json({ error: 'Acceso denegado' }); }
+            const peers = (await client.query('SELECT user1_id,user2_id FROM chats WHERE id=$1', [numericForumId])).rows[0];
+            await assertNotBlocked(client, peers.user1_id, peers.user2_id);
         } else {
             const participant = await client.query(
                 'SELECT 1 FROM participantes WHERE forum_or_group_id = $1 AND user_id = $2 AND is_group = FALSE',
@@ -471,6 +513,7 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
             );
         }
 
+        await rememberPublication(client, req, mensaje);
         await client.query('COMMIT');
         if (is_private) await emitPrivateUpdate(formattedForumId, req.user.id, 'reloadCPosts', { id: formattedId });
         else io.emit('reloadFPosts', { id: formattedId });
@@ -479,12 +522,12 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
     } catch (error) {
         if (client) await client.query('ROLLBACK').catch(() => {});
         console.error('Error al guardar el mensaje:', error);
-        res.status(500).json({ error: 'Error al guardar el mensaje' });
+        res.status(error.status || 500).json({ error: error.status ? error.message : 'Error al guardar el mensaje' });
     } finally { client?.release(); }
 });
 
 
-app.get('/mensajes/:forumId', (req, res, next) => req.query.private === 'true' ? requireAuth(req, res, next) : next(), async (req, res) => {
+app.get('/mensajes/:forumId', (req, res, next) => req.query.private === 'true' ? requireAuth(req, res, next) : optionalAuth(req, res, next), async (req, res) => {
     const { forumId } = req.params;
     const isPrivate = req.query.private === 'true'; // opcional, según cómo lo llames desde frontend
     if (!validNumericId(forumId)) return res.status(400).json({ error: 'ID inválido' });
@@ -533,9 +576,9 @@ app.get('/mensajes/:forumId', (req, res, next) => req.query.private === 'true' ?
 function mapPost(post) {
     return { postId: post.postid, userId: post.userid, username: post.username, content: post.content,
         media: post.media || null, mediaType: post.mediatype || null, created_at: post.created_at,
-        profilePicture: post.profilepicture || null, sensitive: !!post.sensitive };
+        profilePicture: post.profilepicture || null, sensitive: !!post.sensitive, reactionTotal: Number(post.reaction_total || 0) };
 }
-for (const route of ['/posts', '/posts/user/:username']) app.get(route, asyncRoute(async (req, res) => {
+for (const route of ['/posts', '/posts/user/:username']) app.get(route, optionalAuth, asyncRoute(async (req, res) => {
     const username = req.params.username;
     const result = await queryFeed(req, db, `SELECT t.id AS postid, t.username, t.content, t.media, t.mediatype, t.created_at, t.sensitive,
         u.id AS userid, u.image AS profilepicture FROM posts t LEFT JOIN users u ON t.username = u.username
@@ -549,7 +592,7 @@ const path = require('path');
 app.post('/getUserDetails', (req, res) => {
     const { username } = req.body;
 
-    const query = 'SELECT * FROM public.users WHERE username = $1';
+    const query = 'SELECT id,username,image,description FROM public.users WHERE username = $1';
     db.query(query, [username], (err, results) => {
         if (err) {
             console.error('Error en la consulta /getUserDetails:', err);
@@ -570,27 +613,15 @@ app.post('/getUserDetails', (req, res) => {
     });
 });
 
-app.put('/updateProfileImage', requireAuth, (req, res) => {
-    const { username, profileImage } = req.body;
-
-    if (username !== req.user.username || !validText(profileImage, 2000000)) {
-        return res.status(400).json({ error: 'Datos incompletos' });
-    }
-
-    const query = 'UPDATE public.users SET image = $1 WHERE username = $2';
-    db.query(query, [profileImage, username], (err, result) => {
-        if (err) {
-            console.error('Error al actualizar la imagen de perfil:', err);
-            return res.status(500).json({ error: 'Error al actualizar la imagen de perfil' });
-        }
-
-        if (result.rowCount > 0) {
-            res.status(200).json({ success: true, message: 'Imagen de perfil actualizada con éxito' });
-        } else {
-            res.status(404).json({ success: false, message: 'Usuario no encontrado' });
-        }
+app.put('/updateProfileImage', requireAuth, asyncRoute(async (req,res) => {
+    const { username,profileImage } = req.body;
+    if (username !== req.user.username || !validText(profileImage,2000000)) throw requestError(400,'Imagen inválida');
+    await transaction(async client => {
+        await claimMedia(client, req, profileImage);
+        await client.query('UPDATE users SET image=$1 WHERE id=$2',[profileImage,req.user.id]);
     });
-});
+    res.json({ success:true, message:'Imagen de perfil actualizada' });
+}));
 
 app.put('/updateDescription', requireAuth, (req, res) => {
     const { username, description } = req.body;
@@ -644,48 +675,20 @@ app.put('/updateUsername', requireAuth, async (req, res) => {
 });
 
 // Ruta para actualizar la contraseña
-app.put('/updatePassword', requireAuth, async (req, res) => {
-    const { username, currentPassword, newPassword } = req.body;
-
-    if (username !== req.user.username || !validText(currentPassword, 128) || !validText(newPassword, 128)) {
-        return res.status(400).json({ error: 'Datos incompletos' });
-    }
-
-    const query = 'SELECT password FROM public.users WHERE username = $1';
-    db.query(query, [username], async (err, results) => {
-        if (err) {
-            console.error('Error al buscar la contraseña actual:', err);
-            return res.status(500).json({ error: 'Error al verificar la contraseña actual' });
-        }
-
-        if (results.rows.length === 0) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-
-        const user = results.rows[0];
-        const isValidPassword = await bcryptjs.compare(currentPassword, user.password);
-
-        if (!isValidPassword) {
-            return res.status(401).json({ error: 'La contraseña actual es incorrecta' });
-        }
-
-        const hashedPassword = await bcryptjs.hash(newPassword, 10);
-        const updateQuery = 'UPDATE public.users SET password = $1, auth_version = COALESCE(auth_version, 0) + 1 WHERE username = $2';
-        db.query(updateQuery, [hashedPassword, username], (err, result) => {
-            if (err) {
-                console.error('Error al actualizar la contraseña:', err);
-                return res.status(500).json({ error: 'Error al actualizar la contraseña' });
-            }
-
-            if (result.rowCount > 0) {
-                setAuthCookie(res, jwt.sign({ id: req.user.id, username, auth_version: Number(req.user.auth_version || 0) + 1 }, authSecret, { expiresIn: '7d' }));
-                res.status(200).json({ success: true, message: 'Contraseña actualizada con éxito' });
-            } else {
-                res.status(404).json({ success: false, message: 'Usuario no encontrado' });
-            }
-        });
+app.put('/updatePassword', requireAuth, asyncRoute(async (req,res) => {
+    const { username,currentPassword,newPassword } = req.body;
+    if (username !== req.user.username || !validText(currentPassword,128) || !validText(newPassword,128)) throw requestError(400,'Datos incompletos');
+    const version = await transaction(async client => {
+        const user = (await client.query('SELECT password,auth_version FROM users WHERE id=$1 FOR UPDATE',[req.user.id])).rows[0];
+        if (!user || !await bcryptjs.compare(currentPassword,user.password)) throw requestError(401,'La contraseña actual es incorrecta');
+        const hash = await bcryptjs.hash(newPassword);
+        return (await client.query('UPDATE users SET password=$1,auth_version=auth_version+1 WHERE id=$2 RETURNING auth_version',[hash,req.user.id])).rows[0].auth_version;
     });
-});
+    setAuthCookie(res,jwt.sign({ id:req.user.id,username,auth_version:version },authSecret,{ expiresIn:'7d' }));
+    io.to('user:' + req.user.id).emit('sessionExpired');
+    io.in('user:' + req.user.id).disconnectSockets(true);
+    res.json({ success:true,message:'Contraseña actualizada con éxito' });
+}));
 
 // Crear un foro
 app.post('/foros', requireAuth, asyncRoute(async (req, res) => {
@@ -702,31 +705,6 @@ app.post('/foros', requireAuth, asyncRoute(async (req, res) => {
     res.status(201).json(forum);
 }));
 
-app.get('/foros', (req, res) => {
-    const query = `
-        SELECT foros.id, foros.name, foros.description, public.users.username AS owner_name
-        FROM foros
-        JOIN public.users ON foros.owner_id = public.users.id
-        ORDER BY foros.name;
-    `;
-
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error al obtener los foros:', err);
-            return res.status(500).json({ error: 'Error al obtener los foros' });
-        }
-
-        const foros = results.rows.map(foro => ({
-            id: foro.id,
-            name: foro.name,
-            description: foro.description,
-            ownerName: foro.owner_name // Ahora tenemos el nombre del creador
-        }));
-
-        res.status(200).json(foros);
-    });
-});
-
 app.post('/grupos', requireAuth, asyncRoute(async (req, res) => {
     const { name, description, ownerId } = req.body;
     if (!validText(name, 30) || !validText(description, 2000) || !sameUser(req, ownerId)) throw requestError(400, 'Datos del grupo inválidos');
@@ -736,34 +714,9 @@ app.post('/grupos', requireAuth, asyncRoute(async (req, res) => {
         await client.query('INSERT INTO participantes (user_id, forum_or_group_id, is_group, joined_at) VALUES ($1, $2, TRUE, NOW())', [req.user.id, result.rows[0].id]);
         return result.rows[0];
     });
-    io.emit('reloadFG');
+    io.to('user:' + req.user.id).emit('reloadFG');
     res.status(201).json(group);
 }));
-
-app.get('/grupos-creados/:ownerId', requireAuth, async (req, res) => {
-    const { ownerId } = req.params;
-
-    // Validar que se haya proporcionado el ID del propietario
-    if (!validNumericId(ownerId) || !sameUser(req, ownerId)) {
-        return res.status(400).json({ error: 'El ID del propietario es requerido' });
-    }
-
-    try {
-        // Consultar los grupos creados por el usuario
-        const query = `
-            SELECT id, name, description, invite_code, created_at
-            FROM grupos
-            WHERE owner_id = $1
-            ORDER BY created_at DESC
-        `;
-        const result = await db.query(query, [ownerId]);
-
-        res.status(200).json(result.rows);
-    } catch (error) {
-        console.error('Error al obtener los grupos creados:', error);
-        res.status(500).json({ error: 'Error al procesar la solicitud' });
-    }
-});
 
 app.delete('/grupo/:groupId/:ownerId', requireAuth, asyncRoute(async (req, res) => {
     const id = req.params.groupId;
@@ -833,7 +786,7 @@ app.post('/unir-grupo', requireAuth, async (req, res) => {
             message: 'Usuario unido al grupo exitosamente',
             participanteId: insertResult.rows[0].id,
         });
-        io.emit('reloadFG');
+        io.to('user:' + req.user.id).emit('reloadFG');
     } catch (error) {
         console.error('Error al unir al usuario al grupo:', error);
         res.status(500).json({ error: 'Error al procesar la solicitud' });
@@ -866,41 +819,13 @@ app.delete('/salir-grupo', requireAuth, async (req, res) => {
         );
 
         res.status(200).json({ message: 'Usuario eliminado del grupo exitosamente' });
-        io.emit('reloadFG');
+        io.to('user:' + req.user.id).emit('reloadFG');
     } catch (error) {
         console.error('Error al salir del grupo:', error);
         res.status(500).json({ error: 'Error al procesar la solicitud' });
     }
 });
 
-app.get('/grupos-usuario/:userId', requireAuth, async (req, res) => {
-    const { userId } = req.params;
-
-    if (!validNumericId(userId) || !sameUser(req, userId)) {
-        return res.status(400).json({ error: 'El ID del usuario es requerido' });
-    }
-
-    try {
-        const gruposResult = await db.query(
-            `
-            SELECT g.id, g.name, g.description, g.invite_code, g.created_at, u.username AS owner_name
-            FROM grupos g
-            INNER JOIN participantes p ON g.id = p.forum_or_group_id
-            INNER JOIN public.users u ON g.owner_id = u.id
-            WHERE p.user_id = $1 AND p.is_group = TRUE
-            ORDER BY g.created_at DESC
-            `,
-            [userId]
-        );
-
-        res.status(200).json(gruposResult.rows);
-    } catch (error) {
-        console.error('Error al obtener los grupos del usuario:', error);
-        res.status(500).json({ error: 'Error al procesar la solicitud' });
-    }
-});
-
-// Ruta para obtener los detalles de un grupo por su ID
 app.get('/grupo/:id', requireAuth, async (req, res) => {
     const groupId = req.params.id;
     if (!validNumericId(groupId)) return res.status(400).json({ error: 'ID inválido' });
@@ -926,24 +851,6 @@ app.get('/grupo/:id', requireAuth, async (req, res) => {
         console.error('Error al obtener los detalles del grupo:', error);
         res.status(500).json('Error al obtener los detalles del grupo');
     }
-});
-
-app.get('/userCreatedForums/:userId', requireAuth, (req, res) => {
-    const userId = req.params.userId;
-
-    if (!validNumericId(userId) || !sameUser(req, userId)) {
-        return res.status(400).json('ID de usuario no proporcionado');
-    }
-
-    const query = 'SELECT id, name, description FROM foros WHERE owner_id = $1';
-    db.query(query, [userId], (err, result) => {
-        if (err) {
-            console.error('Error al obtener los foros del usuario:', err);
-            return res.status(500).json('Error al obtener los foros del usuario');
-        }
-
-        res.status(200).json(result.rows);
-    });
 });
 
 app.delete('/foros/:forumId', requireAuth, asyncRoute(async (req, res) => {
@@ -979,7 +886,7 @@ app.post('/joinForum', requireAuth, asyncRoute(async (req, res) => {
         if (member.rows.length) throw requestError(409, 'Ya estás siguiendo este foro');
         await client.query('INSERT INTO participantes (user_id, forum_or_group_id, is_group, joined_at) VALUES ($1, $2, FALSE, NOW())', [userId, forumId]);
     });
-    io.emit('reloadFG'); res.status(201).json({ message: 'Ahora seguís este foro' });
+    io.to('user:' + req.user.id).emit('reloadFG'); res.status(201).json({ message: 'Ahora seguís este foro' });
 }));
 
 app.post('/leaveForum', requireAuth, (req, res) => {
@@ -1008,74 +915,25 @@ app.post('/leaveForum', requireAuth, (req, res) => {
             }
 
             res.status(200).json({ message: 'Dejaste de seguir el foro con éxito' }); // Mensaje de éxito
-            io.emit('reloadFG');
+            io.to('user:' + req.user.id).emit('reloadFG');
         });
     });
 });
 
-app.get('/userForums/:userId', requireAuth, (req, res) => {
-    const { userId } = req.params;
-
-    if (!validNumericId(userId) || !sameUser(req, userId)) {
-        return res.status(400).json('ID de usuario no proporcionado');
-    }
-
-    const query = `
-        SELECT f.id, f.name, f.description, u.username AS owner_name
-        FROM foros f
-        INNER JOIN participantes p ON f.id = p.forum_or_group_id
-        INNER JOIN public.users u ON f.owner_id = u.id
-        WHERE p.user_id = $1 AND p.is_group = false
-    `;
-
-    db.query(query, [userId], (err, result) => {
-        if (err) {
-            console.error('Error al cargar los foros del usuario:', err);
-            return res.status(500).json('Error al cargar los foros del usuario');
-        }
-
-        res.status(200).json(result.rows);
-    });
-});
-
-// Seguir un usuario
 app.post('/followUser', requireAuth, asyncRoute(async (req, res) => {
     const { followerId, followedId } = req.body;
     if (!validNumericId(followedId) || !sameUser(req, followerId) || String(followerId) === String(followedId)) throw requestError(400, 'Usuarios inválidos');
     await transaction(async client => {
         await client.query('SELECT id FROM users WHERE id = $1 FOR UPDATE', [followerId]);
+        await assertNotBlocked(client, followerId, followedId);
         const user = await client.query('SELECT id FROM users WHERE id = $1', [followedId]);
         if (!user.rows.length) throw requestError(404, 'Usuario no encontrado');
         const following = await client.query('SELECT 1 FROM seguir WHERE follower_id = $1 AND followed_id = $2', [followerId, followedId]);
         if (following.rows.length) throw requestError(409, 'Ya seguís a este usuario');
         await client.query('INSERT INTO seguir (follower_id, followed_id, forum_id, created_at) VALUES ($1, $2, NULL, NOW())', [followerId, followedId]);
     });
-    io.emit('reloadFG'); res.status(201).json({ message: 'Ahora seguís a este usuario' });
+    io.to('user:' + req.user.id).emit('reloadFG'); res.status(201).json({ message: 'Ahora seguís a este usuario' });
 }));
-
-app.get('/followedUsers/:followerId', requireAuth, (req, res) => {
-    const { followerId } = req.params;
-
-    if (!validNumericId(followerId) || !sameUser(req, followerId)) {
-        return res.status(400).json('ID de usuario no proporcionado');
-    }
-
-    const query = `
-        SELECT u.id, u.username, u.id, u.image AS profilePicture
-        FROM public.users u
-        INNER JOIN seguir s ON u.id = s.followed_id
-        WHERE s.follower_id = $1
-    `;
-
-    db.query(query, [followerId], (err, result) => {
-        if (err) {
-            console.error('Error al cargar los usuarios seguidos:', err);
-            return res.status(500).json('Error al cargar los usuarios seguidos');
-        }
-
-        res.status(200).json(result.rows);
-    });
-});
 
 app.post('/unfollowUser', requireAuth, (req, res) => {
     const { followerId, followedId } = req.body;
@@ -1105,73 +963,26 @@ app.post('/unfollowUser', requireAuth, (req, res) => {
             }
 
             res.status(200).json({ message: 'Has dejado de seguir a este usuario' });
-            io.emit('reloadFG');
+            io.to('user:' + req.user.id).emit('reloadFG');
         });
     });
 });
 
-app.get('/search', (req, res) => {
-    const { query } = req.query;  // El término de búsqueda se pasa como parámetro 'query'
-
-    if (!validText(query, 200)) {
-        return res.status(400).json({ message: 'Consulta vacía' });
-    }
-
-    // Buscando foros por nombre o descripción
-    const forosQuery = `
-        SELECT id, name, description
-        FROM foros
-        WHERE name ILIKE $1 OR description ILIKE $1
-        ORDER BY name;
-    `;
-    
-    // Buscando usuarios por nombre de usuario
-    const usersQuery = `
-        SELECT id, username, image
-        FROM public.users
-        WHERE username ILIKE $1
-        ORDER BY username;
-    `;
-
-    // Ejecutamos las dos consultas en paralelo
-    db.query(forosQuery, [`%${query}%`], (err, foroResults) => {
-        if (err) {
-            console.error('Error al obtener los foros:', err);
-            return res.status(500).json({ error: 'Error al obtener los foros' });
-        }
-
-        db.query(usersQuery, [`%${query}%`], (err, userResults) => {
-            if (err) {
-                console.error('Error al obtener los usuarios:', err);
-                return res.status(500).json({ error: 'Error al obtener los usuarios' });
-            }
-
-            // Mapear los resultados de los foros
-            const foros = foroResults.rows.map(foro => ({
-                id: foro.id,
-                name: foro.name,
-                description: foro.description
-            }));
-
-            // Mapear los resultados de los usuarios
-            const usuarios = userResults.rows.map(user => ({
-                id: user.id,
-                username: user.username,
-                profilePicture: user.image || null
-            }));
-
-            // Devolver los resultados de la búsqueda
-            res.status(200).json({
-                foros: foros,
-                usuarios: usuarios
-            });
-        });
-    });
-});
+app.get('/search', asyncRoute(async (req,res) => {
+    const query = req.query.query, offset = Number(req.query.offset || 0);
+    if (!validText(query,200) || !Number.isSafeInteger(offset) || offset<0 || offset>10000) throw requestError(400,'Búsqueda inválida');
+    const term = '%' + query.trim().replace(/[\\%_]/g, '\\$&') + '%';
+    const [forums,users] = await Promise.all([
+        db.query('SELECT id,name,description FROM foros WHERE name ILIKE $1 OR description ILIKE $1 ORDER BY name,id LIMIT 31 OFFSET $2',[term,offset]),
+        db.query('SELECT id,username,image AS "profilePicture" FROM users WHERE username ILIKE $1 ORDER BY username,id LIMIT 31 OFFSET $2',[term,offset])
+    ]);
+    res.json({ foros:forums.rows.slice(0,30),usuarios:users.rows.slice(0,30),nextOffset:forums.rows.length>30 || users.rows.length>30 ? offset+30 : null });
+}));
 
 // Crear un chat privado
 app.post('/createOrLoadPrivateChat', requireAuth, asyncRoute(async (req, res) => {
     const { user1Id, user2Id } = req.body;
+    if (validNumericId(user2Id)) await assertNotBlocked(db, req.user.id, user2Id);
     if (!validNumericId(user2Id) || !sameUser(req, user1Id) || String(user1Id) === String(user2Id)) throw requestError(400, 'Usuarios inválidos');
     const chat = await transaction(async client => {
         const pair = [Number(user1Id), Number(user2Id)].sort((a, b) => a - b);
@@ -1185,20 +996,11 @@ app.post('/createOrLoadPrivateChat', requireAuth, asyncRoute(async (req, res) =>
         const result = await client.query('INSERT INTO chats (user1_id, user2_id, created_at) VALUES ($1, $2, NOW()) RETURNING id', pair);
         return { id: result.rows[0].id, created: true };
     });
-    if (chat.created) io.emit('reloadFG');
+    if (chat.created) io.to('user:' + req.user.id).emit('reloadFG');
     res.status(chat.created ? 201 : 200).json({ chatId: chat.id });
 }));
 
-app.get('/chats', requireAuth, asyncRoute(async (req, res) => {
-    const result = await db.query(
-        `SELECT c.id, c.created_at, u.id AS user_id, u.username, u.image
-         FROM chats c JOIN users u ON u.id = CASE WHEN c.user1_id = $1 THEN c.user2_id ELSE c.user1_id END
-         WHERE c.user1_id = $1 OR c.user2_id = $1 ORDER BY c.created_at DESC`, [req.user.id]
-    );
-    res.json(result.rows);
-}));
-
-  app.get('/chat/messages/:chatId', requireAuth, async (req, res) => {
+app.get('/chat/messages/:chatId', requireAuth, async (req, res) => {
     const { chatId } = req.params;
       if (!validNumericId(chatId)) return res.status(400).json({ error: 'ID inválido' });
       const formattedChatId = `C-${chatId}`;
@@ -1300,6 +1102,8 @@ app.post('/group/messages/:groupId', requireAuth, async (req, res) => {
     try {
         client = await db.connect();
         await client.query('BEGIN');
+        const replay = await replayPublication(client, req);
+        if (replay) { await client.query('COMMIT'); return res.status(201).json(replay); }
         const isParticipant = await client.query(
             `SELECT COUNT(*) 
              FROM participantes 
@@ -1339,102 +1143,19 @@ app.post('/group/messages/:groupId', requireAuth, async (req, res) => {
             [formattedId, formattedGroupId, groupId, sender_id]
         );
 
+        await rememberPublication(client, req, mensaje);
         await client.query('COMMIT');
         await emitPrivateUpdate(formattedGroupId, req.user.id, 'reloadGPosts', { id: formattedId });
         res.status(201).json(mensaje);
     } catch (error) {
         if (client) await client.query('ROLLBACK').catch(() => {});
         console.error('Error al publicar el mensaje:', error);
-        res.status(500).json({ error: 'Error al publicar el mensaje.' });
+        res.status(error.status || 500).json({ error: error.status ? error.message : 'Error al publicar el mensaje.' });
     } finally { client?.release(); }
 });
 
-app.get('/notificaciones/:user_id', requireAuth, async (req, res) => {
-    const { user_id } = req.params;
-    if (!sameUser(req, user_id)) return res.status(403).json({ error: 'Acceso denegado' });
-
-    try {
-        const notificaciones = await db.query(
-            `SELECT n.id, n.tipo, n.referencia_id, n.chat_or_group_id, n.leido
-             FROM notificaciones n
-             WHERE n.user_id = $1 AND n.leido = FALSE
-             AND (n.chat_or_group_id IN (SELECT 'F-' || id::text FROM foros)
-                  OR n.chat_or_group_id IN (SELECT 'C-' || id::text FROM chats WHERE user1_id=$1 OR user2_id=$1)
-                  OR n.referencia_id IN (
-                      SELECT m.id FROM mensajes m LEFT JOIN participantes p
-                      ON p.user_id=m.sender_id AND 'G-' || p.forum_or_group_id::text=m.chat_or_group_id AND p.is_group=TRUE
-                      WHERE (m.chat_or_group_id IN (SELECT 'G-' || forum_or_group_id::text FROM participantes WHERE user_id=$1 AND is_group=TRUE)
-                             OR m.chat_or_group_id IN (SELECT 'G-' || id::text FROM grupos WHERE owner_id=$1))
-                      AND (m.sender_id=$1 OR (p.user_id IS NOT NULL
-                           AND m.sender_id IN (SELECT followed_id FROM seguir WHERE follower_id=$1)
-                           AND m.sender_id IN (SELECT follower_id FROM seguir WHERE followed_id=$1)))))
-             ORDER BY n.id DESC LIMIT 100`,
-            [user_id]
-        );
-
-        const notiDetalles = await Promise.all(
-            notificaciones.rows.map(async (noti) => {
-
-                const rawId = String(noti.chat_or_group_id || '');
-                if (!/^[CFG]-[1-9]\d*$/.test(rawId)) return null; // "C-5", "G-3", "F-2"
-                const prefix = rawId.split('-')[0];
-                const numericId = parseInt(rawId.split('-')[1], 10);
-
-                let nombre = 'Desconocido';
-
-                if (prefix === 'F') {
-                    const foro = await db.query(
-                        `SELECT name FROM foros WHERE id = $1`,
-                        [numericId]
-                    );
-                    if (!foro.rows.length) return null;
-                    nombre = foro.rows[0].name;
-
-                } else if (prefix === 'G') {
-                    const visible = await db.query(`SELECT 1 FROM mensajes m WHERE m.id = $1
-                        AND (m.chat_or_group_id IN (SELECT 'G-' || forum_or_group_id::text FROM participantes WHERE user_id=$2 AND is_group=TRUE)
-                             OR m.chat_or_group_id IN (SELECT 'G-' || id::text FROM grupos WHERE owner_id=$2))
-                        AND (m.sender_id=$2 OR (
-                            m.sender_id IN (SELECT user_id FROM participantes WHERE forum_or_group_id=$3 AND is_group=TRUE)
-                            AND m.sender_id IN (SELECT followed_id FROM seguir WHERE follower_id=$2)
-                            AND m.sender_id IN (SELECT follower_id FROM seguir WHERE followed_id=$2)))`, [noti.referencia_id, user_id, numericId]);
-                    if (!visible.rows.length) return null;
-                    const grupo = await db.query(
-                        `SELECT name FROM grupos WHERE id = $1`,
-                        [numericId]
-                    );
-                    if (grupo.rows.length > 0) nombre = grupo.rows[0].name;
-
-                } else if (prefix === 'C') {
-                    const user = await db.query(
-                        `SELECT u.username FROM chats c JOIN users u
-                         ON u.id = CASE WHEN c.user1_id = $2 THEN c.user2_id ELSE c.user1_id END
-                         WHERE c.id = $1 AND (c.user1_id = $2 OR c.user2_id = $2)`,
-                        [numericId, user_id]
-                    );
-                    if (!user.rows.length) return null;
-                    nombre = user.rows[0].username;
-                }
-
-                return {
-                    id: noti.id,
-                    tipo: noti.tipo,
-                    referencia_id: noti.referencia_id,
-                    chat_or_group_id: noti.chat_or_group_id,
-                    leido: noti.leido,
-                    nombre,
-                };
-            })
-        );
-
-        res.json(notiDetalles.filter(Boolean));
-
-    } catch (error) {
-        console.error('Error al obtener notificaciones:', error);
-        res.status(500).json({ error: 'Error al obtener notificaciones' });
-    }
-});
-
+require('./community-lists')(app, { db, requireAuth });
+require('./notifications')(app, { db, requireAuth });
 
 app.put('/notificaciones/:user_id/leer', requireAuth, async (req, res) => {
     const { user_id } = req.params;
@@ -1464,11 +1185,35 @@ app.get('/session', requireAuth, async (req, res) => {
     } catch (error) { res.status(500).json({ error: 'No se pudo recuperar la sesión' }); }
 });
 
+const internalOnly = (req,res,next) => requireAuth(req,res,() => {
+    const admins = (process.env.ADMIN_USER_IDS || '').split(',').map(id => id.trim());
+    if (!admins.includes(String(req.user.id))) return res.status(403).json({ error:'Acceso restringido' });
+    next();
+});
+app.use(['/api/ups', '/dashboard', '/dashboard.html', '/html/dashboard.html'], internalOnly);
+const stopMonitor = require.main === module ? require('./ups-monitor')(app) : () => {};
+app.get('/health/live', (req,res) => res.json({ status:'ok' }));
+app.get('/health/ready', async (req,res) => {
+    try { await db.query('SELECT 1'); res.json({ status:'ready' }); }
+    catch { res.status(503).json({ status:'unavailable' }); }
+});
+require('./gif-search')(app);
+const renderPage = require('./page-renderer');
 require('./public-posts')(app, db);
 app.get('/manifest.webmanifest', (req, res) => res.redirect(308, '/manifest.json'));
 
 
 // Keep historical root URLs while organizing physical files by type.
+app.use((req,res,next) => {
+    let pathname; try { pathname = decodeURIComponent(req.path).replace(/\/+/g, '/'); } catch { return res.status(400).end(); }
+    const match = /^\/(?:html\/)?([a-zA-Z0-9_-]+)(?:\.html)?$/.exec(pathname);
+    const page = req.path === '/' ? 'index' : match?.[1];
+    const html = page && renderPage(page);
+    if (!html || !['GET','HEAD'].includes(req.method)) return next();
+    const send = () => res.set('Cache-Control','no-cache').type('html').send(html);
+    if (page.toLowerCase() === 'dashboard') return internalOnly(req,res,send);
+    send();
+});
 for (const directory of ['', 'html', 'css', 'scripts', 'json']) {
     app.use(express.static(path.join(__dirname, 'public', directory), {
         etag: true, lastModified: true, maxAge: 0, redirect: false,
@@ -1478,10 +1223,10 @@ for (const directory of ['', 'html', 'css', 'scripts', 'json']) {
 
 app.get('/:page?', (req, res) => {
     const page = req.params.page || 'index';
-    if (!/^[a-zA-Z0-9_-]+$/.test(page)) return res.status(404).sendFile(path.join(__dirname, 'public', 'html', 'error.html'));
+    if (!/^[a-zA-Z0-9_-]+$/.test(page)) return res.status(404).type('html').send(renderPage('error'));
     const filePath = path.join(__dirname, 'public', 'html', `${page}.html`);
     res.sendFile(filePath, err => {
-        if (err) res.status(404).sendFile(path.join(__dirname, 'public', 'html', 'error.html'));
+        if (err) res.status(404).type('html').send(renderPage('error'));
     });
 });
 
@@ -1490,7 +1235,8 @@ const server = http.createServer(app);
 
 // Inicializar Socket.IO en el servidor
 const io = new Server(server, {
-    cors: { origin: corsOrigin, credentials: true }
+    cors: { origin: corsOrigin, credentials: true },
+    allowRequest: (req, callback) => corsOrigin(req.headers.origin, (error, allowed) => callback(null, !error && allowed))
 });
 
 // Cuando un cliente se conecta
@@ -1513,10 +1259,24 @@ io.use(async (socket, next) => {
         const claims = jwt.verify(token, authSecret, { algorithms: ['HS256'] });
         const user = (await db.query('SELECT id, auth_version FROM users WHERE id = $1', [claims.id])).rows[0];
         if (!user || Number(user.auth_version || 0) !== Number(claims.auth_version || 0)) throw new Error('Sesión inválida');
+        socket.data.userId = user.id; socket.data.authVersion = Number(user.auth_version || 0);
+        socket.data.expires = claims.exp * 1000;
+        const expires = setTimeout(() => { socket.emit('sessionExpired'); socket.disconnect(true); }, Math.max(0, Math.min(2147483647, socket.data.expires - Date.now())));
+        expires.unref(); socket.once('disconnect', () => clearTimeout(expires));
         socket.join('user:' + user.id);
         next();
     } catch { next(new Error('Sesión inválida')); }
 });
+
+const sessionAudit = setInterval(async () => {
+    const sockets = [...io.sockets.sockets.values()].filter(socket => socket.data.userId);
+    const ids = [...new Set(sockets.map(socket => socket.data.userId))];
+    if (!ids.length) return;
+    try {
+        const users = new Map((await db.query('SELECT id,auth_version FROM users WHERE id=ANY($1::int[])', [ids])).rows.map(user => [user.id, Number(user.auth_version || 0)]));
+        for (const socket of sockets) if (users.get(socket.data.userId) !== socket.data.authVersion) { socket.emit('sessionExpired'); socket.disconnect(true); }
+    } catch { /* HTTP authorization continues to fail closed while the database is unavailable. */ }
+}, 60000); sessionAudit.unref();
 
 // Private events are delivered only to people allowed to read the message.
 async function emitPrivateUpdate(context, author, event, payload) {
@@ -1538,6 +1298,8 @@ async function emitPrivateUpdate(context, author, event, payload) {
     } catch (error) { console.error('No se pudo enviar el aviso en tiempo real:', error.message); }
 }
 
+require('./community-tools')(app, { db, requireAuth, reactionAccess, transaction, io, emitPrivateUpdate });
+
 app.post('/logout', (req, res) => {
     setAuthCookie(res, '', 0);
     res.status(204).end();
@@ -1547,7 +1309,7 @@ app.use((req, res) => {
     if (req.path.startsWith('/api') || req.path.startsWith('/get') || req.path.startsWith('/hit')) {
         return res.status(404).json({ error: 'Recurso no encontrado' });
     }
-    res.status(404).sendFile(path.join(__dirname, 'public', 'html', 'error.html'));
+    res.status(404).type('html').send(renderPage('error'));
 });
 
 app.use((error, req, res, next) => {
@@ -1561,4 +1323,15 @@ if (require.main === module) server.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
 });
 
+let stopping = false;
+async function shutdown() {
+    if (stopping) return; stopping = true;
+    clearInterval(sessionAudit);
+    stopMonitor();
+    const deadline = setTimeout(() => process.exit(1), 15000); deadline.unref();
+    io.close();
+    server.close(async () => { await db.end(); clearTimeout(deadline); });
+    server.closeIdleConnections();
+}
+if (require.main === module) { process.once('SIGTERM', shutdown); process.once('SIGINT', shutdown); }
 module.exports = { app, server, db, io };

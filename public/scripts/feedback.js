@@ -69,13 +69,33 @@ async function readResponse(response) {
 
 // Reuse a successful upload when publishing is retried; entries disappear with the File.
 const uploadedFiles = new WeakMap();
-function uploadMedia(file) {
+function uploadMedia(file, options = {}) {
+    if (file.url && file.type === 'image/gif' && new URL(file.url).origin === 'https://upload.wikimedia.org') return Promise.resolve({ url: file.url, mediaType: file.type });
     const owner = document.cookie.split(';').map(value => value.trim()).find(value => value.startsWith('userID=')) || '';
     const cached = uploadedFiles.get(file);
     if (cached && cached.owner === owner && Date.now() - cached.at < 15 * 60 * 1000) return cached.promise;
     const entry = { owner, at: Date.now() };
-    entry.promise = fetch('/api/uploads', { method: 'POST', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file })
-        .then(readResponse).then(uploaded => {
+    entry.promise = new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const abort = () => xhr.abort();
+        const cleanup = () => options.signal?.removeEventListener('abort', abort);
+        xhr.open('POST', '/api/uploads');
+        xhr.timeout = 125000;
+        xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+        xhr.upload.onprogress = event => { if (event.lengthComputable) options.onProgress?.(event.loaded / event.total); };
+        xhr.onload = () => {
+            cleanup();
+            let data; try { data = JSON.parse(xhr.responseText); } catch {}
+            if (xhr.status < 200 || xhr.status >= 300) return reject(new Error(data?.error || 'No se pudo subir el archivo.'));
+            resolve(data);
+        };
+        xhr.onerror = () => { cleanup(); reject(new Error('Se interrumpió la subida. Conservamos tu archivo para reintentar.')); };
+        xhr.ontimeout = () => { cleanup(); reject(new Error('La subida tardó demasiado. Reintentá con una conexión estable.')); };
+        xhr.onabort = () => { cleanup(); reject(new DOMException('Subida cancelada', 'AbortError')); };
+        if (options.signal?.aborted) return reject(new DOMException('Subida cancelada', 'AbortError'));
+        options.signal?.addEventListener('abort', abort, { once: true });
+        xhr.send(file);
+    }).then(uploaded => {
             if (!uploaded.url || !uploaded.mediaType) throw new Error('El servidor no confirmó el archivo subido.');
             return uploaded;
         }).catch(error => { if (uploadedFiles.get(file) === entry) uploadedFiles.delete(file); throw error; });
