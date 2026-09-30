@@ -108,7 +108,36 @@ body:has(.navigation-panel[open]) { overflow: hidden; }
 
 .community-dialog textarea { display:block; width:100%; min-height:120px; margin:12px 0; }
 .community-dialog label { display:block; margin:12px 0; }
-.publication-tools { margin-left:auto; }
-.publication-tools summary { cursor:pointer; }
-.publication-tools button { margin:4px; }
+.account-identity { text-align: center; padding: 24px 12px 16px; }
+.account-management { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; padding: 8px 12px 24px; }
+.account-management button { display: flex; align-items: center; justify-content: center; gap: 12px; flex: 1 1 210px; max-width: 280px; min-height: 64px; margin: 0; padding: 16px; border: 1px solid var(--border-color); border-radius: 16px; background: var(--bg-secondary); }
+.account-management button:hover, .account-links a:hover { background: var(--hover-bg); border-color: var(--accent-color); }
+.account-links { padding: 0 12px 12px; }
+.community-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 18px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+.community-dialog-heading h2 { margin: 0; font-size: clamp(20px, 4vw, 26px); overflow-wrap: anywhere; }
+.community-dialog-heading button { flex-shrink: 0; margin: 0; font-size: 26px; }
+.community-dialog > button { margin: 12px 8px 0 0; }
+.community-dialog input:not([type="checkbox"]), .community-dialog textarea { box-sizing: border-box; max-width: 100%; border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; background: var(--bg-secondary); color: var(--text-primary); font: inherit; }
+.post-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px; }
+.post .profile-trigger { min-width: 0; max-width: 100%; margin: 0; border-radius: 12px; }
+.post .username-text { overflow-wrap: anywhere; }
+.publication-tools { display: contents; }
+.publication-tools::details-content { display: contents; }
+.publication-tools summary { grid-column: 2; grid-row: 1; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-third); cursor: pointer; list-style: none; letter-spacing: 2px; }
+.publication-tools summary::-webkit-details-marker { display: none; }
+.publication-tools[open] summary { color: var(--accent-text); border-color: var(--accent-color); }
+.publication-tools:not([open]) .publication-menu { display: none; }
+.publication-menu { grid-column: 1 / -1; display: flex; justify-content: flex-start; flex-wrap: wrap; gap: 8px; padding: 12px; border: 1px solid var(--border-color); border-radius: 16px; background: var(--bg-primary); }
+.publication-menu button, .post .user-profile-box button { min-height: 44px; margin: 0; padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); font: inherit; font-size: 14px; }
+.publication-menu button:hover, .post .user-profile-box button:hover { background: var(--hover-bg); border-color: var(--accent-color); }
+.post .user-profile-box { padding: 12px; margin-bottom: 18px !important; border: 1px solid var(--border-color); background: var(--bg-primary); }
+.post .user-profile-box > div { display: flex; justify-content: flex-start; flex-wrap: wrap; gap: 8px; }
+@media(max-width: 480px) {
+ .account-management { padding-inline: 0; gap: 10px; }
+ .account-management button { max-width: none; flex-basis: 100%; }
+ .account-links { padding-inline: 0; }
+ .publication-menu { justify-content: stretch; }
+ .publication-menu button { flex: 1 1 100px; }
+ .post .user-profile-box button { flex: 1 1 90px; }
+}
 .moderation-item { padding:16px 0; border-bottom:1px solid var(--border-color); }

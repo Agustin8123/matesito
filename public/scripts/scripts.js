@@ -983,8 +983,10 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
             </div>
         </div>
         <div class="user-profile-box" id="${uniqueId}" style="display:none; margin-bottom: 8px">
+          <div role="group" aria-label="Acciones del perfil">
             <button onclick="viewProfile(${escapeHTML(JSON.stringify(String(username)))})">Ver perfil</button>
             <button onclick="followUser(${userId})">Seguir</button>${Number(userId) !== Number(users[activeUser]?.id) ? `<button onclick="blockUser(${userId})">Bloquear</button>` : ''}
+          </div>
         </div>
         ${contentHTML}
         <button id="toggle-reactions-${microReactId}" class="toggle-reactions icon-button" aria-controls="reactions-${microReactId}" aria-expanded="false" aria-label="Mostrar u ocultar reacciones" title="Reacciones" onclick="toggleReactions('${microReactId}')"><img src="/res/react.svg" alt=""></button>
@@ -1023,6 +1025,7 @@ function toggleReactions(postId) {
 
 // Mostrar u ocultar el cuadro de perfil cuando se hace clic en el nombre de usuario
 function toggleUserProfileBox(uniqueId) {
+    document.querySelectorAll('.publication-tools[open]').forEach(menu => { menu.open = false; });
     document.querySelectorAll('.profile-trigger').forEach(button => button.setAttribute('aria-expanded', String(button.getAttribute('aria-controls') === uniqueId && activeMenuId !== uniqueId)));
     const userProfileBox = document.getElementById(uniqueId);
 

@@ -1,9 +1,10 @@
 function communityDialog(title) {
     const previous = document.activeElement;
     const dialog = document.createElement('dialog'); dialog.className = 'navigation-panel community-dialog';
+    const header = document.createElement('div'); header.className = 'community-dialog-heading';
     const heading = document.createElement('h2'); heading.textContent = title;
-    const close = menuButton('Cerrar', () => dialog.close());
-    dialog.append(heading, close); document.body.append(dialog);
+    const close = menuButton('×', () => dialog.close()); close.className = 'icon-button'; close.setAttribute('aria-label', 'Cerrar');
+    header.append(heading, close); dialog.append(header); document.body.append(dialog);
     dialog.addEventListener('close', () => {
         const feedback = dialog.querySelector('#feedback-region'); if (feedback) document.body.append(feedback);
         dialog.remove(); if (previous?.isConnected) previous.focus();
@@ -13,11 +14,24 @@ function communityDialog(title) {
 function addPublicationTools(card, id, author, content, sensitive) {
     if (!users[activeUser]?.id) return;
     const controls = document.createElement('details'); controls.className = 'publication-tools';
-    const summary = document.createElement('summary'); summary.textContent = 'Opciones'; controls.append(summary);
+    const summary = document.createElement('summary'); summary.innerHTML = '<span aria-hidden="true">•••</span><span class="visually-hidden">Opciones de publicación</span>'; summary.title = 'Opciones de publicación'; controls.append(summary);
+    const actions = document.createElement('div'); actions.className = 'publication-menu';
     const own = Number(author) === Number(users[activeUser].id);
-    if (own) controls.append(menuButton('Editar', () => editPublication(id, content, sensitive)), menuButton('Eliminar', () => deletePublication(id)));
-    if (!/^[CG]-/.test(String(id))) controls.append(menuButton('Denunciar', () => reportPublication(id)));
-    if (controls.childElementCount > 1) card.querySelector('.post-header').append(controls);
+    if (own) {
+        actions.append(menuButton('Editar publicación', () => editPublication(id, content, sensitive)));
+        const remove = menuButton('Eliminar', () => deletePublication(id)); remove.className = 'danger-action'; actions.append(remove);
+    }
+    if (!/^[CG]-/.test(String(id))) actions.append(menuButton('Denunciar', () => reportPublication(id)));
+    actions.addEventListener('click', event => { if (event.target.closest('button')) controls.open = false; });
+    controls.addEventListener('toggle', () => {
+        if (!controls.open) return;
+        document.querySelectorAll('.publication-tools[open]').forEach(other => { if (other !== controls) other.open = false; });
+        document.querySelectorAll('.user-profile-box').forEach(box => { box.style.display = 'none'; });
+        document.querySelectorAll('.profile-trigger').forEach(button => button.setAttribute('aria-expanded', 'false'));
+        activeMenuId = null;
+    });
+    controls.addEventListener('keydown', event => { if (event.key === 'Escape') { controls.open = false; summary.focus(); } });
+    if (actions.childElementCount) { controls.append(actions); card.querySelector('.post-header').append(controls); }
 }
 function editPublication(id, content, sensitive) {
     const dialog = communityDialog('Editar publicación');
