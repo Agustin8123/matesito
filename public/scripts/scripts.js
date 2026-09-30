@@ -15,7 +15,7 @@ const unicPostList = 'unicPostList';
 
 let mantenimiento = false;
 
-let selectedFile = null;
+let selectedFiles = [];
 let loadAll = false;
 let invertirOrden = false;
 let ordenarReacciones = false;
@@ -463,6 +463,7 @@ function containsForbiddenWords(message) {
 }
 
 function updatePostMediaButton(fileName = '') {
+    fileName = selectedFiles.length ? selectedFiles.length + ' adjunto' + (selectedFiles.length === 1 ? '' : 's') : '';
     const button = document.getElementById('postMediaButton');
     if (!button) return;
     const label = button.querySelector('span');
@@ -472,39 +473,8 @@ function updatePostMediaButton(fileName = '') {
     if (typeof previewAttachment === 'function') previewAttachment();
 }
 
-  function handleFileSelect(event) {
-    selectedFile = event.target.files[0]; // Guardar el archivo seleccionado
-    if (selectedFile) {
-        const fileType = selectedFile.type;
-        const fileSize = selectedFile.size;
-
-        // Validar tipo de archivo
-        const validFileTypes = ['image', 'audio', 'video'];
-        const fileCategory = fileType.split('/')[0];
-
-        if (!validFileTypes.includes(fileCategory)) {
-            notify("Por favor, selecciona un archivo de tipo imagen, audio o video.");
-            selectedFile = null;
-            event.target.value = ''; // Restablecer la selección
-            updatePostMediaButton();
-            return;
-        }
-
-        // Validar tamaño de archivo
-        if (
-            (fileCategory === 'image' || fileCategory === 'audio') && fileSize > 10 * 1024 * 1024 ||
-            fileCategory === 'video' && fileSize > 20 * 1024 * 1024
-        ) {
-            notify("El archivo seleccionado excede el tamaño máximo permitido.");
-            selectedFile = null;
-            event.target.value = ''; // Restablecer la selección
-            updatePostMediaButton();
-            return;
-        }
-        updatePostMediaButton(selectedFile.name);
-    } else {
-        updatePostMediaButton();
-    }
+function handleFileSelect(event) {
+    addComposerFiles([...event.target.files]); event.target.value = '';
 }
 
   function wherePost() {
@@ -542,7 +512,8 @@ async function publishContent(kind, contextId) {
     const input = document.getElementById('postContent');
     const content = input.value.trim();
     const sensitiveInput = document.getElementById('sensitiveContentCheckbox');
-    const file = selectedFile;
+    const files = selectedFiles;
+    const file = files.length ? files : null;
     const sensitive = sensitiveInput.checked;
     if ((!content && !file) || content.length > 10000) return notify('Escribí un texto o adjuntá una imagen, audio o video. El texto admite hasta 10.000 caracteres.', 'error');
     if (containsForbiddenWords(content)) return notify('Revisá el contenido: puede infringir los términos y condiciones.', 'error');
@@ -568,7 +539,13 @@ async function publishContent(kind, contextId) {
     try {
         if (file) {
             setUploadProgress(0);
-            const uploaded = pendingSend.uploaded || await uploadMedia(file, { signal: controller.signal, onProgress: setUploadProgress });
+            if (!pendingSend.uploadedItems) pendingSend.uploadedItems = [];
+            for (let i = pendingSend.uploadedItems.length; i < files.length; i++) {
+                if (controller.signal.aborted || users[activeUser]?.id !== owner) throw new DOMException('Envío cancelado', 'AbortError');
+                const item = await uploadMedia(files[i], { signal: controller.signal, onProgress: fraction => setUploadProgress((i + fraction) / files.length) });
+                pendingSend.uploadedItems.push(item);
+            }
+            const uploaded = files.length === 1 ? pendingSend.uploadedItems[0] : { url: JSON.stringify(pendingSend.uploadedItems), mediaType: MediaGallery.TYPE };
             if (controller.signal.aborted || users[activeUser]?.id !== owner) throw new DOMException('Envío cancelado', 'AbortError');
             if (!uploaded?.url) throw new Error('No se pudo confirmar la subida del archivo.');
             pendingSend.uploaded = uploaded;
@@ -587,8 +564,8 @@ async function publishContent(kind, contextId) {
         if (composerKey === draftKey) {
         // No borrar texto ni archivos que el usuario cambió durante la petición.
         if (input.value.trim() === content) input.value = '';
-        if (selectedFile === file) {
-            selectedFile = null;
+        if (selectedFiles === files) {
+            selectedFiles = [];
             document.getElementById('postMedia').value = '';
             updatePostMediaButton();
         }
@@ -930,7 +907,8 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
     // Media del post
     let mediaHTML = '';
     if (media && mediaType) {
-        if (mediaType.startsWith('image/')) {
+        if (mediaType === MediaGallery.TYPE) { mediaHTML = MediaGallery.render(media, mediaType);
+        } else if (mediaType.startsWith('image/')) {
             mediaHTML = `
             <div class="media-container">
                 <img src="${escapeHTML(media)}" ${/^\/uploads\/[0-9a-f-]+\.(png|jpg|webp|avif)$/.test(media) ? `srcset="${escapeHTML(media)}?width=384 384w, ${escapeHTML(media)}?width=960 960w" sizes="(max-width:768px) 90vw, 650px"` : ''} loading="lazy" decoding="async" alt="Imagen subida por ${escapeHTML(username)}" class="preview-media clickable">

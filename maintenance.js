@@ -9,8 +9,8 @@ const config = process.env.DATABASE_URL ? { connectionString: process.env.DATABA
     user: process.env.DB_USER || 'postgres', password: process.env.DB_PASSWORD, database: process.env.DB_NAME || 'matesito_8s'
 };
 if (process.env.DB_SSL === 'true' || (process.env.NODE_ENV === 'production' && process.env.DB_SSL !== 'false')) config.ssl = { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' };
-const unused = `NOT EXISTS(SELECT 1 FROM posts WHERE media='/uploads/'||a.name)
-    AND NOT EXISTS(SELECT 1 FROM mensajes WHERE media='/uploads/'||a.name)
+const unused = `NOT EXISTS(SELECT 1 FROM posts WHERE publication_has_media(media,mediatype,'/uploads/'||a.name))
+    AND NOT EXISTS(SELECT 1 FROM mensajes WHERE publication_has_media(media,media_type,'/uploads/'||a.name))
     AND NOT EXISTS(SELECT 1 FROM users WHERE image='/uploads/'||a.name)`;
 async function main() {
     const db = new Pool(config), apply = process.argv.includes('--apply');

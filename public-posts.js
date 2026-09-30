@@ -1,3 +1,4 @@
+const MediaGallery = require('./public/scripts/media-gallery');
 const linkifyPost = require('./public/scripts/post-links');
 const renderPage = require('./page-renderer');
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -42,6 +43,11 @@ module.exports = function mountPublicPosts(app, db) {
             else if (post.mediatype?.startsWith('video/')) media = `<video class="preview-media" controls preload="metadata" src="${src}"></video>`;
             else if (post.mediatype?.startsWith('audio/')) media = `<audio controls preload="metadata" src="${src}"></audio>`;
         }
+        if (post.mediatype === MediaGallery.TYPE) {
+            media = MediaGallery.render(post.media, post.mediatype);
+            const first = MediaGallery.parse(post.media, post.mediatype).find(item => item.mediaType.startsWith('image/'));
+            mediaURL = first ? new URL(first.url, origin).href : undefined;
+        }
         const date = new Date(post.created_at);
         const time = Number.isFinite(date.getTime()) ? `<time datetime="${date.toISOString()}">${esc(date.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' }))}</time>` : '';
         let content = `<div class="post-text">${linkifyPost(post.content)}</div>${media}`;
@@ -55,8 +61,8 @@ module.exports = function mountPublicPosts(app, db) {
             .replace('aria-current="page"', '')
             .replace('<span>Información</span>', '<span>Publicación</span>');
         const meta = `<link rel="canonical" href="${esc(canonical)}"><meta name="description" content="${esc(description)}"><meta property="og:type" content="article"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${esc(canonical)}">`;
-        html = html.replace('</head>', () => meta + (post.sensitive ? '<meta name="robots" content="noindex,follow">' : '') + (!post.sensitive && mediaURL && post.mediatype?.startsWith('image/') ? `<meta property="og:image" content="${esc(mediaURL)}">` : '') + '<link rel="stylesheet" href="/feedback.css"></head>');
-        html = html.replace('</body>', '<script src="/feedback.js"></script><script src="/socket.io/socket.io.js"></script><script src="/reactions.js"></script><script src="/share-post.js"></script></body>');
+        html = html.replace('</head>', () => meta + (post.sensitive ? '<meta name="robots" content="noindex,follow">' : '') + (!post.sensitive && mediaURL && (post.mediatype?.startsWith('image/') || post.mediatype === MediaGallery.TYPE) ? `<meta property="og:image" content="${esc(mediaURL)}">` : '') + '<link rel="stylesheet" href="/feedback.css"></head>');
+        html = html.replace('</body>', '<script src="/media-gallery.js"></script><script src="/feedback.js"></script><script src="/socket.io/socket.io.js"></script><script src="/reactions.js"></script><script src="/share-post.js"></script></body>');
         res.set('Cache-Control', 'no-cache').type('html').send(html);
     }));
     const xml = (res, root, body) => res.type('application/xml').set('Cache-Control', 'public, max-age=300').send(`<?xml version="1.0" encoding="UTF-8"?><${root} xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body}</${root}>`);

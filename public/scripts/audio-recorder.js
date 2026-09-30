@@ -34,9 +34,9 @@ async function openAudioRecorder() {
     dialog.querySelector('[data-use]').onclick = () => {
         if (!blob?.size || users[activeUser]?.id !== owner || composerKey !== destination) return close();
         const extension = blob.type.includes('mp4') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm';
-        selectedFile = new File([blob], 'audio-' + Date.now() + '.' + extension, { type: blob.type });
+        if (!addComposerFiles([new File([blob], 'audio-' + Date.now() + '.' + extension, { type: blob.type })])) return;
         document.getElementById('postMedia').value = '';
-        updatePostMediaButton(selectedFile.name);
+        updatePostMediaButton();
         close();
         notify('Audio adjuntado. Tocá Cebar para publicarlo.', 'success');
     };

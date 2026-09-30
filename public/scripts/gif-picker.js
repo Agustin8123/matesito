@@ -30,8 +30,7 @@ function selectGif() {
                 const card = document.createElement('div'); card.className = 'gif-card';
                 const choose = menuButton('', () => {
                     if (users[activeUser]?.id !== owner || composerKey !== destination) return dialog.close();
-                    selectedFile = gif; document.getElementById('postMedia').value = '';
-                    updatePostMediaButton(gif.name); dialog.close();
+                    if (addComposerFiles([gif])) dialog.close();
                 });
                 const image = document.createElement('img'); image.src = result.images.fixed_width?.url || gif.url; image.alt = gif.name; image.loading = 'lazy'; choose.append(image); choose.title = 'Adjuntar ' + gif.name;
                 const source = document.createElement('a'); source.href = gif.source; source.target = '_blank'; source.rel = 'noopener noreferrer'; source.textContent = result.user?.display_name || result.user?.username || result.source_post_url && 'Fuente en GIPHY' || 'Ver en GIPHY'; source.title = source.textContent;

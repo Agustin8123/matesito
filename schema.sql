@@ -1,5 +1,5 @@
--- Matesito 1.3.6 — PostgreSQL, esquema inicial y actualización compatible.
--- Aplicar ANTES de arrancar 1.3.6, con la aplicación detenida y un respaldo.
+-- Matesito 1.3.7 — PostgreSQL, esquema inicial y actualización compatible.
+-- Aplicar ANTES de arrancar 1.3.7, con la aplicación detenida y un respaldo.
 -- psql -X --set ON_ERROR_STOP=on --dbname matesito --file schema.sql
 -- No elimina publicaciones, cuentas, mensajes ni reacciones históricas.
 -- Si hay duplicados o tipos incompatibles, aborta toda la transacción.
@@ -203,4 +203,14 @@ CREATE TABLE IF NOT EXISTS publication_requests (
 CREATE INDEX IF NOT EXISTS publication_requests_created_idx ON publication_requests(created_at);
 CREATE TABLE IF NOT EXISTS media_assets(name text PRIMARY KEY, owner_id integer NOT NULL REFERENCES users(id), created_at timestamptz NOT NULL DEFAULT now());
 CREATE INDEX IF NOT EXISTS media_assets_created_idx ON media_assets(created_at);
+CREATE OR REPLACE FUNCTION publication_has_media(value text, kind text, target text)
+RETURNS boolean LANGUAGE plpgsql IMMUTABLE AS $$
+BEGIN
+ IF kind = 'application/vnd.matesito.gallery+json' THEN
+  RETURN EXISTS (SELECT 1 FROM jsonb_array_elements(value::jsonb) item WHERE item->>'url'=target);
+ END IF;
+ RETURN COALESCE(value=target,false);
+EXCEPTION WHEN invalid_text_representation OR invalid_parameter_value THEN RETURN false;
+END;
+$$;
 COMMIT;

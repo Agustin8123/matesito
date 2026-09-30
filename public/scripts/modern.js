@@ -189,7 +189,7 @@ document.querySelectorAll('#createForumOverlay, #createGroupOverlay, #joinGrupoM
     });
 });
 function selectAttachment() { const input = document.getElementById('postMedia'); input.accept = 'image/*,audio/*,video/*'; input.click(); }
-function clearSelectedMedia() { selectedFile = null; document.getElementById('postMedia').value = ''; updatePostMediaButton(); }
+function clearSelectedMedia() { selectedFiles = []; document.getElementById('postMedia').value = ''; updatePostMediaButton(); }
 function openRequestedPanel() {
     const routes = { '#foros': toggleForumMenu, '#chats': toggleGruposMenu, '#siguiendo': toggleUserMenu, '#notificaciones': toggleBell, '#buscar': toggleSearch };
     if (activeUser || ['#foros', '#buscar'].includes(location.hash)) routes[location.hash]?.();

@@ -11,9 +11,9 @@ Aplicación Express + PostgreSQL + Socket.IO, con interfaz web sin compilación.
 
 En producción, configurar `NODE_ENV=production`, un secreto JWT propio y los orígenes permitidos. La conexión a PostgreSQL usa TLS en producción; `DB_SSL=false` permite configurar explícitamente una base local sin TLS. No se incluyen credenciales ni cambios automáticos de esquema.
 
-## Actualizar a 1.3.6 (incluye 1.3.3–1.3.5)
+## Actualizar a 1.3.7 (incluye 1.3.3–1.3.6)
 
-Esta actualización necesita **aplicar schema.sql con la app detenida antes de arrancar**. Agrega bloqueos, denuncias, notificaciones por reacciones, registro de adjuntos e identificadores de envío; amplía el campo de contraseña sin borrar las existentes.
+Esta actualización necesita **aplicar schema.sql con la app detenida antes de arrancar**, también al actualizar desde 1.3.6: incorpora publication_has_media para los permisos y la limpieza de adjuntos múltiples. Para habilitar el buscador nuevo, configurar GIPHY_API_KEY y reiniciar. Agrega bloqueos, denuncias, notificaciones por reacciones, registro de adjuntos e identificadores de envío; amplía el campo de contraseña sin borrar las existentes.
 
 1. Detener el servicio real de Matesito y respaldar PostgreSQL y UPLOAD_DIR mientras no haya escrituras.
 2. Instalar FFmpeg con el gestor de paquetes del servidor (en Debian/Ubuntu: `sudo apt install ffmpeg`). Comprobar `ffprobe -version`. Los nuevos audios y videos necesitan este ejecutable; FFPROBE_PATH permite indicar su ruta.
@@ -23,7 +23,7 @@ Esta actualización necesita **aplicar schema.sql con la app detenida antes de a
 6. Si hay un proxy local, configurar TRUST_PROXY=loopback solo cuando ese sea el proxy real. No confiar indiscriminadamente en encabezados de Internet.
 7. Reiniciar el servicio. Confirmar /health/live y /health/ready, y recorrer las comprobaciones de abajo.
 
-Las versiones 1.3.3 a 1.3.6 están separadas en el changelog. La versión de instalación es 1.3.6. Las páginas HTML se componen al arrancar: reiniciar después de actualizar plantillas o Versiones.
+Las versiones 1.3.3 a 1.3.7 están separadas en el changelog. La versión de instalación es 1.3.7. Las páginas HTML se componen al arrancar: reiniciar después de actualizar plantillas o Versiones.
 
 ### Archivos nuevos y privacidad
 
@@ -131,3 +131,7 @@ La cuenta usa public/scripts/account.js; los controles compartidos están en pub
 ## Archivos públicos
 
 public/html contiene las páginas, public/css los estilos, public/scripts el JavaScript y public/json el manifiesto. res y resources conservan los recursos gráficos existentes. Express conserva las URLs originales: /index.html, /scripts.js, /modern.css, /manifest.json y /sw.js siguen funcionando sin redirecciones. Las páginas sin extensión, los enlaces /p/ID y las rutas de archivos subidos también mantienen sus direcciones. El service worker continúa sirviéndose en /sw.js para conservar su alcance.
+
+## Adjuntos múltiples
+
+Cada publicación o mensaje admite hasta 10 imágenes, GIFs o videos y un audio. El editor limita cada imagen y audio a 10 MB y cada video a 20 MB. La galería se guarda como una lista JSON en el campo media, identificada por application/vnd.matesito.gallery+json; los adjuntos individuales anteriores mantienen su formato. Aplicar nuevamente schema.sql antes de arrancar: la función publication_has_media permite verificar los permisos de todos los archivos y evita que la limpieza retire adjuntos de una galería. El carrusel funciona también en los enlaces compartidos.

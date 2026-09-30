@@ -157,6 +157,21 @@ body:has(.navigation-panel[open]) { overflow: hidden; }
 .gif-card a { display: block; padding: 9px 10px; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gif-card:hover { border-color: var(--accent-color); }
 .gif-card:focus-within { outline: 2px solid var(--accent-color); outline-offset: 2px; }
+.media-gallery { width: 100%; min-width: 0; margin: 14px 0; border: 1px solid var(--border-color); border-radius: 18px; overflow: hidden; background: var(--bg-primary); }
+.gallery-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.gallery-slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; }
+.gallery-slide img, .gallery-slide video { display: block; width: 100%; max-height: 520px; object-fit: contain; margin: 0; }
+.gallery-controls { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 8px; border-top: 1px solid var(--border-color); }
+.gallery-controls button { margin: 0; min-width: 44px; min-height: 44px; padding: 4px 12px; font-size: 28px; }
+.gallery-controls button:disabled { opacity: .35; cursor: default; }
+.gallery-position { font-size: 14px; font-variant-numeric: tabular-nums; }
+.gallery-audio { display: block; width: 100%; margin: 16px 0; }
+#attachmentPreview { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(150px,100%),1fr)); gap: 12px; }
+.attachment-item { position: relative; min-width: 0; padding: 8px; background: var(--bg-third); border-radius: 14px; }
+#attachmentPreview .attachment-item img, #attachmentPreview .attachment-item video { width: 100%; height: 120px; object-fit: contain; }
+.attachment-item audio { width: 100%; }
+.attachment-item span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 8px 0 0; font-size: 12px; }
+.attachment-item > button { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; margin: 0; padding: 0; border: 1px solid var(--border-color); background: var(--bg-primary); }
 .gif-picker > button { display: block; margin: 20px auto 0; }
 @media(max-width: 540px) {
  .gif-picker { padding: 18px; max-height: calc(100dvh - 24px); }

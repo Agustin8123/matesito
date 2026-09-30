@@ -390,7 +390,9 @@ app.post('/login', async (req, res) => {
 
 // Crear un nuevo post
 
+const MediaGallery = require('./public/scripts/media-gallery');
 function validPublication(content, media, mediaType) {
+    if (mediaType === MediaGallery.TYPE) return typeof content === 'string' && content.length <= 10000 && MediaGallery.valid(media);
     if (typeof content !== 'string' || content.length > 10000) return false;
     const attached = validText(media, 2000000) && /^(image|audio|video)\/[a-z0-9.+-]+(?:;.*)?$/i.test(mediaType || '');
     return content.trim().length > 0 || attached;
@@ -420,7 +422,7 @@ app.post('/posts', requireAuth, asyncRoute(async (req, res) => {
     const saved = await transaction(async client => {
         const replay = await replayPublication(client, req);
         if (replay) { replayed = true; return replay; }
-        await claimMedia(client, req, media);
+        await claimMedia(client, req, media, mediaType);
         await client.query('SELECT id FROM users WHERE id=$1 FOR UPDATE', [req.user.id]);
         const last = (await client.query('SELECT content,media FROM posts WHERE username=$1 ORDER BY created_at DESC,id DESC LIMIT 1', [username])).rows[0];
         if (last && last.content === content && (last.media || null) === (media || null)) throw requestError(409, 'No podés enviar el mismo post dos veces seguidas');
@@ -447,7 +449,7 @@ app.post('/mensajes/:forumId', requireAuth, async (req, res) => {
         await client.query('BEGIN');
         const replay = await replayPublication(client, req);
         if (replay) { await client.query('COMMIT'); return res.status(201).json(replay); }
-        await claimMedia(client, req, media);
+        await claimMedia(client, req, media, mediaType);
         const numericForumId = Number(forumId);
         if (is_private) {
             const chat = await client.query(
@@ -1119,6 +1121,7 @@ app.post('/group/messages/:groupId', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'No tienes permiso para publicar en este grupo.' });
         }
 
+        await claimMedia(client, req, media, mediaType);
         const formattedGroupId = `G-${groupId}`;
 
         const result = await client.query(
