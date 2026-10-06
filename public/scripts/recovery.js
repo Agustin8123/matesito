@@ -7,8 +7,8 @@
   try {
    const data=await request('/api/recovery/questions',{username:document.getElementById('recoveryUsername').value});token=data.token;
    const fields=document.getElementById('recoveryQuestions');fields.replaceChildren();
-   data.questions.forEach((question,i)=>{const label=document.createElement('label');label.textContent=question;label.htmlFor='answer'+i;const input=document.createElement('input');input.id='answer'+i;input.type='password';input.autocomplete='off';input.required=true;input.minLength=2;input.maxLength=200;fields.append(label,input);});
-   start.hidden=true;reset.hidden=false;fields.querySelector('input').focus();
+   data.questions.forEach((question,i)=>{const label=document.createElement('label');label.textContent=question;label.htmlFor='answer'+i;const input=document.createElement('input');input.id='answer'+i;input.type='password';input.autocomplete='off';input.required=true;input.minLength=2;input.maxLength=200;const card=document.createElement('fieldset');card.className='recovery-question-card';const legend=document.createElement('legend');legend.textContent='Pregunta '+(i+1);card.append(legend,label,input);fields.append(card);});
+   start.hidden=true;reset.hidden=false;document.getElementById('recoveryStep1').removeAttribute('aria-current');document.getElementById('recoveryStep2').setAttribute('aria-current','step');fields.querySelector('input').focus();
   }catch(error){result.textContent=error.message;}finally{button.disabled=false;}
  });
  reset.addEventListener('submit',async event=>{
@@ -21,5 +21,5 @@
    token='';reset.reset();reset.hidden=true;result.textContent=data.message;
   }catch(error){result.textContent=error.message;}finally{button.disabled=false;}
  });
- document.getElementById('recoveryRestart').addEventListener('click',()=>{token='';reset.reset();reset.hidden=true;start.hidden=false;result.textContent='';document.getElementById('recoveryUsername').focus();});
+ document.getElementById('recoveryRestart').addEventListener('click',()=>{token='';reset.reset();reset.hidden=true;start.hidden=false;document.getElementById('recoveryStep2').removeAttribute('aria-current');document.getElementById('recoveryStep1').setAttribute('aria-current','step');result.textContent='';document.getElementById('recoveryUsername').focus();});
 })();

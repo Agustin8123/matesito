@@ -1,0 +1,35 @@
+/* Shared recovery design: settings and the public password-recovery page. */
+.recovery-settings,.recovery-card { --recovery-surface:var(--bg-primary,#0a0a0a); }
+.recovery-heading { display:flex; align-items:center; gap:16px; margin-bottom:18px; }
+.recovery-emblem { width:52px; height:52px; flex:none; display:grid; place-items:center; border:1px solid var(--border-color,#333); border-radius:16px; background:var(--bg-third,#242424); }
+.recovery-emblem img { width:28px; height:28px; }
+.recovery-eyebrow { color:var(--text-secondary,#aaa); font-size:10px; letter-spacing:.12em; font-weight:700; }
+.recovery-heading h1,.recovery-heading h2 { margin:6px 0 0; font-size:clamp(23px,4vw,30px); letter-spacing:-.04em; line-height:1.15; }
+.recovery-intro { font-size:15px; color:var(--text-secondary,#bbb); line-height:1.65; margin:0 0 20px; }
+.recovery-note { padding:13px 16px; margin:0 0 18px; border-left:3px solid var(--accent-color,#c62d32); border-radius:0 12px 12px 0; background:var(--bg-third,#242424); color:var(--text-secondary,#bbb); font-size:13px; line-height:1.5; }
+#recoverySettings,#recoveryStart,#recoveryReset,#recoveryQuestions { display:grid; gap:18px; }
+#recoveryStart[hidden],#recoveryReset[hidden] { display:none; }
+#recoverySettings .recovery-question-card,.recovery-question-card { display:grid; gap:12px; min-width:0; margin:0; padding:18px; border:1px solid var(--border-color,#333); border-radius:18px; background:var(--recovery-surface,#111); }
+.recovery-question-card legend { padding:0 9px; font-size:13px; font-weight:600; color:var(--text-secondary,#bbb); }
+.recovery-number { color:var(--accent-text,#ff777b); padding-right:6px; }
+.recovery-field { display:flex; flex-direction:column; gap:9px; min-width:0; }
+.recovery-settings label,.recovery-card label { display:block; margin:0!important; font-size:14px; line-height:1.5; overflow-wrap:anywhere; }
+.recovery-settings input,.recovery-card input { display:block; width:100%; min-width:0; min-height:48px; padding:13px 14px!important; margin:0!important; border:1px solid var(--border-color,#333)!important; border-radius:12px!important; background:var(--bg-secondary,#191919)!important; color:var(--text-primary,#fff); box-sizing:border-box; font:inherit; font-size:15px; }
+.recovery-settings input:focus-visible,.recovery-card input:focus-visible { outline:2px solid var(--accent-color,#c62d32); outline-offset:3px; }
+.recovery-confirm { display:grid; gap:12px; padding-top:20px; border-top:1px solid var(--border-color,#333); }
+.recovery-primary { min-height:48px; margin:0; padding:13px 20px; border-radius:13px; background:var(--accent-color,#c62d32)!important; color:#fff!important; font-weight:600; }
+.recovery-primary:disabled { opacity:.55; cursor:wait; }
+.recovery-secondary { background:transparent; border:1px solid var(--border-color,#333); border-radius:13px; min-height:44px; margin:0; }
+.recovery-status { margin:0; font-size:14px; line-height:1.6; overflow-wrap:anywhere; }
+.recovery-status:empty { display:none; }
+.recovery-steps { list-style:none; display:flex; gap:12px; padding:0; margin:24px 0; }
+.recovery-steps li { flex:1; display:flex; align-items:center; gap:9px; font-size:13px; color:var(--text-secondary,#aaa); padding-bottom:14px; border-bottom:2px solid var(--border-color,#333); }
+.recovery-steps span { width:24px; height:24px; border-radius:50%; display:grid; place-items:center; background:var(--bg-third,#242424); }
+.recovery-steps [aria-current] { color:var(--text-primary,#fff); border-color:var(--accent-color,#c62d32); }
+.recovery-steps [aria-current] span { background:var(--accent-color,#c62d32); color:#fff; }
+.recovery-back { display:block; margin-top:24px; text-align:center; color:var(--text-secondary,#bbb); font-size:14px; text-decoration:none; }
+.recovery-back:hover { text-decoration:underline; }
+.document-main.recovery-page { width:calc(100% - 264px); max-width:820px; margin-left:max(264px,calc((100% + 264px - 820px)/2)); padding:32px 24px 70px; }
+.recovery-passwords { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding-top:8px; }
+@media (max-width:768px) { .document-main.recovery-page { width:100%; margin:0; padding:24px 16px 48px; } }
+@media (max-width:480px) { .recovery-heading { gap:12px; } .recovery-emblem { width:44px; height:44px; border-radius:13px; } .recovery-passwords { grid-template-columns:1fr; } .recovery-question-card { padding:15px; } }
