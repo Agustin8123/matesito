@@ -51,7 +51,7 @@ async function closeSesion() {
         try { localStorage.removeItem('userID'); } catch { /* Storage can be disabled. */ }
         updateUserButton();
         document.getElementById('appContainer').style.display = 'block';
-        await loadposts(loadAll);
+        await loadCurrentRoute();
         document.getElementById('initialOverlay').style.display = 'flex';
     } catch (error) { notify(error.message, 'error'); }
 }
@@ -606,7 +606,8 @@ if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
 let showSensitiveContent = false;
 
 function buttonsState() {
-    if (document.getElementById('profileList').style.display === 'block') return viewProfile(currentProfileUsername);
+    if(document.getElementById('unicPostList').style.display==='block'&&publicRoute?.kind==='post')return loadCurrentRoute();
+    if (document.getElementById('profileList').style.display === 'block') return renderProfile(currentProfileUsername);
     if (document.getElementById('forumList').style.display === 'block') return loadForumPosts(activeForum, loadAll);
     if (document.getElementById('messageList').style.display === 'block') return loadChatMessages(activeChat, loadAll);
     if (document.getElementById('groupMessageList').style.display === 'block') return loadGroupMessages(activeGroup, loadAll);
@@ -678,6 +679,8 @@ async function loadNextPage() {
             card.dataset.score = String(row.reactionTotal ?? row.reaction_total ?? 0);
             positionFeedCard(list, card);
         }
+        document.getElementById('serverPublicContent')?.remove();
+        document.body.classList.remove('public-loading');
         state.cursor = payload.nextCursor || null;
         state.ended = !state.cursor;
         if (!state.seen.size) {
@@ -915,12 +918,7 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
                 <button class="fullscreen-btn" onclick="openFullscreen(this.previousElementSibling)">⛶</button>
             </div>`;
         } else if (mediaType.startsWith('video/')) {
-            mediaHTML = `<div>
-                            <video preload="none" controls class="preview-media clickable">
-                                <source src="${escapeHTML(media)}" type="${escapeHTML(mediaType)}">
-                                Tu navegador no soporta la reproducción de video.
-                            </video>
-                        </div>`;
+            mediaHTML = `<div><video ${MediaGallery.videoAttributes(media)} controls class="preview-media clickable">Tu navegador no soporta la reproducción de video.</video></div>`;
         } else if (mediaType.startsWith('audio/')) {
             mediaHTML = `<div>
                             <audio preload="none" controls class="preview-media clickable">
@@ -957,12 +955,12 @@ function addpostToList(content, media, mediaType, username, profilePicture, sens
                 ${profilePicHTML}
                 <span class="username-text">${escapeHTML(username)}</span>
             </button>
-                <span class="post-time">${localTime}</span>
+                ${/^(?:F-)?[1-9]\d*$/.test(String(postId)) ? `<a class="post-time" href="/p/${encodeURIComponent(postId)}" title="Abrir publicación">${localTime}</a>` : `<span class="post-time">${localTime}</span>`}
             </div>
         </div>
         <div class="user-profile-box" id="${uniqueId}" style="display:none; margin-bottom: 8px">
           <div role="group" aria-label="Acciones del perfil">
-            <button onclick="viewProfile(${escapeHTML(JSON.stringify(String(username)))})">Ver perfil</button>
+            <a href="/u/${escapeHTML(encodeURIComponent(username))}">Ver perfil</a>
             <button onclick="followUser(${userId})">Seguir</button>${Number(userId) !== Number(users[activeUser]?.id) ? `<button onclick="blockUser(${userId})">Bloquear</button>` : ''}
           </div>
         </div>
@@ -1024,13 +1022,14 @@ function toggleUserProfileBox(uniqueId) {
 }
 
 // Función para ver el perfil del usuario (puedes redirigir a una página de perfil)
-async function viewProfile(username) {
+function viewProfile(username) { location.assign('/u/'+encodeURIComponent(username)); }
+async function renderProfile(username) {
     currentProfileUsername = String(username || '');
     activeForum = 0; activeChat = ''; activeGroup = '';
     document.getElementById('postBox').style.display = 'none';
     document.getElementById('profileHeader').style.display = 'block';
     showOnlyMenu('profileList');
-    const feed = loadFeed('/posts/user/' + encodeURIComponent(username), 'profileList', loadAll);
+    const feed = loadFeed('/posts/user/' + encodeURIComponent(username)+(publicRoute?.kind==='profile'&&publicRoute.before?'?before='+encodeURIComponent(publicRoute.before):''), 'profileList', loadAll);
     const request = feedRequest;
     try {
         const user = await fetch('/getUserDetails', {
@@ -1046,6 +1045,7 @@ async function viewProfile(username) {
 
 // Función para volver a las publicaciones
 function backToPosts() {
+    if(publicRoute) {location.assign('/');return;}
     // Ocultar sección de perfil
     document.getElementById('profileHeader').style.display = 'none';
 
@@ -1236,6 +1236,13 @@ if (!Array.isArray(notificaciones) || notificaciones.length === 0) {
 }
 
 notificaciones.forEach(noti => {
+    if(noti.tipo==='anuncio') {
+        const card=document.createElement('article');card.className='announcement-card';
+        const label=document.createElement('small');label.textContent='Aviso de Matesito';
+        const title=document.createElement('h3');title.textContent=noti.announcement_title;
+        const body=document.createElement('div');body.className='post-text';body.innerHTML=linkifyPost(noti.announcement_body);
+        card.append(label,title,body,menuButton('Marcar como leído',()=>marcarComoLeida(userId,noti.id,card)));contenedor.append(card);return;
+    }
     const notiElemento = document.createElement('button');
     notiElemento.type = 'button';
     notiElemento.classList.add('Nboton');
@@ -1419,19 +1426,29 @@ fetch(`/search?query=${encodeURIComponent(query.trim())}&offset=${offset}`, { si
     });
 }
 
+const publicRoute=JSON.parse(document.getElementById('publicRoute')?.textContent || 'null');
+function loadCurrentRoute() {
+ if(publicRoute?.kind==='profile')return renderProfile(publicRoute.username);
+ if(publicRoute?.kind==='post') {
+  activeForum=0;activeChat='';activeGroup='';
+  document.getElementById('postBox').style.display='none';document.getElementById('profileHeader').style.display='none';
+  return loadFeed('/api/public-feed/'+encodeURIComponent(publicRoute.id),'unicPostList',loadAll);
+ }
+ return loadposts(loadAll);
+}
 async function init() {
     checkRememberedUser();
     HideOverlays();
-    loadposts(loadAll);
+    loadCurrentRoute();
     try {
         const response = await fetch('/session');
-        if (response.status === 401) { if (!welcomeDismissed) showUserSelectOverlay(); return; }
+        if (response.status === 401) { if (!welcomeDismissed && !publicRoute) showUserSelectOverlay(); return; }
         const session = await readResponse(response);
         await activateUser(session.username);
         if (typeof openRequestedPanel === 'function') openRequestedPanel();
     } catch (error) {
         notify('No se pudo recuperar la sesión: ' + error.message, 'error');
-        if (!welcomeDismissed) showUserSelectOverlay();
+        if (!welcomeDismissed && !publicRoute) showUserSelectOverlay();
     }
 }
 

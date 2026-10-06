@@ -135,3 +135,20 @@ public/html contiene las páginas, public/css los estilos, public/scripts el Jav
 ## Adjuntos múltiples
 
 Cada publicación o mensaje admite hasta 10 imágenes, GIFs o videos y un audio. El editor limita cada imagen y audio a 10 MB y cada video a 20 MB. La galería se guarda como una lista JSON en el campo media, identificada por application/vnd.matesito.gallery+json; los adjuntos individuales anteriores mantienen su formato. Aplicar nuevamente schema.sql antes de arrancar: la función publication_has_media permite verificar los permisos de todos los archivos y evita que la limpieza retire adjuntos de una galería. El carrusel funciona también en los enlaces compartidos.
+
+## Perfiles públicos y resúmenes de búsqueda
+
+Los perfiles públicos están en /u/NOMBRE (respetando mayúsculas y codificando el nombre en la URL). Se sirven con HTML completo, nombre, avatar, biografía y tandas de 12 posts públicos no sensibles. No incluyen conversaciones privadas ni mensajes de grupos. /sitemap.xml anuncia los archivos /sitemap-profiles-N.xml, con hasta 1.000 perfiles por archivo. Las páginas adicionales del perfil llevan noindex,follow.
+
+Las publicaciones usan un extracto del texto como descripción y datos estructurados; la navegación, el pie lateral y los controles llevan data-nosnippet. Google decide el fragmento final y debe volver a rastrear las páginas para reflejar cambios. No hace falta otra migración SQL para estas mejoras; reiniciar el servidor después de desplegar.
+
+
+### Recuperación, avisos y vistas previas (1.3.7)
+
+Aplicar nuevamente `schema.sql` antes de iniciar: agrega `account_recovery` y `announcements` de forma compatible. La recuperación se configura voluntariamente en Mi cuenta con tres preguntas, las tres respuestas y la contraseña actual. `/recuperar` permite cambiar la contraseña respondiendo todas; se ignoran mayúsculas, acentos y espacios repetidos. Las respuestas usan scrypt con sal individual; cinco fallos bloquean los intentos durante 15 minutos. Los enlaces internos de recuperación vencen a los 10 minutos y quedan invalidados tras usarse o cambiar las preguntas. Las sesiones existentes se invalidan al recuperar la contraseña. Las preguntas no reemplazan la fortaleza de las respuestas: quien conozca las tres podrá recuperar la cuenta; evitá respuestas públicas o fáciles de adivinar.
+
+Los IDs de `ADMIN_USER_IDS` ven «Enviar un aviso a toda la comunidad» dentro de Mi cuenta. El título admite 120 caracteres y el mensaje 5.000. Primero se muestra una vista previa; al enviar se crea una notificación por cuenta existente, incluyendo al administrador. Cada envío tiene un identificador para evitar duplicados al reintentar. No envía correos ni notificaciones a cuentas creadas después.
+
+Las miniaturas de videos locales se generan al solicitarlas, incluso para videos antiguos. Necesitan `ffmpeg` disponible en PATH o `FFMPEG_PATH` apuntando a su ejecutable (además de `ffprobe` para validar subidas). Se guardan junto al video como `.poster.jpg`, se consultan mediante la URL original con `?poster=1` y respetan los mismos permisos. Se eliminan con el archivo en el mantenimiento habitual. Para archivos remotos se solicita la carga inicial del video; Cloudinary continúa funcionando.
+
+Los perfiles y posts usan `/u/NOMBRE` y `/p/ID` dentro de la aplicación. Conservan HTML público y metadatos para buscadores, y al cargar JavaScript reutilizan los componentes y permisos del feed.

@@ -42,10 +42,12 @@ function openPanel(id, title) {
 }
 function toggleRightMenu() { toggleForumMenu(); }
 function toggleSearch() { openPanel('SearchMenu', 'Buscar'); document.getElementById('searchInput').focus(); }
-function toggleMenu() {
+async function toggleMenu() {
     if (!activeUser) return showUserSelectOverlay();
     openPanel('dropdownMenu', 'Mi cuenta');
     document.getElementById('accountPanelIdentity').textContent = activeUser;
+    const owner=activeUser, button=document.getElementById('announcementButton');button.hidden=true;
+    try {const status=await fetch('/api/admin/status').then(readResponse);if(activeUser===owner)button.hidden=!status.admin;}catch{}
 }
 function toggleForumMenu() { openPanel('forumSubMenu', 'Foros'); return selectPanelTab('forums', 'forumExplore'); }
 function toggleGruposMenu() { if (!activeUser) return showUserSelectOverlay(); openPanel('gruposMenu', 'Chats y grupos'); return selectPanelTab('chats', 'chatInbox'); }

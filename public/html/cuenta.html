@@ -41,7 +41,7 @@
             <button type="button" id="togglePasswordButton" onclick="togglePassword(); togglePassword1()" aria-label="Mostrar u ocultar contraseñas"><img src="/resources/PNG/eyeClose.png" alt="Mostrar contraseñas"></button>
             <button type="button" onclick="updatePassword()">Cambiar contraseña</button>
         </section>
-    </main>
+<section class="settings-item"><h2>Recuperar tu cuenta</h2><p>Elegí tres preguntas y respuestas que solo vos conozcas. Para recuperar la contraseña tendrás que responder las tres. No distinguimos mayúsculas ni acentos.</p><form id="recoverySettings"><fieldset><legend>Pregunta 1</legend><label for="recoveryQuestion1">Tu pregunta</label><input id="recoveryQuestion1" minlength="5" maxlength="160" required><label for="recoveryAnswer1">Respuesta</label><input type="password" id="recoveryAnswer1" minlength="2" maxlength="200" autocomplete="off" required></fieldset><fieldset><legend>Pregunta 2</legend><label for="recoveryQuestion2">Tu pregunta</label><input id="recoveryQuestion2" minlength="5" maxlength="160" required><label for="recoveryAnswer2">Respuesta</label><input type="password" id="recoveryAnswer2" minlength="2" maxlength="200" autocomplete="off" required></fieldset><fieldset><legend>Pregunta 3</legend><label for="recoveryQuestion3">Tu pregunta</label><input id="recoveryQuestion3" minlength="5" maxlength="160" required><label for="recoveryAnswer3">Respuesta</label><input type="password" id="recoveryAnswer3" minlength="2" maxlength="200" autocomplete="off" required></fieldset><label for="recoveryPassword">Contraseña actual para guardar los cambios</label><input id="recoveryPassword" type="password" autocomplete="current-password" required maxlength="128"><button>Guardar preguntas y respuestas</button><p id="recoveryStatus" role="status"></p></form></section></main>
     <div class="overlay" id="AvisoOverlay">
         <div class="initial-box"><h2>Iniciá sesión para ver tu cuenta.</h2><p>Conectate para editar tu perfil y tus preferencias.</p><button onclick="Acept1()">Ingresar</button> <a href="/">Volver al inicio</a></div>
     </div>
@@ -52,7 +52,7 @@
             <input type="password" id="passwordInput1" aria-label="Contraseña" placeholder="Contraseña" autocomplete="current-password">
             <button id="toggleBotonPassword" onclick="togglePassword2()" aria-label="Mostrar u ocultar contraseña"><img src="/resources/PNG/eyeClose.png" alt="Mostrar contraseña"></button>
             <div id="turnstileLogin"></div>
-            <button onclick="loginUser()">Ingresar</button> <a href="/">Volver al inicio</a>
+            <a class="forgot-password" href="/recuperar">Me olvidé la contraseña</a><button onclick="loginUser()">Ingresar</button> <a href="/">Volver al inicio</a>
         </div>
     </div>
     <script src="/utils.js"></script>

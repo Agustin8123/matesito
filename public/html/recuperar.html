@@ -1,0 +1,10 @@
+<!DOCTYPE html><html lang="es-AR" data-theme="dark"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,follow">
+<title>Recuperar contraseña · Matesito</title><link rel="icon" href="/resources/PNG/favicon.png">
+<link rel="stylesheet" href="/index.css"><link rel="stylesheet" href="/modern.css"><link rel="stylesheet" href="/panels.css"><link rel="stylesheet" href="/pages.css"><link rel="stylesheet" href="/feedback.css">
+<script src="/feedback.js" defer></script><script src="/recovery.js" defer></script></head>
+<body class="document-page"><!-- shared-sidebar --><button class="nav-backdrop" onclick="closeSidebar()" aria-label="Cerrar navegación" hidden></button><header class="header"><button class="mobile-menu icon-button" onclick="toggleSidebar()" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir navegación"><img src="/res/hamburguesa-con-queso-amigo.svg" alt=""></button><a href="/">Volver a la ronda</a></header>
+<main class="document-main recovery-page"><section class="settings-item"><h1>Volvé a tu cuenta.</h1><p>Respondé las tres preguntas que guardaste en la configuración de tu cuenta. Las mayúsculas y los acentos no importan.</p>
+<form id="recoveryStart"><label for="recoveryUsername">Nombre de usuario</label><input id="recoveryUsername" autocomplete="username" required maxlength="25"><button>Buscar mis preguntas</button></form>
+<form id="recoveryReset" hidden><div id="recoveryQuestions"></div><label for="resetPassword">Nueva contraseña</label><input type="password" id="resetPassword" autocomplete="new-password" minlength="8" maxlength="128" required><label for="resetConfirm">Repetí la nueva contraseña</label><input type="password" id="resetConfirm" autocomplete="new-password" minlength="8" maxlength="128" required><button>Cambiar contraseña</button><button type="button" id="recoveryRestart">Usar otra cuenta</button></form>
+<p role="status" id="recoveryResult"></p><a href="/">Volver a iniciar sesión</a></section></main><script src="/theme.js"></script><script src="/site-shell.js"></script></body></html>

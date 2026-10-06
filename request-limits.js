@@ -6,7 +6,7 @@ module.exports = function requestLimits() {
         for (const [key, bucket] of buckets) if (bucket.until <= now) buckets.delete(key);
     }, 60000); cleanup.unref();
     return (req, res, next) => {
-        const login = ['/login', '/users', '/updatePassword'].includes(req.path);
+        const login = ['/login', '/users', '/updatePassword', '/api/account/recovery', '/api/recovery/questions', '/api/recovery/reset'].includes(req.path);
         const expensive = ['/search', '/api/gifs'].includes(req.path);
         const write = !['GET', 'HEAD', 'OPTIONS'].includes(req.method);
         if (!login && !expensive && !write) return next();

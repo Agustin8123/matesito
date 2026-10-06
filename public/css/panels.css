@@ -128,8 +128,8 @@ body:has(.navigation-panel[open]) { overflow: hidden; }
 .publication-tools[open] summary { color: var(--accent-text); border-color: var(--accent-color); }
 .publication-tools:not([open]) .publication-menu { display: none; }
 .publication-menu { grid-column: 1 / -1; display: flex; justify-content: flex-start; flex-wrap: wrap; gap: 8px; padding: 12px; border: 1px solid var(--border-color); border-radius: 16px; background: var(--bg-primary); }
-.publication-menu button, .post .user-profile-box button { min-height: 44px; margin: 0; padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); font: inherit; font-size: 14px; }
-.publication-menu button:hover, .post .user-profile-box button:hover { background: var(--hover-bg); border-color: var(--accent-color); }
+.publication-menu button, .post .user-profile-box :is(button,a) { min-height: 44px; margin: 0; padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); font: inherit; font-size: 14px; }
+.publication-menu button:hover, .post .user-profile-box :is(button,a):hover { background: var(--hover-bg); border-color: var(--accent-color); }
 .post .user-profile-box { padding: 12px; margin-bottom: 18px !important; border: 1px solid var(--border-color); background: var(--bg-primary); }
 .post .user-profile-box > div { display: flex; justify-content: flex-start; flex-wrap: wrap; gap: 8px; }
 @media(max-width: 480px) {
@@ -138,9 +138,10 @@ body:has(.navigation-panel[open]) { overflow: hidden; }
  .account-links { padding-inline: 0; }
  .publication-menu { justify-content: stretch; }
  .publication-menu button { flex: 1 1 100px; }
- .post .user-profile-box button { flex: 1 1 90px; }
+ .post .user-profile-box :is(button,a) { flex: 1 1 90px; }
 }
 .moderation-item { padding:16px 0; border-bottom:1px solid var(--border-color); }
+.public-profile-link { display: inline-block; margin-top: 16px; padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 12px; }
 
 .gif-picker { box-sizing: border-box; width: min(760px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); padding: 24px; overflow-y: auto; scrollbar-gutter: stable; }
 .gif-picker .community-dialog-heading { margin-bottom: 16px; }
@@ -180,3 +181,22 @@ body:has(.navigation-panel[open]) { overflow: hidden; }
  .gif-search-form { gap: 8px; }
  .gif-search-form button { padding-inline: 14px; }
 }
+
+/* Denuncias y avisos de la comunidad. */
+.moderation-item,.announcement-card { padding:22px; margin:18px 0; border:1px solid var(--border-color,#333); border-radius:18px; background:var(--card-bg,#191919); overflow-wrap:anywhere; }
+.moderation-item h3,.announcement-card h3 { margin:14px 0 10px; font-size:1.15rem; }
+.moderation-item p { white-space:pre-wrap; line-height:1.6; margin:0 0 20px; }
+.moderation-badge,.announcement-card small { color:var(--text-secondary,#bbb); font-size:.85rem; }
+.moderation-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.moderation-actions a { padding:12px 16px; border:1px solid var(--border-color,#333); border-radius:12px; text-decoration:none; }
+.moderation-actions button { margin:0; border-radius:12px; }
+.announcement-form { display:grid; gap:18px; }
+.announcement-form label { display:grid; gap:8px; }
+.announcement-form input,.announcement-form textarea { box-sizing:border-box; width:100%; }
+.announcement-card .post-text { white-space:pre-wrap; line-height:1.6; margin-bottom:16px; }
+.forgot-password { display:block; text-align:center; margin:16px 0; }
+#announcementButton[hidden] { display:none; }
+
+.post .user-profile-box a { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; color:var(--text-primary); box-sizing:border-box; }
+a.post-time { text-decoration:none; }
+a.post-time:hover { text-decoration:underline; }

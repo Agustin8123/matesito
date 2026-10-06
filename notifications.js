@@ -3,8 +3,9 @@ module.exports = function mountNotifications(app, { db, requireAuth }) {
         if (String(req.user.id) !== req.params.user_id) return res.status(403).json({ error: 'Acceso denegado' });
         try {
             const result = await db.query(`SELECT n.id,n.tipo,n.referencia_id,n.chat_or_group_id,n.leido,n.reaction_id,
-                actor.username AS actor, COALESCE(f.name,g.name,peer.username,p.username,'Publicación') AS nombre
+                a.title AS announcement_title,a.body AS announcement_body, actor.username AS actor, COALESCE(f.name,g.name,peer.username,p.username,'Publicación') AS nombre
                 FROM notificaciones n
+                LEFT JOIN announcements a ON n.tipo='anuncio' AND a.id::text=n.referencia_id
                 LEFT JOIN mensajes m ON m.id=n.referencia_id AND m.chat_or_group_id=n.chat_or_group_id
                 LEFT JOIN posts p ON p.id::text=n.referencia_id AND n.chat_or_group_id='P-'||p.id::text
                 LEFT JOIN foros f ON m.chat_or_group_id='F-'||f.id::text
@@ -16,7 +17,7 @@ module.exports = function mountNotifications(app, { db, requireAuth }) {
                 AND NOT EXISTS (SELECT 1 FROM user_blocks b WHERE
                     (b.user_id=$1 AND b.blocked_id=COALESCE(n.actor_id,m.sender_id)) OR
                     (b.blocked_id=$1 AND b.user_id=COALESCE(n.actor_id,m.sender_id)))
-                AND ((p.id IS NOT NULL AND n.tipo='reaccion')
+                AND ((a.id IS NOT NULL AND n.tipo='anuncio') OR (p.id IS NOT NULL AND n.tipo='reaccion')
                     OR (f.id IS NOT NULL AND m.is_private IS NOT TRUE)
                     OR (c.id IS NOT NULL AND (c.user1_id=$1 OR c.user2_id=$1))
                     OR (g.id IS NOT NULL AND (g.owner_id=$1 OR EXISTS(SELECT 1 FROM participantes WHERE user_id=$1 AND forum_or_group_id=g.id AND is_group=TRUE))

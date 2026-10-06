@@ -107,7 +107,11 @@ async function openModeration() {
                 try { await fetch('/api/moderation/' + row.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: type }) }).then(readResponse); item.remove(); }
                 catch (error) { notify(error.message, 'error'); }
             };
-            item.append(reason, link, menuButton('Descartar denuncia', () => action('dismiss')), menuButton('Eliminar publicación', () => action('remove'))); dialog.append(item);
+            const badge=document.createElement('span');badge.className='moderation-badge';badge.textContent='Pendiente de revisión';
+            const label=document.createElement('h3');label.textContent='Motivo de la denuncia';
+            const actions=document.createElement('div');actions.className='moderation-actions';
+            const remove=menuButton('Eliminar publicación',()=>action('remove'));remove.className='danger-action';
+            actions.append(link,menuButton('Descartar denuncia',()=>action('dismiss')),remove);item.append(badge,label,reason,actions);dialog.append(item);
         }
     } catch (error) { notify(error.message, 'error'); }
 }
@@ -134,4 +138,24 @@ async function refreshPublication({ id, deleted }) {
         previous.replaceWith(card); positionFeedCard(list, card);
     } catch (error) { if (error.name !== 'AbortError') notify('No se pudo actualizar una publicación. Podés recargarla.', 'error'); }
     finally { if (publicationRefreshes.get(String(id)) === request) publicationRefreshes.delete(String(id)); }
+}
+
+function openAnnouncement() {
+ const dialog=communityDialog('Aviso para toda la comunidad');
+ const help=document.createElement('p');help.textContent='Todas las cuentas actuales recibirán este aviso en sus notificaciones.';
+ const form=document.createElement('form');form.className='announcement-form';
+ const titleLabel=document.createElement('label');titleLabel.textContent='Título';const title=document.createElement('input');title.maxLength=120;title.required=true;titleLabel.append(title);
+ const bodyLabel=document.createElement('label');bodyLabel.textContent='Mensaje';const body=document.createElement('textarea');body.maxLength=5000;body.required=true;body.rows=6;bodyLabel.append(body);
+ const preview=document.createElement('article');preview.className='announcement-card';preview.hidden=true;
+ const submit=document.createElement('button');submit.textContent='Revisar aviso';submit.type='submit';
+ let requestId=crypto.randomUUID(), reviewed=false;
+ form.addEventListener('input',()=>{reviewed=false;requestId=crypto.randomUUID();preview.hidden=true;submit.textContent='Revisar aviso';});
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(!reviewed){const heading=document.createElement('h3');heading.textContent=title.value;const content=document.createElement('div');content.className='post-text';content.innerHTML=linkifyPost(body.value);preview.replaceChildren(heading,content);preview.hidden=false;reviewed=true;submit.textContent='Enviar a todas las cuentas';return;}
+  submit.disabled=true;
+  try {const result=await fetch('/api/announcements',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:title.value,body:body.value,requestId})}).then(readResponse);dialog.close();notify(result.message,'success');}
+  catch(error){notify(error.message,'error');}finally{submit.disabled=false;}
+ });
+ form.append(titleLabel,bodyLabel,preview,submit);dialog.append(help,form);dialog.showModal();title.focus();
 }

@@ -213,4 +213,15 @@ BEGIN
 EXCEPTION WHEN invalid_text_representation OR invalid_parameter_value THEN RETURN false;
 END;
 $$;
+CREATE TABLE IF NOT EXISTS account_recovery (
+ user_id integer PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+ questions jsonb NOT NULL CHECK(jsonb_array_length(questions)=3),
+ answer_hashes jsonb NOT NULL CHECK(jsonb_array_length(answer_hashes)=3),
+ version uuid NOT NULL, attempts integer NOT NULL DEFAULT 0,
+ blocked_until timestamptz
+);
+CREATE TABLE IF NOT EXISTS announcements (
+ id uuid PRIMARY KEY, author_id integer REFERENCES users(id) ON DELETE SET NULL,
+ title text NOT NULL, body text NOT NULL, created_at timestamptz NOT NULL DEFAULT now()
+);
 COMMIT;

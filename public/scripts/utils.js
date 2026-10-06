@@ -96,7 +96,8 @@ function activateUser(username) {
 
     if (typeof updateUserButton === 'function') updateUserButton();
     if (typeof HideOverlays === 'function') HideOverlays();
-    if (typeof loadposts === 'function') loadposts(loadAll);
+    if (typeof loadCurrentRoute === 'function') loadCurrentRoute();
+    else if (typeof loadposts === 'function') loadposts(loadAll);
     if (typeof obtenerNotificaciones === 'function') obtenerNotificaciones();
 
     return data;

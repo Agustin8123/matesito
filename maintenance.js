@@ -24,7 +24,7 @@ async function main() {
                 await client.query('BEGIN');
                 const locked = await client.query('SELECT name FROM media_assets WHERE name=$1 FOR UPDATE', [name]);
                 if (!locked.rows.length || !(await client.query(`SELECT 1 FROM media_assets a WHERE name=$1 AND ${unused}`, [name])).rows.length) { await client.query('ROLLBACK'); continue; }
-                for (const suffix of ['', '.384.webp', '.960.webp']) {
+                for (const suffix of ['', '.384.webp', '.960.webp', '.poster.jpg']) {
                     const target = path.resolve(root, name + suffix);
                     if (path.dirname(target) !== root) throw new Error('Ruta fuera del almacenamiento');
                     await fs.unlink(target).catch(error => { if (error.code !== 'ENOENT') throw error; });

@@ -106,6 +106,13 @@ module.exports = function mountStorage(app, requireAuth, db) {
         res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
         next();
     }, require('./media-access').mediaAccess(db, requireAuth), async (req, res, next) => {
+        if (req.query.poster === '1') {
+            if (!/\.(mp4|webm|ogv)$/.test(req.path)) return res.status(404).end();
+            try {
+                const poster = await require('./video-preview')(path.join(root, req.path.slice(1)));
+                return res.sendFile(poster);
+            } catch { return res.status(404).end(); }
+        }
         if (!['384', '960'].includes(req.query.width)) return next();
         const variant = path.join(root, req.path.slice(1) + '.' + req.query.width + '.webp');
         try { await fs.promises.access(variant); res.sendFile(variant); } catch { next(); }

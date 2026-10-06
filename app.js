@@ -580,11 +580,21 @@ function mapPost(post) {
         media: post.media || null, mediaType: post.mediatype || null, created_at: post.created_at,
         profilePicture: post.profilepicture || null, sensitive: !!post.sensitive, reactionTotal: Number(post.reaction_total || 0) };
 }
+app.get('/api/public-feed/:id', optionalAuth, asyncRoute(async (req,res)=>{
+    const id=req.params.id;
+    if(!/^(?:F-)?[1-9]\d{0,14}$/.test(id)||(!id.startsWith('F-')&&Number(id)>2147483647))return res.status(404).json({error:'Publicación no encontrada.'});
+    const sql=id.startsWith('F-')
+      ? "SELECT t.id AS postid,t.content,t.media,t.media_type AS mediatype,t.created_at,t.sensitive,u.id AS userid,u.username,u.image AS profilepicture FROM mensajes t JOIN foros f ON t.chat_or_group_id='F-'||f.id::text JOIN users u ON u.id=t.sender_id WHERE t.id=$1 AND t.is_private IS NOT TRUE"
+      : 'SELECT t.id AS postid,t.username,t.content,t.media,t.mediatype,t.created_at,t.sensitive,u.id AS userid,u.image AS profilepicture FROM posts t LEFT JOIN users u ON u.username=t.username WHERE t.id=$1';
+    const result=await queryFeed(req,db,sql,[id],'postid');res.json(feedResponse(result,result.rows.map(mapPost)));
+}));
 for (const route of ['/posts', '/posts/user/:username']) app.get(route, optionalAuth, asyncRoute(async (req, res) => {
     const username = req.params.username;
+    const before=req.query.before;
+    if(before!==undefined && (typeof before!=='string'||!/^[1-9]\d{0,9}$/.test(before)||Number(before)>2147483647))return res.status(400).json({error:'Paginación inválida.'});
     const result = await queryFeed(req, db, `SELECT t.id AS postid, t.username, t.content, t.media, t.mediatype, t.created_at, t.sensitive,
         u.id AS userid, u.image AS profilepicture FROM posts t LEFT JOIN users u ON t.username = u.username
-        ${username ? 'WHERE t.username = $1' : ''} ORDER BY t.created_at DESC, t.id DESC`, username ? [username] : [], 'postid');
+        ${username ? 'WHERE t.username = $1' + (before ? ' AND t.id < $2' : '') : ''} ORDER BY t.created_at DESC, t.id DESC`, username ? (before ? [username,before] : [username]) : [], 'postid');
     res.json(feedResponse(result, result.rows.map(mapPost)));
 }));
 
@@ -1302,6 +1312,8 @@ async function emitPrivateUpdate(context, author, event, payload) {
 }
 
 require('./community-tools')(app, { db, requireAuth, reactionAccess, transaction, io, emitPrivateUpdate });
+require('./account-recovery')(app, { db, requireAuth, transaction, io, secret: authSecret });
+require('./announcements')(app, { db, requireAuth, transaction, io });
 
 app.post('/logout', (req, res) => {
     setAuthCookie(res, '', 0);

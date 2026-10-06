@@ -67,6 +67,7 @@ async function loginUser() {
     try {
         const user = await fetch('/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, token }) }).then(readResponse);
         await activateUser(user.username);
+        await loadRecoverySettings();
         document.getElementById('passwordInput1').value = '';
     } catch (error) { notify(error.message, 'error'); }
     finally { accountRequests.delete('login'); turnstile.reset(loginWidgetId); }
@@ -84,5 +85,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (response.status === 401) return;
         const user = await readResponse(response);
         await activateUser(user.username);
+        await loadRecoverySettings();
     } catch (error) { notify(error.message, 'error'); }
+});
+
+async function loadRecoverySettings() {
+ const data=await fetch('/api/account/recovery').then(readResponse);
+ data.questions.forEach((q,i)=>document.getElementById('recoveryQuestion'+(i+1)).value=q);
+ document.getElementById('recoveryStatus').textContent=data.questions.length?'Ya tenés preguntas guardadas. Para cambiarlas, completá las tres respuestas de nuevo.':'Todavía no configuraste la recuperación.';
+}
+document.getElementById('recoverySettings').addEventListener('submit',async event=>{
+ event.preventDefault(); const form=event.currentTarget,button=form.querySelector('button'); button.disabled=true;
+ try {
+  const data=await fetch('/api/account/recovery',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentPassword:document.getElementById('recoveryPassword').value,questions:[1,2,3].map(i=>document.getElementById('recoveryQuestion'+i).value),answers:[1,2,3].map(i=>document.getElementById('recoveryAnswer'+i).value)})}).then(readResponse);
+  [1,2,3].forEach(i=>document.getElementById('recoveryAnswer'+i).value='');document.getElementById('recoveryPassword').value='';document.getElementById('recoveryStatus').textContent=data.message;
+ }catch(error){notify(error.message,'error');}finally{button.disabled=false;}
 });
