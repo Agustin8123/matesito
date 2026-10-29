@@ -42,7 +42,7 @@ function prefixedLocation(location, target) {
 
 function rewriteHtml(source) {
     return source
-        .replace(/(href|src)=(['"])\//gi, '$1=$2/labs/octoprint/')
+        .replace(/(href|src)=(['"])\/(?!labs\/octoprint\/)/gi, '$1=$2/labs/octoprint/')
         .replace(/var\s+BASE_URL\s*=\s*(['"])\/\1/g, 'var BASE_URL = "/labs/octoprint/"')
         .replace(/var\s+REDIRECT_URL\s*=\s*(['"])\//g, 'var REDIRECT_URL = "/labs/octoprint/');
 }
