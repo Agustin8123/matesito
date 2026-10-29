@@ -29,6 +29,9 @@ function safeHeaders(headers, target) {
     const publicOrigin = new URL(process.env.PUBLIC_URL || `http://${headers.host || 'localhost'}`);
     result['x-forwarded-host'] = publicOrigin.host;
     result['x-forwarded-proto'] = publicOrigin.protocol.slice(0, -1);
+    result['x-forwarded-port'] = publicOrigin.port || (publicOrigin.protocol === 'https:' ? '443' : '80');
+    result['x-scheme'] = publicOrigin.protocol.slice(0, -1);
+    result['x-forwarded-for'] = headers['x-forwarded-for'] || headers['x-real-ip'] || '127.0.0.1';
     result['x-forwarded-prefix'] = '/labs/octoprint';
     result['x-script-name'] = '/labs/octoprint';
     result['x-api-key'] = process.env.LABS_OCTOPRINT_API_KEY;
@@ -53,13 +56,17 @@ module.exports = function labsProxy(req, res) {
     if (!target) return res.status(503).json({ error: 'El laboratorio todavía no está configurado en este servidor.' });
 
     const client = target.protocol === 'https:' ? https : http;
+    const parsedBody = req.body && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)
+        ? Buffer.from(JSON.stringify(req.body)) : null;
+    const headers = safeHeaders(req.headers, target);
+    if (parsedBody) headers['content-length'] = String(parsedBody.length);
     const upstream = client.request({
         protocol: target.protocol,
         hostname: target.hostname,
         port: target.port || undefined,
         method: req.method,
         path: req.url || '/',
-        headers: safeHeaders(req.headers, target),
+        headers,
         timeout: 15000
     }, upstreamResponse => {
         const headers = {};
@@ -89,5 +96,6 @@ module.exports = function labsProxy(req, res) {
         if (!res.headersSent) res.status(502).json({ error: 'No se pudo conectar con el laboratorio.' });
         else res.destroy();
     });
-    req.pipe(upstream);
+    if (parsedBody) upstream.end(parsedBody);
+    else req.pipe(upstream);
 };
