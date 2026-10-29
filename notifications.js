@@ -1,8 +1,4 @@
-module.exports = function mountNotifications(app, { db, requireAuth }) {
-    app.get('/notificaciones/:user_id', requireAuth, async (req, res, next) => {
-        if (String(req.user.id) !== req.params.user_id) return res.status(403).json({ error: 'Acceso denegado' });
-        try {
-            const result = await db.query(`SELECT n.id,n.tipo,n.referencia_id,n.chat_or_group_id,n.leido,n.reaction_id,
+const notificationSQL=`SELECT n.id,n.tipo,n.referencia_id,n.chat_or_group_id,n.leido,n.reaction_id,
                 a.title AS announcement_title,a.body AS announcement_body, actor.username AS actor, COALESCE(f.name,g.name,peer.username,p.username,'Publicación') AS nombre
                 FROM notificaciones n
                 LEFT JOIN announcements a ON n.tipo='anuncio' AND a.id::text=n.referencia_id
@@ -24,8 +20,15 @@ module.exports = function mountNotifications(app, { db, requireAuth }) {
                         AND (m.sender_id=$1 OR (EXISTS(SELECT 1 FROM participantes WHERE user_id=m.sender_id AND forum_or_group_id=g.id AND is_group=TRUE)
                             AND EXISTS(SELECT 1 FROM seguir WHERE follower_id=$1 AND followed_id=m.sender_id)
                             AND EXISTS(SELECT 1 FROM seguir WHERE followed_id=$1 AND follower_id=m.sender_id)))))
-                ORDER BY n.id DESC LIMIT 100`, [req.user.id]);
+                AND ($2::integer IS NULL OR n.id=$2) ORDER BY n.id DESC LIMIT 100`;
+module.exports = function mountNotifications(app, { db, requireAuth }) {
+    app.get('/notificaciones/:user_id', requireAuth, async (req, res, next) => {
+        if (String(req.user.id) !== req.params.user_id) return res.status(403).json({ error: 'Acceso denegado' });
+        try {
+            const result = await db.query(notificationSQL, [req.user.id,null]);
             res.json(result.rows);
         } catch (error) { next(error); }
     });
 };
+
+module.exports.readVisible = async (db,userId,id=null) => (await db.query(notificationSQL,[userId,id])).rows;

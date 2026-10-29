@@ -59,6 +59,10 @@ Después de migrar contraseñas a scrypt, una versión antigua que solo entienda
 
 El acceso al panel interno y /api/ups requiere una sesión cuyo ID figure en ADMIN_USER_IDS. No se publica información de ese panel en el changelog. El servidor atiende SIGTERM/SIGINT para cerrar conexiones y drenar peticiones; el proxy o supervisor debe conceder al menos quince segundos.
 
+### Laboratorio local
+
+`/labs` usa exactamente la misma sesión administradora que `/dashboard`. Para conectarlo a OctoPrint, el servidor de Matesito debe poder alcanzar su IP privada (por ejemplo mediante la misma LAN o una VPN) y su `.env` debe contener `LABS_OCTOPRINT_URL` y una `LABS_OCTOPRINT_API_KEY` limitada a los permisos necesarios. Ambas son obligatorias: así no aparece un segundo inicio de sesión dentro de la página. La clave y la dirección no se envían al navegador: Matesito hace de proxy autenticado, elimina las cookies de sus usuarios antes de reenviar la petición y no guarda las respuestas. Si el servidor público no forma parte de esa red, configurá primero una VPN privada entre ambos equipos; no expongas el puerto 5000 a Internet.
+
 Los límites de solicitudes están en memoria por proceso. Si se escala a varias instancias, complementarlos en el proxy o con un almacén compartido. Las consultas de búsqueda y orden por reacciones deben medirse con EXPLAIN ANALYZE sobre una copia representativa antes de añadir índices específicos; los resultados de una base vacía no sustituyen esa medición.
 
 ## Actualizar desde versiones anteriores a 1.3.0
@@ -152,3 +156,7 @@ Los IDs de `ADMIN_USER_IDS` ven «Enviar un aviso a toda la comunidad» dentro d
 Las miniaturas de videos locales se generan al solicitarlas, incluso para videos antiguos. Necesitan `ffmpeg` disponible en PATH o `FFMPEG_PATH` apuntando a su ejecutable (además de `ffprobe` para validar subidas). Se guardan junto al video como `.poster.jpg`, se consultan mediante la URL original con `?poster=1` y respetan los mismos permisos. Se eliminan con el archivo en el mantenimiento habitual. Para archivos remotos se solicita la carga inicial del video; Cloudinary continúa funcionando.
 
 Los perfiles y posts usan `/u/NOMBRE` y `/p/ID` dentro de la aplicación. Conservan HTML público y metadatos para buscadores, y al cargar JavaScript reutilizan los componentes y permisos del feed.
+
+### Notificaciones de Android
+
+El cliente nativo está en el proyecto hermano `matesito-app`. Aplicar este `schema.sql` antes de iniciar el servidor: añade dispositivos y cola de notificaciones. Configurar `FIREBASE_SERVICE_ACCOUNT_FILE` con la ruta privada al JSON de cuenta de servicio de Firebase; nunca colocarlo en `public` ni en la app. Sin esta variable el envío push permanece desactivado. Consultar `matesito-app/README.md` para configurar la app, permisos y firma. La cola respeta bloqueos, membresías y seguimiento mutuo en grupos y excluye sesiones vencidas o revocadas.

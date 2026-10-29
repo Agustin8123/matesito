@@ -56,6 +56,9 @@ CREATE TABLE IF NOT EXISTS user_reactions (
     user_id integer NOT NULL, post_id text NOT NULL, reaction_id integer NOT NULL
 );
 
+-- Se recrea al terminar para permitir reaplicar las conversiones históricas.
+DROP TRIGGER IF EXISTS notification_push_changed ON notificaciones;
+
 -- Columnas añadidas en refactors previos y 1.3.0.
 ALTER TABLE users ALTER COLUMN password TYPE text;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS image text;
@@ -224,4 +227,27 @@ CREATE TABLE IF NOT EXISTS announcements (
  id uuid PRIMARY KEY, author_id integer REFERENCES users(id) ON DELETE SET NULL,
  title text NOT NULL, body text NOT NULL, created_at timestamptz NOT NULL DEFAULT now()
 );
+CREATE TABLE IF NOT EXISTS push_devices (
+ token text PRIMARY KEY, user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ auth_version integer NOT NULL, expires_at timestamptz NOT NULL,
+ updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS push_devices_user_idx ON push_devices(user_id);
+CREATE TABLE IF NOT EXISTS push_jobs (
+ notification_id integer PRIMARY KEY REFERENCES notificaciones(id) ON DELETE CASCADE,
+ revision bigint NOT NULL DEFAULT 1, attempts integer NOT NULL DEFAULT 0,
+ available_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE OR REPLACE FUNCTION queue_notification_push() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.leido=FALSE AND EXISTS(SELECT 1 FROM push_devices d JOIN users u ON u.id=d.user_id
+  WHERE d.user_id=NEW.user_id AND d.auth_version=u.auth_version AND d.expires_at>now()) THEN
+  INSERT INTO push_jobs(notification_id) VALUES(NEW.id) ON CONFLICT(notification_id)
+  DO UPDATE SET revision=push_jobs.revision+1,attempts=0,available_at=now();
+ END IF;
+ RETURN NEW;
+END; $$;
+DROP TRIGGER IF EXISTS notification_push_changed ON notificaciones;
+CREATE TRIGGER notification_push_changed AFTER INSERT OR UPDATE OF reaction_id,leido ON notificaciones
+FOR EACH ROW EXECUTE FUNCTION queue_notification_push();
 COMMIT;

@@ -850,7 +850,7 @@ app.get('/grupo/:id', requireAuth, async (req, res) => {
         const owner = await db.query('SELECT 1 FROM grupos WHERE id = $1 AND owner_id = $2', [groupId, req.user.id]);
         if (!membership.rows.length && !owner.rows.length) return res.status(403).json({ error: 'No perteneces a este grupo' });
         // Consulta para obtener los detalles del grupo por ID
-        const query = 'SELECT name, description, invite_code FROM grupos WHERE id = $1';
+        const query = 'SELECT name, description, invite_code, owner_id FROM grupos WHERE id = $1';
         const result = await db.query(query, [groupId]);
 
         if (result.rows.length === 0) {
@@ -1203,7 +1203,8 @@ const internalOnly = (req,res,next) => requireAuth(req,res,() => {
     if (!admins.includes(String(req.user.id))) return res.status(403).json({ error:'Acceso restringido' });
     next();
 });
-app.use(['/api/ups', '/dashboard', '/dashboard.html', '/html/dashboard.html'], internalOnly);
+app.use(['/api/ups', '/dashboard', '/dashboard.html', '/html/dashboard.html', '/labs', '/labs.html', '/html/labs.html'], internalOnly);
+app.use('/labs/octoprint', internalOnly, require('./labs-proxy'));
 const stopMonitor = require.main === module ? require('./ups-monitor')(app) : () => {};
 app.get('/health/live', (req,res) => res.json({ status:'ok' }));
 app.get('/health/ready', async (req,res) => {
@@ -1224,7 +1225,7 @@ app.use((req,res,next) => {
     const html = page && renderPage(page);
     if (!html || !['GET','HEAD'].includes(req.method)) return next();
     const send = () => res.set('Cache-Control','no-cache').type('html').send(html);
-    if (page.toLowerCase() === 'dashboard') return internalOnly(req,res,send);
+    if (['dashboard', 'labs'].includes(page.toLowerCase())) return internalOnly(req,res,send);
     send();
 });
 for (const directory of ['', 'html', 'css', 'scripts', 'json']) {
@@ -1314,6 +1315,7 @@ async function emitPrivateUpdate(context, author, event, payload) {
 require('./community-tools')(app, { db, requireAuth, reactionAccess, transaction, io, emitPrivateUpdate });
 require('./account-recovery')(app, { db, requireAuth, transaction, io, secret: authSecret });
 require('./announcements')(app, { db, requireAuth, transaction, io });
+const stopPush = require('./push-notifications')(app, { db, requireAuth, getToken, secret: authSecret });
 
 app.post('/logout', (req, res) => {
     setAuthCookie(res, '', 0);
@@ -1343,6 +1345,7 @@ async function shutdown() {
     if (stopping) return; stopping = true;
     clearInterval(sessionAudit);
     stopMonitor();
+    stopPush();
     const deadline = setTimeout(() => process.exit(1), 15000); deadline.unref();
     io.close();
     server.close(async () => { await db.end(); clearTimeout(deadline); });

@@ -18,12 +18,9 @@
     <script src="/feedback.js" defer=""></script>
 <link rel="stylesheet" href="/index.css"><link rel="stylesheet" href="/modern.css"><link rel="stylesheet" href="/panels.css"></head>
 <body><aside class="sidebar" id="sidebar"><a class="brand" href="/" aria-label="Matesito, inicio"><img class="logo" src="/res/logo-dark.svg" alt="">matesito</a>
-    <nav class="sidebar-nav" aria-label="Navegación principal">
-        <button class="sidebar-nav-element active" onclick="navigateHome()"><img class="nav-ic" src="/res/sidebar-icons/home.svg" alt=""><span class="nav-text">Inicio</span></button>
-        <button class="sidebar-nav-element" onclick="toggleUserMenu()"><img class="nav-ic" src="/res/sidebar-icons/followers.svg" alt=""><span class="nav-text">Siguiendo</span></button>
-        <button class="sidebar-nav-element" onclick="toggleGruposMenu()"><img class="nav-ic" src="/res/sidebar-icons/chats.svg" alt=""><span class="nav-text">Chats y grupos</span></button>
-        <button class="sidebar-nav-element" onclick="toggleBell()" id="puntoNotificacion"><img class="nav-ic" src="/res/sidebar-icons/notifications.svg" alt="" id="iconoNotificacion"><span class="nav-text">Notificaciones</span></button>
-        <button class="sidebar-nav-element" onclick="toggleForumMenu()"><img class="nav-ic" src="/res/sidebar-icons/foros.svg" alt=""><span class="nav-text">Foros</span></button>
+    <nav class="sidebar-nav" aria-label="Panel interno">
+        <a class="sidebar-nav-element" href="/dashboard"><img class="nav-ic" src="/res/sidebar-icons/home.svg" alt=""><span class="nav-text">Estado del servidor</span></a>
+        <a class="sidebar-nav-element" href="/labs"><img class="nav-ic" src="/res/sidebar-icons/labs.svg" alt=""><span class="nav-text">Laboratorio</span></a>
     </nav>
     <nav class="document-links" aria-label="Sobre Matesito"><a href="/informacion.html">Información</a><a href="/versiones.html">Versiones</a><a href="/Ayuda.html">Ayuda</a><a href="/Terminos.html">Términos y privacidad</a><a href="/app.html">App para Android</a><a href="/cuenta.html">Mi cuenta</a></nav>
     <div class="sidebar-bottom"><button class="sidebar-nav-element theme-toggle" onclick="toggleTheme()"><span class="nav-ic" aria-hidden="true">◐</span><span class="nav-text">Modo claro</span></button>
